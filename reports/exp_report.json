@@ -1,0 +1,25 @@
+{
+  "run_id": "exp",
+  "stability_score": 1000000.0,
+  "mse": 0.0,
+  "phases": {
+    "initial_chaos": 0,
+    "adaptation": 0,
+    "convergence": 9
+  },
+  "anomalies": [],
+  "metrics": {
+    "stability_index": 1000000.0,
+    "mse": 0.0,
+    "energy_drift": 0.0,
+    "entropy_volatility": 0.0,
+    "memory_growth_rate": 0.9
+  },
+  "adaptation_speed_ticks": 0,
+  "raw_summary": {
+    "snapshots_count": 10,
+    "first_tick": 0,
+    "last_tick": 9,
+    "detected_anomalies_count": 0
+  }
+}
