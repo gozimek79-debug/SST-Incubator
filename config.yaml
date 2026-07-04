@@ -1,0 +1,5 @@
+﻿version: "0.1"
+database_url: "sqlite:///storage/clos.db"
+experiments_dir: "experiments"
+max_cycles: 10000
+save_interval: 100
