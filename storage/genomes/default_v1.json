@@ -1,0 +1,96 @@
+{
+  "id": "default_v1",
+  "name": "Default Genome v1",
+  "version": "0.1",
+  "description": "Standardowy genom dla CLOS v0.1",
+  "genes": {
+    "memory_capacity": {
+      "id": "memory_capacity",
+      "name": "Pojemność pamięci",
+      "dominance": "dominant",
+      "value": 100,
+      "min_value": 10.0,
+      "max_value": 1000.0,
+      "mutable": true,
+      "mutation_rate": 0.02,
+      "description": "Maksymalna liczba elementów w pamięci"
+    },
+    "learning_rate": {
+      "id": "learning_rate",
+      "name": "Tempo uczenia",
+      "dominance": "recessive",
+      "value": 0.1,
+      "min_value": 0.01,
+      "max_value": 1.0,
+      "mutable": true,
+      "mutation_rate": 0.05,
+      "description": "Szybkość adaptacji"
+    },
+    "prediction_depth": {
+      "id": "prediction_depth",
+      "name": "Głębokość predykcji",
+      "dominance": "co_dominant",
+      "value": 3,
+      "min_value": 1.0,
+      "max_value": 10.0,
+      "mutable": true,
+      "mutation_rate": 0.01,
+      "description": "Jak daleko w przyszłość Brain próbuje przewidywać"
+    },
+    "homeostasis_target": {
+      "id": "homeostasis_target",
+      "name": "Cel homeostazy",
+      "dominance": "recessive",
+      "value": 0.5,
+      "min_value": 0.0,
+      "max_value": 1.0,
+      "mutable": true,
+      "mutation_rate": 0.03,
+      "description": "Optymalny poziom homeostazy"
+    },
+    "plasticity": {
+      "id": "plasticity",
+      "name": "Plastyczność",
+      "dominance": "recessive",
+      "value": 0.8,
+      "min_value": 0.1,
+      "max_value": 1.0,
+      "mutable": true,
+      "mutation_rate": 0.04,
+      "description": "Zdolność do reorganizacji połączeń"
+    },
+    "decay_rate": {
+      "id": "decay_rate",
+      "name": "Tempo zanikania pamięci",
+      "dominance": "recessive",
+      "value": 0.01,
+      "min_value": 0.001,
+      "max_value": 0.1,
+      "mutable": true,
+      "mutation_rate": 0.02,
+      "description": "Jak szybko zanikają nieużywane ślady pamięciowe"
+    },
+    "attention_threshold": {
+      "id": "attention_threshold",
+      "name": "Próg uwagi",
+      "dominance": "recessive",
+      "value": 0.3,
+      "min_value": 0.0,
+      "max_value": 1.0,
+      "mutable": true,
+      "mutation_rate": 0.03,
+      "description": "Minimalny poziom istotności bodźca"
+    },
+    "meta_cognition_sensitivity": {
+      "id": "meta_cognition_sensitivity",
+      "name": "Czułość metapoznania",
+      "dominance": "co_dominant",
+      "value": 0.5,
+      "min_value": 0.1,
+      "max_value": 1.0,
+      "mutable": true,
+      "mutation_rate": 0.02,
+      "description": "Jak dokładnie Brain ocenia własną precyzję"
+    }
+  }
+}

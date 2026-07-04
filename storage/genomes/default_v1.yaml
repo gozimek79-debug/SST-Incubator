@@ -1,0 +1,88 @@
+description: Standardowy genom dla CLOS v0.1
+genes:
+  attention_threshold:
+    description: Minimalny poziom istotnoœci bodŸca
+    dominance: &id001 !!python/object/apply:genome.gene.Dominance
+    - recessive
+    id: attention_threshold
+    max_value: 1.0
+    min_value: 0.0
+    mutable: true
+    mutation_rate: 0.03
+    name: Próg uwagi
+    value: 0.3
+  decay_rate:
+    description: Jak szybko zanikaj¹ nieu¿ywane œlady pamiêciowe
+    dominance: *id001
+    id: decay_rate
+    max_value: 0.1
+    min_value: 0.001
+    mutable: true
+    mutation_rate: 0.02
+    name: Tempo zanikania pamiêci
+    value: 0.01
+  homeostasis_target:
+    description: Optymalny poziom homeostazy
+    dominance: *id001
+    id: homeostasis_target
+    max_value: 1.0
+    min_value: 0.0
+    mutable: true
+    mutation_rate: 0.03
+    name: Cel homeostazy
+    value: 0.5
+  learning_rate:
+    description: Szybkoœæ adaptacji
+    dominance: *id001
+    id: learning_rate
+    max_value: 1.0
+    min_value: 0.01
+    mutable: true
+    mutation_rate: 0.05
+    name: Tempo uczenia
+    value: 0.1
+  memory_capacity:
+    description: Maksymalna liczba elementów w pamiêci
+    dominance: !!python/object/apply:genome.gene.Dominance
+    - dominant
+    id: memory_capacity
+    max_value: 1000.0
+    min_value: 10.0
+    mutable: true
+    mutation_rate: 0.02
+    name: Pojemnoœæ pamiêci
+    value: 100
+  meta_cognition_sensitivity:
+    description: Jak dok³adnie Brain ocenia w³asn¹ precyzjê
+    dominance: &id002 !!python/object/apply:genome.gene.Dominance
+    - co_dominant
+    id: meta_cognition_sensitivity
+    max_value: 1.0
+    min_value: 0.1
+    mutable: true
+    mutation_rate: 0.02
+    name: Czu³oœæ metapoznania
+    value: 0.5
+  plasticity:
+    description: Zdolnoœæ do reorganizacji po³¹czeñ
+    dominance: *id001
+    id: plasticity
+    max_value: 1.0
+    min_value: 0.1
+    mutable: true
+    mutation_rate: 0.04
+    name: Plastycznoœæ
+    value: 0.8
+  prediction_depth:
+    description: Jak daleko w przysz³oœæ Brain próbuje przewidywaæ
+    dominance: *id002
+    id: prediction_depth
+    max_value: 10.0
+    min_value: 1.0
+    mutable: true
+    mutation_rate: 0.01
+    name: G³êbokoœæ predykcji
+    value: 3
+id: default_v1
+name: Default Genome v1
+version: '0.1'
