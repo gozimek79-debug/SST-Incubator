@@ -1,0 +1,25 @@
+{
+  "run_id": "adapt_test",
+  "stability_score": 33.0278,
+  "mse": 0.0029,
+  "phases": {
+    "initial_chaos": 0,
+    "adaptation": 0,
+    "convergence": 9
+  },
+  "anomalies": [],
+  "metrics": {
+    "stability_index": 33.0278,
+    "mse": 0.0029,
+    "energy_drift": -0.09,
+    "entropy_volatility": 0.0,
+    "memory_growth_rate": 0.9
+  },
+  "adaptation_speed_ticks": 0,
+  "raw_summary": {
+    "snapshots_count": 10,
+    "first_tick": 0,
+    "last_tick": 9,
+    "detected_anomalies_count": 0
+  }
+}
