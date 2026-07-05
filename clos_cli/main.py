@@ -15,6 +15,7 @@ def main():
     parser_demo = subparsers.add_parser("demo", help="Uruchom demonstrację pojedynczego eksperymentu")
     parser_demo.add_argument("--seed", type=int, default=42, help="Ziarno losowości (domyślnie 42)")
     parser_demo.add_argument("--ticks", type=int, default=200, help="Liczba ticków (domyślnie 200)")
+    parser_demo.add_argument("--stream", action="store_true", help="Emituj ticki jako JSONL na stdout")
 
     # Compare
     parser_compare = subparsers.add_parser("compare", help="Porównaj scenariusze STABLE vs SHOCK")
@@ -37,7 +38,8 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    route_command(args.command, args.seed, args.ticks)
+    stream_mode = getattr(args, "stream", False)
+    route_command(args.command, args.seed, args.ticks, stream_mode)
 
 
 if __name__ == "__main__":

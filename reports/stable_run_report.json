@@ -1,25 +1,25 @@
 {
   "run_id": "stable_run",
-  "stability_score": 5.4024,
-  "mse": 0.0001,
+  "stability_score": 2.2089,
+  "mse": 0.2303,
   "phases": {
     "initial_chaos": 0,
     "adaptation": 0,
-    "convergence": 19
+    "convergence": 41
   },
   "anomalies": [],
   "metrics": {
-    "stability_index": 5.4024,
-    "mse": 0.0001,
-    "energy_drift": -0.019,
-    "entropy_volatility": 0.1792,
-    "memory_growth_rate": 0.95
+    "stability_index": 2.2089,
+    "mse": 0.2303,
+    "energy_drift": -0.851,
+    "entropy_volatility": 0.1954,
+    "memory_growth_rate": 0.9967
   },
   "adaptation_speed_ticks": 0,
   "raw_summary": {
-    "snapshots_count": 20,
+    "snapshots_count": 300,
     "first_tick": 0,
-    "last_tick": 19,
+    "last_tick": 299,
     "detected_anomalies_count": 0
   }
 }

@@ -1,20 +1,15 @@
-﻿"""CLI Runner – pasywny przekazywacz do skryptów laboratoryjnych.
-
-NIE zawiera logiki domenowej.
-NIE modyfikuje argumentów.
-"""
+﻿"""CLI Runner – pasywny przekazywacz do skryptów laboratoryjnych."""
 
 import sys
 import os
 
-# Upewnij się, że katalog projektu jest w PYTHONPATH
 sys.path.insert(0, os.getcwd())
 
 
-def run_demo(seed: int, ticks: int):
+def run_demo(seed: int, ticks: int, stream: bool = False):
     """Uruchamia demo eksperymentu."""
     import run_demo
-    run_demo.main(seed=seed, ticks=ticks)
+    run_demo.main(seed=seed, ticks=ticks, stream=stream)
 
 
 def run_compare(seed: int, ticks: int):

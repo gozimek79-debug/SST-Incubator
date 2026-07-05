@@ -1,5 +1,8 @@
 ﻿"""Demo CLOS v0.1 – pojedynczy eksperyment."""
 
+import json
+import sys
+import logging
 from genome.engine import GenomeEngine
 from birth.engine import BirthEngine
 from clos_kernel.kernel import Kernel
@@ -11,25 +14,30 @@ from clos_scientist.reporter import format_text_report
 from clos_kernel.event_bus import EventBus
 
 
-def main(seed=42, ticks=200):
-    print("=" * 60)
-    print("CLOS v0.1 – DEMO EXPERIMENT")
-    print("=" * 60)
+def main(seed=42, ticks=200, stream=False):
+    if stream:
+        # Wycisz logi – tylko JSONL na stdout
+        logging.getLogger().setLevel(logging.ERROR)
 
-    # 1. Stwórz genom
-    print("\n[1] Creating genome...")
+    if not stream:
+        print("=" * 60)
+        print("CLOS v0.1 – DEMO EXPERIMENT")
+        print("=" * 60)
+        print(f"\n[1] Creating genome...")
+
     ge = GenomeEngine()
     genome = ge.create_genome("default")
-    print(f"    Genome: {genome.name} ({len(genome.genes)} genes)")
 
-    # 2. Narodziny Brain
-    print("\n[2] Birth of Brain...")
+    if not stream:
+        print(f"    Genome: {genome.name} ({len(genome.genes)} genes)")
+        print(f"\n[2] Birth of Brain...")
+
     be = BirthEngine(ge)
     brain_obj = be.create_from_genome(genome)
-    print(f"    Brain ID: {brain_obj.identity.brain_id}")
-    print(f"    Certificate:\n{brain_obj.certificate.display()}")
 
-    # 3. Stwórz BrainTissue
+    if not stream:
+        print(f"    Brain ID: {brain_obj.identity.brain_id}")
+
     tissue = BrainTissue(
         brain_id=brain_obj.identity.brain_id,
         genome_id=genome.id,
@@ -40,8 +48,9 @@ def main(seed=42, ticks=200):
         memory_capacity=int(brain_obj.expressed_genes.get("memory_capacity", 100)),
     )
 
-    # 4. Uruchom symulację
-    print(f"\n[3] Running simulation ({ticks} ticks, SHOCK_WORLD)...")
+    if not stream:
+        print(f"\n[3] Running simulation ({ticks} ticks, SHOCK_WORLD)...")
+
     kernel = Kernel(seed=seed)
     kernel.brain_id = tissue.brain_id
     kernel.max_ticks = ticks
@@ -60,23 +69,35 @@ def main(seed=42, ticks=200):
             age=tissue.age, step_counter=tissue.step_counter
         )
 
+        if stream:
+            tick_data = {
+                "event": "TICK",
+                "run_id": "demo_shock",
+                "tick": tick,
+                "timestamp": int(tissue.age),
+                "telemetry": {
+                    "entropy": round(tissue.entropy, 6),
+                    "energy": round(tissue.energy, 6),
+                    "precision": round(tissue.precision, 6),
+                    "memory_size": len(tissue.memory),
+                },
+                "phase": "running",
+                "anomaly": False,
+            }
+            print(json.dumps(tick_data), flush=True)
+
     kernel.stop()
 
-    # 5. Scientist – raport
-    print("\n[4] Generating Scientist report...")
-    snapshots = kernel.snapshot_engine.get_all_snapshots()
-    result = run_experiment("demo_shock", snapshots, EventBus().get_history())
-
-    # 6. Wyświetl raport
-    print("\n" + format_text_report(result.report))
-
-    # 7. Podsumowanie stanu Brain
-    print("\n[5] Final Brain state:")
-    print(tissue.summary())
-
-    print("\n" + "=" * 60)
-    print("DEMO COMPLETE")
-    print("=" * 60)
+    if not stream:
+        snapshots = kernel.snapshot_engine.get_all_snapshots()
+        result = run_experiment("demo_shock", snapshots, EventBus().get_history())
+        print("\n[4] Generating Scientist report...")
+        print("\n" + format_text_report(result.report))
+        print("\n[5] Final Brain state:")
+        print(tissue.summary())
+        print("\n" + "=" * 60)
+        print("DEMO COMPLETE")
+        print("=" * 60)
 
 
 if __name__ == "__main__":
