@@ -1,20 +1,11 @@
-﻿"""Komponenty Dashboardu – replay slider."""
+﻿"""Komponenty Dashboardu – replay slider (ASCII)."""
 
 from typing import Optional
 from clos_kernel.snapshot_engine import Snapshot
 
 
 def render_replay_slider(snapshot: Optional[Snapshot], min_tick: int, max_tick: int) -> str:
-    """Renderuje informację o aktualnym ticku.
-
-    Args:
-        snapshot: Aktualny snapshot.
-        min_tick: Minimalny tick.
-        max_tick: Maksymalny tick.
-
-    Returns:
-        Sformatowany tekst.
-    """
+    """Renderuje informację o aktualnym ticku."""
     if snapshot is None:
         return "REPLAY: No snapshot loaded"
 
@@ -22,10 +13,10 @@ def render_replay_slider(snapshot: Optional[Snapshot], min_tick: int, max_tick: 
     bar_width = 50
     pos = int(position * bar_width)
 
-    bar = "[" + "─" * pos + "●" + "─" * (bar_width - pos - 1) + "]"
+    bar = "[" + "-" * pos + "o" + "-" * (bar_width - pos - 1) + "]"
 
     lines = [
-        f"REPLAY – Tick {snapshot.tick} / {max_tick}",
+        f"REPLAY - Tick {snapshot.tick} / {max_tick}",
         bar,
         f"  Entropy: {snapshot.entropy:.4f}",
         f"  Energy:  {snapshot.energy:.4f}",

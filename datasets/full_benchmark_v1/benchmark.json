@@ -1,0 +1,61 @@
+{
+  "protocol_id": "full_benchmark_v1",
+  "total_runs": 5,
+  "statistics": {
+    "stability_index": {
+      "mean": 5.4024,
+      "median": 5.4024,
+      "std": 0.0,
+      "variance": 0.0,
+      "min": 5.4024,
+      "max": 5.4024,
+      "ci95_low": 5.4024,
+      "ci95_high": 5.4024,
+      "n": 5
+    },
+    "mse": {
+      "mean": 0.0001,
+      "median": 0.0001,
+      "std": 0.0,
+      "variance": 0.0,
+      "min": 0.0001,
+      "max": 0.0001,
+      "ci95_low": 0.0001,
+      "ci95_high": 0.0001,
+      "n": 5
+    },
+    "entropy_volatility": {
+      "mean": 0.1792,
+      "median": 0.1792,
+      "std": 0.0,
+      "variance": 0.0,
+      "min": 0.1792,
+      "max": 0.1792,
+      "ci95_low": 0.1792,
+      "ci95_high": 0.1792,
+      "n": 5
+    },
+    "energy_drift": {
+      "mean": -0.019,
+      "median": -0.019,
+      "std": 0.0,
+      "variance": 0.0,
+      "min": -0.019,
+      "max": -0.019,
+      "ci95_low": -0.019,
+      "ci95_high": -0.019,
+      "n": 5
+    },
+    "memory_growth_rate": {
+      "mean": 0.95,
+      "median": 0.95,
+      "std": 0.0,
+      "variance": 0.0,
+      "min": 0.95,
+      "max": 0.95,
+      "ci95_low": 0.95,
+      "ci95_high": 0.95,
+      "n": 5
+    }
+  }
+}

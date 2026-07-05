@@ -1,4 +1,4 @@
-﻿"""Komponenty Dashboardu – experiment selector i metadata."""
+﻿"""Komponenty Dashboardu – experiment selector i metadata (tylko ASCII)."""
 
 from typing import Dict, List, Any
 
@@ -47,23 +47,23 @@ def render_metadata_panel(report_dict: Dict[str, Any]) -> str:
 
 
 def render_phase_overlay(report_dict: Dict[str, Any], max_tick: int) -> str:
-    """Renderuje overlay faz na osi czasu."""
+    """Renderuje overlay faz na osi czasu (tylko ASCII)."""
     phases = report_dict.get("phases", {})
     lines = ["PHASE TIMELINE", "-" * 40]
 
     bar_width = min(max_tick + 1, 60)
-    timeline = ["─"] * bar_width
+    timeline = ["-"] * bar_width
 
     for phase_name, tick in phases.items():
         if tick >= 0 and max_tick > 0:
             pos = int(tick / max_tick * (bar_width - 1))
             if 0 <= pos < bar_width:
-                timeline[pos] = "│"
+                timeline[pos] = "|"
 
     lines.append("".join(timeline))
     lines.append("")
 
     for phase_name, tick in phases.items():
-        lines.append(f"  │ {phase_name}: tick {tick}")
+        lines.append(f"  | {phase_name}: tick {tick}")
 
     return "\n".join(lines)

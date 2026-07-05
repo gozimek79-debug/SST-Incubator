@@ -1,0 +1,18 @@
+{
+  "dataset_version": "0.1",
+  "protocol_version": "0.1",
+  "benchmark_version": "0.1",
+  "kernel_version": "0.1",
+  "brain_version": "0.1",
+  "scientist_version": "0.1",
+  "dashboard_version": "0.1",
+  "build_version": "0.1",
+  "git_commit": "",
+  "timestamp": "2026-07-05T22:21:58.867529",
+  "hash": "",
+  "seed_count": 5,
+  "scenario_count": 1,
+  "genome_count": 1,
+  "protocol_id": "full_benchmark_v1",
+  "dataset_name": "benchmark_v1"
+}

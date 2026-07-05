@@ -1,0 +1,25 @@
+{
+  "run_id": "stats_test_stable_world_seed5",
+  "stability_score": 2.634,
+  "mse": 0.0181,
+  "phases": {
+    "initial_chaos": 0,
+    "adaptation": 0,
+    "convergence": 41
+  },
+  "anomalies": [],
+  "metrics": {
+    "stability_index": 2.634,
+    "mse": 0.0181,
+    "energy_drift": -0.251,
+    "entropy_volatility": 0.3002,
+    "memory_growth_rate": 0.99
+  },
+  "adaptation_speed_ticks": 0,
+  "raw_summary": {
+    "snapshots_count": 100,
+    "first_tick": 0,
+    "last_tick": 99,
+    "detected_anomalies_count": 0
+  }
+}

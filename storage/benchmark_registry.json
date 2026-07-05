@@ -1,0 +1,54 @@
+{
+  "full_benchmark_v1": {
+    "benchmark_id": "full_benchmark_v1",
+    "protocol_id": "full_benchmark_v1",
+    "dataset_name": "benchmark_v1",
+    "total_runs": 5,
+    "statistics_summary": {
+      "stability_index": {
+        "mean": 5.4024,
+        "ci95_low": 5.4024,
+        "ci95_high": 5.4024
+      },
+      "mse": {
+        "mean": 0.0001,
+        "ci95_low": 0.0001,
+        "ci95_high": 0.0001
+      },
+      "entropy_volatility": {
+        "mean": 0.1792,
+        "ci95_low": 0.1792,
+        "ci95_high": 0.1792
+      },
+      "energy_drift": {
+        "mean": -0.019,
+        "ci95_low": -0.019,
+        "ci95_high": -0.019
+      },
+      "memory_growth_rate": {
+        "mean": 0.95,
+        "ci95_low": 0.95,
+        "ci95_high": 0.95
+      }
+    },
+    "regression_result": "PASS",
+    "manifest": {
+      "dataset_version": "0.1",
+      "protocol_version": "0.1",
+      "benchmark_version": "0.1",
+      "kernel_version": "0.1",
+      "brain_version": "0.1",
+      "scientist_version": "0.1",
+      "dashboard_version": "0.1",
+      "build_version": "0.1",
+      "git_commit": "",
+      "timestamp": "2026-07-05T22:21:58.867529",
+      "hash": "",
+      "seed_count": 5,
+      "scenario_count": 1,
+      "genome_count": 1,
+      "protocol_id": "full_benchmark_v1",
+      "dataset_name": "benchmark_v1"
+    }
+  }
+}

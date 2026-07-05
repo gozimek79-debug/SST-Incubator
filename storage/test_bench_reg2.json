@@ -1,0 +1,20 @@
+{
+  "a": {
+    "benchmark_id": "a",
+    "protocol_id": "a",
+    "dataset_name": "",
+    "total_runs": 0,
+    "statistics_summary": {},
+    "regression_result": "N/A",
+    "manifest": {}
+  },
+  "b": {
+    "benchmark_id": "b",
+    "protocol_id": "b",
+    "dataset_name": "",
+    "total_runs": 0,
+    "statistics_summary": {},
+    "regression_result": "N/A",
+    "manifest": {}
+  }
+}

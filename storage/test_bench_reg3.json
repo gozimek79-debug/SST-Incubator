@@ -1,0 +1,32 @@
+{
+  "a": {
+    "benchmark_id": "a",
+    "protocol_id": "a",
+    "dataset_name": "",
+    "total_runs": 5,
+    "statistics_summary": {
+      "mse": {
+        "mean": 0.1,
+        "ci95_low": 0.09,
+        "ci95_high": 0.11
+      }
+    },
+    "regression_result": "N/A",
+    "manifest": {}
+  },
+  "b": {
+    "benchmark_id": "b",
+    "protocol_id": "b",
+    "dataset_name": "",
+    "total_runs": 5,
+    "statistics_summary": {
+      "mse": {
+        "mean": 0.2,
+        "ci95_low": 0.18,
+        "ci95_high": 0.22
+      }
+    },
+    "regression_result": "N/A",
+    "manifest": {}
+  }
+}

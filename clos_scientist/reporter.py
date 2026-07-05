@@ -14,16 +14,7 @@ def generate_report(
     snapshots: List[Snapshot],
     output_dir: str = "reports"
 ) -> ExperimentReport:
-    """Generuje raport z eksperymentu.
-
-    Args:
-        run_id: ID eksperymentu.
-        snapshots: Lista snapshotów.
-        output_dir: Katalog na raporty.
-
-    Returns:
-        ExperimentReport.
-    """
+    """Generuje raport z eksperymentu."""
     metrics = compute_all_metrics(snapshots)
     phases = detect_phases(snapshots)
     anomalies = detect_anomalies(snapshots)
@@ -47,7 +38,6 @@ def generate_report(
         }
     )
 
-    # Zapisz jako JSON
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / f"{run_id}_report.json"
@@ -59,14 +49,7 @@ def generate_report(
 
 
 def format_text_report(report: ExperimentReport) -> str:
-    """Formatuje raport jako czytelny tekst.
-
-    Args:
-        report: Raport z eksperymentu.
-
-    Returns:
-        Sformatowany tekst raportu.
-    """
+    """Formatuje raport jako czytelny tekst (tylko ASCII)."""
     lines = [
         "=" * 60,
         f"EXPERIMENT REPORT: {report.run_id}",
@@ -101,7 +84,7 @@ def format_text_report(report: ExperimentReport) -> str:
         "",
         "--- RAW SUMMARY ---",
         f"  Snapshots: {report.raw_summary.get('snapshots_count', 0)}",
-        f"  Tick Range: {report.raw_summary.get('first_tick', 0)} → {report.raw_summary.get('last_tick', 0)}",
+        f"  Tick Range: {report.raw_summary.get('first_tick', 0)} -> {report.raw_summary.get('last_tick', 0)}",
         f"  Anomalies Count: {report.raw_summary.get('detected_anomalies_count', 0)}",
         "",
         "=" * 60

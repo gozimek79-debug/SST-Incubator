@@ -1,4 +1,4 @@
-﻿"""Komponenty Dashboardu – wykresy (tekstowe)."""
+﻿"""Komponenty Dashboardu – wykresy (tekstowe, tylko ASCII)."""
 
 from typing import List, Dict
 
@@ -19,7 +19,7 @@ def _render_chart(ticks: List[int], values: List[float], title: str, width: int,
     if not values:
         return f"{title}\nNo data"
 
-    lines = [f"{title} ({len(values)} points)", "─" * width]
+    lines = [f"{title} ({len(values)} points)", "-" * width]
 
     if len(values) <= 1:
         lines.append("Not enough data")
@@ -41,10 +41,10 @@ def _render_chart(ticks: List[int], values: List[float], title: str, width: int,
             break
         row = int((v - min_val) / val_range * (height - 1))
         row = max(0, min(height - 1, row))
-        chart[height - 1 - row][i] = "█"
+        chart[height - 1 - row][i] = "#"
 
     for row in chart:
         lines.append("".join(row))
 
-    lines.append(f"Range: [{min_val:.3f} – {max_val:.3f}]")
+    lines.append(f"Range: [{min_val:.3f} - {max_val:.3f}]")
     return "\n".join(lines)
