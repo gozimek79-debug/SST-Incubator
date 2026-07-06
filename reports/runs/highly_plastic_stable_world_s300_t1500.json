@@ -1,0 +1,17 @@
+{
+  "run_id": "highly_plastic_stable_world_s300",
+  "genome": "highly_plastic",
+  "scenario": "stable_world",
+  "seed": 300,
+  "ticks": 1500,
+  "stability_score": 3.3193,
+  "mse": 0.8491,
+  "entropy_volatility": 0.0485,
+  "energy_drift": -0.999,
+  "adaptation_tick": 10,
+  "convergence_tick": 1499,
+  "chaos_end": 0,
+  "memory_size": 6,
+  "final_entropy": 1.0,
+  "final_energy": 0.0
+}

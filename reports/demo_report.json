@@ -1,0 +1,25 @@
+{
+  "run_id": "demo",
+  "stability_score": 2.0663,
+  "mse": 0.8202,
+  "phases": {
+    "initial_chaos": 0,
+    "adaptation": 10,
+    "convergence": 1499
+  },
+  "anomalies": [],
+  "metrics": {
+    "stability_index": 2.0663,
+    "mse": 0.8202,
+    "energy_drift": -0.999,
+    "entropy_volatility": 0.195,
+    "memory_growth_rate": 0.9993
+  },
+  "adaptation_speed_ticks": 10,
+  "raw_summary": {
+    "snapshots_count": 1500,
+    "first_tick": 0,
+    "last_tick": 1499,
+    "detected_anomalies_count": 0
+  }
+}

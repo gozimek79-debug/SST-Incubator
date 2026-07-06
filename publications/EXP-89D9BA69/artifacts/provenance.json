@@ -1,0 +1,17 @@
+{
+  "experiment_id": "EXP-89D9BA69",
+  "parent_experiment": null,
+  "manifest_version": 1,
+  "genome": "default_v1,highly_plastic_v1",
+  "scenario": "stable_world,shock_world",
+  "seeds": [
+    100,
+    200,
+    300
+  ],
+  "ticks": 1500,
+  "clos_version": "0.6",
+  "cli_version": "0.1.1",
+  "git_commit": "",
+  "created_at": "2026-07-06T23:32:51.098466"
+}

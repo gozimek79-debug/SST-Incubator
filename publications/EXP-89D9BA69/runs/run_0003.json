@@ -1,0 +1,11 @@
+{
+  "run_id": "EXP-89D9BA69_default_shock_s100",
+  "genome": "default_v1",
+  "scenario": "shock_world",
+  "seed": 100,
+  "status": "COMPLETE",
+  "stability_score": 2.0604,
+  "mse": 0.8119,
+  "entropy_volatility": 0.1881,
+  "adaptation_tick": 10
+}

@@ -1,8 +1,6 @@
-﻿"""Demo CLOS v0.5 – z parametrem genome."""
+﻿"""Demo CLOS v0.6 – z parametrami genome i scenario, zapis JSON."""
 
-import json
-import sys
-import logging
+import json, sys, os, logging
 from genome.engine import GenomeEngine
 from birth.engine import BirthEngine
 from clos_kernel.kernel import Kernel
@@ -10,32 +8,17 @@ from clos_world.world_runtime import WorldRuntime
 from clos_brain.brain_runtime import BrainRuntime
 from clos_brain.tissue import BrainTissue
 from clos_scientist.experiment import run_experiment
-from clos_scientist.reporter import format_text_report
 from clos_kernel.event_bus import EventBus
 
 
-def main(seed=42, ticks=200, stream=False, genome_preset="default"):
+def main(seed=42, ticks=200, stream=False, genome_preset="default", scenario="shock_world"):
     if stream:
         logging.getLogger().setLevel(logging.ERROR)
 
-    if not stream:
-        print("=" * 60)
-        print("CLOS v0.5 – DEMO EXPERIMENT")
-        print("=" * 60)
-        print(f"\n[1] Creating genome ({genome_preset})...")
-
     ge = GenomeEngine()
     genome = ge.create_genome(genome_preset)
-
-    if not stream:
-        print(f"    Genome: {genome.name} ({len(genome.genes)} genes)")
-        print(f"\n[2] Birth of Brain...")
-
     be = BirthEngine(ge)
     brain_obj = be.create_from_genome(genome)
-
-    if not stream:
-        print(f"    Brain ID: {brain_obj.identity.brain_id}")
 
     tissue = BrainTissue(
         brain_id=brain_obj.identity.brain_id,
@@ -51,7 +34,7 @@ def main(seed=42, ticks=200, stream=False, genome_preset="default"):
     )
 
     if not stream:
-        print(f"\n[3] Running simulation ({ticks} ticks, SHOCK_WORLD)...")
+        print(f"[{genome_preset}] {scenario} seed={seed} ticks={ticks}")
 
     kernel = Kernel(seed=seed)
     kernel.brain_id = tissue.brain_id
@@ -62,7 +45,7 @@ def main(seed=42, ticks=200, stream=False, genome_preset="default"):
     brain_rt = BrainRuntime()
 
     for tick in range(ticks):
-        stimulus = world.step(tick=tick, seed=seed, scenario="shock_world")
+        stimulus = world.step(tick=tick, seed=seed, scenario=scenario)
         tissue = brain_rt.step(brain=tissue, sensory_input=stimulus, seed=seed, tick=tick)
         kernel.snapshot_engine.create_snapshot(
             brain_id=tissue.brain_id, tick=tick, seed=seed,
@@ -70,33 +53,53 @@ def main(seed=42, ticks=200, stream=False, genome_preset="default"):
             entropy=tissue.entropy, energy=tissue.energy,
             age=tissue.age, step_counter=tissue.step_counter
         )
-
         if stream:
-            tick_data = {
-                "event": "TICK", "run_id": "demo_shock", "tick": tick,
-                "timestamp": int(tissue.age),
-                "telemetry": {
-                    "entropy": round(tissue.entropy, 6),
-                    "energy": round(tissue.energy, 6),
-                    "precision": round(tissue.precision, 6),
-                    "memory_size": len(tissue.memory),
-                },
-                "phase": "running", "anomaly": False,
-            }
-            print(json.dumps(tick_data), flush=True)
+            print(json.dumps({
+                "event": "TICK", "run_id": "demo", "tick": tick,
+                "telemetry": {"entropy": round(tissue.entropy,6), "energy": round(tissue.energy,6)}
+            }), flush=True)
 
     kernel.stop()
 
+    # Scientist → zapis JSON bezpośrednio (ZADANIE 2: likwidacja parsera STDOUT)
+    snapshots = kernel.snapshot_engine.get_all_snapshots()
+    result = run_experiment("demo", snapshots, EventBus().get_history())
+
+    # Wyciągnij adaptation_tick z analyzer bezpośrednio
+    from clos_scientist.analyzer import detect_phases, compute_adaptation_speed
+    phases = detect_phases(snapshots)
+    adaptation_tick = phases.get("adaptation", compute_adaptation_speed(snapshots))
+    convergence_tick = phases.get("convergence", 0)
+    chaos_end = phases.get("initial_chaos", 0)
+
+    output = {
+        "run_id": f"{genome_preset}_{scenario}_s{seed}",
+        "genome": genome_preset,
+        "scenario": scenario,
+        "seed": seed,
+        "ticks": ticks,
+        "stability_score": round(result.report.stability_score, 4),
+        "mse": round(result.report.mse, 6),
+        "entropy_volatility": round(result.report.metrics.get("entropy_volatility", 0), 6),
+        "energy_drift": round(result.report.metrics.get("energy_drift", 0), 6),
+        "adaptation_tick": adaptation_tick,
+        "convergence_tick": convergence_tick,
+        "chaos_end": chaos_end,
+        "memory_size": len(tissue.memory),
+        "final_entropy": round(tissue.entropy, 6),
+        "final_energy": round(tissue.energy, 6),
+    }
+
+    # Zapisz do pliku JSON
+    output_dir = "reports/runs"
+    os.makedirs(output_dir, exist_ok=True)
+    json_path = f"{output_dir}/{genome_preset}_{scenario}_s{seed}_t{ticks}.json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2, ensure_ascii=False)
+
     if not stream:
-        snapshots = kernel.snapshot_engine.get_all_snapshots()
-        result = run_experiment("demo_shock", snapshots, EventBus().get_history())
-        print("\n[4] Generating Scientist report...")
-        print("\n" + format_text_report(result.report))
-        print("\n[5] Final Brain state:")
-        print(tissue.summary())
-        print("\n" + "=" * 60)
-        print("DEMO COMPLETE")
-        print("=" * 60)
+        print(json.dumps(output))
+    return output
 
 
 if __name__ == "__main__":

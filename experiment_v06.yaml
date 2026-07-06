@@ -1,0 +1,20 @@
+﻿schema_version: 1
+experiment:
+  id: sprint_v06_validation_1500
+  description: Sprint v0.6 validation - 1500 ticks, shock vs stable separation
+matrix:
+  genomes:
+    - default_v1
+    - highly_plastic_v1
+  scenarios:
+    - stable_world
+    - shock_world
+  seeds:
+    - 100
+    - 200
+    - 300
+ticks: 1500
+workflow_version: "0.6"
+parent_experiment: EXP-1C290805
+seed_policy: fixed
+publish_on_verify: true

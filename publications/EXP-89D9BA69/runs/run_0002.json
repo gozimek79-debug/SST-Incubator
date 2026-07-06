@@ -1,0 +1,11 @@
+{
+  "run_id": "EXP-89D9BA69_default_stable_s300",
+  "genome": "default_v1",
+  "scenario": "stable_world",
+  "seed": 300,
+  "status": "COMPLETE",
+  "stability_score": 2.8201,
+  "mse": 0.8415,
+  "entropy_volatility": 0.091,
+  "adaptation_tick": 40
+}

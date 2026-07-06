@@ -1,4 +1,4 @@
-﻿"""CLI Runner – z obsługą --genome."""
+﻿"""CLI Runner v0.6."""
 
 import sys, os
 sys.path.insert(0, os.getcwd())
@@ -17,18 +17,15 @@ def run_experiment(manifest_path: str):
     from clos_studio.cli.commands import run_experiment_from_manifest
     run_experiment_from_manifest(manifest_path)
 
-def run_demo(seed: int, ticks: int, stream: bool = False, genome: str = "default"):
+def run_demo(seed: int, ticks: int, stream: bool = False, genome: str = "default", scenario: str = "shock_world"):
     import run_demo
-    run_demo.main(seed=seed, ticks=ticks, stream=stream, genome_preset=genome)
+    return run_demo.main(seed=seed, ticks=ticks, stream=stream, genome_preset=genome, scenario=scenario)
 
 def run_compare(seed: int, ticks: int):
-    import run_compare
-    run_compare.main(seed=seed, ticks=ticks)
+    import run_compare; run_compare.main(seed=seed, ticks=ticks)
 
 def run_benchmark(seed: int, ticks: int):
-    import run_benchmark
-    run_benchmark.main(seed=seed, ticks=ticks)
+    import run_benchmark; run_benchmark.main(seed=seed, ticks=ticks)
 
 def run_dashboard(seed: int, ticks: int):
-    import run_dashboard
-    run_dashboard.main(seed=seed, ticks=ticks)
+    import run_dashboard; run_dashboard.main(seed=seed, ticks=ticks)
