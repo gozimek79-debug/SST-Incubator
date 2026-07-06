@@ -1,0 +1,25 @@
+﻿schema_version: 1
+
+experiment:
+  id: research_matrix_v1
+  description: >
+    Full matrix: 2 genomes x 2 scenarios x 3 seeds.
+
+matrix:
+  genomes:
+    - default_v1
+    - highly_plastic_v1
+  scenarios:
+    - stable_world
+    - shock_world
+  seeds:
+    - 1
+    - 2
+    - 3
+
+ticks: 100
+
+workflow_version: "0.4"
+parent_experiment: null
+seed_policy: fixed
+publish_on_verify: true

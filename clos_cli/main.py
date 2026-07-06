@@ -1,4 +1,4 @@
-﻿"""CLOS Control Center – Unified Runtime Interface v0.1.1."""
+﻿"""CLOS Control Center – Unified Runtime Interface."""
 
 import argparse
 import sys
@@ -11,28 +11,34 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", help="Komendy")
 
-    # Run (nowa komenda – Experiment Studio)
+    # Run (Experiment Studio)
     parser_run = subparsers.add_parser("run", help="Uruchom eksperyment z manifestu")
-    parser_run.add_argument("manifest", help="Ścieżka do pliku manifestu (.yaml lub .json)")
+    parser_run.add_argument("manifest", help="Ścieżka do manifestu (.yaml/.json)")
+
+    # Run-Matrix (Research Matrix Core)
+    parser_matrix = subparsers.add_parser("run-matrix", help="Uruchom macierz eksperymentów")
+    parser_matrix.add_argument("manifest", help="Ścieżka do manifestu macierzy (.yaml)")
+
+    # Verify
+    parser_verify = subparsers.add_parser("verify-matrix", help="Zweryfikuj eksperyment")
+    parser_verify.add_argument("experiment_id", help="ID eksperymentu")
 
     # Demo
-    parser_demo = subparsers.add_parser("demo", help="Uruchom demonstrację")
+    parser_demo = subparsers.add_parser("demo", help="Demonstracja")
     parser_demo.add_argument("--seed", type=int, default=42)
     parser_demo.add_argument("--ticks", type=int, default=200)
     parser_demo.add_argument("--stream", action="store_true")
 
-    # Compare
-    parser_compare = subparsers.add_parser("compare", help="Porównaj scenariusze")
+    # Compare, Benchmark, Dashboard
+    parser_compare = subparsers.add_parser("compare")
     parser_compare.add_argument("--seed", type=int, default=42)
     parser_compare.add_argument("--ticks", type=int, default=300)
 
-    # Benchmark
-    parser_bench = subparsers.add_parser("benchmark", help="Uruchom benchmark")
+    parser_bench = subparsers.add_parser("benchmark")
     parser_bench.add_argument("--seed", type=int, default=42)
     parser_bench.add_argument("--ticks", type=int, default=200)
 
-    # Dashboard
-    parser_dash = subparsers.add_parser("dashboard", help="Dashboard")
+    parser_dash = subparsers.add_parser("dashboard")
     parser_dash.add_argument("--seed", type=int, default=42)
     parser_dash.add_argument("--ticks", type=int, default=100)
 
@@ -44,10 +50,11 @@ def main():
 
     stream_mode = getattr(args, "stream", False)
 
-    if args.command == "run":
-        route_command("run", 0, 0, manifest=getattr(args, "manifest", ""))
+    if args.command in ("run", "run-matrix"):
+        manifest_path = getattr(args, "manifest", "")
+        route_command(args.command, 0, 0, manifest=manifest_path)
     else:
-        route_command(args.command, args.seed, args.ticks, stream_mode)
+        route_command(args.command, getattr(args, "seed", 42), getattr(args, "ticks", 200), stream_mode)
 
 
 if __name__ == "__main__":

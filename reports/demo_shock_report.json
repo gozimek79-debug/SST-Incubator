@@ -1,7 +1,7 @@
 {
   "run_id": "demo_shock",
-  "stability_score": 2.5819,
-  "mse": 0.0041,
+  "stability_score": 1.9721,
+  "mse": 0.0075,
   "phases": {
     "initial_chaos": 0,
     "adaptation": 0,
@@ -9,10 +9,10 @@
   },
   "anomalies": [],
   "metrics": {
-    "stability_index": 2.5819,
-    "mse": 0.0041,
-    "energy_drift": -0.135,
-    "entropy_volatility": 0.3524,
+    "stability_index": 1.9721,
+    "mse": 0.0075,
+    "energy_drift": -0.183,
+    "entropy_volatility": 0.4536,
     "memory_growth_rate": 0.99
   },
   "adaptation_speed_ticks": 0,

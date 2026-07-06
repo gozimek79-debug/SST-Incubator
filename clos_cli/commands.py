@@ -1,11 +1,14 @@
-﻿"""CLI Command Router – bez logiki, tylko mapowanie."""
+﻿"""CLI Command Router."""
 
-from .runner import run_demo, run_compare, run_benchmark, run_dashboard
+from .runner import run_demo, run_compare, run_benchmark, run_dashboard, run_experiment, run_matrix
 
 
-def route_command(command: str, seed: int, ticks: int, stream: bool = False):
-    """Przekierowuje komendę do odpowiedniej funkcji runnera."""
-    if command == "demo":
+def route_command(command: str, seed: int, ticks: int, stream: bool = False, manifest: str = ""):
+    if command == "run":
+        run_experiment(manifest)
+    elif command == "run-matrix":
+        run_matrix(manifest)
+    elif command == "demo":
         run_demo(seed, ticks, stream)
     elif command == "compare":
         run_compare(seed, ticks)
