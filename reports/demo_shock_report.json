@@ -1,25 +1,25 @@
 {
   "run_id": "demo_shock",
-  "stability_score": 165.1173,
-  "mse": 0.0,
+  "stability_score": 2.5819,
+  "mse": 0.0041,
   "phases": {
     "initial_chaos": 0,
     "adaptation": 0,
-    "convergence": 9
+    "convergence": 0
   },
   "anomalies": [],
   "metrics": {
-    "stability_index": 165.1173,
-    "mse": 0.0,
-    "energy_drift": -0.009,
-    "entropy_volatility": 0.003,
-    "memory_growth_rate": 0.9
+    "stability_index": 2.5819,
+    "mse": 0.0041,
+    "energy_drift": -0.135,
+    "entropy_volatility": 0.3524,
+    "memory_growth_rate": 0.99
   },
   "adaptation_speed_ticks": 0,
   "raw_summary": {
-    "snapshots_count": 10,
+    "snapshots_count": 100,
     "first_tick": 0,
-    "last_tick": 9,
+    "last_tick": 99,
     "detected_anomalies_count": 0
   }
 }

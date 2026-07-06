@@ -1,25 +1,25 @@
 {
   "run_id": "dash_demo_stable_world_seed42",
-  "stability_score": 2.634,
-  "mse": 0.0181,
+  "stability_score": 2.8046,
+  "mse": 0.0025,
   "phases": {
     "initial_chaos": 0,
     "adaptation": 0,
-    "convergence": 41
+    "convergence": 49
   },
   "anomalies": [],
   "metrics": {
-    "stability_index": 2.634,
-    "mse": 0.0181,
-    "energy_drift": -0.251,
-    "entropy_volatility": 0.3002,
-    "memory_growth_rate": 0.99
+    "stability_index": 2.8046,
+    "mse": 0.0025,
+    "energy_drift": -0.101,
+    "entropy_volatility": 0.3252,
+    "memory_growth_rate": 0.98
   },
   "adaptation_speed_ticks": 0,
   "raw_summary": {
-    "snapshots_count": 100,
+    "snapshots_count": 50,
     "first_tick": 0,
-    "last_tick": 99,
+    "last_tick": 49,
     "detected_anomalies_count": 0
   }
 }

@@ -5,8 +5,8 @@
   "genome_preset": "default",
   "report": {
     "run_id": "full_benchmark_v1_stable_world_seed1",
-    "stability_score": 2.4858,
-    "mse": 0.0942,
+    "stability_score": 2.634,
+    "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
       "adaptation": 0,
@@ -14,17 +14,17 @@
     },
     "anomalies": [],
     "metrics": {
-      "stability_index": 2.4858,
-      "mse": 0.0942,
-      "energy_drift": -0.551,
-      "entropy_volatility": 0.2329,
-      "memory_growth_rate": 0.995
+      "stability_index": 2.634,
+      "mse": 0.0181,
+      "energy_drift": -0.251,
+      "entropy_volatility": 0.3002,
+      "memory_growth_rate": 0.99
     },
     "adaptation_speed_ticks": 0,
     "raw_summary": {
-      "snapshots_count": 200,
+      "snapshots_count": 100,
       "first_tick": 0,
-      "last_tick": 199,
+      "last_tick": 99,
       "detected_anomalies_count": 0
     }
   }

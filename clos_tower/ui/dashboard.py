@@ -11,7 +11,7 @@ from clos_tower.integration.cli_bridge import run_demo_full
 def render():
     st.set_page_config(page_title="CLOS Control Tower", layout="wide")
     st.title("CLOS Control Tower v0.2")
-    st.caption("Live Observability Layer – Read Only")
+    st.caption("Live Observability Layer - Read Only")
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -36,20 +36,18 @@ def render():
     st.divider()
     st.subheader("Architecture")
     st.markdown("""
-USER -> Control Tower (Streamlit)
-|
-v
-FastAPI / WebSocket (read-only)
-|
-v
-CLI subprocess (JSONL stream)
-|
-v
-Kernel / Brain / World
-
-text
-""")
+    USER -> Control Tower (Streamlit)
+              |
+              v
+         FastAPI / WebSocket (read-only)
+              |
+              v
+         CLI subprocess (JSONL stream)
+              |
+              v
+         Kernel / Brain / World
+    """)
 
 
 if __name__ == "__main__":
-render()
+    render()

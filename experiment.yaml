@@ -1,0 +1,22 @@
+﻿schema_version: 1
+
+experiment:
+  id: cognitive_resilience_v1
+  description: >
+    Stability comparison across genomes and scenarios.
+
+matrix:
+  genomes:
+    - default_v1
+    - highly_plastic_v1
+  scenarios:
+    - stable_world
+    - shock_world
+  seeds:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+
+ticks: 100
