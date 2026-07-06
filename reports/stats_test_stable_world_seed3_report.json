@@ -4,8 +4,8 @@
   "mse": 0.0181,
   "phases": {
     "initial_chaos": 0,
-    "adaptation": 0,
-    "convergence": 41
+    "adaptation": 40,
+    "convergence": 99
   },
   "anomalies": [],
   "metrics": {
@@ -15,7 +15,7 @@
     "entropy_volatility": 0.3002,
     "memory_growth_rate": 0.99
   },
-  "adaptation_speed_ticks": 0,
+  "adaptation_speed_ticks": 40,
   "raw_summary": {
     "snapshots_count": 100,
     "first_tick": 0,

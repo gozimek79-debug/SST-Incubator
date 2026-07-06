@@ -5,7 +5,7 @@
     "mse": 0.0025,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 12,
       "convergence": 49
     },
     "anomalies": [],
@@ -16,7 +16,7 @@
       "entropy_volatility": 0.3252,
       "memory_growth_rate": 0.98
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 12,
     "raw_summary": {
       "snapshots_count": 50,
       "first_tick": 0,
@@ -30,7 +30,7 @@
     "mse": 0.0025,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 12,
       "convergence": 49
     },
     "anomalies": [],
@@ -41,7 +41,7 @@
       "entropy_volatility": 0.3252,
       "memory_growth_rate": 0.98
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 12,
     "raw_summary": {
       "snapshots_count": 50,
       "first_tick": 0,
@@ -55,7 +55,7 @@
     "mse": 0.0025,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 12,
       "convergence": 49
     },
     "anomalies": [],
@@ -66,7 +66,7 @@
       "entropy_volatility": 0.3252,
       "memory_growth_rate": 0.98
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 12,
     "raw_summary": {
       "snapshots_count": 50,
       "first_tick": 0,
@@ -80,8 +80,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -91,7 +91,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -105,8 +105,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -116,7 +116,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -130,8 +130,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -141,7 +141,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -155,8 +155,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -166,7 +166,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -180,8 +180,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -191,7 +191,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -205,8 +205,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -216,7 +216,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -230,8 +230,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -241,7 +241,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -255,8 +255,8 @@
     "mse": 0.0181,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
-      "convergence": 41
+      "adaptation": 40,
+      "convergence": 99
     },
     "anomalies": [],
     "metrics": {
@@ -266,7 +266,7 @@
       "entropy_volatility": 0.3002,
       "memory_growth_rate": 0.99
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 40,
     "raw_summary": {
       "snapshots_count": 100,
       "first_tick": 0,
@@ -280,7 +280,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -291,7 +291,7 @@
       "entropy_volatility": 0.1792,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,
@@ -305,7 +305,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -316,7 +316,7 @@
       "entropy_volatility": 0.1792,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,
@@ -330,7 +330,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -341,7 +341,7 @@
       "entropy_volatility": 0.1792,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,
@@ -355,7 +355,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -366,7 +366,7 @@
       "entropy_volatility": 0.1792,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,
@@ -380,7 +380,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -391,7 +391,7 @@
       "entropy_volatility": 0.1792,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,
@@ -405,7 +405,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -416,7 +416,7 @@
       "entropy_volatility": 0.1792,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,
@@ -430,7 +430,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -441,7 +441,7 @@
       "entropy_volatility": 0.1792,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,
@@ -455,7 +455,7 @@
     "mse": 0.0001,
     "phases": {
       "initial_chaos": 0,
-      "adaptation": 0,
+      "adaptation": 5,
       "convergence": 19
     },
     "anomalies": [],
@@ -466,7 +466,7 @@
       "entropy_volatility": 0.0059,
       "memory_growth_rate": 0.95
     },
-    "adaptation_speed_ticks": 0,
+    "adaptation_speed_ticks": 5,
     "raw_summary": {
       "snapshots_count": 20,
       "first_tick": 0,

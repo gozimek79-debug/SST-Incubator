@@ -6,7 +6,7 @@
     "phases": {
       "initial_chaos": 0,
       "adaptation": 0,
-      "convergence": 9
+      "convergence": 0
     },
     "anomalies": [],
     "metrics": {
@@ -31,7 +31,7 @@
     "phases": {
       "initial_chaos": 0,
       "adaptation": 0,
-      "convergence": 9
+      "convergence": 0
     },
     "anomalies": [],
     "metrics": {
