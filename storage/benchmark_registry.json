@@ -6,29 +6,29 @@
     "total_runs": 5,
     "statistics_summary": {
       "stability_index": {
-        "mean": 2.634,
-        "ci95_low": 2.634,
-        "ci95_high": 2.634
+        "mean": 5.4024,
+        "ci95_low": 5.4024,
+        "ci95_high": 5.4024
       },
       "mse": {
-        "mean": 0.0181,
-        "ci95_low": 0.0181,
-        "ci95_high": 0.0181
+        "mean": 0.0001,
+        "ci95_low": 0.0001,
+        "ci95_high": 0.0001
       },
       "entropy_volatility": {
-        "mean": 0.3002,
-        "ci95_low": 0.3002,
-        "ci95_high": 0.3002
+        "mean": 0.1792,
+        "ci95_low": 0.1792,
+        "ci95_high": 0.1792
       },
       "energy_drift": {
-        "mean": -0.251,
-        "ci95_low": -0.251,
-        "ci95_high": -0.251
+        "mean": -0.019,
+        "ci95_low": -0.019,
+        "ci95_high": -0.019
       },
       "memory_growth_rate": {
-        "mean": 0.99,
-        "ci95_low": 0.99,
-        "ci95_high": 0.99
+        "mean": 0.95,
+        "ci95_low": 0.95,
+        "ci95_high": 0.95
       }
     },
     "regression_result": "PASS",
@@ -42,7 +42,7 @@
       "dashboard_version": "0.1",
       "build_version": "0.1",
       "git_commit": "",
-      "timestamp": "2026-07-05T23:54:17.078962",
+      "timestamp": "2026-07-06T22:07:04.771372",
       "hash": "",
       "seed_count": 5,
       "scenario_count": 1,

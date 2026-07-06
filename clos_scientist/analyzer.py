@@ -1,55 +1,103 @@
-﻿"""Analyzer – detekcja faz poznawczych i anomalii.
-
-Model 3-fazowy: INITIAL CHAOS → ADAPTATION → CONVERGENCE.
-"""
+﻿"""Analyzer v2 – dynamiczny detektor faz na podstawie szeregów czasowych."""
 
 import math
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from clos_kernel.snapshot_engine import Snapshot
 
 
 def detect_phases(snapshots: List[Snapshot]) -> Dict[str, int]:
-    """Wykryj fazy w przebiegu eksperymentu.
+    """Wykryj fazy dynamicznie na podstawie entropii i energii.
+
+    - initial_chaos: tick 0 do momentu gdy entropy_volatility < próg
+    - adaptation: od spadku entropii do stabilizacji energii
+    - convergence: gdy MSE z 10 ticków stabilne (delta < 0.01)
 
     Args:
         snapshots: Lista snapshotów posortowana po ticku.
 
     Returns:
-        Słownik: {"initial_chaos": tick, "adaptation": tick, "convergence": tick}
+        Słownik z tickami przejść fazowych.
     """
-    if not snapshots:
+    if len(snapshots) < 20:
         return {"initial_chaos": 0, "adaptation": 0, "convergence": 0}
 
     entropies = [s.entropy for s in snapshots]
+    energies = [s.energy for s in snapshots]
 
-    # Faza 1: Initial Chaos – od tick 0
-    initial_chaos_tick = 0
+    # Faza 1: initial_chaos → trwa dopóki zmienność entropii jest wysoka
+    chaos_end = _find_chaos_end(entropies)
 
-    # Faza 2: Adaptation – gdy entropia zaczyna spadać
-    adaptation_tick = _find_adaptation_start(entropies)
+    # Faza 2: adaptation → od końca chaosu do stabilizacji energii
+    adaptation_start = chaos_end
+    adaptation_end = _find_adaptation_end(energies, adaptation_start)
 
-    # Faza 3: Convergence – gdy entropia się stabilizuje
-    convergence_tick = _find_convergence_start(entropies, adaptation_tick)
+    # Faza 3: convergence → od stabilizacji energii do końca
+    convergence_start = _find_convergence_start(entropies, adaptation_end)
 
     return {
-        "initial_chaos": initial_chaos_tick,
-        "adaptation": adaptation_tick,
-        "convergence": convergence_tick
+        "initial_chaos": 0,
+        "adaptation": adaptation_start if adaptation_start > 0 else _estimate_adaptation(entropies),
+        "convergence": convergence_start if convergence_start > adaptation_end else max(adaptation_end, len(snapshots) - 1),
     }
 
 
+def _find_chaos_end(entropies: List[float], window: int = 10, threshold: float = 0.02) -> int:
+    """Szuka punktu gdzie rolling std entropii spada poniżej progu."""
+    if len(entropies) < window * 2:
+        return 0
+
+    for t in range(window, len(entropies) - window):
+        segment = entropies[t:t + window]
+        if _std(segment) < threshold:
+            return t
+
+    return len(entropies) // 4
+
+
+def _find_adaptation_end(energies: List[float], start_tick: int, window: int = 10, threshold: float = 0.005) -> int:
+    """Szuka punktu gdzie dryft energii stabilizuje się (delta < threshold)."""
+    if start_tick >= len(energies) - window:
+        return len(energies) - 1
+
+    for t in range(start_tick, len(energies) - window):
+        segment = energies[t:t + window]
+        energy_range = max(segment) - min(segment)
+        if energy_range < threshold:
+            return t
+
+    return len(energies) - 1
+
+
+def _find_convergence_start(entropies: List[float], start_tick: int, window: int = 10, mse_threshold: float = 0.01) -> int:
+    """Szuka punktu gdzie MSE z ostatnich N ticków stabilne."""
+    if start_tick >= len(entropies) - window:
+        return len(entropies) - 1
+
+    for t in range(start_tick, len(entropies) - window):
+        segment = entropies[t:t + window]
+        mean_val = sum(segment) / len(segment)
+        mse_val = sum((v - mean_val) ** 2 for v in segment) / len(segment)
+        if mse_val < mse_threshold:
+            return t
+
+    return len(entropies) - 1
+
+
+def _estimate_adaptation(entropies: List[float]) -> int:
+    """Szacuje początek adaptacji jako pierwszy znaczący spadek entropii."""
+    if len(entropies) < 10:
+        return 0
+
+    max_entropy = max(entropies[:len(entropies)//2])
+    for t in range(len(entropies)//4, len(entropies)):
+        if entropies[t] < max_entropy * 0.8:
+            return t
+
+    return len(entropies) // 3
+
+
 def detect_anomalies(snapshots: List[Snapshot], threshold_sigma: float = 3.0) -> List[int]:
-    """Wykryj ticki anomalne.
-
-    Anomalia: wartość entropii > mean + threshold_sigma * std
-
-    Args:
-        snapshots: Lista snapshotów.
-        threshold_sigma: Próg w odchyleniach standardowych.
-
-    Returns:
-        Lista numerów ticków z anomaliami.
-    """
+    """Wykryj ticki anomalne."""
     if len(snapshots) < 3:
         return []
 
@@ -61,63 +109,16 @@ def detect_anomalies(snapshots: List[Snapshot], threshold_sigma: float = 3.0) ->
         return []
 
     threshold = mean + threshold_sigma * std
-    anomalies = []
-
-    for s in snapshots:
-        if s.entropy > threshold:
-            anomalies.append(s.tick)
-
-    return anomalies
+    return [s.tick for s in snapshots if s.entropy > threshold]
 
 
 def compute_adaptation_speed(snapshots: List[Snapshot]) -> int:
-    """Oszacuj tick, w którym system zaczął się adaptować.
-
-    Args:
-        snapshots: Lista snapshotów.
-
-    Returns:
-        Numer ticka rozpoczęcia adaptacji.
-    """
+    """Zwraca tick rozpoczęcia adaptacji."""
     if not snapshots:
         return 0
-
     entropies = [s.entropy for s in snapshots]
-    return _find_adaptation_start(entropies)
-
-
-def _find_adaptation_start(entropies: List[float], window: int = 10) -> int:
-    """Znajdź tick, gdzie entropia zaczyna spadać (początek adaptacji).
-
-    Szuka punktu gdzie: rolling_mean(entropy[t:t+window]) < rolling_mean(entropy[0:window])
-    """
-    if len(entropies) < window * 2:
-        return 0
-
-    initial_mean = sum(entropies[:window]) / window
-
-    for t in range(window, len(entropies) - window):
-        current_mean = sum(entropies[t:t + window]) / window
-        if current_mean < initial_mean * 0.9:
-            return t
-
-    return 0
-
-
-def _find_convergence_start(entropies: List[float], adaptation_tick: int, window: int = 20) -> int:
-    """Znajdź tick, gdzie entropia się stabilizuje (początek konwergencji).
-
-    Szuka punktu gdzie rolling_std < próg.
-    """
-    if len(entropies) < adaptation_tick + window:
-        return len(entropies) - 1 if entropies else 0
-
-    for t in range(adaptation_tick, len(entropies) - window):
-        segment = entropies[t:t + window]
-        if _std(segment) < 0.01:
-            return t
-
-    return len(entropies) - 1 if entropies else 0
+    phases = detect_phases(snapshots)
+    return phases.get("adaptation", _estimate_adaptation(entropies))
 
 
 def _std(values: List[float]) -> float:

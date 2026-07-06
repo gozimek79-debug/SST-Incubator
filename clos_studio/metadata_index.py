@@ -1,31 +1,23 @@
-﻿"""Metadata Index – SQLite jako lekki indeks laboratorium.
-
-Przechowuje tylko metadane, nie trajektorie ticków.
-"""
+﻿"""Metadata Index – SQLite jako lekki indeks laboratorium."""
 
 import sqlite3
 import json
 from pathlib import Path
-from datetime import datetime
 from typing import Dict, Any, List, Optional
 
 
 class MetadataIndex:
-    """Indeks metadanych eksperymentów."""
-
     def __init__(self, db_path: str = "storage/metadata_index.db"):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.conn: Optional[sqlite3.Connection] = None
 
     def connect(self):
-        """Nawiązuje połączenie i tworzy tabele."""
-        self.conn = sqlite3.connect(str(self.db_path))
+        self.conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self._create_tables()
 
     def _create_tables(self):
-        """Tworzy schemat bazy."""
         cursor = self.conn.cursor()
         cursor.executescript("""
             CREATE TABLE IF NOT EXISTS experiments (
@@ -51,18 +43,14 @@ class MetadataIndex:
                 FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id)
             );
 
-            CREATE INDEX IF NOT EXISTS idx_runs_experiment
-                ON runs(experiment_id);
-            CREATE INDEX IF NOT EXISTS idx_runs_genome
-                ON runs(genome);
-            CREATE INDEX IF NOT EXISTS idx_runs_scenario
-                ON runs(scenario);
+            CREATE INDEX IF NOT EXISTS idx_runs_experiment ON runs(experiment_id);
+            CREATE INDEX IF NOT EXISTS idx_runs_genome ON runs(genome);
+            CREATE INDEX IF NOT EXISTS idx_runs_scenario ON runs(scenario);
         """)
         self.conn.commit()
 
     def register_experiment(self, experiment_id: str, manifest_dict: Dict[str, Any],
                            workflow_version: str = "0.4", parent_experiment: Optional[str] = None):
-        """Rejestruje eksperyment w indeksie."""
         cursor = self.conn.cursor()
         cursor.execute(
             "INSERT OR REPLACE INTO experiments (experiment_id, workflow_version, parent_experiment, manifest_json) VALUES (?, ?, ?, ?)",
@@ -74,24 +62,20 @@ class MetadataIndex:
                     scenario: str, seed: int, ticks: int, workflow_version: str,
                     status: str = "pending", summary_metrics: Dict = None,
                     artifact_pointers: Dict = None):
-        """Rejestruje run w indeksie."""
         cursor = self.conn.cursor()
         cursor.execute(
             """INSERT OR REPLACE INTO runs
                (run_id, experiment_id, genome, scenario, seed, ticks,
                 workflow_version, status, summary_metrics, artifact_pointers)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                run_id, experiment_id, genome, scenario, seed, ticks,
-                workflow_version, status,
-                json.dumps(summary_metrics or {}),
-                json.dumps(artifact_pointers or {})
-            )
+            (run_id, experiment_id, genome, scenario, seed, ticks,
+             workflow_version, status,
+             json.dumps(summary_metrics or {}),
+             json.dumps(artifact_pointers or {}))
         )
         self.conn.commit()
 
     def get_experiment_runs(self, experiment_id: str) -> List[Dict[str, Any]]:
-        """Pobiera wszystkie runy dla eksperymentu."""
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT * FROM runs WHERE experiment_id = ? ORDER BY run_id",
@@ -100,7 +84,6 @@ class MetadataIndex:
         return [dict(row) for row in cursor.fetchall()]
 
     def get_run_count_by_status(self, experiment_id: str) -> Dict[str, int]:
-        """Zlicza runy wg statusu."""
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT status, COUNT(*) as cnt FROM runs WHERE experiment_id = ? GROUP BY status",
@@ -109,12 +92,10 @@ class MetadataIndex:
         return {row["status"]: row["cnt"] for row in cursor.fetchall()}
 
     def list_experiments(self) -> List[Dict[str, Any]]:
-        """Lista wszystkich eksperymentów."""
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM experiments ORDER BY created_at DESC")
         return [dict(row) for row in cursor.fetchall()]
 
     def close(self):
-        """Zamyka połączenie."""
         if self.conn:
             self.conn.close()

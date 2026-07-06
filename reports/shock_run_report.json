@@ -1,25 +1,25 @@
 {
   "run_id": "shock_run",
-  "stability_score": 1.8368,
-  "mse": 0.0184,
+  "stability_score": 84.5083,
+  "mse": 0.0001,
   "phases": {
     "initial_chaos": 0,
     "adaptation": 0,
-    "convergence": 0
+    "convergence": 19
   },
   "anomalies": [],
   "metrics": {
-    "stability_index": 1.8368,
-    "mse": 0.0184,
-    "energy_drift": -0.285,
-    "entropy_volatility": 0.4604,
-    "memory_growth_rate": 0.9933
+    "stability_index": 84.5083,
+    "mse": 0.0001,
+    "energy_drift": -0.019,
+    "entropy_volatility": 0.0059,
+    "memory_growth_rate": 0.95
   },
   "adaptation_speed_ticks": 0,
   "raw_summary": {
-    "snapshots_count": 150,
+    "snapshots_count": 20,
     "first_tick": 0,
-    "last_tick": 149,
+    "last_tick": 19,
     "detected_anomalies_count": 0
   }
 }

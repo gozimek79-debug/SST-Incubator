@@ -1,0 +1,12 @@
+{
+  "run_id": "EXP-3A59D747_default_shock_s3",
+  "status": "COMPLETE",
+  "config": {
+    "genome": "default_v1",
+    "scenario": "shock_world",
+    "seed": 3,
+    "ticks": 100,
+    "workflow_version": "0.4",
+    "parent_experiment": null
+  }
+}

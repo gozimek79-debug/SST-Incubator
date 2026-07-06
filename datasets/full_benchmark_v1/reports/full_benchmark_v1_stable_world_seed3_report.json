@@ -1,25 +1,25 @@
 {
   "run_id": "full_benchmark_v1_stable_world_seed3",
-  "stability_score": 2.634,
-  "mse": 0.0181,
+  "stability_score": 5.4024,
+  "mse": 0.0001,
   "phases": {
     "initial_chaos": 0,
     "adaptation": 0,
-    "convergence": 41
+    "convergence": 19
   },
   "anomalies": [],
   "metrics": {
-    "stability_index": 2.634,
-    "mse": 0.0181,
-    "energy_drift": -0.251,
-    "entropy_volatility": 0.3002,
-    "memory_growth_rate": 0.99
+    "stability_index": 5.4024,
+    "mse": 0.0001,
+    "energy_drift": -0.019,
+    "entropy_volatility": 0.1792,
+    "memory_growth_rate": 0.95
   },
   "adaptation_speed_ticks": 0,
   "raw_summary": {
-    "snapshots_count": 100,
+    "snapshots_count": 20,
     "first_tick": 0,
-    "last_tick": 99,
+    "last_tick": 19,
     "detected_anomalies_count": 0
   }
 }

@@ -1,0 +1,12 @@
+{
+  "run_id": "EXP-3A59D747_default_stable_s1",
+  "status": "COMPLETE",
+  "config": {
+    "genome": "default_v1",
+    "scenario": "stable_world",
+    "seed": 1,
+    "ticks": 100,
+    "workflow_version": "0.4",
+    "parent_experiment": null
+  }
+}
