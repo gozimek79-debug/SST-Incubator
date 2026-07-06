@@ -1,0 +1,13 @@
+adaptation_tick,entropy_volatility,genome,mse,run_id,scenario,seed,stability_score,status
+10,0.3633,default_v1,0.1385,EXP-1C290805_default_stable_s100,stable_world,100,1.7,COMPLETE
+10,0.318,default_v1,0.1265,EXP-1C290805_default_stable_s200,stable_world,200,1.8682,COMPLETE
+10,0.4021,default_v1,0.1085,EXP-1C290805_default_stable_s300,stable_world,300,1.6506,COMPLETE
+10,0.3633,default_v1,0.1385,EXP-1C290805_default_shock_s100,shock_world,100,1.7,COMPLETE
+10,0.318,default_v1,0.1265,EXP-1C290805_default_shock_s200,shock_world,200,1.8682,COMPLETE
+10,0.4021,default_v1,0.1085,EXP-1C290805_default_shock_s300,shock_world,300,1.6506,COMPLETE
+10,0.303,highly_plastic_v1,0.2054,EXP-1C290805_highly_plastic_stable_s100,stable_world,100,1.8005,COMPLETE
+10,0.2622,highly_plastic_v1,0.2287,EXP-1C290805_highly_plastic_stable_s200,stable_world,200,1.9256,COMPLETE
+10,0.3907,highly_plastic_v1,0.1613,EXP-1C290805_highly_plastic_stable_s300,stable_world,300,1.5933,COMPLETE
+10,0.303,highly_plastic_v1,0.2054,EXP-1C290805_highly_plastic_shock_s100,shock_world,100,1.8005,COMPLETE
+10,0.2622,highly_plastic_v1,0.2287,EXP-1C290805_highly_plastic_shock_s200,shock_world,200,1.9256,COMPLETE
+10,0.3907,highly_plastic_v1,0.1613,EXP-1C290805_highly_plastic_shock_s300,shock_world,300,1.5933,COMPLETE

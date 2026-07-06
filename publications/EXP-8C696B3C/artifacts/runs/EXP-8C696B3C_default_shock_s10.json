@@ -1,0 +1,11 @@
+{
+  "run_id": "EXP-8C696B3C_default_shock_s10",
+  "genome": "default_v1",
+  "scenario": "shock_world",
+  "seed": 10,
+  "status": "COMPLETE",
+  "stability_score": 5.1443,
+  "mse": 0.0034,
+  "entropy_volatility": 0.1654,
+  "adaptation_tick": 10
+}

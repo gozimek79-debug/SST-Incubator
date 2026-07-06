@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "experiment": {
+    "id": "sprint_v05_test",
+    "description": "Test after Sprint v0.5 fixes"
+  },
+  "matrix": {
+    "genomes": [
+      "default_v1",
+      "highly_plastic_v1"
+    ],
+    "scenarios": [
+      "stable_world",
+      "shock_world"
+    ],
+    "seeds": [
+      10,
+      20,
+      30
+    ]
+  },
+  "ticks": 100,
+  "workflow_version": "0.5",
+  "parent_experiment": "EXP-3A59D747",
+  "seed_policy": "fixed",
+  "publish_on_verify": true
+}

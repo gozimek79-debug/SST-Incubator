@@ -1,0 +1,11 @@
+{
+  "run_id": "EXP-1C290805_highly_plastic_stable_s200",
+  "genome": "highly_plastic_v1",
+  "scenario": "stable_world",
+  "seed": 200,
+  "status": "COMPLETE",
+  "stability_score": 1.9256,
+  "mse": 0.2287,
+  "entropy_volatility": 0.2622,
+  "adaptation_tick": 10
+}

@@ -1,0 +1,11 @@
+{
+  "run_id": "EXP-8C696B3C_highly_plastic_shock_s20",
+  "genome": "highly_plastic_v1",
+  "scenario": "shock_world",
+  "seed": 20,
+  "status": "COMPLETE",
+  "stability_score": 8.4176,
+  "mse": 0.0034,
+  "entropy_volatility": 0.0898,
+  "adaptation_tick": 10
+}

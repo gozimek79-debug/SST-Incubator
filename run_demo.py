@@ -1,4 +1,4 @@
-﻿"""Demo CLOS v0.1 – pojedynczy eksperyment."""
+﻿"""Demo CLOS v0.5 – z parametrem genome."""
 
 import json
 import sys
@@ -14,19 +14,18 @@ from clos_scientist.reporter import format_text_report
 from clos_kernel.event_bus import EventBus
 
 
-def main(seed=42, ticks=200, stream=False):
+def main(seed=42, ticks=200, stream=False, genome_preset="default"):
     if stream:
-        # Wycisz logi – tylko JSONL na stdout
         logging.getLogger().setLevel(logging.ERROR)
 
     if not stream:
         print("=" * 60)
-        print("CLOS v0.1 – DEMO EXPERIMENT")
+        print("CLOS v0.5 – DEMO EXPERIMENT")
         print("=" * 60)
-        print(f"\n[1] Creating genome...")
+        print(f"\n[1] Creating genome ({genome_preset})...")
 
     ge = GenomeEngine()
-    genome = ge.create_genome("default")
+    genome = ge.create_genome(genome_preset)
 
     if not stream:
         print(f"    Genome: {genome.name} ({len(genome.genes)} genes)")
@@ -46,6 +45,9 @@ def main(seed=42, ticks=200, stream=False):
         learning_rate=brain_obj.expressed_genes.get("learning_rate", 0.1),
         decay_rate=brain_obj.expressed_genes.get("decay_rate", 0.01),
         memory_capacity=int(brain_obj.expressed_genes.get("memory_capacity", 100)),
+        prediction_depth=int(brain_obj.expressed_genes.get("prediction_depth", 3)),
+        attention_threshold=brain_obj.expressed_genes.get("attention_threshold", 0.3),
+        meta_cognition_sensitivity=brain_obj.expressed_genes.get("meta_cognition_sensitivity", 0.5),
     )
 
     if not stream:
@@ -71,9 +73,7 @@ def main(seed=42, ticks=200, stream=False):
 
         if stream:
             tick_data = {
-                "event": "TICK",
-                "run_id": "demo_shock",
-                "tick": tick,
+                "event": "TICK", "run_id": "demo_shock", "tick": tick,
                 "timestamp": int(tissue.age),
                 "telemetry": {
                     "entropy": round(tissue.entropy, 6),
@@ -81,8 +81,7 @@ def main(seed=42, ticks=200, stream=False):
                     "precision": round(tissue.precision, 6),
                     "memory_size": len(tissue.memory),
                 },
-                "phase": "running",
-                "anomaly": False,
+                "phase": "running", "anomaly": False,
             }
             print(json.dumps(tick_data), flush=True)
 

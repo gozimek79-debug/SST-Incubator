@@ -1,0 +1,55 @@
+{
+  "experiment_id": "EXP-8C696B3C",
+  "files_analyzed": 1,
+  "total_runs": 12,
+  "summary_table": [
+    {
+      "GENOME": "default_v1",
+      "SCENARIO": "shock_world",
+      "MEAN_MSE": 0.0034,
+      "STD_MSE": 0.0,
+      "MEAN_STABILITY": 6.0878,
+      "MEAN_ADAPTATION_TICK": 10.0,
+      "RUNS": 3
+    },
+    {
+      "GENOME": "default_v1",
+      "SCENARIO": "stable_world",
+      "MEAN_MSE": 0.0034,
+      "STD_MSE": 0.0,
+      "MEAN_STABILITY": 6.0878,
+      "MEAN_ADAPTATION_TICK": 10.0,
+      "RUNS": 3
+    },
+    {
+      "GENOME": "highly_plastic_v1",
+      "SCENARIO": "shock_world",
+      "MEAN_MSE": 0.0034,
+      "STD_MSE": 0.0,
+      "MEAN_STABILITY": 6.0878,
+      "MEAN_ADAPTATION_TICK": 10.0,
+      "RUNS": 3
+    },
+    {
+      "GENOME": "highly_plastic_v1",
+      "SCENARIO": "stable_world",
+      "MEAN_MSE": 0.0034,
+      "STD_MSE": 0.0,
+      "MEAN_STABILITY": 6.0878,
+      "MEAN_ADAPTATION_TICK": 10.0,
+      "RUNS": 3
+    }
+  ],
+  "formatted_table": "GENOME                  SCENARIO          MEAN_MSE    STD_MSE     MEAN_STABILITY  MEAN_ADAPTATION_TICK  RUNS  \n--------------------------------------------------------------------------------------------------------------\ndefault_v1              shock_world       0.0034      0.0         6.0878          10.0                  3     \ndefault_v1              stable_world      0.0034      0.0         6.0878          10.0                  3     \nhighly_plastic_v1       shock_world       0.0034      0.0         6.0878          10.0                  3     \nhighly_plastic_v1       stable_world      0.0034      0.0         6.0878          10.0                  3     ",
+  "columns_found": [
+    "run_id",
+    "genome",
+    "scenario",
+    "seed",
+    "status",
+    "stability_score",
+    "mse",
+    "entropy_volatility",
+    "adaptation_tick"
+  ]
+}
