@@ -1,0 +1,17 @@
+{
+  "run_id": "highly_plastic_shock_world_s2",
+  "genome": "highly_plastic",
+  "scenario": "shock_world",
+  "seed": 2,
+  "ticks": 100,
+  "stability_score": 2.4675,
+  "mse": 0.0042,
+  "entropy_volatility": 0.3698,
+  "energy_drift": -0.137,
+  "adaptation_tick": 10,
+  "convergence_tick": 99,
+  "chaos_end": 0,
+  "memory_size": 12,
+  "final_entropy": 1.0,
+  "final_energy": 0.862
+}

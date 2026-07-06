@@ -1,0 +1,17 @@
+{
+  "run_id": "default_shock_world_s2",
+  "genome": "default",
+  "scenario": "shock_world",
+  "seed": 2,
+  "ticks": 100,
+  "stability_score": 6.9801,
+  "mse": 0.0034,
+  "entropy_volatility": 0.1143,
+  "energy_drift": -0.099,
+  "adaptation_tick": 10,
+  "convergence_tick": 99,
+  "chaos_end": 0,
+  "memory_size": 12,
+  "final_entropy": 0.390579,
+  "final_energy": 0.9
+}

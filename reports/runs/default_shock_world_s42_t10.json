@@ -1,0 +1,17 @@
+{
+  "run_id": "default_shock_world_s42",
+  "genome": "default",
+  "scenario": "shock_world",
+  "seed": 42,
+  "ticks": 10,
+  "stability_score": 165.1173,
+  "mse": 0.0,
+  "entropy_volatility": 0.003,
+  "energy_drift": -0.009,
+  "adaptation_tick": 0,
+  "convergence_tick": 0,
+  "chaos_end": 0,
+  "memory_size": 1,
+  "final_entropy": 0.01,
+  "final_energy": 0.99
+}

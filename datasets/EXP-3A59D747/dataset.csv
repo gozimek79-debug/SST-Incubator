@@ -1,13 +1,13 @@
-config,run_id,status
-"{""genome"": ""default_v1"", ""scenario"": ""stable_world"", ""seed"": 1, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_default_stable_s1,COMPLETE
-"{""genome"": ""default_v1"", ""scenario"": ""stable_world"", ""seed"": 2, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_default_stable_s2,COMPLETE
-"{""genome"": ""default_v1"", ""scenario"": ""stable_world"", ""seed"": 3, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_default_stable_s3,COMPLETE
-"{""genome"": ""default_v1"", ""scenario"": ""shock_world"", ""seed"": 1, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_default_shock_s1,COMPLETE
-"{""genome"": ""default_v1"", ""scenario"": ""shock_world"", ""seed"": 2, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_default_shock_s2,COMPLETE
-"{""genome"": ""default_v1"", ""scenario"": ""shock_world"", ""seed"": 3, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_default_shock_s3,COMPLETE
-"{""genome"": ""highly_plastic_v1"", ""scenario"": ""stable_world"", ""seed"": 1, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_highly_plastic_stable_s1,COMPLETE
-"{""genome"": ""highly_plastic_v1"", ""scenario"": ""stable_world"", ""seed"": 2, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_highly_plastic_stable_s2,COMPLETE
-"{""genome"": ""highly_plastic_v1"", ""scenario"": ""stable_world"", ""seed"": 3, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_highly_plastic_stable_s3,COMPLETE
-"{""genome"": ""highly_plastic_v1"", ""scenario"": ""shock_world"", ""seed"": 1, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_highly_plastic_shock_s1,COMPLETE
-"{""genome"": ""highly_plastic_v1"", ""scenario"": ""shock_world"", ""seed"": 2, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_highly_plastic_shock_s2,COMPLETE
-"{""genome"": ""highly_plastic_v1"", ""scenario"": ""shock_world"", ""seed"": 3, ""ticks"": 100, ""workflow_version"": ""0.4"", ""parent_experiment"": null}",EXP-3A59D747_highly_plastic_shock_s3,COMPLETE
+adaptation_tick,entropy_volatility,genome,mse,run_id,scenario,seed,stability_score,status
+40,0.3002,default_v1,0.0181,EXP-3A59D747_default_stable_s1,stable_world,1,2.634,COMPLETE
+40,0.3002,default_v1,0.0181,EXP-3A59D747_default_stable_s2,stable_world,2,2.634,COMPLETE
+40,0.3002,default_v1,0.0181,EXP-3A59D747_default_stable_s3,stable_world,3,2.634,COMPLETE
+10,0.2198,default_v1,0.0034,EXP-3A59D747_default_shock_s1,shock_world,1,4.0189,COMPLETE
+10,0.1143,default_v1,0.0034,EXP-3A59D747_default_shock_s2,shock_world,2,6.9801,COMPLETE
+10,0.2523,default_v1,0.0034,EXP-3A59D747_default_shock_s3,shock_world,3,3.555,COMPLETE
+10,0.1827,highly_plastic_v1,0.0264,EXP-3A59D747_highly_plastic_stable_s1,stable_world,1,3.7168,COMPLETE
+10,0.1827,highly_plastic_v1,0.0264,EXP-3A59D747_highly_plastic_stable_s2,stable_world,2,3.7168,COMPLETE
+10,0.1827,highly_plastic_v1,0.0264,EXP-3A59D747_highly_plastic_stable_s3,stable_world,3,3.7168,COMPLETE
+10,0.4304,highly_plastic_v1,0.0122,EXP-3A59D747_highly_plastic_shock_s1,shock_world,1,2.0049,COMPLETE
+10,0.3698,highly_plastic_v1,0.0042,EXP-3A59D747_highly_plastic_shock_s2,shock_world,2,2.4675,COMPLETE
+10,0.464,highly_plastic_v1,0.0119,EXP-3A59D747_highly_plastic_shock_s3,shock_world,3,1.8812,COMPLETE
