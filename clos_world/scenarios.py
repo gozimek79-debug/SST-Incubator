@@ -1,7 +1,7 @@
-﻿"""Scenariusze eksperymentalne CLOS v0.7.3 – Drift World stochastyczny."""
+﻿"""Scenariusze eksperymentalne CLOS v0.7.3."""
 
-import random, math
-from .generators import sine_wave, gaussian_noise, drift_signal, step_signal
+import random
+from .generators import sine_wave, gaussian_noise, step_signal
 
 CONTROL_ENVIRONMENTS = {"stable_world"}
 
@@ -17,16 +17,11 @@ def noise_world(tick: int, seed: int = 0) -> float:
     return max(0.0, min(1.0, signal + noise))
 
 def drift_world(tick: int, seed: int = 0) -> float:
-    """DRIFT_WORLD v0.7.3 – stochastyczny dryft zalezny od seedu.
-
-    Kazdy seed generuje unikalna trajektorie przez:
-    - losowe przesuniecie fazy (seed-zalezne)
-    - szum gaussowski nakladany na dryft
-    """
+    """DRIFT_WORLD v0.7.3 – stochastyczny dryft zalezny od seedu."""
+    import math
     rng = random.Random(seed)
     phase_shift = rng.uniform(0, 2 * math.pi)
     noise_amplitude = rng.uniform(0.01, 0.05)
-
     progress = min(1.0, tick / 300)
     freq = 0.05 + 0.45 * progress
     signal = 0.5 + 0.3 * math.sin(2 * math.pi * freq * tick + phase_shift)
@@ -37,10 +32,8 @@ def shock_world(tick: int, seed: int = 0) -> float:
     rng = random.Random(seed)
     shock_tick = rng.randint(20, 80)
     shock_magnitude = rng.uniform(0.3, 0.9)
-    if tick < shock_tick:
-        return 0.2
-    elif tick == shock_tick:
-        return shock_magnitude
+    if tick < shock_tick: return 0.2
+    elif tick == shock_tick: return shock_magnitude
     else:
         noise = gaussian_noise(tick, mean=0.0, variance=0.02, seed=seed)
         return max(0.1, min(1.0, shock_magnitude * 0.8 + noise))

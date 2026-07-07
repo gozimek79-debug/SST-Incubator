@@ -1,4 +1,7 @@
-﻿"""Testy Scientific Integrity v0.7.3 – Noise + Drift stochastic."""
+﻿"""Testy Scientific Integrity v0.7.3."""
+
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from clos_world.scenarios import noise_world, drift_world, is_control
 from clos_curriculum.laboratory.statistics import compute_ci95
@@ -10,7 +13,7 @@ class TestNoiseWorldIntegrity:
     def test_noise_world_varies_by_seed(self):
         a = _series(noise_world, 100)
         b = _series(noise_world, 200)
-        assert a != b, "noise_world must vary by seed"
+        assert a != b
 
     def test_noise_world_endpoint_variance_positive(self):
         endpoints = [noise_world(119, seed=s) for s in (100,200,300,400,500)]
@@ -22,10 +25,10 @@ class TestDriftWorldIntegrity:
     def test_drift_world_varies_by_seed(self):
         a = _series(drift_world, 100)
         b = _series(drift_world, 200)
-        assert a != b, "drift_world must vary by seed (v0.7.3 stochastic)"
+        assert a != b
 
     def test_drift_world_not_control(self):
-        assert not is_control("drift_world"), "drift_world is stochastic, not control"
+        assert not is_control("drift_world")
 
     def test_drift_world_endpoint_variance_positive(self):
         endpoints = [drift_world(299, seed=s) for s in (100,200,300,400,500)]

@@ -1,4 +1,4 @@
-﻿"""Matrix Runner v0.7.3 – z Observation Engine i telemetria."""
+﻿"""Matrix Runner v0.7.3 – z pelna telemetria i events."""
 
 import sys, os, json, subprocess
 from typing import Dict, Any, List
@@ -22,7 +22,8 @@ class MatrixRunner:
     def run(self, manifest_path: str) -> Dict[str, Any]:
         manifest = MatrixManifest.from_yaml(manifest_path); validate_or_raise(manifest)
         experiment_id = ExperimentProvenance.compute_experiment_id(manifest.to_dict())
-        print(f"Matrix: {experiment_id}")
+        telemetry_interval = manifest.to_dict().get("telemetry_interval", 0)
+        print(f"Matrix: {experiment_id} (telemetry: {telemetry_interval})")
 
         self.artifact_manager.save_manifest(experiment_id, manifest.to_dict())
         self.metadata_index.register_experiment(experiment_id=experiment_id, manifest_dict=manifest.to_dict(),
@@ -34,7 +35,8 @@ class MatrixRunner:
             preset = GENOME_ID_TO_PRESET.get(rc["genome"], "default")
             print(f"    [{i+1}/{len(runs_config)}] {run_id}...", end=" ")
             cmd = [sys.executable, "-m", "clos_cli", "demo", "--seed", str(rc["seed"]),
-                   "--ticks", str(rc["ticks"]), "--genome", preset, "--scenario", rc["scenario"]]
+                   "--ticks", str(rc["ticks"]), "--genome", preset, "--scenario", rc["scenario"],
+                   "--telemetry", str(telemetry_interval)]
             env = os.environ.copy(); env["PYTHONPATH"] = os.getcwd()
             try:
                 process = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd(), env=env, timeout=600)
@@ -53,11 +55,16 @@ class MatrixRunner:
                 "mse":metrics.get("mse",0),"entropy_volatility":metrics.get("entropy_volatility",0),
                 "adaptation_tick":metrics.get("adaptation_tick",0),
                 "memory_size":metrics.get("memory_size",0),
-                "final_energy":metrics.get("final_energy",1.0)}
+                "final_energy":metrics.get("final_energy",1.0),
+                "final_entropy":metrics.get("final_entropy",0.5)}
             results.append(run_result)
+            self.metadata_index.register_run(run_id=run_id, experiment_id=experiment_id, genome=rc["genome"],
+                scenario=rc["scenario"], seed=rc["seed"], ticks=rc["ticks"],
+                workflow_version=manifest.workflow_version, status=status,
+                summary_metrics={"stability_score":run_result["stability_score"],"mse":run_result["mse"]},
+                artifact_pointers={"run_id":run_id})
             self.artifact_manager.save_run_result(experiment_id, run_id, run_result)
 
-        # Observation Engine
         events_path, events_count = export_events_batch(results, experiment_id)
         print(f"    Events: {events_count} -> {events_path}")
 
