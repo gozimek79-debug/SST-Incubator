@@ -1,7 +1,7 @@
 ﻿"""Generatory bodzcow CLOS v0.7.3.
 
-Deterministyczne (sine_wave, step_signal, drift_signal) ignoruja seed
-z zalozenia. Stochastyczne (gaussian_noise, pulse_signal) uzywaja seedu.
+Deterministyczne (sine_wave, step_signal, drift_signal) nie uzywaja seedu.
+Stochastyczne (gaussian_noise, pulse_signal) uzywaja seedu.
 Dla stochastycznego dryftu uzyj scenarios.drift_world zamiast drift_signal.
 """
 
@@ -20,7 +20,7 @@ def gaussian_noise(tick: int, mean: float = 0.5, variance: float = 0.1, seed: in
     return max(0.0, min(1.0, raw))
 
 def drift_signal(tick: int, start_freq: float = 0.05, end_freq: float = 0.5, duration: int = 200, seed: int = 0) -> float:
-    """Dryft czestotliwosci. Sam generator jest deterministyczny.
+    """Dryft czestotliwosci. Generator deterministyczny.
     Dla stochastycznego dryftu uzyj scenarios.drift_world, ktory dodaje
     seed-zalezny phase_shift i szum gaussowski."""
     progress = min(1.0, tick / duration)
