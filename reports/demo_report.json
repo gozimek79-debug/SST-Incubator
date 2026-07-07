@@ -1,6 +1,6 @@
 {
   "run_id": "demo",
-  "stability_score": 499.7501,
+  "stability_score": 0.0,
   "mse": 0.0,
   "phases": {
     "initial_chaos": 0,
@@ -9,17 +9,17 @@
   },
   "anomalies": [],
   "metrics": {
-    "stability_index": 499.7501,
+    "stability_index": 0.0,
     "mse": 0.0,
-    "energy_drift": -0.002,
-    "entropy_volatility": 0.001,
-    "memory_growth_rate": 0.6667
+    "energy_drift": 0.0,
+    "entropy_volatility": 0.0,
+    "memory_growth_rate": 0.0
   },
   "adaptation_speed_ticks": 0,
   "raw_summary": {
-    "snapshots_count": 3,
+    "snapshots_count": 0,
     "first_tick": 0,
-    "last_tick": 2,
+    "last_tick": 0,
     "detected_anomalies_count": 0
   }
 }

@@ -4,14 +4,14 @@
   "scenario": "shock_world",
   "seed": 42,
   "ticks": 20,
-  "stability_score": 84.5083,
-  "mse": 0.0001,
-  "entropy_volatility": 0.0059,
-  "energy_drift": -0.019,
-  "adaptation_tick": 5,
-  "convergence_tick": 19,
-  "chaos_end": 0,
+  "stability_score": 0.0,
+  "mse": 0.0,
+  "entropy_volatility": 0.0,
+  "energy_drift": 0.0,
+  "adaptation_tick": 0,
+  "convergence_tick": 0,
   "memory_size": 1,
   "final_entropy": 0.02,
-  "final_energy": 0.98
+  "final_energy": 0.98,
+  "telemetry_snapshots": []
 }
