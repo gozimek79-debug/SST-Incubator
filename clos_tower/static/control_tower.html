@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CLOS Control Tower</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/recharts@2/umd/Recharts.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0E1116;color:#E6EDF3;font-family:sans-serif;padding:20px}
+h1{font-size:20px;margin-bottom:20px}
+.dot{width:9px;height:9px;border-radius:50%;background:#46C7E0;display:inline-block;margin-right:8px}
+table{width:100%;border-collapse:collapse;margin-bottom:30px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #262E3A;font-size:13px}
+th{color:#7C8A9A;font-weight:600}
+td{font-family:monospace}
+.stable{color:#46C7E0}
+.shock{color:#F2A93B}
+.good{color:#58C08A}
+.bad{color:#F0655A}
+.muted{color:#7C8A9A}
+.card{background:#14181F;border:1px solid #262E3A;border-radius:10px;padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin-bottom:10px;color:#E6EDF3}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const DATA = [
+  {genome:"default_v1",scenario:"stable_world",seeds:"100,200,300",stability:"2.820",mse:"0.8415",adapt:40,ci:0},
+  {genome:"default_v1",scenario:"shock_world",seeds:"100,200,300",stability:"2.026",mse:"0.8060",adapt:10,ci:0.065},
+  {genome:"highly_plastic_v1",scenario:"stable_world",seeds:"100,200,300",stability:"3.319",mse:"0.8491",adapt:10,ci:0},
+  {genome:"highly_plastic_v1",scenario:"shock_world",seeds:"100,200,300",stability:"2.354",mse:"0.8319",adapt:10,ci:0.152},
+];
+
+function App(){
+  return (
+    <div>
+      <h1><span className="dot"/>SST Incubator CLOS – Control Tower</h1>
+      <p className="muted" style={{marginBottom:20}}>EXP-89D9BA69 · 1500 ticks · 12 runs · Read-Only</p>
+
+      <div className="card">
+        <h2>Experiment Matrix (Stability)</h2>
+        <table>
+          <thead><tr><th>Genome</th><th>Scenario</th><th>Seeds</th><th>Stability</th><th>MSE</th><th>Adapt Tick</th><th>CI95</th></tr></thead>
+          <tbody>
+            {DATA.map((r,i)=>(
+              <tr key={i}>
+                <td>{r.genome.replace("_v1","")}</td>
+                <td className={r.scenario==="stable_world"?"stable":"shock"}>{r.scenario.replace("_world","")}</td>
+                <td className="muted">{r.seeds}</td>
+                <td>{r.stability}</td>
+                <td>{r.mse}</td>
+                <td>{r.adapt}</td>
+                <td className={r.ci===0?"bad":"good"}>{r.ci===0?"SEED IGNORED":"+/-"+r.ci.toFixed(3)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card">
+        <h2>Key Findings (1500 ticks)</h2>
+        <table>
+          <thead><tr><th>Metric</th><th>Stable World</th><th>Shock World</th><th>Delta</th></tr></thead>
+          <tbody>
+            <tr><td>Stability (default)</td><td>2.820</td><td>2.026</td><td className="bad">-0.794</td></tr>
+            <tr><td>MSE (default)</td><td>0.842</td><td>0.806</td><td className="good">-0.036</td></tr>
+            <tr><td>Adaptation Tick</td><td>40</td><td>10</td><td className="good">30 ticks faster</td></tr>
+            <tr><td>Stability (highly_plastic)</td><td>3.319</td><td>2.354</td><td className="bad">-0.965</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card">
+        <h2>Provenance</h2>
+        <table>
+          <tbody>
+            <tr><td className="muted">Experiment</td><td>sprint_v06_validation_1500</td></tr>
+            <tr><td className="muted">CLOS Version</td><td>v0.6</td></tr>
+            <tr><td className="muted">Ticks</td><td>1500</td></tr>
+            <tr><td className="muted">Git Commit</td><td className="bad">EMPTY – reproducibility incomplete</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p className="muted" style={{textAlign:"center",marginTop:30}}>Read-only window · data from SST-Incubator · v0.7.2</p>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById("root"));
+</script>
+</body>
+</html>
