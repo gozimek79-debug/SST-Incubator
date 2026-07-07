@@ -1,4 +1,4 @@
-﻿"""Demo CLOS v0.7.3 – z opcjonalnym zapisem snapshotow co N tickow."""
+﻿"""Demo CLOS v0.7.3 – pelna telemetria w JSON output."""
 
 import json, sys, os, logging
 from genome.engine import GenomeEngine
@@ -65,6 +65,7 @@ def main(seed=42, ticks=200, stream=False, genome_preset="default", scenario="sh
         "final_entropy": round(tissue.entropy,6),
         "final_energy": round(tissue.energy,6),
         "telemetry_snapshots": telemetry_snapshots if telemetry_interval > 0 else [],
+        "telemetry_count": len(telemetry_snapshots),
     }
 
     os.makedirs("reports/runs", exist_ok=True)
@@ -72,7 +73,8 @@ def main(seed=42, ticks=200, stream=False, genome_preset="default", scenario="sh
         json.dump(output, f, indent=2, ensure_ascii=False)
 
     if not stream:
-        print(json.dumps({k:v for k,v in output.items() if k!="telemetry_snapshots"}))
+        # Wysylamy pelny output, MatrixRunner parsuje stability_score, mse itd.
+        print(json.dumps(output, ensure_ascii=False))
     return output
 
 if __name__ == "__main__":

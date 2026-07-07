@@ -1,0 +1,54 @@
+{
+  "run_id": "default_shock_world_s42",
+  "genome": "default",
+  "scenario": "shock_world",
+  "seed": 42,
+  "ticks": 25,
+  "stability_score": 0.0,
+  "mse": 0.0,
+  "entropy_volatility": 0.0,
+  "energy_drift": 0.0,
+  "adaptation_tick": 0,
+  "convergence_tick": 0,
+  "memory_size": 1,
+  "final_entropy": 0.025,
+  "final_energy": 0.975,
+  "telemetry_snapshots": [
+    {
+      "tick": 0,
+      "entropy": 0.001,
+      "energy": 0.999,
+      "precision": 0.5,
+      "memory_size": 1
+    },
+    {
+      "tick": 5,
+      "entropy": 0.006,
+      "energy": 0.994,
+      "precision": 1.0,
+      "memory_size": 1
+    },
+    {
+      "tick": 10,
+      "entropy": 0.011,
+      "energy": 0.989,
+      "precision": 1.0,
+      "memory_size": 1
+    },
+    {
+      "tick": 15,
+      "entropy": 0.016,
+      "energy": 0.984,
+      "precision": 1.0,
+      "memory_size": 1
+    },
+    {
+      "tick": 20,
+      "entropy": 0.021,
+      "energy": 0.979,
+      "precision": 1.0,
+      "memory_size": 1
+    }
+  ],
+  "telemetry_count": 5
+}

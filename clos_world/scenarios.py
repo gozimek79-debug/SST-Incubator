@@ -1,6 +1,6 @@
 ﻿"""Scenariusze eksperymentalne CLOS v0.7.3."""
 
-import random
+import random, math
 from .generators import sine_wave, gaussian_noise, step_signal
 
 CONTROL_ENVIRONMENTS = {"stable_world"}
@@ -18,7 +18,6 @@ def noise_world(tick: int, seed: int = 0) -> float:
 
 def drift_world(tick: int, seed: int = 0) -> float:
     """DRIFT_WORLD v0.7.3 – stochastyczny dryft zalezny od seedu."""
-    import math
     rng = random.Random(seed)
     phase_shift = rng.uniform(0, 2 * math.pi)
     noise_amplitude = rng.uniform(0.01, 0.05)

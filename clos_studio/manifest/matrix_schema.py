@@ -16,6 +16,8 @@ class MatrixManifest:
     parent_experiment: Optional[str] = None
     seed_policy: str = "fixed"
     publish_on_verify: bool = True
+    telemetry_interval: int = 0
+    metric_schema_version: str = "0.7.3"
 
     @property
     def experiment_id(self) -> str:
@@ -43,11 +45,8 @@ class MatrixManifest:
             for scenario in self.scenarios:
                 for seed in self.seeds:
                     runs.append({
-                        "genome": genome,
-                        "scenario": scenario,
-                        "seed": seed,
-                        "ticks": self.ticks,
-                        "workflow_version": self.workflow_version,
+                        "genome": genome, "scenario": scenario, "seed": seed,
+                        "ticks": self.ticks, "workflow_version": self.workflow_version,
                         "parent_experiment": self.parent_experiment,
                     })
         return runs
@@ -65,6 +64,8 @@ class MatrixManifest:
             "parent_experiment": self.parent_experiment,
             "seed_policy": self.seed_policy,
             "publish_on_verify": self.publish_on_verify,
+            "telemetry_interval": self.telemetry_interval,
+            "metric_schema_version": self.metric_schema_version,
         }
 
     @classmethod
@@ -78,6 +79,8 @@ class MatrixManifest:
             parent_experiment=data.get("parent_experiment"),
             seed_policy=data.get("seed_policy", "fixed"),
             publish_on_verify=data.get("publish_on_verify", True),
+            telemetry_interval=data.get("telemetry_interval", 0),
+            metric_schema_version=data.get("metric_schema_version", "0.7.3"),
         )
 
     @classmethod
@@ -96,5 +99,6 @@ class MatrixManifest:
             f"  Ticks:     {self.ticks}",
             f"  Total runs: {self.get_total_runs()}",
             f"  Workflow:  v{self.workflow_version}",
+            f"  Telemetry: every {self.telemetry_interval} ticks",
         ]
         return "\n".join(lines)

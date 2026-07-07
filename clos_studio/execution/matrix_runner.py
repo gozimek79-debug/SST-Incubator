@@ -1,4 +1,4 @@
-﻿"""Matrix Runner v0.7.3 – z pelna telemetria i events."""
+﻿"""Matrix Runner v0.7.3 – pelna telemetria, events, stabilny import."""
 
 import sys, os, json, subprocess
 from typing import Dict, Any, List
@@ -22,7 +22,7 @@ class MatrixRunner:
     def run(self, manifest_path: str) -> Dict[str, Any]:
         manifest = MatrixManifest.from_yaml(manifest_path); validate_or_raise(manifest)
         experiment_id = ExperimentProvenance.compute_experiment_id(manifest.to_dict())
-        telemetry_interval = manifest.to_dict().get("telemetry_interval", 0)
+        telemetry_interval = manifest.telemetry_interval
         print(f"Matrix: {experiment_id} (telemetry: {telemetry_interval})")
 
         self.artifact_manager.save_manifest(experiment_id, manifest.to_dict())
@@ -56,7 +56,8 @@ class MatrixRunner:
                 "adaptation_tick":metrics.get("adaptation_tick",0),
                 "memory_size":metrics.get("memory_size",0),
                 "final_energy":metrics.get("final_energy",1.0),
-                "final_entropy":metrics.get("final_entropy",0.5)}
+                "final_entropy":metrics.get("final_entropy",0.5),
+                "telemetry_count":metrics.get("telemetry_count",0)}
             results.append(run_result)
             self.metadata_index.register_run(run_id=run_id, experiment_id=experiment_id, genome=rc["genome"],
                 scenario=rc["scenario"], seed=rc["seed"], ticks=rc["ticks"],

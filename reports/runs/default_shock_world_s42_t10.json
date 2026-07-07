@@ -13,5 +13,6 @@
   "memory_size": 1,
   "final_entropy": 0.01,
   "final_energy": 0.99,
-  "telemetry_snapshots": []
+  "telemetry_snapshots": [],
+  "telemetry_count": 0
 }
