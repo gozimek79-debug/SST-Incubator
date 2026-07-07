@@ -1,0 +1,17 @@
+{
+  "run_id": "default_stable_world_s6",
+  "genome": "default",
+  "scenario": "stable_world",
+  "seed": 6,
+  "ticks": 500,
+  "stability_score": 1.9949,
+  "mse": 0.5246,
+  "entropy_volatility": 0.1545,
+  "energy_drift": -0.999,
+  "adaptation_tick": 40,
+  "convergence_tick": 499,
+  "chaos_end": 0,
+  "memory_size": 6,
+  "final_entropy": 1.0,
+  "final_energy": 0.0
+}

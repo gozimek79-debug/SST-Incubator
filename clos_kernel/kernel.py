@@ -3,7 +3,7 @@
 Koordynuje Tick, Scheduler, Lifecycle, Snapshot, EventBus.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from .tick_engine import TickEngine
 from .scheduler import Scheduler
 from .lifecycle import Lifecycle, LifecycleState

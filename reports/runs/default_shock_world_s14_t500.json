@@ -1,0 +1,17 @@
+{
+  "run_id": "default_shock_world_s14",
+  "genome": "default",
+  "scenario": "shock_world",
+  "seed": 14,
+  "ticks": 500,
+  "stability_score": 1.5564,
+  "mse": 0.4501,
+  "entropy_volatility": 0.2808,
+  "energy_drift": -0.999,
+  "adaptation_tick": 10,
+  "convergence_tick": 499,
+  "chaos_end": 0,
+  "memory_size": 35,
+  "final_entropy": 0.999124,
+  "final_energy": 0.0
+}

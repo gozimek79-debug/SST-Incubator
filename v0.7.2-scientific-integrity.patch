@@ -1,0 +1,557 @@
+diff --git a/CHANGELOG_v0.7.2.md b/CHANGELOG_v0.7.2.md
+new file mode 100644
+index 0000000..1371dc3
+--- /dev/null
++++ b/CHANGELOG_v0.7.2.md
+@@ -0,0 +1,92 @@
++# CLOS v0.7.2 — Scientific Integrity Patch
++
++Branch: `v0.7.2-scientific-integrity`
++Baza: HEAD `main` (SST-Incubator, v0.7.1)
++Zakres: naprawy integralności naukowej i reprodukowalności. **Core CLOS
++(Kernel, Brain, Genome, Birth, Runtime) nie został naruszony** — zgodnie z
++Konstytucją CLOS. Zmiany dotyczą warstwy World (dokumentacja/oznaczenia),
++metrologii, provenance i testów.
++
++Wynik testów: **235 passed** (225 oryginalnych + 10 nowych testów ważności).
++
++---
++
++## Decyzja projektowa (PRIORYTET 1 → opcja A)
++
++`stable_world` jest odtąd formalnie **deterministycznym środowiskiem
++kontrolnym (Control Environment)**. Zerowa wariancja między seedami jest
++cechą OCZEKIWANĄ, nie błędem. Do wklejenia w LessonManifest / dokumentację:
++
++> Stable World jest środowiskiem kontrolnym (Control Environment). Zgodnie z
++> projektem jego przebieg jest całkowicie deterministyczny. Wszystkie seedy
++> powinny dawać identyczny wynik. Zerowa wariancja jest oczekiwaną cechą
++> eksperymentu i stanowi potwierdzenie reprodukowalności bazowej mechaniki Brain.
++
++Konsekwencja metodologiczna (wymuszona w kodzie): dla środowiska kontrolnego
++**nie raportujemy cross-seed CI95** (punkt to nie przedział), a effect size
++liczymy przez **Glass's delta** względem kontroli.
++
++---
++
++## Naprawione
++
++1. **[BLOCKER] `clos_kernel/kernel.py`** — brak importu `typing.List`.
++   Na świeżym klonie (Python 3.12) psuł zbieranie testów → suite w ogóle nie
++   startował. Dodano `List` do importu. Bez tego twierdzenie „225 passed"
++   nie było prawdą wobec zacommitowanego HEAD.
++
++2. **[P1] `clos_world/scenarios.py` + `generators.py`** — usunięto nieprawdziwe
++   docstringi („z pełnym wykorzystaniem seedu"). `stable_world` oznaczony jako
++   kontrolny; dodano `CONTROL_ENVIRONMENTS` i `is_control()`, by reszta systemu
++   wykrywała determinizm programowo, a nie po komentarzu.
++
++3. **[P1/P2] `clos_curriculum/laboratory/statistics.py`** — metrologia świadoma
++   kontroli:
++   - `compute_ci95` zwraca `deterministic`, `ci95_valid`, `n_effective`,
++     `interpretation`. Przy std=0 CI jest jawnie oznaczone jako niedotyczące.
++   - `n_effective` (liczba distinct) chroni przed **pseudoreplikacją** —
++     3 identyczne runy to n_eff=1, nie n=3.
++   - `glass_delta()` — poprawny effect size przy porównaniu z deterministyczną
++     kontrolą (Cohen's d jest tam mylący).
++   - `metrology_report()` — pełny blok na jeden warunek.
++   Zmiany są ADDYTYWNE — istniejące klucze i sygnatury zachowane.
++
++4. **[P6] `clos_studio/publication/bundle.py`** — provenance:
++   - `git_commit` wypełniany automatycznie (`git rev-parse HEAD`), gdy pusty.
++   - dodano `config_hash` (sha256 kanonicznego manifestu) i flagę `reproducible`.
++   Usuwa lukę: dotąd `metadata.json` miał `git_commit: ""` → run nie był
++   w pełni odtwarzalny.
++
++5. **[nowe] `tests/test_scientific_integrity.py`** — 10 testów WAŻNOŚCI:
++   kontrola deterministyczna (oczekiwana), shock stochastyczny (std>0),
++   flagowanie zdegenerowanego CI, wykrywanie pseudoreplikacji, Glass's delta
++   względem kontroli, regresja importu Kernela.
++
++---
++
++## ZNANE, NIENAPRAWIONE (świadomie — wymaga Twojej decyzji lub compute)
++
++- **`drift_world` ignoruje seed**, ale NIE jest oznaczony jako kontrolny —
++  jak dawny bug stable. Do rozstrzygnięcia: kontrolny (dodaj do
++  `CONTROL_ENVIRONMENTS`) czy stochastyczny (dodaj seed-zależny komponent).
++  Oznaczone w docstringu jako known limitation.
++- **[P5] Brak eksportu `events.jsonl`** — Observation Engine liczy zdarzenia
++  w locie, ale nie zapisuje ich do artefaktów. Panel Observations w oknie
++  wizualizacyjnym pozostaje pusty do czasu dodania eksportu.
++- **Brak telemetrii per-tick** — artefakty są tylko podsumowaniami runu; nie da
++  się narysować serii czasowej bez dodania zrzutu snapshotów.
++- **Regeneracja danych** — istniejące artefakty w `publications/` i `datasets/`
++  NIE zostały przeliczone. Po zastosowaniu patcha odpal ponownie eksperymenty,
++  by manifesty dostały `config_hash`/`git_commit`, a raporty — flagi CI.
++- **„Gotowość do publikacji"** — to nie flaga w kodzie. Wymaga większego n na
++  warunkach stochastycznych, pre-rejestracji hipotez i replikacji.
++
++---
++
++## Jak zastosować
++
++```bash
++git checkout -b v0.7.2-scientific-integrity
++git apply v0.7.2-scientific-integrity.patch
++python -m pytest -q          # oczekiwane: 235 passed
++```
+diff --git a/clos_curriculum/laboratory/statistics.py b/clos_curriculum/laboratory/statistics.py
+index 9b09a5c..4475b86 100644
+--- a/clos_curriculum/laboratory/statistics.py
++++ b/clos_curriculum/laboratory/statistics.py
+@@ -1,25 +1,56 @@
+-﻿"""Laboratory Statistics – CI95, Effect Size, Sample Size validation."""
++"""Laboratory Statistics – CI95, Effect Size, Sample Size validation.
++
++v0.7.2 – Scientific integrity:
++- compute_ci95 flaguje przypadki deterministyczne/kontrolne (ci95_valid=False)
++  i liczbę EFEKTYWNIE niezależnych obserwacji (n_effective), by nie mylić
++  powtórzeń identycznego runu ze statystyczną próbą (pseudoreplikacja).
++- glass_delta: właściwy effect size przy porównaniu z deterministyczną kontrolą.
++"""
+ 
+ import math
+-from typing import List, Dict, Any
++from typing import List, Dict, Any, Optional
+ 
+ 
+-def compute_ci95(values: List[float]) -> Dict[str, float]:
+-    """Oblicza 95% przedział ufności.
++def _n_effective(values: List[float]) -> int:
++    """Liczba EFEKTYWNIE niezależnych obserwacji (distinct).
+ 
+-    Args:
+-        values: Lista wartości.
++    Trzy identyczne wyniki deterministycznego runu to n_effective=1,
++    nie n=3 — inaczej sztucznie zawyżamy moc statystyczną.
++    """
++    return len(set(round(v, 9) for v in values))
++
++
++def compute_ci95(values: List[float]) -> Dict[str, Any]:
++    """Oblicza 95% przedział ufności wraz z flagami ważności.
+ 
+-    Returns:
+-        Słownik z mean, std, ci95_low, ci95_high, n.
++    Zwraca dodatkowo (v0.7.2):
++        deterministic: czy wszystkie wartości są identyczne (std=0).
++        ci95_valid:    czy przedział jest sensownym CI (n>=2 i std>0 i n_eff>=2).
++        n_effective:   liczba distinct wartości.
++        interpretation: krótki opis do raportu.
+     """
+     if not values:
+-        return {"mean": 0, "std": 0, "ci95_low": 0, "ci95_high": 0, "n": 0}
++        return {"mean": 0, "std": 0, "ci95_low": 0, "ci95_high": 0, "n": 0,
++                "n_effective": 0, "deterministic": False, "ci95_valid": False,
++                "interpretation": "brak danych"}
+ 
+     n = len(values)
+     mean = sum(values) / n
+-    std = math.sqrt(sum((v - mean)**2 for v in values) / (n - 1)) if n > 1 else 0.0
+-    ci95_margin = 1.96 * std / math.sqrt(n) if n > 1 and std > 0 else 0.0
++    std = math.sqrt(sum((v - mean) ** 2 for v in values) / (n - 1)) if n > 1 else 0.0
++    n_eff = _n_effective(values)
++    deterministic = std == 0.0 and n > 1
++    ci95_valid = n >= 2 and std > 0 and n_eff >= 2
++    ci95_margin = 1.96 * std / math.sqrt(n) if ci95_valid else 0.0
++
++    if deterministic:
++        interp = ("wynik deterministyczny — CI95 nie ma zastosowania "
++                  "(oczekiwane dla środowiska kontrolnego)")
++    elif n < 2:
++        interp = "n<2 — CI95 niemożliwe"
++    elif not ci95_valid:
++        interp = "CI95 zdegenerowane (n_effective<2)"
++    else:
++        interp = "CI95 poprawne"
+ 
+     return {
+         "mean": round(mean, 6),
+@@ -27,50 +58,85 @@ def compute_ci95(values: List[float]) -> Dict[str, float]:
+         "ci95_low": round(mean - ci95_margin, 6),
+         "ci95_high": round(mean + ci95_margin, 6),
+         "n": n,
++        "n_effective": n_eff,
++        "deterministic": deterministic,
++        "ci95_valid": ci95_valid,
++        "interpretation": interp,
+     }
+ 
+ 
+ def cohens_d(group_a: List[float], group_b: List[float]) -> float:
+-    """Oblicza Cohen's d (effect size) między dwiema grupami.
++    """Cohen's d (effect size). Zwraca 0.0 gdy nieobliczalne (n<2 lub pooled std~0).
+ 
+-    Args:
+-        group_a: Pierwsza grupa.
+-        group_b: Druga grupa.
+-
+-    Returns:
+-        Wartość Cohen's d.
++    UWAGA: przy porównaniu z deterministyczną kontrolą (wariancja=0) użyj
++    glass_delta() — Cohen's d z jedną grupą o zerowej wariancji jest mylący.
+     """
+     if len(group_a) < 2 or len(group_b) < 2:
+         return 0.0
+-
+     mean_a = sum(group_a) / len(group_a)
+     mean_b = sum(group_b) / len(group_b)
+-
+-    var_a = sum((v - mean_a)**2 for v in group_a) / (len(group_a) - 1)
+-    var_b = sum((v - mean_b)**2 for v in group_b) / (len(group_b) - 1)
+-
++    var_a = sum((v - mean_a) ** 2 for v in group_a) / (len(group_a) - 1)
++    var_b = sum((v - mean_b) ** 2 for v in group_b) / (len(group_b) - 1)
+     pooled_std = math.sqrt((var_a + var_b) / 2)
+     if pooled_std < 1e-9:
+         return 0.0
+-
+     return (mean_a - mean_b) / pooled_std
+ 
+ 
+-def validate_sample_size(values: List[float], min_n: int = 5) -> Dict[str, Any]:
+-    """Sprawdza czy próbka jest wystarczająca.
++def glass_delta(control: List[float], experimental: List[float]) -> Dict[str, Any]:
++    """Glass's delta — effect size względem grupy kontrolnej.
+ 
+-    Args:
+-        values: Lista wartości.
+-        min_n: Minimalna liczba próbek.
++    Właściwy przy porównaniu warunku eksperymentalnego z deterministyczną
++    kontrolą: używa ODCHYLENIA GRUPY EKSPERYMENTALNEJ jako skali, więc
++    zerowa wariancja kontroli nie unieważnia porównania.
++    """
++    if len(experimental) < 2:
++        return {"delta": None, "computable": False,
++                "reason": "grupa eksperymentalna n<2"}
++    mean_c = sum(control) / len(control) if control else 0.0
++    mean_e = sum(experimental) / len(experimental)
++    var_e = sum((v - mean_e) ** 2 for v in experimental) / (len(experimental) - 1)
++    sd_e = math.sqrt(var_e)
++    if sd_e < 1e-9:
++        return {"delta": None, "computable": False,
++                "reason": "grupa eksperymentalna bez wariancji"}
++    return {"delta": round((mean_e - mean_c) / sd_e, 6), "computable": True,
++            "reason": "OK"}
++
++
++def metrology_report(values: List[float], control: bool = False,
++                     label: str = "") -> Dict[str, Any]:
++    """Pełny blok metrologiczny dla jednego warunku.
+ 
+-    Returns:
+-        Słownik z walidacją.
++    Args:
++        values: obserwacje (np. metryka per seed).
++        control: czy warunek jest deterministycznym środowiskiem kontrolnym.
++                 Jeśli True, CI95 jest jawnie oznaczone jako nie-dotyczy.
+     """
++    ci = compute_ci95(values)
++    is_control_flag = control or ci["deterministic"]
++    if is_control_flag:
++        ci["ci95_valid"] = False
++        ci["interpretation"] = ("środowisko kontrolne / deterministyczne — "
++                                "CI95 nie dotyczy, zerowa wariancja oczekiwana")
++    return {
++        "label": label,
++        "control_environment": bool(control),
++        **ci,
++        "sample_size": validate_sample_size(values),
++    }
++
++
++def validate_sample_size(values: List[float], min_n: int = 5) -> Dict[str, Any]:
++    """Sprawdza czy próbka jest wystarczająca (używa n_effective)."""
+     n = len(values)
++    n_eff = _n_effective(values)
+     return {
+         "sample_size": n,
++        "n_effective": n_eff,
+         "min_required": min_n,
+-        "sufficient": n >= min_n,
+-        "can_compute_ci95": n >= 2,
+-        "can_compute_effect_size": n >= 3,
++        "sufficient": n_eff >= min_n,
++        "can_compute_ci95": n_eff >= 2,
++        "can_compute_effect_size": n_eff >= 3,
++        "pseudoreplication_warning": n_eff < n,
+     }
+diff --git a/clos_kernel/kernel.py b/clos_kernel/kernel.py
+index 9ae740b..a6129c1 100644
+--- a/clos_kernel/kernel.py
++++ b/clos_kernel/kernel.py
+@@ -3,7 +3,7 @@
+ Koordynuje Tick, Scheduler, Lifecycle, Snapshot, EventBus.
+ """
+ 
+-from typing import Any, Dict, Optional
++from typing import Any, Dict, List, Optional
+ from .tick_engine import TickEngine
+ from .scheduler import Scheduler
+ from .lifecycle import Lifecycle, LifecycleState
+diff --git a/clos_studio/publication/bundle.py b/clos_studio/publication/bundle.py
+index 9a4e2c7..eef1eea 100644
+--- a/clos_studio/publication/bundle.py
++++ b/clos_studio/publication/bundle.py
+@@ -2,11 +2,31 @@
+ 
+ import json
+ import shutil
++import hashlib
++import subprocess
+ from pathlib import Path
+ from datetime import datetime
+ from typing import Dict, Any
+ 
+ 
++def _git_commit() -> str:
++    """Zwraca aktualny commit HEAD lub '' gdy niedostępny (brak repo)."""
++    try:
++        out = subprocess.run(
++            ["git", "rev-parse", "HEAD"],
++            capture_output=True, text=True, timeout=5,
++        )
++        return out.stdout.strip() if out.returncode == 0 else ""
++    except Exception:
++        return ""
++
++
++def _config_hash(manifest_dict: Dict[str, Any]) -> str:
++    """Stabilny sha256 kanonicznego manifestu — pin konfiguracji eksperymentu."""
++    canonical = json.dumps(manifest_dict, sort_keys=True, ensure_ascii=True)
++    return hashlib.sha256(canonical.encode()).hexdigest()
++
++
+ def build_bundle(
+     experiment_id: str,
+     manifest_dict: Dict[str, Any],
+@@ -47,14 +67,18 @@ def build_bundle(
+             json.dump(result, f, indent=2, ensure_ascii=False, default=str)
+ 
+     # Metadata
++    # git_commit: użyj z provenance, a gdy pusty — automatycznie z repo.
++    git_commit = provenance_dict.get("git_commit", "") or _git_commit()
+     metadata = {
+         "experiment_id": experiment_id,
+-        "git_commit": provenance_dict.get("git_commit", ""),
++        "git_commit": git_commit,
++        "config_hash": _config_hash(manifest_dict),
+         "clos_version": provenance_dict.get("clos_version", ""),
+         "cli_version": provenance_dict.get("cli_version", ""),
+         "manifest_version": manifest_dict.get("schema_version", 1),
+         "bundled_at": datetime.now().isoformat(),
+         "total_runs": len(results),
++        "reproducible": bool(git_commit),
+     }
+     with open(bundle_path / "metadata.json", "w", encoding="utf-8") as f:
+         json.dump(metadata, f, indent=2, ensure_ascii=False)
+diff --git a/clos_world/generators.py b/clos_world/generators.py
+index e3dccbe..b46d29c 100644
+--- a/clos_world/generators.py
++++ b/clos_world/generators.py
+@@ -1,15 +1,23 @@
+-﻿"""Generatory bodźców – z pełnym wykorzystaniem seedu."""
++﻿"""Generatory bodźców CLOS.
++
++UWAGA (v0.7.2): nie wszystkie generatory używają seedu. Deterministyczne
++(sine_wave, step_signal, drift_signal) ignorują seed z założenia — parametr
++`seed` pozostaje w sygnaturze dla spójności API, ale nie wpływa na wynik.
++Stochastyczne (gaussian_noise, pulse_signal) realnie korzystają z seedu.
++"""
+ 
+ import math
+ import random
+ 
+ 
+ def sine_wave(tick: int, frequency: float = 0.1, amplitude: float = 0.5, seed: int = 0) -> float:
++    """Deterministyczna sinusoida. Seed nieużywany (środowisko kontrolne)."""
+     raw = 0.5 + amplitude * math.sin(2 * math.pi * frequency * tick)
+     return max(0.0, min(1.0, raw))
+ 
+ 
+ def step_signal(tick: int, change_tick: int = 50, before: float = 0.2, after: float = 0.8, seed: int = 0) -> float:
++    """Deterministyczny skok progowy. Seed nieużywany."""
+     return before if tick < change_tick else after
+ 
+ 
+@@ -21,6 +29,7 @@ def gaussian_noise(tick: int, mean: float = 0.5, variance: float = 0.1, seed: in
+ 
+ 
+ def drift_signal(tick: int, start_freq: float = 0.05, end_freq: float = 0.5, duration: int = 200, seed: int = 0) -> float:
++    """Drift częstotliwości. UWAGA: obecnie deterministyczny (seed nieużywany)."""
+     progress = min(1.0, tick / duration)
+     freq = start_freq + (end_freq - start_freq) * progress
+     raw = 0.5 + 0.4 * math.sin(2 * math.pi * freq * tick)
+diff --git a/clos_world/scenarios.py b/clos_world/scenarios.py
+index 73a4091..56bd755 100644
+--- a/clos_world/scenarios.py
++++ b/clos_world/scenarios.py
+@@ -1,31 +1,67 @@
+-﻿"""Scenariusze eksperymentalne – z pełnym wykorzystaniem seedu."""
++"""Scenariusze eksperymentalne CLOS.
++
++UWAGA metodologiczna (v0.7.2):
++Nie każdy scenariusz jest stochastyczny. `stable_world` jest z założenia
++DETERMINISTYCZNYM ŚRODOWISKIEM KONTROLNYM (Control Environment) — seed
++NIE wpływa na jego przebieg i jest to cecha oczekiwana, nie błąd.
++Scenariusze stochastyczne (shock_world, noise_world) realnie korzystają z seedu.
++Zob. CONTROL_ENVIRONMENTS oraz is_control().
++"""
+ 
+ import random
+ from .generators import sine_wave, gaussian_noise, drift_signal, step_signal
+ 
+ 
++# Scenariusze deterministyczne z założenia — służą jako punkt odniesienia (baseline).
++# Dla nich zerowa wariancja między seedami jest OCZEKIWANA i poprawna.
++CONTROL_ENVIRONMENTS = {"stable_world"}
++
++
++def is_control(name: str) -> bool:
++    """Czy scenariusz jest deterministycznym środowiskiem kontrolnym.
++
++    Reszta systemu (metrologia, raporty) używa tego, by NIE raportować
++    cross-seed CI95 tam, gdzie wariancja jest z definicji zerowa.
++    """
++    return name in CONTROL_ENVIRONMENTS
++
++
+ def stable_world(tick: int, seed: int = 0) -> float:
+-    """STABLE_WORLD: czysta sinusoida."""
+-    return sine_wave(tick, frequency=0.1, amplitude=0.4, seed=seed)
++    """STABLE_WORLD — deterministyczne środowisko KONTROLNE (baseline).
++
++    Czysta sinusoida, bez szumu, driftu i zdarzeń losowych. Seed jest
++    świadomie nieużywany: każdy seed daje identyczny przebieg. Zerowa
++    wariancja jest oczekiwaną cechą eksperymentu kontrolnego i stanowi
++    dowód reprodukowalności bazowej mechaniki Brain.
++    """
++    # seed celowo nieużyty — patrz docstring (Control Environment)
++    return sine_wave(tick, frequency=0.1, amplitude=0.4)
+ 
+ 
+ def noise_world(tick: int, seed: int = 0) -> float:
+-    """NOISE_WORLD: sinus + szum gaussowski zależny od seedu."""
+-    signal = sine_wave(tick, frequency=0.1, amplitude=0.3, seed=seed)
++    """NOISE_WORLD — sinus + szum gaussowski zależny od seedu (stochastyczny)."""
++    signal = sine_wave(tick, frequency=0.1, amplitude=0.3)
+     noise = gaussian_noise(tick, mean=0.0, variance=0.05, seed=seed)
+     result = signal + noise
+     return max(0.0, min(1.0, result))
+ 
+ 
+ def drift_world(tick: int, seed: int = 0) -> float:
+-    """DRIFT_WORLD: stopniowa zmiana częstotliwości."""
++    """DRIFT_WORLD — stopniowa zmiana częstotliwości.
++
++    ZNANE OGRANICZENIE (v0.7.2): obecna implementacja drift_signal nie
++    używa seedu, więc scenariusz jest de facto deterministyczny, mimo że
++    NIE jest oznaczony jako kontrolny. Jeśli DRIFT ma być stochastyczny,
++    wymaga seed-zależnego komponentu; jeśli kontrolny — dodaj go do
++    CONTROL_ENVIRONMENTS. Do rozstrzygnięcia świadomą decyzją naukową.
++    """
+     return drift_signal(tick, start_freq=0.05, end_freq=0.5, duration=200, seed=seed)
+ 
+ 
+ def shock_world(tick: int, seed: int = 0) -> float:
+-    """SHOCK_WORLD: deterministyczny skok zależny OD SEEDU.
++    """SHOCK_WORLD — stochastyczny skok zależny OD SEEDU.
+ 
+-    Każdy seed generuje szok w innym ticku i o innej sile.
++    Każdy seed generuje szok w innym ticku i o innej sile → realna wariancja.
+     """
+     rng = random.Random(seed)
+     shock_tick = rng.randint(20, 80)
+@@ -36,7 +72,6 @@ def shock_world(tick: int, seed: int = 0) -> float:
+     elif tick == shock_tick:
+         return shock_magnitude
+     else:
+-        # Dodaj szum zależny od seedu po szoku
+         noise = gaussian_noise(tick, mean=0.0, variance=0.02, seed=seed)
+         return max(0.1, min(1.0, shock_magnitude * 0.8 + noise))
+ 
+diff --git a/tests/test_scientific_integrity.py b/tests/test_scientific_integrity.py
+new file mode 100644
+index 0000000..6a54224
+--- /dev/null
++++ b/tests/test_scientific_integrity.py
+@@ -0,0 +1,78 @@
++"""Testy WAŻNOŚCI NAUKOWEJ (v0.7.2).
++
++Różnią się od testów jednostkowych: nie sprawdzają, czy kod się wykonuje,
++lecz czy eksperyment MA SENS. Zielony kod przy martwej zmiennej scenariusza
++(bug z v0.4/v0.5) przeszedłby testy jednostkowe — te testy by go złapały.
++"""
++
++from clos_world.scenarios import stable_world, shock_world, is_control
++from clos_curriculum.laboratory.statistics import (
++    compute_ci95, glass_delta, validate_sample_size, metrology_report,
++)
++
++
++def _series(fn, seed, ticks=120):
++    return [fn(t, seed=seed) for t in range(ticks)]
++
++
++class TestControlEnvironment:
++    def test_stable_world_is_declared_control(self):
++        assert is_control("stable_world") is True
++
++    def test_stable_world_deterministic_across_seeds(self):
++        # OCZEKIWANE: kontrola daje identyczny przebieg dla każdego seedu.
++        a = _series(stable_world, 100)
++        b = _series(stable_world, 200)
++        c = _series(stable_world, 999)
++        assert a == b == c, "Środowisko kontrolne musi być deterministyczne"
++
++
++class TestStochasticScenario:
++    def test_shock_world_varies_by_seed(self):
++        # Scenariusz stochastyczny MUSI reagować na seed (inaczej martwa zmienna).
++        a = _series(shock_world, 100)
++        b = _series(shock_world, 200)
++        assert a != b, "shock_world musi zależeć od seedu (realna wariancja)"
++
++    def test_shock_world_endpoint_variance_positive(self):
++        endpoints = [shock_world(119, seed=s) for s in (100, 200, 300, 400, 500)]
++        stats = compute_ci95(endpoints)
++        assert stats["n_effective"] >= 2
++        assert stats["ci95_valid"] is True
++
++
++class TestMetrologyGuards:
++    def test_ci95_flags_deterministic_as_invalid(self):
++        stats = compute_ci95([2.2089, 2.2089, 2.2089])
++        assert stats["deterministic"] is True
++        assert stats["ci95_valid"] is False
++        assert stats["n_effective"] == 1
++
++    def test_ci95_real_interval_is_valid(self):
++        stats = compute_ci95([1.0, 2.0, 3.0, 4.0, 5.0])
++        assert stats["ci95_valid"] is True
++        assert stats["ci95_low"] < stats["mean"] < stats["ci95_high"]
++
++    def test_sample_size_detects_pseudoreplication(self):
++        check = validate_sample_size([0.84, 0.84, 0.84])
++        assert check["pseudoreplication_warning"] is True
++        assert check["n_effective"] == 1
++
++    def test_glass_delta_works_against_zero_variance_control(self):
++        control = [2.20, 2.20, 2.20]          # deterministyczna kontrola
++        experimental = [1.9, 2.1, 1.8, 2.0]   # warunek stochastyczny
++        res = glass_delta(control, experimental)
++        assert res["computable"] is True
++        assert res["delta"] is not None
++
++    def test_metrology_report_marks_control(self):
++        rep = metrology_report([2.2089, 2.2089, 2.2089], control=True, label="L0.1")
++        assert rep["control_environment"] is True
++        assert rep["ci95_valid"] is False
++
++
++class TestRegressionGuards:
++    def test_kernel_imports(self):
++        # Regresja: brak importu typing.List psuł zbieranie testów na HEAD.
++        from clos_kernel.kernel import Kernel
++        assert Kernel is not None

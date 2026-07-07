@@ -1,0 +1,17 @@
+{
+  "run_id": "default_noise_world_s4",
+  "genome": "default",
+  "scenario": "noise_world",
+  "seed": 4,
+  "ticks": 300,
+  "stability_score": 2.2176,
+  "mse": 0.2239,
+  "entropy_volatility": 0.1947,
+  "energy_drift": -0.843,
+  "adaptation_tick": 39,
+  "convergence_tick": 299,
+  "chaos_end": 0,
+  "memory_size": 63,
+  "final_entropy": 1.0,
+  "final_energy": 0.156
+}

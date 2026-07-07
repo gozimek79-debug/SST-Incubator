@@ -1,0 +1,93 @@
+{
+  "level": 0,
+  "level_passed": true,
+  "exam_passed": true,
+  "passed_lessons": 3,
+  "total_lessons": 3,
+  "results": {
+    "L0.1": {
+      "lesson_id": "L0.1",
+      "name": "First Breath – Homeostasis",
+      "level": 0,
+      "hypothesis": "Brain osiągnie stability_score > 1.0 w stable_world.",
+      "grade": "PASS",
+      "total_runs": 10,
+      "completed_runs": 10,
+      "primary_endpoint": "stability_score",
+      "statistics": {
+        "mean": 2.2089,
+        "std": 0.0,
+        "ci95_low": 2.2089,
+        "ci95_high": 2.2089,
+        "n": 10
+      },
+      "sample_validation": {
+        "sample_size": 10,
+        "min_required": 5,
+        "sufficient": true,
+        "can_compute_ci95": true,
+        "can_compute_effect_size": true
+      },
+      "pass_conditions_check": {
+        "passed": true,
+        "fail_reasons": []
+      }
+    },
+    "L0.2": {
+      "lesson_id": "L0.2",
+      "name": "First Light – Sensory Response",
+      "level": 0,
+      "hypothesis": "Brain zareaguje zmianą entropii na bodziec.",
+      "grade": "PASS",
+      "total_runs": 20,
+      "completed_runs": 20,
+      "primary_endpoint": "entropy_volatility",
+      "statistics": {
+        "mean": 0.200935,
+        "std": 0.008623,
+        "ci95_low": 0.197156,
+        "ci95_high": 0.204714,
+        "n": 20
+      },
+      "sample_validation": {
+        "sample_size": 20,
+        "min_required": 5,
+        "sufficient": true,
+        "can_compute_ci95": true,
+        "can_compute_effect_size": true
+      },
+      "pass_conditions_check": {
+        "passed": true,
+        "fail_reasons": []
+      }
+    },
+    "EXAM0": {
+      "lesson_id": "EXAM0",
+      "name": "Level 0 Exam – Basic Survival",
+      "level": 0,
+      "hypothesis": "Brain zaliczy minimum 3/4 scenariuszy.",
+      "grade": "PASS",
+      "total_runs": 80,
+      "completed_runs": 80,
+      "primary_endpoint": "stability_score",
+      "statistics": {
+        "mean": 1.836662,
+        "std": 0.226926,
+        "ci95_low": 1.786935,
+        "ci95_high": 1.88639,
+        "n": 80
+      },
+      "sample_validation": {
+        "sample_size": 80,
+        "min_required": 20,
+        "sufficient": true,
+        "can_compute_ci95": true,
+        "can_compute_effect_size": true
+      },
+      "pass_conditions_check": {
+        "passed": true,
+        "fail_reasons": []
+      }
+    }
+  }
+}
