@@ -1,14 +1,18 @@
-﻿"""CLI Runner v0.7.3."""
+﻿"""CLI Runner v0.8."""
 
 import sys, os
 sys.path.insert(0, os.getcwd())
+
+def run_academy():
+    from clos_academy import run_lesson_L1_1
+    run_lesson_L1_1()
 
 def run_school():
     from clos_curriculum.academy.levels import get_level
     from clos_curriculum.laboratory.runner import run_lesson
     import json
     print("=" * 60)
-    print("CLOS Cognitive Research Curriculum v0.7.3")
+    print("CLOS Cognitive Research Curriculum v0.8")
     print("SCHOOL FOR BRAIN")
     print("=" * 60)
     level0 = get_level(0)

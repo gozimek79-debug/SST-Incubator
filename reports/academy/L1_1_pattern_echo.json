@@ -1,0 +1,454 @@
+{
+  "lesson": "L1.1",
+  "title": "Pattern Echo – Working Memory Emergence",
+  "version": "0.8.1",
+  "hypothesis": "Brain utrzyma reprezentacje wzorca po usunieciu bodzca",
+  "primary_endpoint": "MSE vs pattern @ 50 ticks of silence",
+  "pass_condition": "MSE@50 < 0.5",
+  "total_runs": 20,
+  "genomes": [
+    "default",
+    "highly_plastic"
+  ],
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "default_stats": {
+    "mean": 0.331986,
+    "std": 0.0,
+    "ci95_low": 0.331986,
+    "ci95_high": 0.331986,
+    "n": 10,
+    "n_effective": 1,
+    "deterministic": true,
+    "ci95_valid": false,
+    "interpretation": "wynik deterministyczny — CI95 nie ma zastosowania (oczekiwane dla środowiska kontrolnego)"
+  },
+  "plastic_stats": {
+    "mean": 0.331986,
+    "std": 0.0,
+    "ci95_low": 0.331986,
+    "ci95_high": 0.331986,
+    "n": 10,
+    "n_effective": 1,
+    "deterministic": true,
+    "ci95_valid": false,
+    "interpretation": "wynik deterministyczny — CI95 nie ma zastosowania (oczekiwane dla środowiska kontrolnego)"
+  },
+  "glass_delta": {
+    "delta": null,
+    "computable": false,
+    "reason": "grupa eksperymentalna bez wariancji"
+  },
+  "results": [
+    {
+      "run_id": "L1.1_default_s1",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 1,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s2",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 2,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s3",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 3,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s4",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 4,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s5",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 5,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s6",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 6,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s7",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 7,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s8",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 8,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s9",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 9,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_default_s10",
+      "lesson": "L1.1",
+      "genome": "default",
+      "seed": 10,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.119525,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002125,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.448,
+      "final_entropy": 1.0,
+      "memory_size": 6,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s1",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 1,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s2",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 2,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s3",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 3,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s4",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 4,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s5",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 5,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s6",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 6,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s7",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 7,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s8",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 8,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s9",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 9,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    },
+    {
+      "run_id": "L1.1_highly_plastic_s10",
+      "lesson": "L1.1",
+      "genome": "highly_plastic",
+      "seed": 10,
+      "primary_endpoint": {
+        "metric": "mse_vs_pattern_after_stimulus_removal",
+        "measurement_tick": 50,
+        "value": 0.331986
+      },
+      "mse_stimulus_phase": 0.093795,
+      "mse_silence_phase": 0.331986,
+      "memory_decay_rate": 0.002382,
+      "stability_score": 0.0,
+      "adaptation_tick": 0,
+      "final_energy": 0.414,
+      "final_entropy": 1.0,
+      "memory_size": 2,
+      "passed": true
+    }
+  ]
+}

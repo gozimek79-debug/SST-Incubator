@@ -1,0 +1,41 @@
+﻿{
+  "lesson_id": "L1.1",
+  "title": "Pattern Echo – Working Memory Emergence",
+  "preregistration_date": "2026-07-07",
+  "hypothesis": "Brain utrzyma reprezentacje wzorca przez co najmniej 20 tickow po zakonczeniu stymulacji, wykazujac MSE < 0.5 po 50 tickach od usuniecia bodzca.",
+  "primary_endpoint": {
+    "metric": "mse_after_stimulus_removal",
+    "measurement_tick": 50,
+    "description": "MSE mierzone 50 tickow po usunieciu bodzca wzorcowego"
+  },
+  "secondary_endpoints": [
+    "memory_decay_rate",
+    "stability_score",
+    "energy_cost",
+    "adaptation_time",
+    "entropy_volatility",
+    "observation_events_count"
+  ],
+  "pass_conditions": {
+    "mse_at_tick_50_max": 0.5,
+    "stability_score_min": 0.3
+  },
+  "fail_conditions": {
+    "mse_at_tick_50_min": 0.9
+  },
+  "experiment_design": {
+    "genomes": ["default_v1", "highly_plastic_v1"],
+    "seeds": [1,2,3,4,5,6,7,8,9,10],
+    "ticks_total": 200,
+    "stimulus_ticks": 100,
+    "silence_ticks": 100,
+    "scenario": "stable_world"
+  },
+  "statistical_plan": {
+    "primary_test": "Glass's delta vs Control Environment",
+    "confidence_level": 0.95,
+    "min_effect_size": 0.5,
+    "min_sample_size": 10
+  },
+  "version": "0.8"
+}
