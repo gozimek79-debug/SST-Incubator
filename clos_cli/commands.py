@@ -1,4 +1,4 @@
-﻿"""CLI Command Router v0.6."""
+﻿"""CLI Command Router v0.7."""
 
 from .runner import run_demo, run_compare, run_benchmark, run_dashboard, run_experiment, run_matrix, run_school
 
