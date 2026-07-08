@@ -1,7 +1,13 @@
-﻿__pycache__/
+__pycache__/
 *.pyc
 *.pyo
 .env
 storage/*.db
 experiments/*
 !experiments/.gitkeep
+
+# v0.8.2: artefakty testowe/runtime (nie naleza do repo)
+storage/birth_log.json
+storage/test_dash_*.json
+storage/snapshots/*.json
+.pytest_cache/

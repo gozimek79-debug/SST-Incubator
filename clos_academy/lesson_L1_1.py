@@ -13,6 +13,7 @@ from clos_scientist.experiment import run_experiment
 from clos_scientist.analyzer import detect_phases
 from clos_kernel.event_bus import EventBus
 from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta
+from clos_academy.echo_runtime import silent_step
 
 
 def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100):
@@ -41,8 +42,10 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
     
     for tick in range(total_ticks):
         pattern_signal = world.step(tick=tick, seed=seed, scenario="stable_world")
-        stimulus = pattern_signal if tick < stimulus_ticks else -1.0
-        tissue = brain_rt.step(brain=tissue, sensory_input=stimulus, seed=seed, tick=tick)
+        if tick < stimulus_ticks:
+            tissue = brain_rt.step(brain=tissue, sensory_input=pattern_signal, seed=seed, tick=tick)
+        else:
+            tissue = silent_step(tissue, seed=seed, tick=tick)  # opcja B: Core nietkniety
         
         mse_vs_pattern = abs(tissue.last_prediction - pattern_signal) if tissue.last_prediction is not None else 0
         

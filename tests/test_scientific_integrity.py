@@ -76,3 +76,30 @@ class TestRegressionGuards:
         # Regresja: brak importu typing.List psuł zbieranie testów na HEAD.
         from clos_kernel.kernel import Kernel
         assert Kernel is not None
+
+
+class TestEchoRuntimeOptionB:
+    """Faza ciszy zyje w warstwie Academy, Core pozostaje zamrozony (opcja B)."""
+
+    def _brain(self):
+        from clos_brain.tissue import BrainTissue
+        return BrainTissue(brain_id="t", genome_id="g", plasticity=0.5,
+                           homeostasis_target=0.5, learning_rate=0.1,
+                           decay_rate=0.01, memory_capacity=100)
+
+    def test_perception_is_frozen_clamps_negative(self):
+        # Core znow klampuje wartosci ujemne (brak logiki ciszy w Core).
+        from clos_brain.runtime.perception import perceive
+        b = self._brain()
+        b = perceive(b, -0.5)
+        assert b.sensory_buffer[-1] == 0.0
+
+    def test_silent_step_does_not_touch_buffer(self):
+        from clos_academy.echo_runtime import silent_step
+        from clos_brain.runtime.perception import perceive
+        b = self._brain()
+        b = perceive(b, 0.5)
+        n = len(b.sensory_buffer)
+        b = silent_step(b, seed=1, tick=5)   # cisza: bufor zamrozony
+        assert len(b.sensory_buffer) == n
+        assert b.last_input is None

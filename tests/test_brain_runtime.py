@@ -31,14 +31,6 @@ class TestPerception:
         brain = perceive(brain, 0.0)
         assert brain.sensory_buffer[1] == 0.0
 
-    def test_perceive_negative_is_silence(self):
-        brain = make_brain()
-        brain = perceive(brain, 0.5)
-        assert len(brain.sensory_buffer) == 1
-        brain = perceive(brain, -1.0)
-        assert len(brain.sensory_buffer) == 1
-        assert brain.last_input is None
-
     def test_perceive_buffer_limit(self):
         brain = make_brain()
         brain.prediction_depth = 2
