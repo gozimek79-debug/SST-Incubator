@@ -1,0 +1,246 @@
+diff --git a/.gitignore b/.gitignore
+index 2e3e52b..3bc5a67 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,7 +1,12 @@
+-﻿__pycache__/
++__pycache__/
+ *.pyc
+ *.pyo
+ .env
+ storage/*.db
+ experiments/*
+ !experiments/.gitkeep
++
++# v0.8.2: artefakty testowe Dashboard/snapshots (nie naleza do repo)
++storage/test_dash_*.json
++storage/snapshots/*.json
++.pytest_cache/
+diff --git a/clos_academy/echo_runtime.py b/clos_academy/echo_runtime.py
+new file mode 100644
+index 0000000..df9a21e
+--- /dev/null
++++ b/clos_academy/echo_runtime.py
+@@ -0,0 +1,50 @@
++"""Echo Runtime — warstwa Academy dla fazy ciszy (v0.8.2, opcja B).
++
++Cel: obsłużyć fazę ciszy lekcji Pattern Echo BEZ modyfikacji Brain Runtime.
++Zamiast wprowadzać do Core sentinel `-1.0`/`None` (co ruszało zamrożony rdzeń),
++eksperyment sam decyduje, że w danym ticku NIE ma bodźca zewnętrznego, i
++uruchamia ISTNIEJĄCE, zamrożone prymitywy Core — pomijając jedynie `perceive`.
++
++Dzięki temu:
++- bufor sensoryczny nie jest aktualizowany (Brain musi polegać na pamięci),
++- `predict()` (zamrożony) liczy predykcję z bufora/pamięci,
++- `compute_error()` (zamrożony) sam pomija tick, bo last_input=None,
++- Brain Runtime pozostaje bajtowo identyczny z baseline (Core frozen).
++
++To NIE jest kod poznawczy — to orkiestracja eksperymentu warstwy badawczej.
++"""
++
++import random
++
++from clos_brain.tissue import BrainTissue
++# Wyłącznie ZAMROŻONE prymitywy Core — importowane, nie modyfikowane:
++from clos_brain.runtime.prediction import predict
++from clos_brain.runtime.precision import compute_error, compute_precision
++from clos_brain.runtime.homeostasis import regulate
++from clos_brain.runtime.plasticity import update_memory, apply_decay
++
++
++def silent_step(brain: BrainTissue, seed: int, tick: int) -> BrainTissue:
++    """Jeden krok fazy ciszy — pipeline Core BEZ percepcji.
++
++    Odwzorowuje efektywne zachowanie z v0.8.1 (perceive był no-opem w ciszy),
++    ale nie dotyka Brain Runtime. Kolejność kroków identyczna jak w
++    BrainRuntime.step, pominięty jest wyłącznie krok 1 (perceive).
++    """
++    random.seed(seed + tick)
++
++    # Eksperyment deklaruje brak bodźca zewnętrznego w tym ticku.
++    # (Ustawienie stanu wejścia to rola eksperymentu, nie kod poznawczy Core.)
++    brain.last_input = None
++
++    brain = predict(brain)             # zamrożony: predykcja z bufora/pamięci
++    brain = compute_error(brain)       # zamrożony: pomija tick (last_input=None)
++    brain = compute_precision(brain)   # zamrożony
++    brain = regulate(brain)            # zamrożony: homeostaza
++    brain = update_memory(brain)       # zamrożony: plastyczność
++    if tick % 10 == 0:
++        brain = apply_decay(brain)     # zamrożony: zanikanie pamięci
++
++    brain.age += 1
++    brain.step_counter += 1
++    return brain
+diff --git a/clos_academy/lesson_L1_1.py b/clos_academy/lesson_L1_1.py
+index 3d5bfaf..d7bfbf1 100644
+--- a/clos_academy/lesson_L1_1.py
++++ b/clos_academy/lesson_L1_1.py
+@@ -19,6 +19,7 @@ from clos_scientist.experiment import run_experiment
+ from clos_scientist.analyzer import detect_phases
+ from clos_kernel.event_bus import EventBus
+ from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta
++from clos_academy.echo_runtime import silent_step
+ 
+ 
+ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100):
+@@ -52,11 +53,12 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
+         pattern_signal = world.step(tick=tick, seed=seed, scenario="stable_world")
+         
+         if tick < stimulus_ticks:
+-            stimulus = pattern_signal  # Faza stymulacji: normalny bodziec
++            # Faza stymulacji: normalny bodziec przez ZAMROZONY pipeline Core
++            tissue = brain_rt.step(brain=tissue, sensory_input=pattern_signal, seed=seed, tick=tick)
+         else:
+-            stimulus = -1.0  # Faza ciszy: wartosc spoza zakresu [0,1] = brak bodzca
+-        
+-        tissue = brain_rt.step(brain=tissue, sensory_input=stimulus, seed=seed, tick=tick)
++            # Faza ciszy: warstwa Academy orkiestruje zamrozone prymitywy Core
++            # (opcja B) - Brain Runtime pozostaje nietkniety, brak sentinela.
++            tissue = silent_step(tissue, seed=seed, tick=tick)
+         
+         # MSE miedzy predykcja a wzorcem (niezaleznie od fazy)
+         if tissue.last_prediction is not None:
+diff --git a/clos_brain/runtime/perception.py b/clos_brain/runtime/perception.py
+index 44b680e..1c22b71 100644
+--- a/clos_brain/runtime/perception.py
++++ b/clos_brain/runtime/perception.py
+@@ -1,35 +1,31 @@
+-﻿"""Perception – konwersja bodzca na stan wewnetrzny.
+-
+-v0.8.1: obsluga stimulus=-1.0 jako brak bodzca (faza ciszy).
+-W takim przypadku bufor sensoryczny NIE jest aktualizowany,
+-a Brain musi polegac na pamieci.
+-"""
++﻿"""Perception – konwersja bodźca na stan wewnętrzny."""
+ 
+ from clos_brain.tissue import BrainTissue
+ 
+ 
+ def perceive(brain: BrainTissue, sensory_input: float) -> BrainTissue:
+-    """Przetworz bodziec zmyslowy.
++    """Przetwórz bodziec zmysłowy.
++
++    Konwertuje sensory_input na wektor stanu i zapisuje w buforze.
+ 
+     Args:
+         brain: Aktualny stan Brain.
+-        sensory_input: Wartosc bodzca (0.0-1.0) lub -1.0 dla braku bodzca.
++        sensory_input: Wartość bodźca (0.0 – 1.0).
+ 
+     Returns:
+         Zaktualizowany stan Brain.
+     """
+-    # -1.0 = brak bodzca (faza ciszy w Pattern Echo)
+-    if sensory_input < 0.0:
+-        brain.last_input = None  # Nie aktualizuj bufora
+-        return brain
+-
+-    # Normalna obsluga bodzca
++    # Normalizacja wejścia do zakresu [0, 1]
+     clamped_input = max(0.0, min(1.0, sensory_input))
++
++    # Zapis do bufora sensorycznego
+     brain.sensory_buffer.append(clamped_input)
+ 
++    # Ograniczenie bufora
+     max_buffer = max(10, brain.prediction_depth * 3)
+     if len(brain.sensory_buffer) > max_buffer:
+         brain.sensory_buffer = brain.sensory_buffer[-max_buffer:]
+ 
+     brain.last_input = clamped_input
++
+     return brain
+diff --git a/clos_brain/runtime/prediction.py b/clos_brain/runtime/prediction.py
+index 40b9f71..6d8237d 100644
+--- a/clos_brain/runtime/prediction.py
++++ b/clos_brain/runtime/prediction.py
+@@ -1,52 +1,71 @@
+-﻿"""Prediction – generowanie przewidywan na podstawie pamieci.
+-
+-v0.8.1: obsluga last_input=None (faza ciszy). Gdy brak biezacego
+-bodzca, Brain przewiduje na podstawie ostatnich wpisow w buforze.
+-"""
++﻿"""Prediction – generowanie przewidywań na podstawie pamięci."""
+ 
+ import hashlib
+ from clos_brain.tissue import BrainTissue
+ 
+ 
+ def predict(brain: BrainTissue) -> BrainTissue:
+-    """Wygeneruj predykcje na podstawie pamieci."""
+-    
+-    # Gdy nie ma biezacego wejscia (faza ciszy) – przewiduj z bufora
+-    if brain.last_input is None:
+-        if brain.sensory_buffer:
+-            recent = brain.sensory_buffer[-brain.prediction_depth:]
+-            brain.last_prediction = sum(recent) / len(recent)
+-        else:
+-            brain.last_prediction = 0.5
+-        brain.last_prediction = max(0.0, min(1.0, brain.last_prediction))
++    """Wygeneruj predykcję na podstawie pamięci.
++
++    Bardzo prosta logika: uśrednianie zapamiętanych predykcji
++    ważonych przez podobieństwo do aktualnego wejścia.
++
++    Args:
++        brain: Aktualny stan Brain.
++
++    Returns:
++        Zaktualizowany stan Brain z ustawionym last_prediction.
++    """
++    if not brain.sensory_buffer:
++        brain.last_prediction = 0.5  # Neutralna predykcja
+         return brain
+ 
+-    current_input = brain.sensory_buffer[-1] if brain.sensory_buffer else brain.last_input
++    current_input = brain.sensory_buffer[-1]
+     input_hash = _hash_stimulus(current_input)
+ 
++    # Szukaj podobnych rekordów w pamięci
+     matching_records = [
+         r for r in brain.memory
+         if abs(r.stimulus_hash - input_hash) < brain.attention_threshold * 1000
+     ]
+ 
+     if matching_records:
++        # Średnia ważona po błędzie (im mniejszy błąd, tym większa waga)
+         total_weight = 0.0
+         weighted_sum = 0.0
++
+         for record in matching_records[-brain.prediction_depth:]:
+             weight = 1.0 / (1.0 + record.error)
+             weighted_sum += record.prediction * weight
+             total_weight += weight
+-        brain.last_prediction = weighted_sum / total_weight if total_weight > 0 else 0.5
++
++        if total_weight > 0:
++            brain.last_prediction = weighted_sum / total_weight
++        else:
++            brain.last_prediction = 0.5
+     else:
++        # Brak pasujących rekordów – neutralna predykcja
+         if brain.sensory_buffer:
++            # Użyj średniej z ostatnich wejść jako prostej heurystyki
+             recent = brain.sensory_buffer[-brain.prediction_depth:]
+             brain.last_prediction = sum(recent) / len(recent)
+         else:
+             brain.last_prediction = 0.5
+ 
++    # Klamping do [0, 1]
+     brain.last_prediction = max(0.0, min(1.0, brain.last_prediction))
++
+     return brain
+ 
+ 
+ def _hash_stimulus(value: float, buckets: int = 100) -> int:
++    """Hashuj wartość bodźca do dyskretnego bucketa.
++
++    Args:
++        value: Wartość bodźca.
++        buckets: Liczba bucketów.
++
++    Returns:
++        Wartość całkowita 0 – buckets.
++    """
+     return int(max(0.0, min(1.0, value)) * buckets)
