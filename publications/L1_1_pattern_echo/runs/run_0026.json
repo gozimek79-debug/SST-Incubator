@@ -1,0 +1,21 @@
+{
+  "run_id": "L1.1_highly_plastic_s7_noise_world",
+  "lesson": "L1.1",
+  "genome": "highly_plastic",
+  "seed": 7,
+  "scenario": "noise_world",
+  "primary_endpoint": {
+    "metric": "mse_vs_pattern_after_stimulus_removal",
+    "measurement_tick": 50,
+    "value": 0.118453
+  },
+  "mse_stimulus_phase": 0.203599,
+  "mse_silence_phase": 0.108847,
+  "memory_decay_rate": -0.000948,
+  "stability_score": 0.0,
+  "adaptation_tick": 0,
+  "final_energy": 0.414,
+  "final_entropy": 1.0,
+  "memory_size": 17,
+  "passed": true
+}

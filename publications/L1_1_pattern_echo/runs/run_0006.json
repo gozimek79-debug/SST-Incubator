@@ -1,0 +1,21 @@
+{
+  "run_id": "L1.1_default_s7_noise_world",
+  "lesson": "L1.1",
+  "genome": "default",
+  "seed": 7,
+  "scenario": "noise_world",
+  "primary_endpoint": {
+    "metric": "mse_vs_pattern_after_stimulus_removal",
+    "measurement_tick": 50,
+    "value": 0.117209
+  },
+  "mse_stimulus_phase": 0.197684,
+  "mse_silence_phase": 0.107475,
+  "memory_decay_rate": -0.000902,
+  "stability_score": 0.0,
+  "adaptation_tick": 0,
+  "final_energy": 0.454,
+  "final_entropy": 1.0,
+  "memory_size": 42,
+  "passed": true
+}

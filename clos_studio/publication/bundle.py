@@ -52,7 +52,8 @@ def build_bundle(
     bundle_path.mkdir(parents=True, exist_ok=True)
 
     # Manifest
-    with open(bundle_path / "manifest.json", "w", encoding="utf-8") as f:
+    manifest_path = bundle_path / "manifest.json"
+    with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest_dict, f, indent=2, ensure_ascii=False)
 
     # Provenance
@@ -69,14 +70,21 @@ def build_bundle(
     # Metadata
     # git_commit: użyj z provenance, a gdy pusty — automatycznie z repo.
     git_commit = provenance_dict.get("git_commit", "") or _git_commit()
+    timestamp = datetime.now().isoformat()
+    # manifest_hash: sha256 pliku manifest.json zapisanego na dysku (integralnosc
+    # artefaktu) — odrebne od config_hash (sha256 kanonicznego slownika konfiguracji,
+    # stabilne niezaleznie od formatowania pliku).
+    manifest_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     metadata = {
         "experiment_id": experiment_id,
         "git_commit": git_commit,
         "config_hash": _config_hash(manifest_dict),
+        "manifest_hash": manifest_hash,
+        "timestamp": timestamp,
         "clos_version": provenance_dict.get("clos_version", ""),
         "cli_version": provenance_dict.get("cli_version", ""),
         "manifest_version": manifest_dict.get("schema_version", 1),
-        "bundled_at": datetime.now().isoformat(),
+        "bundled_at": timestamp,
         "total_runs": len(results),
         "reproducible": bool(git_commit),
     }

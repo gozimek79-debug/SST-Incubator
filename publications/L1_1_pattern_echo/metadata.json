@@ -1,0 +1,13 @@
+{
+  "experiment_id": "L1_1_pattern_echo",
+  "git_commit": "91e47669a82774b9b27fbebbd2c4e7f23e6dfdf9",
+  "config_hash": "0d786263b9e5be55ec5f4aae19a3d5a536e315325bdcdabfbde63007e598a290",
+  "manifest_hash": "ffdff9844f94da57405549a56e9277e40a672f26448a3fa971c4e1203ee44a94",
+  "timestamp": "2026-07-08T21:46:32.245404",
+  "clos_version": "0.8.4",
+  "cli_version": "0.1.1",
+  "manifest_version": 1,
+  "bundled_at": "2026-07-08T21:46:32.245404",
+  "total_runs": 40,
+  "reproducible": true
+}

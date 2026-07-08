@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "experiment": {
+    "id": "L1_1_pattern_echo",
+    "description": "L1.1 Pattern Echo - Working Memory Emergence (noise_world, control_baseline=stable_world)"
+  },
+  "matrix": {
+    "genomes": [
+      "default",
+      "highly_plastic"
+    ],
+    "scenarios": [
+      "noise_world",
+      "stable_world"
+    ],
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "ticks": 200,
+  "workflow_version": "0.8.4",
+  "parent_experiment": null,
+  "seed_policy": "fixed",
+  "publish_on_verify": true,
+  "primary_scenario": "noise_world",
+  "control_baseline": "stable_world"
+}

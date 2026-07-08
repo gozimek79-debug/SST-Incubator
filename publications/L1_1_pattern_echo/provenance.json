@@ -1,0 +1,24 @@
+{
+  "experiment_id": "L1_1_pattern_echo",
+  "parent_experiment": null,
+  "manifest_version": 1,
+  "genome": "default,highly_plastic",
+  "scenario": "noise_world,stable_world",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "ticks": 200,
+  "clos_version": "0.8.4",
+  "cli_version": "0.1.1",
+  "git_commit": "91e47669a82774b9b27fbebbd2c4e7f23e6dfdf9",
+  "created_at": "2026-07-08T21:46:32.183128"
+}

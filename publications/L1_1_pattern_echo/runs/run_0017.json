@@ -1,0 +1,21 @@
+{
+  "run_id": "L1.1_default_s8_stable_world",
+  "lesson": "L1.1",
+  "genome": "default",
+  "seed": 8,
+  "scenario": "stable_world",
+  "primary_endpoint": {
+    "metric": "mse_vs_pattern_after_stimulus_removal",
+    "measurement_tick": 50,
+    "value": 0.052383
+  },
+  "mse_stimulus_phase": 0.119525,
+  "mse_silence_phase": 0.051932,
+  "memory_decay_rate": -0.000676,
+  "stability_score": 0.0,
+  "adaptation_tick": 0,
+  "final_energy": 0.448,
+  "final_entropy": 1.0,
+  "memory_size": 6,
+  "passed": true
+}
