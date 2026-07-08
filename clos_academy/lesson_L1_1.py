@@ -1,4 +1,9 @@
-﻿"""Lesson L1.1 – Pattern Echo: Working Memory Emergence (v0.8.1 final)."""
+﻿"""Lesson L1.1 - Pattern Echo: Working Memory Emergence (v0.8.4).
+
+Primary experiment: scenario=noise_world (wariancja srodowiskowa miedzy seedami).
+Control baseline: scenario=stable_world (deterministyczny, do Glass's delta).
+Patrz: publications/preregistration_L1_1.json.
+"""
 
 import json, os, sys, logging
 sys.path.insert(0, os.getcwd())
@@ -14,10 +19,9 @@ from clos_scientist.analyzer import detect_phases
 from clos_kernel.event_bus import EventBus
 from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta
 from clos_academy.echo_runtime import silent_step
-from clos_world.generators import gaussian_noise
 
 
-def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100):
+def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100, scenario="noise_world"):
     # Wycisz WSZYSTKIE loggery
     for name in ["BirthEngine", "root", ""]:
         logging.getLogger(name).setLevel(logging.ERROR)
@@ -42,12 +46,9 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
     telemetry = []
     
     for tick in range(total_ticks):
-        pattern_signal = world.step(tick=tick, seed=seed, scenario="stable_world")
+        pattern_signal = world.step(tick=tick, seed=seed, scenario=scenario)
         if tick < stimulus_ticks:
-            # Szum prezentacji zalezny od seedu: kazdy run to niezalezna proba.
-            presented = pattern_signal + gaussian_noise(tick, mean=0.0, variance=0.03, seed=seed)
-            presented = max(0.0, min(1.0, presented))
-            tissue = brain_rt.step(brain=tissue, sensory_input=presented, seed=seed, tick=tick)
+            tissue = brain_rt.step(brain=tissue, sensory_input=pattern_signal, seed=seed, tick=tick)
         else:
             tissue = silent_step(tissue, seed=seed, tick=tick)  # opcja B: Core nietkniety
         
@@ -79,8 +80,8 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
     phases = detect_phases(snapshots)
     
     output = {
-        "run_id": f"L1.1_{genome_preset}_s{seed}", "lesson": "L1.1",
-        "genome": genome_preset, "seed": seed,
+        "run_id": f"L1.1_{genome_preset}_s{seed}_{scenario}", "lesson": "L1.1",
+        "genome": genome_preset, "seed": seed, "scenario": scenario,
         "primary_endpoint": {"metric": "mse_vs_pattern_after_stimulus_removal", "measurement_tick": 50, "value": round(mse_at_tick_50, 6)},
         "mse_stimulus_phase": round(mse_stimulus, 6), "mse_silence_phase": round(mse_silence, 6),
         "memory_decay_rate": round(memory_decay, 6),
@@ -95,39 +96,56 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
 
 def run_lesson_L1_1():
     print("=" * 60)
-    print("CLOS Cognitive Academy v0.8.1")
-    print("Lesson L1.1: Pattern Echo - Working Memory")
+    print("CLOS Cognitive Academy v0.8.4")
+    print("Lesson L1.1: Pattern Echo - Working Memory (noise_world)")
     print("=" * 60)
-    
-    genomes = ["default", "highly_plastic"]; seeds = list(range(1, 11)); all_results = []
-    
+
+    genomes = ["default", "highly_plastic"]; seeds = list(range(1, 11))
+    all_results = []       # scenario=noise_world (primary/experimental)
+    baseline_results = []  # scenario=stable_world (control baseline)
+    per_genome = {}
+
     for genome in genomes:
         print(f"\nGenome: {genome}")
         genome_results = []
         for seed in seeds:
             print(f"  seed {seed:2d}...", end=" ")
-            r = run_pattern_echo(genome_preset=genome, seed=seed)
+            r = run_pattern_echo(genome_preset=genome, seed=seed, scenario="noise_world")
             genome_results.append(r); all_results.append(r)
             print(f"{'PASS' if r['passed'] else 'FAIL'} (MSE@50={r['primary_endpoint']['value']:.4f})")
         mse_vals = [r["primary_endpoint"]["value"] for r in genome_results]
         stats = compute_ci95(mse_vals)
-        print(f"  Summary: {sum(1 for r in genome_results if r['passed'])}/{len(seeds)} passed, mean MSE@50={stats['mean']:.4f}")
-    
-    default_mse = [r["primary_endpoint"]["value"] for r in all_results if r["genome"]=="default"]
-    plastic_mse = [r["primary_endpoint"]["value"] for r in all_results if r["genome"]=="highly_plastic"]
-    gd = glass_delta(default_mse, plastic_mse) if default_mse and plastic_mse else {}
-    
-    print(f"\n{'='*60}\nGENOME COMPARISON\n{'='*60}")
-    if gd.get("computable"):
-        print(f"Glass's delta: {gd['delta']:.4f}")
-    else:
-        print(f"Glass's delta: not computable ({gd.get('reason','')})")
-    print(f"  default_v1:      {sum(default_mse)/len(default_mse):.4f}")
-    print(f"  highly_plastic:  {sum(plastic_mse)/len(plastic_mse):.4f}")
-    
+        print(f"  Summary: {sum(1 for r in genome_results if r['passed'])}/{len(seeds)} passed, "
+              f"mean MSE@50={stats['mean']:.4f}, n_effective={stats['n_effective']}, ci95_valid={stats['ci95_valid']}")
+
+        baseline_genome_results = [run_pattern_echo(genome_preset=genome, seed=seed, scenario="stable_world")
+                                    for seed in seeds]
+        baseline_results.extend(baseline_genome_results)
+        baseline_mse = [r["primary_endpoint"]["value"] for r in baseline_genome_results]
+        baseline_stats = compute_ci95(baseline_mse)
+        gd = glass_delta(baseline_mse, mse_vals)
+        print(f"  Control baseline (stable_world): mean MSE@50={baseline_stats['mean']:.4f} "
+              f"(deterministic={baseline_stats['deterministic']})")
+        if gd.get("computable"):
+            print(f"  Glass's delta vs control: {gd['delta']:.4f}")
+        else:
+            print(f"  Glass's delta vs control: not computable ({gd.get('reason','')})")
+
+        per_genome[genome] = {
+            "experimental_stats": stats, "baseline_stats": baseline_stats,
+            "glass_delta_vs_control": gd,
+        }
+
     os.makedirs("reports/academy", exist_ok=True)
-    with open("reports/academy/L1_1_pattern_echo.json","w",encoding="utf-8") as f:
-        json.dump({"lesson":"L1.1","title":"Pattern Echo","version":"0.8.1","total_runs":len(all_results),"default_stats":compute_ci95(default_mse) if default_mse else {},"plastic_stats":compute_ci95(plastic_mse) if plastic_mse else {},"glass_delta":gd,"results":[{k:v for k,v in r.items() if k!="telemetry"} for r in all_results]},f,indent=2,ensure_ascii=False)
+    with open("reports/academy/L1_1_pattern_echo.json", "w", encoding="utf-8") as f:
+        json.dump({
+            "lesson": "L1.1", "title": "Pattern Echo", "version": "0.8.4",
+            "scenario": "noise_world", "control_baseline": "stable_world",
+            "total_runs": len(all_results) + len(baseline_results),
+            "per_genome": per_genome,
+            "results": [{k: v for k, v in r.items() if k != "telemetry"} for r in all_results],
+            "baseline_results": [{k: v for k, v in r.items() if k != "telemetry"} for r in baseline_results],
+        }, f, indent=2, ensure_ascii=False)
     print(f"\nReport: reports/academy/L1_1_pattern_echo.json")
     print("=" * 60)
     return all_results

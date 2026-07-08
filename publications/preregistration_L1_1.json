@@ -1,12 +1,12 @@
-﻿{
+{
   "lesson_id": "L1.1",
-  "title": "Pattern Echo – Working Memory Emergence",
-  "preregistration_date": "2026-07-07",
-  "hypothesis": "Brain utrzyma reprezentacje wzorca przez co najmniej 20 tickow po zakonczeniu stymulacji, wykazujac MSE < 0.5 po 50 tickach od usuniecia bodzca.",
+  "title": "Pattern Echo - Working Memory Emergence",
+  "preregistration_date": "2026-07-08",
+  "hypothesis": "Brain utrzyma reprezentacje wzorca prezentowanego w srodowisku zaszumionym (noise_world) przez co najmniej 20 tickow po zakonczeniu stymulacji, wykazujac MSE < 0.5 wzgledem wzorca 50 tickow po usunieciu bodzca.",
   "primary_endpoint": {
     "metric": "mse_after_stimulus_removal",
     "measurement_tick": 50,
-    "description": "MSE mierzone 50 tickow po usunieciu bodzca wzorcowego"
+    "description": "MSE (prediction vs pattern_signal) mierzone 50 tickow po usunieciu bodzca wzorcowego, w scenariuszu noise_world"
   },
   "secondary_endpoints": [
     "memory_decay_rate",
@@ -24,18 +24,27 @@
     "mse_at_tick_50_min": 0.9
   },
   "experiment_design": {
-    "genomes": ["default_v1", "highly_plastic_v1"],
-    "seeds": [1,2,3,4,5,6,7,8,9,10],
+    "genomes": ["default", "highly_plastic"],
+    "seeds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "min_seeds": 10,
     "ticks_total": 200,
     "stimulus_ticks": 100,
     "silence_ticks": 100,
-    "scenario": "stable_world"
+    "scenario": "noise_world",
+    "control_baseline": {
+      "scenario": "stable_world",
+      "role": "control_environment",
+      "description": "Deterministyczny (seed-niezalezny) przebieg referencyjny; brak szumu prezentacji. Uzywany wylacznie jako skala do Glass's delta, nie jako zrodlo wariancji eksperymentu."
+    }
   },
   "statistical_plan": {
-    "primary_test": "Glass's delta vs Control Environment",
+    "primary_test": "Glass's delta (experimental=noise_world vs control=stable_world), osobno dla kazdego genomu",
     "confidence_level": 0.95,
+    "ci_method": "CI95 liczone na wynikach noise_world (scenariusz eksperymentalny); stable_world jest deterministyczny wiec ci95_valid=False jest tam oczekiwane",
     "min_effect_size": 0.5,
-    "min_sample_size": 10
+    "min_sample_size": 10,
+    "pseudoreplication_guard": "n_effective musi byc liczone na wartosciach distinct (patrz clos_curriculum/laboratory/statistics.py); n_effective>=2 wymagane dla scenariusza noise_world"
   },
-  "version": "0.8"
+  "notes": "v0.8.4: usunieto szum prezentacji dodawany recznie do stable_world (v0.8.3, gaussian_noise na sygnale). Wariancja miedzyseedowa pochodzi teraz wylacznie ze srodowiska noise_world (clos_world/scenarios.py). stable_world pozostaje jako oddzielny, deterministyczny przebieg kontrolny do Glass's delta. Poprzednia wersja: preregistration_L1_1_v0.8.json.",
+  "version": "0.8.4"
 }
