@@ -14,6 +14,7 @@ from clos_scientist.analyzer import detect_phases
 from clos_kernel.event_bus import EventBus
 from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta
 from clos_academy.echo_runtime import silent_step
+from clos_world.generators import gaussian_noise
 
 
 def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100):
@@ -43,7 +44,10 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
     for tick in range(total_ticks):
         pattern_signal = world.step(tick=tick, seed=seed, scenario="stable_world")
         if tick < stimulus_ticks:
-            tissue = brain_rt.step(brain=tissue, sensory_input=pattern_signal, seed=seed, tick=tick)
+            # Szum prezentacji zalezny od seedu: kazdy run to niezalezna proba.
+            presented = pattern_signal + gaussian_noise(tick, mean=0.0, variance=0.03, seed=seed)
+            presented = max(0.0, min(1.0, presented))
+            tissue = brain_rt.step(brain=tissue, sensory_input=presented, seed=seed, tick=tick)
         else:
             tissue = silent_step(tissue, seed=seed, tick=tick)  # opcja B: Core nietkniety
         

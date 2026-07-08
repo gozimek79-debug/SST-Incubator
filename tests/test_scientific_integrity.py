@@ -103,3 +103,27 @@ class TestEchoRuntimeOptionB:
         b = silent_step(b, seed=1, tick=5)   # cisza: bufor zamrozony
         assert len(b.sensory_buffer) == n
         assert b.last_input is None
+
+
+class TestL11NoPseudoreplication:
+    """L1.1 musi dawac realna wariancje miedzy seedami (v0.8.3)."""
+
+    def test_l11_varies_across_seeds(self):
+        import logging
+        logging.getLogger().setLevel(logging.ERROR)
+        from clos_academy.lesson_L1_1 import run_pattern_echo
+        from clos_curriculum.laboratory.statistics import compute_ci95
+        vals = [run_pattern_echo("default", seed=s)["primary_endpoint"]["value"]
+                for s in (1, 2, 3)]
+        c = compute_ci95(vals)
+        assert c["n_effective"] >= 2, "L1.1 nie moze byc pseudoreplikacja (n_eff>=2)"
+
+
+class TestDriftIsStochastic:
+    """drift_world musi zalezec od seedu (nie jest srodowiskiem kontrolnym)."""
+
+    def test_drift_world_varies_by_seed(self):
+        from clos_world.scenarios import drift_world
+        a = [drift_world(t, seed=100) for t in range(60)]
+        b = [drift_world(t, seed=200) for t in range(60)]
+        assert a != b, "drift_world musi byc stochastyczny (seed-zalezny)"
