@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLOS Studio — Panel Badacza</title>
+<meta name="description" content="Panel badacza CLOS: wyniki lekcji, profil kompetencji, prowenancja, CI — czytane na żywo z artefaktów repo.">
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<div class="studio">
+
+  <header class="top">
+    <div class="brand">
+      <span class="bdot" aria-hidden="true"></span>
+      CLOS STUDIO
+      <span class="brand-sub">Panel Badacza</span>
+    </div>
+    <div class="top-r" id="top-pills">
+      <span class="pill pill-stub" data-stub="status">ładowanie…</span>
+      <span class="pill pill-stub" data-stub="branch">ładowanie…</span>
+      <span class="pill pill-stub" data-stub="ci">CI</span>
+    </div>
+  </header>
+
+  <div class="body">
+    <nav class="side" aria-label="Sekcje panelu">
+      <button class="nav on" data-section="overview" aria-current="true">Przegląd</button>
+      <button class="nav" data-section="lessons" aria-current="false">Lekcje i wyniki</button>
+      <button class="nav" data-section="competency" aria-current="false">Profil kompetencji</button>
+      <button class="nav" data-section="genomes" aria-current="false">Porównanie genomów</button>
+      <button class="nav" data-section="provenance" aria-current="false">Prowenancja</button>
+      <button class="nav" data-section="tests" aria-current="false">Testy i CI</button>
+      <button class="nav" data-section="reports" aria-current="false">Raporty</button>
+    </nav>
+
+    <main class="main">
+      <div class="main-h" id="main-heading">Przegląd</div>
+
+      <section class="grid section" id="section-overview" data-section="overview">
+        <div class="card-stub" role="status">
+          <p class="prose">Ładowanie danych z repo…</p>
+        </div>
+      </section>
+
+      <section class="grid section hidden" id="section-lessons" data-section="lessons">
+        <div class="card-stub" role="status">
+          <p class="prose">Ładowanie danych z repo…</p>
+        </div>
+      </section>
+
+      <section class="grid section hidden" id="section-competency" data-section="competency">
+        <div class="card-stub" role="status">
+          <p class="prose">Ładowanie danych z repo…</p>
+        </div>
+      </section>
+
+      <section class="grid section hidden" id="section-genomes" data-section="genomes">
+        <div class="card-stub" role="status">
+          <p class="prose">Ładowanie danych z repo…</p>
+        </div>
+      </section>
+
+      <section class="grid section hidden" id="section-provenance" data-section="provenance">
+        <div class="card-stub" role="status">
+          <p class="prose">Ładowanie danych z repo…</p>
+        </div>
+      </section>
+
+      <section class="grid section hidden" id="section-tests" data-section="tests">
+        <div class="card-stub" role="status">
+          <p class="prose">Ładowanie danych z repo…</p>
+        </div>
+      </section>
+
+      <section class="grid section hidden" id="section-reports" data-section="reports">
+        <div class="card-stub" role="status">
+          <p class="prose">Ładowanie danych z repo…</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="foot" id="foot">
+    Panel czyta dane na żywo z <code>reports/academy/</code> i <code>publications/</code> —
+    żadna liczba nie jest wpisana na sztywno w kod panelu.
+  </footer>
+
+</div>
+<script src="panel.js"></script>
+</body>
+</html>

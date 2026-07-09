@@ -11,3 +11,6 @@ storage/birth_log.json
 storage/test_dash_*.json
 storage/snapshots/*.json
 .pytest_cache/
+
+# v0.8.5: lokalna konfiguracja narzedzia (Claude Code), nie kod projektu
+.claude/
