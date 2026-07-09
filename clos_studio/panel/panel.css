@@ -143,6 +143,8 @@ code{font-family:'IBM Plex Mono',monospace}
 .state{font-size:13px; line-height:1.6; padding:4px 0}
 .state-loading{color:var(--mut)}
 .state-empty{color:var(--mut)}
+.state-pending{color:var(--mut); font-style:italic}
+.state-pending code{color:var(--chA); font-style:normal}
 .state-error{color:var(--crit)}
 .state-error .state-detail{color:var(--mut); font-size:11.5px; margin-top:6px}
 .state-error code{color:var(--crit)}
