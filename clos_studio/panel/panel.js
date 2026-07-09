@@ -124,6 +124,24 @@
     setSectionHTML(id, missingArtifactHtml(artifactLabel, err));
   }
 
+  // Blad wywolania GitHub API (nie raw.githubusercontent) — osobny,
+  // czytelniejszy komunikat dla przypadku limitu zapytan (403 /
+  // x-ratelimit-remaining=0), bo to realny scenariusz na hostowanym Pages
+  // z wieloma userami z jednego zakresu IP. Jawnie mowi, ze WLASCIWE dane
+  // (metryki naukowe) sa gdzie indziej i dzialaja niezaleznie.
+  function apiErrorHtml(scopeLabel, err) {
+    if (err && err.rateLimited) {
+      return '<div class="state state-error">' +
+        "<p>Limit zapytań GitHub API przekroczony (60/h bez autoryzacji dla tego adresu IP) — " +
+        escapeHtml(scopeLabel) + " chwilowo niedostępne.</p>" +
+        '<p class="state-detail">Właściwe dane (raporty, profil kompetencji, prowenancja, status testów/CI) ' +
+        "są czytane z raw.githubusercontent.com, nie z GitHub API — nie są tym dotknięte, patrz pozostałe " +
+        "sekcje/karty niżej.</p></div>";
+    }
+    return '<div class="state state-error"><p>Nie udało się pobrać z GitHub API: ' + escapeHtml(scopeLabel) + ".</p>" +
+      '<p class="state-detail">' + escapeHtml((err && err.message) || "nieznany błąd") + "</p></div>";
+  }
+
   /* ================= fetch layer ================= */
   function fetchJSON(path) {
     var url = BASE + path;
@@ -140,14 +158,26 @@
     });
   }
 
+  // GitHub API (nie raw.githubusercontent) ma limit 60 zapytan/h na IP bez
+  // autoryzacji. Na hostowanym panelu, uzywanym przez wielu userow z tego
+  // samego zakresu adresow, to realne ryzyko 403. apiHttpError() oznacza
+  // taki blad jawna flaga rateLimited, zeby render mogl pokazac zrozumialy
+  // komunikat zamiast pustej/zepsutej sekcji — i NIE blokowac reszty panelu,
+  // bo wlasciwe metryki naukowe pochodza z raw.githubusercontent.com, ktore
+  // ma inny, znacznie luzniejszy limit.
+  function apiHttpError(res, url) {
+    var e = new Error("HTTP " + res.status);
+    e.sourceUrl = url;
+    e.status = res.status;
+    var remaining = res.headers && res.headers.get ? res.headers.get("x-ratelimit-remaining") : null;
+    e.rateLimited = res.status === 403 || remaining === "0";
+    return e;
+  }
+
   function fetchLegacyBundles() {
     var listUrl = API_BASE + "/contents/publications?ref=" + BRANCH;
     return fetch(listUrl).then(function (res) {
-      if (!res.ok) {
-        var e = new Error("HTTP " + res.status);
-        e.sourceUrl = listUrl;
-        throw e;
-      }
+      if (!res.ok) throw apiHttpError(res, listUrl);
       return res.json();
     }).then(function (entries) {
       var dirs = entries.filter(function (en) {
@@ -164,15 +194,8 @@
   function fetchCommits(limit) {
     var url = API_BASE + "/commits?sha=" + BRANCH + "&per_page=" + (limit || 10);
     return fetch(url).then(function (res) {
-      if (!res.ok) {
-        var e = new Error("HTTP " + res.status);
-        e.sourceUrl = url;
-        throw e;
-      }
+      if (!res.ok) throw apiHttpError(res, url);
       return res.json();
-    }).catch(function (err) {
-      if (!err.sourceUrl) err.sourceUrl = url;
-      throw err;
     });
   }
 
@@ -277,8 +300,7 @@
           '<span class="tl-p"></span><span class="tl-t">' + escapeHtml(msg) + "</span></div>";
       }).join("") + "</div>";
     } else {
-      timelineHtml = '<div class="state state-error"><p>Nie udało się pobrać historii commitów z GitHub API.</p>' +
-        '<p class="state-detail">' + escapeHtml((ctx.commitsError && ctx.commitsError.message) || "") + "</p></div>";
+      timelineHtml = apiErrorHtml("historia commitów", ctx.commitsError);
     }
     var timelineCard = '<section class="card span"><header class="card-h">' +
       '<span class="card-t">Ostatnie commity</span><span class="card-s">gałąź ' + escapeHtml(BRANCH) +
@@ -453,9 +475,8 @@
             '<span class="leg-note">git_commit: ' + (m.git_commit ? escapeHtml(truncHash(m.git_commit)) : "pusty (nie zgadywany)") + "</span></div>";
         }).join("") + "</div></div></section>";
     } else {
-      legacyCard = '<section class="card span"><div class="card-b"><div class="state state-error">' +
-        "<p>Nie udało się wylistować legacy bundli przez GitHub API.</p>" +
-        '<p class="state-detail">' + escapeHtml((legacyError && legacyError.message) || "") + "</p></div></div></section>";
+      legacyCard = '<section class="card span"><div class="card-b">' +
+        apiErrorHtml("lista bundli legacy", legacyError) + "</div></section>";
     }
 
     setSectionHTML("provenance", bundleCard + legacyCard);

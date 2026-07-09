@@ -1,0 +1,39 @@
+name: Deploy Panel to GitHub Pages
+
+on:
+  push:
+    branches:
+      - v0.7.2-scientific-integrity
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Nie anuluj w trakcie deploya (unikaj polowicznie wdrozonego stanu Pages);
+# kolejne pushe czekaja w kolejce zamiast przerywac biezacy deploy.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # Panel jest statyczny (HTML/CSS/JS, zero build stepu) - publikujemy
+      # katalog wprost, bez kompilacji. Dane panel czyta w przegladarce z
+      # raw.githubusercontent.com (BASE w panel.js), wiec Pages hostuje
+      # wylacznie index.html/panel.css/panel.js, nie kopie danych.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: clos_studio/panel
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
