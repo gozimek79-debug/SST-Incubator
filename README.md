@@ -33,12 +33,18 @@ pytest -q
 ```
 
 CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on every
-push/PR: `pytest -q`, then the two artifact validators:
+push/PR: `pytest -q`, then three artifact validators:
 
 ```bash
 python scripts/validate_publication.py   # every Publication Bundle has full provenance
 python scripts/validate_artifacts.py     # reports match their preregistration + scenario stochasticity
+python scripts/validate_panel.py         # clos_studio/panel/panel.js has zero hardcoded metrics/hashes
 ```
+
+On a successful run on `v0.7.2-scientific-integrity`, CI also writes
+`reports/status.json` (test count, validator results, commit, timestamp)
+back to the repo — this is what the [Panel Badacza](#panel-badacza) reads
+for its "Testy i CI" section, instead of the GitHub API.
 
 ## Module structure
 
@@ -52,12 +58,12 @@ python scripts/validate_artifacts.py     # reports match their preregistration +
 | `clos_academy/` | Cognitive Academy — lessons (currently L1.1 "Pattern Echo") + [cognitive_ontology.md](clos_academy/cognitive_ontology.md). |
 | `clos_scientist/` | Metrics, experiment reports, Capability Analyzer, Competency Profile builder. |
 | `clos_curriculum/` | Statistics lab (CI95, Glass's delta, Cohen's d), curriculum levels. |
-| `clos_studio/` | Matrix runner, Publication Bundle builder, provenance/artifact management. |
+| `clos_studio/` | Matrix runner, Publication Bundle builder, provenance/artifact management, [Panel Badacza](#panel-badacza) (`clos_studio/panel/`). |
 | `clos_cli/` | CLI entry points. |
 | `clos_research/`, `clos_dashboard/`, `clos_tower/` | Supporting benchmark/dashboard tooling. |
 | `publications/` | Publication Bundles (full provenance) + prerejestracje. |
-| `reports/` | Generated Academy/experiment reports. |
-| `scripts/` | CI validators. |
+| `reports/` | Generated Academy/experiment reports + `status.json` (CI-written). |
+| `scripts/` | CI validators (`validate_publication.py`, `validate_artifacts.py`, `validate_panel.py`) + `write_status.py`. |
 | `docs/` | Design specs for not-yet-implemented Core extensions. |
 | `tests/` | pytest suite. |
 
@@ -77,6 +83,37 @@ python scripts/validate_artifacts.py     # reports match their preregistration +
 - [publications/preregistration_L1_1.json](publications/preregistration_L1_1.json) —
   the preregistered hypothesis, primary/secondary endpoints, and statistical
   plan for L1.1, kept in sync with [clos_academy/lesson_L1_1.py](clos_academy/lesson_L1_1.py).
+
+## Panel Badacza
+
+**[https://gozimek79-debug.github.io/SST-Incubator/](https://gozimek79-debug.github.io/SST-Incubator/)**
+
+A static, read-only dashboard ([clos_studio/panel/](clos_studio/panel/):
+`index.html` + `panel.css` + `panel.js`, no build step, no framework)
+hosted on GitHub Pages ([.github/workflows/pages.yml](.github/workflows/pages.yml)).
+It shows the same 7 views as this README's data — Overview, Lekcje i wyniki,
+Profil kompetencji, Porównanie genomów, Prowenancja, Testy i CI, Raporty —
+by fetching JSON directly from this repo in the visitor's browser. It does
+not run anything and does not embed any metric in its source: every number
+comes from `fetch()` against `raw.githubusercontent.com` (reports,
+publications, prerejestracje) and `reports/status.json` (test count, CI
+status — written by CI itself, see above). `scripts/validate_panel.py`
+enforces this in CI by scanning `panel.js` for hardcoded floats/hashes/counts
+and failing the build if it finds one.
+
+**How it refreshes:** there is nothing to redeploy for data changes. The
+panel reads live on every page load — push new reports/publications/status
+to `v0.7.2-scientific-integrity` and reload the page. Pages itself only
+needs to redeploy when `clos_studio/panel/` (the HTML/CSS/JS) changes, which
+`pages.yml` does automatically on every push to that branch.
+
+**Known limitation:** the commit timeline (Overview) and the legacy-bundle
+listing (Prowenancja) use the GitHub API, which is rate-limited to 60
+requests/hour per IP for unauthenticated callers — on a page with many
+visitors sharing an egress IP this can 403. Those two widgets degrade to an
+explicit "limit API" notice in that case; every other section (reports,
+competency profile, provenance of the L1.1 bundle, test/CI status) reads
+from `raw.githubusercontent.com` instead and is unaffected.
 
 ## Roadmap
 

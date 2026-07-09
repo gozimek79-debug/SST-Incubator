@@ -35,6 +35,28 @@ started. No "Publication Ready" / "Production Ready" claims — see
 - [docs/spec_partial_step.md](docs/spec_partial_step.md) — specification
   only, no implementation, no Core changes.
 
+## v0.8.5 — Panel Badacza (Studio, read-only)
+
+- [clos_studio/panel/](clos_studio/panel/) — static, no-build dashboard
+  (`index.html` + `panel.css` + `panel.js`), hosted on GitHub Pages
+  ([.github/workflows/pages.yml](.github/workflows/pages.yml)):
+  [https://gozimek79-debug.github.io/SST-Incubator/](https://gozimek79-debug.github.io/SST-Incubator/).
+  Read-only tool in the Studio layer — it does not run experiments or write
+  anything back to the repo; it only fetches and displays artifacts that
+  already exist (reports, publications, `reports/status.json`).
+- `reports/status.json` written by CI (`scripts/write_status.py`) only after
+  a fully green `pytest` + all three validators — the panel's "Testy i CI"
+  reads this instead of the GitHub API, avoiding the 60-req/hour
+  unauthenticated rate limit for that specific data.
+- `scripts/validate_panel.py` — CI gate against hardcoded metrics in
+  `panel.js` (floats, hashes, the literal test count), same "no drift
+  between code and data" discipline as `validate_artifacts.py`.
+- See [RAPORT_v0.8.5.md](RAPORT_v0.8.5.md) for the honest account of what
+  it took to get GitHub Pages actually serving this (environment branch
+  policy, competing auto-generated workflows) and what is *not* covered by
+  automated verification (panel.js's JS-rendered output, as opposed to its
+  static HTML shell).
+
 ## v0.9 — Predictive Coding, Latent Space
 
 Not started. Depends on:
