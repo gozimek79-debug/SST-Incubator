@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -21,10 +24,40 @@ jobs:
           pip install pytest
 
       - name: Run tests
-        run: pytest -q
+        run: |
+          set -o pipefail
+          pytest -q | tee pytest_output.txt
 
       - name: Validate publication provenance
         run: python scripts/validate_publication.py
 
       - name: Validate artifact/experiment consistency
         run: python scripts/validate_artifacts.py
+
+      - name: Validate panel (no hardcoded metrics)
+        run: python scripts/validate_panel.py
+
+      # Zrodlo statusu testow/CI dla Panelu Badacza (SPRINT_v0.8.5.md, P3,
+      # opcja a). Dochodzi do tego kroku WYLACZNIE gdy pytest i wszystkie
+      # trzy walidatory powyzej juz przeszly (kazdy krok bez
+      # continue-on-error przerywa joba przy niezerowym exit code).
+      - name: Write reports/status.json
+        run: python scripts/write_status.py pytest_output.txt reports/status.json
+
+      # Commituje reports/status.json z powrotem do repo, zeby panel mogl
+      # go przeczytac przez raw.githubusercontent.com (nie jest to efemeryczny
+      # artefakt CI). Tylko na push (nie na pull_request z forkow, gdzie token
+      # jest tylko-do-odczytu). [skip ci] w komunikacie zapobiega petli
+      # push->CI->push.
+      - name: Commit status.json
+        if: github.event_name == 'push' && github.ref == 'refs/heads/v0.7.2-scientific-integrity'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/status.json
+          if ! git diff --cached --quiet; then
+            git commit -m "ci: aktualizacja reports/status.json [skip ci]"
+            git push
+          else
+            echo "reports/status.json bez zmian, pomijam commit"
+          fi

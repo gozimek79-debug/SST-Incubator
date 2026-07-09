@@ -2,15 +2,16 @@
  * CLOS Studio — Panel Badacza (v0.8.5)
  *
  * Priorytet 1: szkielet — przelaczanie sekcji, dostepnosc klawiatury.
- * Priorytet 2 (ten plik teraz): loader danych + render sekcji WYLACZNIE
- * z pobranego JSON. ZERO metryk wpisanych na sztywno — kazda liczba w DOM
- * pochodzi z fetch() jednego z artefaktow w KONTRAKCIE DANYCH ponizej.
- * scripts/validate_panel.py (Priorytet 3) skanuje ten plik i failuje, jesli
- * znajdzie wklejona liczbe/hash.
+ * Priorytet 2: loader danych + render sekcji WYLACZNIE z pobranego JSON.
+ * Priorytet 3 (ten plik teraz): zrodlem liczby testow i statusu CI jest
+ * reports/status.json — generowany w CI (.github/workflows/ci.yml,
+ * scripts/write_status.py) WYLACZNIE po zielonym pytest + trzech
+ * walidatorach, wiec panel nie zaleznie od GitHub API (odporne na rate
+ * limit) i nie zgaduje.
  *
- * Zrodlo liczby testow i statusu CI: Priorytet 3 (jeszcze nie podlaczone —
- * sekcja "Testy i CI" i kafelki w "Przeglad" pokazuja jawny stan
- * "podlaczane w P3", nie zgadywana wartosc).
+ * ZERO metryk wpisanych na sztywno — kazda liczba w DOM pochodzi z fetch()
+ * jednego z artefaktow w KONTRAKCIE DANYCH ponizej. scripts/validate_panel.py
+ * skanuje ten plik w CI i failuje, jesli znajdzie wklejona liczbe/hash.
  */
 
 (function () {
@@ -29,6 +30,7 @@
     competency: "publications/competency_profile.json",
     metadata: "publications/L1_1_pattern_echo/metadata.json",
     prereg: "publications/preregistration_L1_1.json",
+    status: "reports/status.json",
   };
 
   var C = {
@@ -238,6 +240,7 @@
     var comp = ctx.competency;
     var report = ctx.report;
     var commits = ctx.commits;
+    var status = ctx.status;
 
     var measured = comp ? comp.summary.measured : null;
     var total = comp ? comp.summary.total_concepts : null;
@@ -246,6 +249,11 @@
 
     var tiles = [
       { l: "Status", val: "Research Grade Infrastructure", sub: "deklaracja repo, nie liczba", c: "var(--chA)", wide: true },
+      { l: "Testy", val: status && status.tests ? String(status.tests.passed) : "—",
+        sub: status ? "passed · reports/status.json" : "reports/status.json niedostępny", c: "var(--ok)" },
+      { l: "CI", val: status && status.ci ? status.ci.conclusion : "—",
+        sub: status ? "per-commit, po walidatorach" : "reports/status.json niedostępny",
+        c: status && status.ci && status.ci.conclusion === "success" ? "var(--ok)" : "var(--crit)" },
       { l: "Core", val: "frozen", sub: "zasada sprintu (clos_brain/, clos_kernel/, genome/, birth/)", c: "var(--chA)" },
       { l: "Lekcje", val: lessonsCount ? String(lessonsCount) : "—", sub: lessonsCount ? "wczytanych raportów Academy" : "brak danych", c: "var(--txt)" },
       { l: "Kompetencje", val: comp ? validCount + "/" + total : "—",
@@ -258,12 +266,7 @@
         '<div class="tile-s">' + escapeHtml(t.sub) + "</div></div>";
     }).join("");
 
-    var pendingCard =
-      '<section class="card span"><header class="card-h"><span class="card-t">Testy i CI</span>' +
-      '<span class="card-s">Priorytet 3</span></header><div class="card-b">' +
-      '<div class="state state-pending"><p>Liczba testów i status CI nie są jeszcze podłączone do panelu — ' +
-      "zostaną dodane w Priorytecie 3 (planowane źródło: <code>reports/status.json</code> generowany w CI, " +
-      "lub GitHub API <code>/actions/runs</code>). Ten panel nie zgaduje tych wartości.</p></div></div></section>";
+    var statusNotice = status ? "" : missingArtifactHtml(ARTIFACTS.status, ctx.statusError);
 
     var timelineHtml;
     if (commits && commits.length) {
@@ -281,7 +284,7 @@
       '<span class="card-t">Ostatnie commity</span><span class="card-s">gałąź ' + escapeHtml(BRANCH) +
       " · GitHub API</span></header><div class=\"card-b\">" + timelineHtml + "</div></section>";
 
-    setSectionHTML("overview", '<div class="tiles" style="grid-column:1/-1">' + tilesHtml + "</div>" + timelineCard + pendingCard);
+    setSectionHTML("overview", '<div class="tiles" style="grid-column:1/-1">' + tilesHtml + "</div>" + timelineCard + statusNotice);
   }
 
   function renderLessons(report, prereg, reportErr, preregErr) {
@@ -458,16 +461,53 @@
     setSectionHTML("provenance", bundleCard + legacyCard);
   }
 
-  function renderTests() {
-    var html =
-      '<section class="card span"><header class="card-h"><span class="card-t">Testy i CI</span>' +
-      '<span class="card-s">Priorytet 3</span></header><div class="card-b">' +
-      '<div class="state state-pending"><p>Ta sekcja zostanie podłączona w Priorytecie 3: liczba testów ' +
-      "z <code>pytest -q</code> i status CI z GitHub Actions będą czytane z artefaktu " +
-      "(<code>reports/status.json</code> generowanego w CI, albo bezpośrednio z GitHub API " +
-      "<code>/actions/runs</code>). Do tego czasu panel świadomie nic tu nie pokazuje, zamiast zgadywać.</p></div>" +
-      "</div></section>";
-    setSectionHTML("tests", html);
+  function renderTests(status, statusErr) {
+    if (!status) {
+      setSectionHTML("tests", missingArtifactHtml(ARTIFACTS.status, statusErr));
+      return;
+    }
+
+    var tests = status.tests || {};
+    var ci = status.ci || {};
+    var validators = status.validators || {};
+
+    var tiles = [
+      { l: "pytest", val: tests.passed != null ? String(tests.passed) : "—",
+        sub: "passed", c: tests.status === "green" ? "var(--ok)" : "var(--crit)" },
+      { l: "Core", val: "frozen", sub: "zasada sprintu (clos_brain/, clos_kernel/, genome/, birth/)", c: "var(--chA)" },
+      { l: "CI", val: ci.conclusion || "—", sub: escapeHtml(ci.workflow || "reports/status.json"),
+        c: ci.conclusion === "success" ? "var(--ok)" : "var(--crit)" },
+    ];
+    var tilesHtml = tiles.map(function (t) {
+      return '<div class="tile"><div class="tile-l">' + escapeHtml(t.l) + "</div>" +
+        '<div class="tile-v" style="color:' + t.c + '">' + escapeHtml(t.val) + "</div>" +
+        '<div class="tile-s">' + t.sub + "</div></div>";
+    }).join("");
+
+    var validatorRows = Object.keys(validators).map(function (name) {
+      var v = validators[name];
+      var ok = v === "OK";
+      return '<div class="leg-row"><code>' + escapeHtml(name) + "</code>" +
+        '<span class="pill" style="color:' + (ok ? "var(--ok)" : "var(--crit)") +
+        ";border-color:" + (ok ? "var(--ok)" : "var(--crit)") + '55">' + escapeHtml(v) + "</span></div>";
+    }).join("");
+
+    var validatorsCard =
+      '<section class="card span"><header class="card-h"><span class="card-t">Walidatory (bramka jakości)</span>' +
+      '<span class="card-s">uruchamiane w CI na każdy push</span></header><div class="card-b">' +
+      '<div class="legacy">' + (validatorRows || "<p>Brak danych o walidatorach.</p>") + "</div>" +
+      '<p class="note">Status generowany WYŁĄCZNIE, gdy wszystkie kroki CI (pytest + 3 walidatory) ' +
+      "zakończyły się sukcesem — jeśli którykolwiek zawiedzie, job CI przerywa się przed zapisem " +
+      "<code>reports/status.json</code>, więc ten plik nigdy nie może zawierać fałszywego OK.</p></div></section>";
+
+    var metaCard =
+      '<section class="card span"><header class="card-h"><span class="card-t">Źródło</span></header>' +
+      '<div class="card-b"><dl class="prov"><div><dt>commit</dt><dd>' + escapeHtml(truncHash(status.commit)) + "</dd></div>" +
+      "<div><dt>branch</dt><dd>" + escapeHtml(status.branch || "—") + "</dd></div>" +
+      "<div><dt>timestamp</dt><dd>" + escapeHtml(String(status.timestamp || "—").replace("T", " ")) + "</dd></div>" +
+      "</dl></div></section>";
+
+    setSectionHTML("tests", '<div class="tiles" style="grid-column:1/-1">' + tilesHtml + "</div>" + validatorsCard + metaCard);
   }
 
   function renderReports() {
@@ -495,14 +535,19 @@
     setSectionHTML("reports", html);
   }
 
-  function updateTopPills(metadata, commits) {
+  function updateTopPills(metadata, commits, status) {
     var container = document.getElementById("top-pills");
     if (!container) return;
     var head = commits && commits.length ? commits[0].sha.slice(0, 7) : null;
+    var ciOk = status && status.ci && status.ci.conclusion === "success";
+    var ciColor = status ? (ciOk ? "var(--ok)" : "var(--crit)") : "var(--mut)";
+    var ciLabel = status && status.ci ? status.ci.conclusion : "brak danych";
     container.innerHTML =
       '<span class="pill" style="color:var(--chA);border-color:#4FC8E055">Research Grade Infrastructure</span>' +
       '<span class="pill" style="color:var(--mut)">' + escapeHtml(BRANCH) + (head ? "@" + escapeHtml(head) : "") + "</span>" +
-      '<span class="pill" style="color:var(--mut)">CI · P3</span>';
+      '<span class="pill" style="color:' + ciColor + '" ' + (status ? 'data-dot="1"' : "") + ">" +
+      (status ? '<i class="pdot" style="background:' + ciColor + '"></i>' : "") +
+      "CI · " + escapeHtml(ciLabel) + "</span>";
   }
 
   function updateFooter(metadata) {
@@ -521,6 +566,7 @@
       competency: fetchJSON(ARTIFACTS.competency),
       metadata: fetchJSON(ARTIFACTS.metadata),
       prereg: fetchJSON(ARTIFACTS.prereg),
+      status: fetchJSON(ARTIFACTS.status),
       legacy: fetchLegacyBundles(),
       commits: fetchCommits(10),
     };
@@ -530,6 +576,7 @@
     loads.report.then(function (v) { results.report = v; }).catch(function (e) { results.reportError = e; });
     loads.prereg.then(function (v) { results.prereg = v; }).catch(function (e) { results.preregError = e; });
     loads.metadata.then(function (v) { results.metadata = v; }).catch(function (e) { results.metadataError = e; });
+    loads.status.then(function (v) { results.status = v; }).catch(function (e) { results.statusError = e; });
     loads.competency.then(function (v) { results.competency = v; }).catch(function (e) {
       sectionError("competency", ARTIFACTS.competency, e);
       sectionError("genomes", ARTIFACTS.competency, e);
@@ -556,16 +603,22 @@
       renderProvenance(vals[0], vals[1], results.legacyError, results.metadataError);
     });
 
-    renderTests();
+    loads.status.then(function (s) { renderTests(s, null); })
+      .catch(function (e) { renderTests(null, e); });
+
     renderReports();
 
     Promise.all([
       loads.competency.catch(function () { return null; }),
       loads.report.catch(function () { return null; }),
       loads.commits.catch(function () { return null; }),
+      loads.status.catch(function () { return null; }),
     ]).then(function (vals) {
-      renderOverview({ competency: vals[0], report: vals[1], commits: vals[2], commitsError: results.commitsError });
-      updateTopPills(results.metadata, vals[2]);
+      renderOverview({
+        competency: vals[0], report: vals[1], commits: vals[2], status: vals[3],
+        commitsError: results.commitsError, statusError: results.statusError,
+      });
+      updateTopPills(results.metadata, vals[2], vals[3]);
     });
 
     loads.metadata.then(function (m) { updateFooter(m); }).catch(function () { updateFooter(null); });
