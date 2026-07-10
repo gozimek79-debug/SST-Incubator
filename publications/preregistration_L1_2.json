@@ -1,0 +1,163 @@
+{
+  "lesson_id": "L1.2",
+  "title": "Shock Recovery - Homeostatic Resilience",
+  "preregistration_date": "2026-07-10",
+  "status": "PENDING_REVIEW - nie implementowac L1.2 dopoki definicja recovery_time ponizej nie zostanie zatwierdzona (SPRINT_v0.9.md, Priorytet 4 - bramka).",
+
+  "hypothesis": "Po nagłej, jednorazowej perturbacji środowiskowej (shock_world) Brain odzyskuje wewnętrzny stan homeostatyczny (entropia w paśmie celu homeostazy zakodowanym w genomie) w skończonym czasie, dzięki mechanizmowi regulate() (clos_brain/runtime/homeostasis.py), który ciągnie entropię z powrotem w stronę homeostasis_target niezależnie od tego, czy sam sygnał świata wraca do stanu sprzed szoku. To NIE jest hipoteza o odtwarzaniu wzorca (L1.1) - to hipoteza o samoregulacji wewnętrznego stanu po zakłóceniu, mierzalna niezależnie od tego, czy Brain 'wie', co się stało.",
+
+  "mechanism": {
+    "description": "clos_world.scenarios.shock_world generuje sygnał: płaskie 0.2 przed tickiem szoku, skok do losowej wartości (shock_magnitude) DOKŁADNIE na ticku szoku, potem NOWE, podwyższone plateau (~0.8*shock_magnitude + szum) - sygnał świata NIE wraca do 0.2. Odzyskiwanie mierzone jest więc na poziomie wewnętrznego stanu Brain (BrainTissue.entropy), nie na poziomie dopasowania do starego sygnału.",
+    "causal_chain": "skok sygnału -> predict() (pamięć oparta na starym plateau 0.2) daje duży błąd -> compute_error() rejestruje wysoki error -> regulate() zwiększa entropy proporcjonalnie do error*decay_rate*10.0 -> jeśli entropy przekracza homeostasis_target, regulate() ściąga entropy w dół o 0.005*plasticity/tick, aż entropy wróci do pasma.",
+    "why_secondary_endpoints_might_not_be_degenerate": "W L1.1 (noise_world) adaptation_tick i stability_score wyszły zdegenerowane (identyczne dla wszystkich 10 seedów, n_effective=1) mimo stochastycznego scenariusza - noise_world dodaje ciągły, mały szum gaussowski KAŻDY tick, ale nie zmienia GRUBOZIARNISTEGO kształtu trajektorii energii/entropii, po którym te dwie metryki są liczone (detect_phases() na energii, stability_index() na całym przebiegu). W shock_world jest inaczej strukturalnie: `random.Random(seed)` decyduje o DWÓCH gruboziarnistych, jakościowo różnych parametrach per seed - shock_tick (KIEDY nastąpi skok, ∈[20,80]) i shock_magnitude (JAK DUŻY skok, ∈[0.3,0.9]). Oba wprost przesuwają moment i wielkość perturbacji energii/entropii, więc adaptation_tick (zależny od momentu stabilizacji energii) i stability_score (zależny od wariancji entropii/błędu w całym przebiegu) mają strukturalny powód, żeby różnić się między seedami w sposób, w jaki ciągły szum noise_world nie różnicował ich w L1.1. To jest uzasadnione oczekiwanie, NIE gwarancja.",
+    "degenerate_result_clause": "Jeśli mimo powyższego uzasadnienia adaptation_tick i/lub stability_score wyjdą zdegenerowane (n_effective=1, ci95_valid=False) w L1.2, ma to zostać zaraportowane WPROST jako wynik naukowy (np. 'detect_phases()/stability_index() są niewrażliwe na zmienność shock_tick/shock_magnitude w badanym zakresie') - bez modyfikowania eksperymentu, dodawania szumu ani zmiany definicji metryk post-hoc, żeby 'wymusić' wariancję."
+  },
+
+  "recovery_time_definition": {
+    "status": "FORMALNA, MATEMATYCZNA - warunek wymagany przed implementacją (SPRINT_v0.9.md P4).",
+
+    "perturbation_moment": {
+      "symbol": "t_shock",
+      "definition": "Tick szoku z clos_world.scenarios.shock_world dla danego seeda. WYZNACZANY przez powtórzenie DOKŁADNIE tego samego, pierwszego wywołania RNG co wewnątrz shock_world: `random.Random(seed).randint(20, 80)`. Ponieważ shock_world tworzy `rng = random.Random(seed)` i natychmiast wykonuje `rng.randint(20, 80)` jako pierwsze losowanie, powtórzenie tej samej sekwencji w warstwie eksperymentu (bez introspekcji stanu Brain) daje identyczny wynik - zero zgadywania, zero zależności od implementacji Brain.",
+      "range": "t_shock ∈ [20, 80] (zakres wprost z shock_world)."
+    },
+
+    "homeostasis_band": {
+      "symbol": "B = [B_low, B_high]",
+      "definition": "B_high = homeostasis_target (gen genomu, wyrażony jako brain.homeostasis_target). B_low = 0.5 * homeostasis_target. Pasmo wynika WPROST z regulate(): dla entropy > homeostasis_target regulate() ściąga entropy w dół; dla entropy < 0.5*homeostasis_target regulate() podbija entropy w górę; w przedziale [0.5*homeostasis_target, homeostasis_target] regulate() nie koryguje entropy z tytułu samej wartości progowej (może się zmieniać tylko od nowego błędu predykcji). To jest jedyne pasmo, które ma zakotwiczenie w kodzie, nie w arbitralnie wybranej liczbie.",
+      "concrete_values_for_this_lesson": {
+        "note": "Oba genomy użyte w L1.2 (default, highly_plastic) mają homeostasis_target=0.5 (genome/presets.py - highly_plastic NIE nadpisuje tego genu).",
+        "B_low": 0.25,
+        "B_high": 0.5
+      }
+    },
+
+    "sustained_stabilization_condition": {
+      "symbol": "N",
+      "value": 10,
+      "definition": "recovery_time liczony jest od PIERWSZEGO ticka t* >= t_shock, dla którego entropy(τ) ∈ B dla WSZYSTKICH τ ∈ [t*, t*+N-1] (N kolejnych ticków bez wyjścia z pasma) - nie od pierwszego pojedynczego ticka w paśmie, żeby nie liczyć przypadkowego, chwilowego przejścia przez pasmo jako 'odzyskania'.",
+      "justification": "N=10 wybrane jako zgodne z istniejącym rytmem Core: apply_decay() uruchamia się co 10 ticków (`tick % 10 == 0`, clos_brain/brain_runtime.py) - N nie jest liczbą wyssaną z palca, tylko dopasowaną do już istniejącej okresowości systemu. Wystarczająco długie, by odróżnić realne ustabilizowanie od jednoticowego 'przelotu' przez pasmo; wystarczająco krótkie, by mieściło się wielokrotnie w oknie obserwacji W (patrz niżej)."
+    },
+
+    "observation_window": {
+      "symbol": "W",
+      "value": 150,
+      "definition": "Okno obserwacji trwa od t_shock do t_shock + W (w tickach). recovery_time szukany jest WYŁĄCZNIE w tym oknie.",
+      "total_ticks": 300,
+      "justification": "Rząd wielkości oszacowany z kodu regulate(): spadek entropy ponad pasmem to 0.005*plasticity/tick (plasticity ∈ {0.8, 0.95} dla użytych genomów => ~0.004-0.00475/tick). Dla entropy podbitego szokiem do okolic górnego ograniczenia [0,1] realistyczny czas powrotu do pasma to rząd 100-125 ticków w najgorszym przypadku (nie licząc dodatkowych przyrostów entropy z kolejnych błędów predykcji tuż po szoku, zanim predict() zaadaptuje się do nowego plateau). W=150 daje margines ponad to oszacowanie, zamiast dopasowywać okno tak, by 'ledwo wystarczało' (co sztucznie zaniżałoby liczbę ucenzurowanych przypadków). total_ticks=300 >= max(t_shock)=80 + W=150 + margines na N=10, z zapasem ~60 ticków. To jest decyzja projektowa, nie zmierzony fakt - jeśli P5 pokaże, że W jest źle dobrane (np. bardzo wysoki odsetek cenzurowania), to jest to WYNIK NAUKOWY do raportowania, nie powód do cichej zmiany W post-hoc."
+    },
+
+    "formula": "recovery_time(seed) = t* - t_shock, gdzie t* = min{ τ >= t_shock : entropy(τ..τ+N-1) ⊂ B }, szukane w τ ∈ [t_shock, t_shock+W-N].",
+
+    "pre_shock_band_check": {
+      "purpose": "Sama hipoteza mówi 'Brain ODZYSKUJE homeostazę po szoku' - to zakłada, że PRZED szokiem homeostaza faktycznie BYŁA osiągnięta. Bez sprawdzenia tego założenia recovery_time mierzyłby coś niejednoznacznego: powrót do stanu, w którym Brain mógł nigdy wcześniej nie być. To pole wymusza sprawdzenie założenia z danych, zamiast przyjmować je z góry.",
+      "window": {
+        "definition": "Okno tuż przed szokiem: τ ∈ [t_shock - N, t_shock - 1] (ta sama długość N=10, co warunek utrzymania stabilizacji post-szokowej - symetryczne kryterium 'sustained' po obu stronach zdarzenia).",
+        "requires": "t_shock >= N (zawsze prawda, bo t_shock ∈ [20,80] i N=10 - okno pre-szokowe mieści się w przebiegu bez wyjątków brzegowych)."
+      },
+      "measurement": {
+        "per_seed": "pre_shock_in_band(seed) = TRUE, jeśli entropy(τ) ∈ B dla WSZYSTKICH τ ∈ [t_shock-N, t_shock-1]; inaczej FALSE.",
+        "aggregate_per_genome": "pre_shock_in_band_fraction = (liczba seedów z pre_shock_in_band=TRUE) / (liczba wszystkich seedów), raportowane per genom, obok recovery_time."
+      },
+      "conditional_definition": {
+        "rule": "Decyzja o nazewnictwie i sformułowaniu hipotezy podejmowana jest Z DANYCH w P5, NIE z góry w tym dokumencie. Reguła progowa: jeśli pre_shock_in_band_fraction >= 0.8 (silna większość seedów była w paśmie B tuż przed szokiem) -> endpoint jest faktycznie ODZYSKIWANIEM (return-to-band); hipoteza 'Brain odzyskuje homeostazę' jest trafnie sformułowana, nazwa 'recovery_time' zostaje bez zmian. Jeśli pre_shock_in_band_fraction < 0.8 -> endpoint jest w rzeczywistości OSIĄGNIĘCIEM/USTANOWIENIEM stanu (arrival, nie return); primary endpoint musi zostać w raporcie L1.2 nazwany 'time_to_sustained_band', a język hipotezy skorygowany z 'odzyskuje' na 'osiąga/ustanawia' homeostazę po szoku - NIE cicho, tylko z jawną notatką w raporcie, że pierwotne sformułowanie hipotezy (ten dokument) zakładało powrót, a dane pokazały ustanowienie.",
+        "threshold_justification": "Próg 0.8 (silna większość), NIE zwykła większość 0.5: przeklasyfikowanie primary endpointu i przeformułowanie hipotezy to istotna, jednorazowa zmiana narracji naukowej całej lekkcji - wymaga wyraźnego, odpornego na szum sygnału (8 z 10 seedów), nie marginalnego rozstrzygnięcia blisko 50/50, które mogłoby przy innym seedzie/innym uruchomieniu wypaść odwrotnie. Spójne z resztą dokumentu: pass_conditions.recovery_rate_min=0.7 też celowo stoi wyżej niż technicznie wystarczające minimum - tu przyjęto jeszcze ostrożniejszy próg, bo stawką jest sformułowanie hipotezy, nie tylko PASS/FAIL pojedynczego przebiegu.",
+        "mixed_case": "Jeśli default i highly_plastic wypadną PO RÓŻNYCH stronach progu (np. default>=0.8, highly_plastic<0.8), raport L1.2 MUSI to nazwać wprost per genom - nie wolno uśredniać obu genomów do jednej etykiety całej lekcji, skoro mechanizm homeostazy może różnić się między nimi (inna plasticity)."
+      }
+    },
+
+    "censoring": {
+      "definition": "Jeśli żadne t* spełniające warunek nie istnieje w oknie [t_shock, t_shock+W-N], recovery_time jest PRAWOSTRONNIE UCENZUROWANY: zapisywany jako `recovery_time: null, censored: true` (NIE jako W, NIE pomijany milcząco).",
+      "handling": "compute_ci95 (clos_curriculum/laboratory/statistics.py) liczony WYŁĄCZNIE na wartościach nieucenzurowanych. Odsetek ucenzurowanych (n_censored / n_total) jest OBOWIĄZKOWYM metrykiem sekundarnym per genom - wysoki odsetek cenzurowania sam w sobie jest wynikiem (system nie odzyskuje homeostazy w oknie), nie błędem do ukrycia.",
+      "min_non_censored": {
+        "value": 5,
+        "definition": "Jeśli liczba NIEUCENZUROWANYCH seedów (per genom) < 5, CI95 dla recovery_time jest wymuszone jako ci95_valid=False, NIEZALEŻNIE od tego, co zwróci compute_ci95 na samej podstawie n_effective>=2.",
+        "justification": "compute_ci95 uznaje CI95 za policzalne już przy n_effective>=2 - to za mało, żeby estymacja recovery_time po masowym cenzurowaniu (np. 2 odzyskania na 10 seedów) była wiarygodna, nawet jeśli technicznie 'ważna'. Wartość 5 nie jest nową, osobną liczbą wymyśloną dla tej lekcji - to już istniejący w repo próg `validate_sample_size(values, min_n=5)` (clos_curriculum/laboratory/statistics.py), używany tam jako domyślna granica 'wystarczającej' próbki. L1.2 przejmuje ten sam próg zamiast definiować nowy, osobny standard uczciwości statystycznej."
+      }
+    }
+  },
+
+  "primary_endpoint": {
+    "metric": "recovery_time",
+    "description": "Patrz recovery_time_definition powyżej. Strukturalnie inny niż L1.1 (nie MSE względem wzorca - czas powrotu entropii do pasma homeostazy po dyskretnym zdarzeniu perturbacyjnym)."
+  },
+
+  "secondary_endpoints": [
+    {
+      "metric": "adaptation_tick",
+      "note": "Ponownie użyty z detect_phases() (clos_scientist/analyzer.py), zaprojektowany pierwotnie pod stabilizację energii od zimnego startu w L1.1. Zastosowanie go do kontekstu 'szok w środku przebiegu' jest w tej lekcji EKSPLORACYJNE - nie ma gwarancji, że da sensowny, niezdegenerowany sygnał w nowym kontekście; to sprawdzamy, nie zakładamy."
+    },
+    {
+      "metric": "stability_score",
+      "note": "Z stability_index() (clos_scientist/metrics.py), liczony na całym przebiegu (nie tylko oknie post-szokowym) - miara ogólnej zmienności entropii/błędu."
+    }
+  ],
+  "endpoint_goal_not_requirement": "Cel projektowy (nie kryterium akceptacji): Adaptation i Stability niezdegenerowane (n_effective>1, ci95_valid=True) w kontekście szoku, w przeciwieństwie do L1.1. Jeśli mimo poprawnie zaprojektowanego eksperymentu wyjdą zdegenerowane, to jest raportowane jako wynik naukowy wprost, bez dodawania sztucznego szumu, by 'zaliczyć'.",
+
+  "experiment_design": {
+    "genomes": ["default", "highly_plastic"],
+    "scenario": "shock_world",
+    "control_baseline": {
+      "scenario": "stable_world",
+      "role": "control_environment",
+      "status": "ZATWIERDZONE: WARIANT B (option_b_baseline_stability_cross_metric). Decyzja podjęta przed P5 (rewizja prerejestracji 2026-07-10). Wariant A pozostaje w dokumencie jako historia rozważań, NIE jako aktywna specyfikacja - nie implementować A.",
+      "decision": "option_b_baseline_stability_cross_metric",
+
+      "option_a_synthetic_recovery_time": {
+        "status": "HISTORIA ROZWAŻAŃ - NIE wybrane, NIE implementować. Zachowane dla przejrzystości procesu decyzyjnego.",
+        "description": "Kontrola liczy TĘ SAMĄ formułę recovery_time (ten sam wzór, homeostasis_band, N, W) wokół SYNTETYCZNEGO ticka referencyjnego t_ref, wyznaczonego identycznym wzorem co t_shock (`random.Random(seed).randint(20, 80)`) - stable_world nie ma realnego zdarzenia szoku, t_ref jest czysto formalnym punktem odniesienia w czasie, nie prawdziwą perturbacją.",
+        "cross_scenario_comparison": "Glass's delta liczone BEZPOŚREDNIO na recovery_time: shock_world (eksperymentalny) vs stable_world/t_ref (kontrola).",
+        "expected_result": "stable_world jest deterministyczny (nie zależy od seeda - patrz clos_world/scenarios.py), więc oczekiwany wynik kontroli to brak wariancji międzyseedowej (ci95_valid=False) - analogicznie do roli stable_world w L1.1.",
+        "pros": "Metodologicznie spójne z L1.1 (dokładnie ten sam endpoint liczony na obu scenariuszach) - najprostsze do porównania międzylekcyjnego. Nie wymaga żadnej nowej metryki.",
+        "cons": "Semantycznie naciągnięte: 'recovery' od czego, skoro w stable_world nic się nie wydarzyło? t_ref nie odpowiada żadnemu realnemu zdarzeniu przyczynowemu - metryka mierzy w gruncie rzeczy 'czy entropia bywa poza pasmem losowo, bez przyczyny', nie odzyskiwanie po perturbacji. Ryzyko, że recenzent zapyta, co dokładnie ten liczbowy wynik oznacza."
+      },
+
+      "option_b_baseline_stability_cross_metric": {
+        "status": "ZATWIERDZONE - to jest aktywna specyfikacja dla P5.",
+        "description": "Kontrola NIE próbuje mierzyć 'recovery_time' (bo to pojęcie nie ma odniesienia bez perturbacji). Zamiast tego kontrola mierzy bazową stabilność stable_world: stability_score z stability_index() (clos_scientist/metrics.py) na całym przebiegu, ewentualnie dodatkowo fraction_in_band = odsetek ticków z entropy(t) ∈ B w całym przebiegu jako naturalny, opisowy punkt odniesienia 'jak często system jest w paśmie homeostazy bez żadnej perturbacji'.",
+        "cross_scenario_comparison": "Glass's delta liczone NIE na recovery_time (bo kontrola go nie ma), tylko na stability_score: shock_world (przebieg z szokiem) vs stable_world (baseline bez szoku) - używa już istniejącego secondary endpointu, zero nowej architektury statystycznej.",
+        "recovery_time_scope_change": "recovery_time jako primary endpoint analizowany WYŁĄCZNIE wewnątrz shock_world: CI95 per genom + Cohen's d MIĘDZY GENOMAMI. Brak porównania międzyscenariuszowego dla tej konkretnej metryki, bo w kontroli ta wartość nie istnieje (nie jest ucenzurowana - jest niezdefiniowana).",
+        "pros": "Uczciwsze matematycznie - nie zmusza pojęcia 'odzyskiwania' tam, gdzie nie ma czego odzyskiwać. Każda liczona metryka ma jasną interpretację w obu scenariuszach.",
+        "cons": "Mniejsza spójność z wzorcem L1.1 (tam ten sam endpoint na obu scenariuszach). Raport musi jasno tłumaczyć, że Glass's delta 'zmienia przedmiot' między primary endpoint (recovery_time, bez porównania z kontrolą) a osobnym mechanizmem porównania (stability_score, z kontrolą) - przy niedbałym opisie może to mylić czytelnika."
+      }
+    },
+    "ticks_total": 300,
+    "seeds_plan": {
+      "status": "MINIMALNA liczba uzasadniona potrzebą CI95, nie wpisana na sztywno w architekturę (experiment_design.seeds jest zwykłą listą, konfigurowalną per uruchomienie).",
+      "min_seeds_per_genome": 10,
+      "justification": "Dolna techniczna granica z clos_curriculum/laboratory/statistics.py to n_effective>=2 dla ci95_valid i n_effective>=3 dla policzalnego effect size (validate_sample_size). Przy n=10: (a) zostaje margines ponad ten techniczny minimum, bo część seedów może się ucenzurować (patrz censoring) i efektywna próbka do CI95 skurczy się poniżej 10 - n=10 daje szansę, że nawet przy ok. 50% cenzurowaniu zostanie n_effective>=5, wciąż wystarczające; (b) n=10 to już ustalony precedens metodologiczny w tym repo (L1.1 użyło n=10/genom) - spójność między lekcjami Academy ułatwia porównania międzylekcyjne. To NIE jest liczba wpisana na sztywno w kod statystyczny - jest to plan dla TEJ lekcji, jawnie uzasadniony, możliwy do zmiany w kolejnej prerejestracji bez zmiany architektury."
+    }
+  },
+
+  "pass_conditions": {
+    "recovery_rate_min": 0.7,
+    "recovery_rate_min_description": "Co najmniej 70% seedów (per genom) musi osiągnąć nieucenzurowany recovery_time w oknie W - inaczej sama estymacja recovery_time jest zbyt rzadka, by cokolwiek orzekać.",
+    "mean_recovery_time_max_ticks": 75,
+    "mean_recovery_time_max_description": "Średni recovery_time (po nieucenzurowanych seedach) <= 75 ticków = połowa okna obserwacji W=150 - system wraca do homeostazy wyraźnie w obrębie okna, nie 'ledwo zdąża' na granicy."
+  },
+  "fail_conditions": {
+    "recovery_rate_max": 0.3,
+    "recovery_rate_max_description": "Jeśli mniej niż 30% seedów odzyskuje homeostazę w oknie W, to jest to jednoznaczny wynik negatywny (brak wykazanej odporności homeostatycznej na szok) - raportowany wprost, nie ukrywany."
+  },
+
+  "statistical_plan": {
+    "primary_analysis": "CI95 (compute_ci95) na nieucenzurowanych wartościach recovery_time, osobno per genom (default, highly_plastic), liczone na scenariuszu shock_world. min_non_censored=5 (patrz recovery_time_definition.censoring) - poniżej tego progu ci95_valid wymuszone na False niezależnie od compute_ci95.",
+    "control_comparison": "ZATWIERDZONE: WARIANT B (patrz experiment_design.control_baseline.decision). Glass's delta liczone NA stability_score: shock_world (przebieg z szokiem) vs stable_world (baseline bez szoku) - NIE na recovery_time. recovery_time (primary endpoint) analizowany WYŁĄCZNIE wewnątrz shock_world: CI95 per genom + Cohen's d MIĘDZY GENOMAMI (default vs highly_plastic). Brak porównania recovery_time ze scenariuszem kontrolnym - w stable_world ta wartość jest niezdefiniowana, nie ucenzurowana. Wariant A odrzucony (pozostaje w dokumencie jako historia).",
+    "genome_comparison": "Cohen's d MIĘDZY GENOMAMI (default vs highly_plastic) na recovery_time z shock_world - ten sam wzorzec co Capability Analyzer (clos_scientist/capability_analyzer.py) dla L1.1, nie Glass's delta (to jest zarezerwowane dla porównania z kontrolą).",
+    "censoring_report": "Obowiązkowo: n_censored/n_total per genom, raportowane obok CI95, nie oddzielnie/schowane.",
+    "confidence_level": 0.95
+  },
+
+  "replication": {
+    "deterministic_given_seed": "Cały przebieg (world + brain) jest deterministyczny dla ustalonego (seed, genome_preset, scenario) - identycznie jak L1.1. t_shock/t_ref odtwarzalne niezależnie od stanu Brain (patrz recovery_time_definition.perturbation_moment).",
+    "independent_reproduction": "Inny badacz może odtworzyć t_shock z samego seeda (bez dostępu do logów Brain) i zweryfikować recovery_time z surowego przebiegu entropy(t)."
+  },
+
+  "explicitly_out_of_scope_for_this_document": [
+    "Implementacja lekcji L1.2 (clos_academy/lesson_L1_2.py) - to Priorytet 5, NIE ten dokument.",
+    "Jakakolwiek zmiana w clos_brain/ - homeostasis_band jest ODCZYTANY z istniejącego regulate(), nie jest nową logiką poznawczą.",
+    "Ostateczne W/N - są to wartości projektowe do zatwierdzenia w tym przeglądzie, nie ostateczne po zaimplementowaniu bez rewizji, jeśli dane empiryczne z P5 pokażą, że są nietrafione (co samo w sobie byłoby raportowane, nie cicho poprawiane)."
+  ],
+
+  "version": "0.9.3"
+}
