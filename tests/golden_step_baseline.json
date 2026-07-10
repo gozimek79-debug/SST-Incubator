@@ -1,0 +1,365 @@
+{
+  "provenance": {
+    "generated_by": "tests/generate_golden_step_baseline.py",
+    "note": "Zlote wartosci step() SPRZED partial_step() (SPRINT_v0.9.md P2). clos_brain/ niezmieniony od 6fe638d (v0.8.2b)."
+  },
+  "inputs": {
+    "seed": 42,
+    "genome_preset": "default",
+    "ticks": 20,
+    "sensory_inputs": [
+      0.5,
+      0.588656,
+      0.669393,
+      0.734998,
+      0.779612,
+      0.799248,
+      0.792154,
+      0.758963,
+      0.702639,
+      0.628214,
+      0.542336,
+      0.452676,
+      0.367244,
+      0.29367,
+      0.238527,
+      0.206741,
+      0.201151,
+      0.222256,
+      0.268171,
+      0.334794
+    ]
+  },
+  "per_tick": [
+    {
+      "tick": 0,
+      "last_prediction": 0.5,
+      "last_input": 0.5,
+      "precision": 0.5,
+      "energy": 0.999,
+      "entropy": 0.001,
+      "memory_size": 1,
+      "sensory_buffer_size": 1,
+      "prediction_error_buffer_size": 1
+    },
+    {
+      "tick": 1,
+      "last_prediction": 0.5,
+      "last_input": 0.588656,
+      "precision": 0.998038882,
+      "energy": 0.998,
+      "entropy": 0.0108656,
+      "memory_size": 2,
+      "sensory_buffer_size": 2,
+      "prediction_error_buffer_size": 2
+    },
+    {
+      "tick": 2,
+      "last_prediction": 0.5426666209231051,
+      "last_input": 0.669393,
+      "precision": 0.9978903919,
+      "energy": 0.997,
+      "entropy": 0.0245382379,
+      "memory_size": 3,
+      "sensory_buffer_size": 3,
+      "prediction_error_buffer_size": 3
+    },
+    {
+      "tick": 3,
+      "last_prediction": 0.5828903124561277,
+      "last_input": 0.734998,
+      "precision": 0.9977892362,
+      "energy": 0.996,
+      "entropy": 0.0407490067,
+      "memory_size": 4,
+      "sensory_buffer_size": 4,
+      "prediction_error_buffer_size": 4
+    },
+    {
+      "tick": 4,
+      "last_prediction": 0.6629538807563198,
+      "last_input": 0.779612,
+      "precision": 0.998279785,
+      "energy": 0.995,
+      "entropy": 0.0534148186,
+      "memory_size": 5,
+      "sensory_buffer_size": 5,
+      "prediction_error_buffer_size": 5
+    },
+    {
+      "tick": 5,
+      "last_prediction": 0.7281051853914211,
+      "last_input": 0.799248,
+      "precision": 0.9985685243,
+      "energy": 0.994,
+      "entropy": 0.0615291,
+      "memory_size": 6,
+      "sensory_buffer_size": 6,
+      "prediction_error_buffer_size": 6
+    },
+    {
+      "tick": 6,
+      "last_prediction": 0.7720512517503824,
+      "last_input": 0.792154,
+      "precision": 0.9984329682,
+      "energy": 0.993,
+      "entropy": 0.0645393749,
+      "memory_size": 6,
+      "sensory_buffer_size": 7,
+      "prediction_error_buffer_size": 7
+    },
+    {
+      "tick": 7,
+      "last_prediction": 0.7718674239882415,
+      "last_input": 0.758963,
+      "precision": 0.9983573151,
+      "energy": 0.992,
+      "entropy": 0.0668298173,
+      "memory_size": 7,
+      "sensory_buffer_size": 8,
+      "prediction_error_buffer_size": 8
+    },
+    {
+      "tick": 8,
+      "last_prediction": 0.7786914877572767,
+      "last_input": 0.702639,
+      "precision": 0.998562005,
+      "energy": 0.991,
+      "entropy": 0.075435066,
+      "memory_size": 8,
+      "sensory_buffer_size": 9,
+      "prediction_error_buffer_size": 9
+    },
+    {
+      "tick": 9,
+      "last_prediction": 0.7536594645725453,
+      "last_input": 0.628214,
+      "precision": 0.99858866,
+      "energy": 0.99,
+      "entropy": 0.0889796125,
+      "memory_size": 9,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 10
+    },
+    {
+      "tick": 10,
+      "last_prediction": 0.6988876665896628,
+      "last_input": 0.542336,
+      "precision": 0.9984568644,
+      "energy": 0.989,
+      "entropy": 0.1056347792,
+      "memory_size": 10,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 11
+    },
+    {
+      "tick": 11,
+      "last_prediction": 0.626299919367605,
+      "last_input": 0.452676,
+      "precision": 0.998278267,
+      "energy": 0.988,
+      "entropy": 0.1239971711,
+      "memory_size": 11,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 12
+    },
+    {
+      "tick": 12,
+      "last_prediction": 0.5420417524940929,
+      "last_input": 0.367244,
+      "precision": 0.9981671254,
+      "energy": 0.987,
+      "entropy": 0.1424769463,
+      "memory_size": 12,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 13
+    },
+    {
+      "tick": 13,
+      "last_prediction": 0.4542922481771764,
+      "last_input": 0.29367,
+      "precision": 0.9981753445,
+      "energy": 0.986,
+      "entropy": 0.1595391712,
+      "memory_size": 13,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 14
+    },
+    {
+      "tick": 14,
+      "last_prediction": 0.3709094668697541,
+      "last_input": 0.238527,
+      "precision": 0.9982786137,
+      "energy": 0.985,
+      "entropy": 0.1737774179,
+      "memory_size": 14,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 15
+    },
+    {
+      "tick": 15,
+      "last_prediction": 0.29903632629407634,
+      "last_input": 0.206741,
+      "precision": 0.9983874639,
+      "energy": 0.984,
+      "entropy": 0.1840069505,
+      "memory_size": 15,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 16
+    },
+    {
+      "tick": 16,
+      "last_prediction": 0.2454480460689534,
+      "last_input": 0.201151,
+      "precision": 0.9983800409,
+      "energy": 0.983,
+      "entropy": 0.1894366551,
+      "memory_size": 15,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 17
+    },
+    {
+      "tick": 17,
+      "last_prediction": 0.24514141060524283,
+      "last_input": 0.222256,
+      "precision": 0.9983043561,
+      "energy": 0.982,
+      "entropy": 0.1927251962,
+      "memory_size": 16,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 18
+    },
+    {
+      "tick": 18,
+      "last_prediction": 0.22208632356848276,
+      "last_input": 0.268171,
+      "precision": 0.9983302245,
+      "energy": 0.981,
+      "entropy": 0.1983336638,
+      "memory_size": 17,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 19
+    },
+    {
+      "tick": 19,
+      "last_prediction": 0.23242480863541876,
+      "last_input": 0.334794,
+      "precision": 0.9984163802,
+      "energy": 0.98,
+      "entropy": 0.2095705829,
+      "memory_size": 18,
+      "sensory_buffer_size": 10,
+      "prediction_error_buffer_size": 20
+    }
+  ],
+  "final_memory": [
+    {
+      "stimulus_hash": 50,
+      "prediction": 0.5,
+      "error": 0.02,
+      "timestamp_tick": 0
+    },
+    {
+      "stimulus_hash": 58,
+      "prediction": 0.588656,
+      "error": 0.098656,
+      "timestamp_tick": 1
+    },
+    {
+      "stimulus_hash": 66,
+      "prediction": 0.669393,
+      "error": 0.1367263791,
+      "timestamp_tick": 2
+    },
+    {
+      "stimulus_hash": 73,
+      "prediction": 0.734998,
+      "error": 0.1621076875,
+      "timestamp_tick": 3
+    },
+    {
+      "stimulus_hash": 77,
+      "prediction": 0.779612,
+      "error": 0.1266581192,
+      "timestamp_tick": 4
+    },
+    {
+      "stimulus_hash": 79,
+      "prediction": 0.7985386,
+      "error": 0.0740285331,
+      "timestamp_tick": 6
+    },
+    {
+      "stimulus_hash": 75,
+      "prediction": 0.758963,
+      "error": 0.022904424,
+      "timestamp_tick": 7
+    },
+    {
+      "stimulus_hash": 70,
+      "prediction": 0.702639,
+      "error": 0.0860524878,
+      "timestamp_tick": 8
+    },
+    {
+      "stimulus_hash": 62,
+      "prediction": 0.628214,
+      "error": 0.1354454646,
+      "timestamp_tick": 9
+    },
+    {
+      "stimulus_hash": 54,
+      "prediction": 0.542336,
+      "error": 0.1665516666,
+      "timestamp_tick": 10
+    },
+    {
+      "stimulus_hash": 45,
+      "prediction": 0.452676,
+      "error": 0.1736239194,
+      "timestamp_tick": 11
+    },
+    {
+      "stimulus_hash": 36,
+      "prediction": 0.367244,
+      "error": 0.1747977525,
+      "timestamp_tick": 12
+    },
+    {
+      "stimulus_hash": 29,
+      "prediction": 0.29367,
+      "error": 0.1606222482,
+      "timestamp_tick": 13
+    },
+    {
+      "stimulus_hash": 23,
+      "prediction": 0.238527,
+      "error": 0.1323824669,
+      "timestamp_tick": 14
+    },
+    {
+      "stimulus_hash": 20,
+      "prediction": 0.206182,
+      "error": 0.0830657937,
+      "timestamp_tick": 16
+    },
+    {
+      "stimulus_hash": 22,
+      "prediction": 0.222256,
+      "error": 0.0228854106,
+      "timestamp_tick": 17
+    },
+    {
+      "stimulus_hash": 26,
+      "prediction": 0.268171,
+      "error": 0.0460846764,
+      "timestamp_tick": 18
+    },
+    {
+      "stimulus_hash": 33,
+      "prediction": 0.334794,
+      "error": 0.1023691914,
+      "timestamp_tick": 19
+    }
+  ]
+}
