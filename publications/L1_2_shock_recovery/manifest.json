@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "experiment": {
+    "id": "L1_2_shock_recovery",
+    "description": "L1.2 Shock Recovery - Homeostatic Resilience (shock_world, control_baseline=stable_world, wariant B)"
+  },
+  "matrix": {
+    "genomes": [
+      "default",
+      "highly_plastic"
+    ],
+    "scenarios": [
+      "shock_world",
+      "stable_world"
+    ],
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "ticks": 300,
+  "workflow_version": "0.9",
+  "parent_experiment": null,
+  "seed_policy": "fixed",
+  "publish_on_verify": true,
+  "primary_scenario": "shock_world",
+  "control_baseline": "stable_world"
+}

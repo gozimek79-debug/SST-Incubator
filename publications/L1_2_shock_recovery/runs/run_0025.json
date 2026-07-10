@@ -1,0 +1,24 @@
+{
+  "run_id": "L1.2_highly_plastic_s6_shock_world",
+  "lesson": "L1.2",
+  "genome": "highly_plastic",
+  "seed": 6,
+  "scenario": "shock_world",
+  "homeostasis_band": {
+    "low": 0.25,
+    "high": 0.5
+  },
+  "fraction_in_band": 0.016667,
+  "stability_score": 0.0,
+  "adaptation_tick": 0,
+  "final_energy": 0.266,
+  "final_entropy": 1.0,
+  "memory_size": 22,
+  "t_shock": 70,
+  "primary_endpoint": {
+    "metric": "recovery_time",
+    "value": null,
+    "censored": true
+  },
+  "pre_shock_in_band": false
+}

@@ -1,10 +1,19 @@
 """Validate Artifacts - sprawdza spojnosc raportow Academy z definicja eksperymentu.
 
-Zasady (SPRINT_v0.8.4.md, Priorytet 3):
+Zasady (SPRINT_v0.8.4.md, Priorytet 3; wyjatek cenzurowania: SPRINT_v0.9.md P5,
+Odkrycie #2):
   1. Raport scenariusza stochastycznego (kazdy poza clos_world.scenarios
      CONTROL_ENVIRONMENTS, np. noise_world) NIE moze miec ci95_valid=False
      dla statystyk eksperymentalnych danego genomu - to sygnalizowaloby
      pseudoreplikacje albo brak realnej wariancji tam, gdzie powinna byc.
+     WYJATEK: ci95_valid=False jest DOZWOLONE, jesli raport jawnie deklaruje
+     cenzurowanie (per_genome[genom]["recovery_time_detail"] z polami
+     n_total/n_censored/min_non_censored) I liczba NIEUCENZUROWANYCH
+     (n_total - n_censored) faktycznie jest < min_non_censored - to jest
+     prerejestrowany, zweryfikowany wynik (np. L1.2 - homeostaza nigdy nie
+     wraca w oknie obserwacji), nie pseudoreplikacja. Walidator SPRAWDZA te
+     liczby, nie ufa samej obecnosci pola - nie da sie tym wyjatkiem obejsc
+     ochrony bez faktycznego niedoboru nieucenzurowanych prob.
   2. Raport musi zgadzac sie z prerejestracja lekcji (ten sam scenario,
      ten sam control_baseline, liczba seedow >= min_seeds).
 
@@ -33,6 +42,22 @@ def _prereg_path_for_lesson(lesson_id: str) -> Path:
     return PUBLICATIONS_DIR / f"preregistration_{lesson_id.replace('.', '_')}.json"
 
 
+def _censoring_justifies_invalid_ci95(genome_stats: dict) -> bool:
+    """True tylko jesli raport dowodzi (liczbami, nie samym polem), ze
+    ci95_valid=False wynika z niedoboru nieucenzurowanych prob ponizej
+    zadeklarowanego min_non_censored - a nie z czegos innego."""
+    detail = genome_stats.get("recovery_time_detail")
+    if not isinstance(detail, dict):
+        return False
+    n_total = detail.get("n_total")
+    n_censored = detail.get("n_censored")
+    min_non_censored = detail.get("min_non_censored")
+    if not all(isinstance(v, int) for v in (n_total, n_censored, min_non_censored)):
+        return False
+    non_censored = n_total - n_censored
+    return non_censored < min_non_censored
+
+
 def validate_report(report_path: Path) -> list:
     with open(report_path, encoding="utf-8") as f:
         report = json.load(f)
@@ -58,11 +83,14 @@ def validate_report(report_path: Path) -> list:
         for genome, stats in per_genome.items():
             exp_stats = stats.get("experimental_stats", {})
             if exp_stats.get("ci95_valid") is False:
+                if _censoring_justifies_invalid_ci95(stats):
+                    continue  # sankcjonowany wyjatek: cenzurowanie ponizej min_non_censored
                 errors.append(
                     f"{report_path}: genom '{genome}', scenariusz stochastyczny "
                     f"'{scenario}' ma ci95_valid=False (n_effective="
                     f"{exp_stats.get('n_effective')}) - blad, oczekiwana "
-                    "wariancja miedzyseedowa"
+                    "wariancja miedzyseedowa (brak uzasadnienia cenzurowaniem "
+                    "w recovery_time_detail)"
                 )
 
     # 2) zgodnosc z prerejestracja.

@@ -1,0 +1,24 @@
+{
+  "run_id": "L1.2_default_s7_shock_world",
+  "lesson": "L1.2",
+  "genome": "default",
+  "seed": 7,
+  "scenario": "shock_world",
+  "homeostasis_band": {
+    "low": 0.25,
+    "high": 0.5
+  },
+  "fraction_in_band": 0.1,
+  "stability_score": 0.0,
+  "adaptation_tick": 0,
+  "final_energy": 0.318,
+  "final_entropy": 1.0,
+  "memory_size": 28,
+  "t_shock": 40,
+  "primary_endpoint": {
+    "metric": "recovery_time",
+    "value": 11,
+    "censored": false
+  },
+  "pre_shock_in_band": false
+}

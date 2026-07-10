@@ -1,0 +1,17 @@
+{
+  "run_id": "L1.2_highly_plastic_s8_stable_world",
+  "lesson": "L1.2",
+  "genome": "highly_plastic",
+  "seed": 8,
+  "scenario": "stable_world",
+  "homeostasis_band": {
+    "low": 0.25,
+    "high": 0.5
+  },
+  "fraction_in_band": 0.013333,
+  "stability_score": 0.0,
+  "adaptation_tick": 0,
+  "final_energy": 0.114,
+  "final_entropy": 1.0,
+  "memory_size": 6
+}

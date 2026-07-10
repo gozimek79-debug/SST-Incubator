@@ -1,0 +1,24 @@
+{
+  "run_id": "L1.2_default_s4_shock_world",
+  "lesson": "L1.2",
+  "genome": "default",
+  "seed": 4,
+  "scenario": "shock_world",
+  "homeostasis_band": {
+    "low": 0.25,
+    "high": 0.5
+  },
+  "fraction_in_band": 0.113333,
+  "stability_score": 0.0,
+  "adaptation_tick": 0,
+  "final_energy": 0.31,
+  "final_entropy": 1.0,
+  "memory_size": 34,
+  "t_shock": 35,
+  "primary_endpoint": {
+    "metric": "recovery_time",
+    "value": 18,
+    "censored": false
+  },
+  "pre_shock_in_band": false
+}
