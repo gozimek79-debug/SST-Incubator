@@ -57,21 +57,63 @@ started. No "Publication Ready" / "Production Ready" claims — see
   automated verification (panel.js's JS-rendered output, as opposed to its
   static HTML shell).
 
-## v0.9 — Predictive Coding, Latent Space
+## v0.9 — `partial_step()`, `core/` debt, L1.2, minimal profile (this sprint)
+
+New project invariant: we protect the **behavior** of the system, not the
+files (see README "What's frozen, what isn't"; `SPRINT_v0.9.md`). Core may
+now change, but only additively, and only behind a regression test proving
+existing behavior is unchanged.
+
+- `core/` (dead code — 5 files, 0 imports from outside itself) removed.
+- `BrainRuntime.partial_step()` implemented as an additive extension of
+  `step()` ([docs/spec_partial_step.md](docs/spec_partial_step.md)). Only
+  `PERCEIVE` is certified skippable; anything else raises
+  `NotImplementedError` (explicitly uncertified, not a wrong value).
+  `tests/golden_step_baseline.json` + `test_step_regression` protect
+  `step()`'s exact output, generated on the commit *before* `partial_step()`
+  existed, so the test can't compare the code to itself.
+- [clos_academy/echo_runtime.py](clos_academy/echo_runtime.py) refactored
+  onto `partial_step(skip={PERCEIVE})` — the hand-rolled pipeline
+  duplication is gone; L1.1 verified byte-identical after the refactor
+  (all 40 `run_*.json` files unchanged).
+- **L1.2 "Shock Recovery"** — second Academy lesson, primary endpoint
+  structurally different from L1.1 (`recovery_time` /
+  `time_to_sustained_band`, not MSE). Preregistration
+  ([publications/preregistration_L1_2.json](publications/preregistration_L1_2.json))
+  gives a formal, mathematical endpoint definition: homeostasis band,
+  observation window, censoring rule, and a data-driven threshold
+  (`pre_shock_band_check`, 0.8) deciding whether the endpoint measures
+  "recovery" or "establishment" of homeostasis.
+- Capability Analyzer refactored to an **N:M** relation (concept → list of
+  lessons) — required to absorb L1.2 without breaking L1.1; the 4 concepts
+  fed only by L1.1 verified byte-identical before/after the refactor.
+- Competency Profile: **minimal profile** (only `ci95_valid=True`, 5/14)
+  split from the **full profile** (all 14, with degenerate/
+  `insufficient_data` as explicit, separate categories).
+- [docs/idio_morph_hypothesis.md](docs/idio_morph_hypothesis.md) — four
+  open research questions about representation, zero code.
+- Status: **"Research Grade Infrastructure for Artificial Ontogenesis"** —
+  no "Artificial Mind" framing anywhere in the repo (verified by grep).
+- Honest limitations (see `RAPORT_v0.9.md`): `highly_plastic` in L1.2 is
+  100% censored (never recovers within the observation window — a real
+  result, not a bug). Adaptation/Stability are still degenerate, and now
+  root-caused: `kernel.snapshot_engine` is always empty because no lesson
+  calls `kernel.run_tick()` — a known debt, **not fixed in this sprint**.
+
+## v0.10 — Predictive Coding, Latent Space
 
 Not started. Depends on:
-- A sanctioned way to skip Core pipeline steps without touching
-  `clos_brain/` behavior — either `BrainRuntime.partial_step()` per
-  [docs/spec_partial_step.md](docs/spec_partial_step.md), or an equivalent
-  reviewed Core extension. The current workaround
-  ([clos_academy/echo_runtime.py](clos_academy/echo_runtime.py)) only
-  covers the single case L1.1 needs (silence = skip perception).
-- New lessons beyond L1.1, to raise the Competency Profile's `measured`
-  count past 6/13 and give Predictive Coding / Latent Space work something
+- New lessons beyond L1.1/L1.2, to raise the minimal Competency Profile's
+  count past 5/14 and give Predictive Coding / Latent Space work something
   to be measured against.
+- Possibly new `PipelineStep` entries in `partial_step()` if this work
+  needs to skip/reorder more than `PERCEIVE` — architecturally unblocked
+  (see [docs/idio_morph_hypothesis.md](docs/idio_morph_hypothesis.md) §2),
+  but each new certified-skippable step needs its own safety analysis
+  first, same as `PERCEIVE` did.
 
 ## v1.0 — Evolution Engine
 
 Not started. Genome mutation/selection across generations, evaluated
 through the same Academy / Capability Analyzer / Competency Profile
-machinery built in v0.8.4 — no new, parallel scoring system.
+machinery built in v0.8.4–v0.9 — no new, parallel scoring system.

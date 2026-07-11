@@ -1,6 +1,6 @@
 # CLOS — Cognitive Life Operating System (Incubator)
 
-**Status: Research Grade Infrastructure.**
+**Status: Research Grade Infrastructure for Artificial Ontogenesis.**
 
 CLOS grows small "brains" (`BrainTissue`) from genomes, runs them against
 deterministic and stochastic world scenarios, and measures cognitive
@@ -8,18 +8,29 @@ mechanisms through preregistered lessons ("Academy") with honest statistics
 (CI95, `n_effective`, Glass's delta, Cohen's d — see
 [clos_curriculum/laboratory/statistics.py](clos_curriculum/laboratory/statistics.py)).
 
-This is not a "Publication Ready" or "Production Ready" system. Currently
-one lesson exists (L1.1 "Pattern Echo") and it measures 6 of the 13
-cognitive concepts defined in the ontology — see
-[Cognitive Academy](#cognitive-academy) below for exactly which ones, and
-which are explicitly `insufficient_data`.
+This is not a "Publication Ready" or "Production Ready" system, and it is
+not a claim of "Artificial Mind" — CLOS studies measurable *ontogenesis*
+(how a Brain's internal state develops under a genome and an environment),
+not general intelligence. Two lessons exist (L1.1 "Pattern Echo", L1.2
+"Shock Recovery"), measuring 14 cognitive concepts total — the **minimal
+competency profile** (concepts with `ci95_valid=True` for every genome
+present) is currently **5 of 14**; see
+[Cognitive Academy](#cognitive-academy) below for exactly which, and which
+of the rest are explicitly `insufficient_data` vs measured-but-degenerate.
 
 ## What's frozen, what isn't
 
-**Core Brain Runtime is frozen** — `clos_brain/` (incl. `clos_brain/runtime/`,
-`clos_brain/tissue.py`), `clos_kernel/`, `genome/`, `birth/`. These are not
-touched by Academy/lesson work; the only sanctioned change is compilation
-fixes, not behavior changes.
+**Core Brain Runtime behavior is frozen, not the files themselves** (this
+changed in v0.9 — see `SPRINT_v0.9.md`'s "nowy inwariant"). `clos_brain/`
+(incl. `clos_brain/runtime/`, `clos_brain/tissue.py`), `clos_kernel/`,
+`genome/`, `birth/` may only change **additively**, and only when a
+regression test proves existing behavior is byte-identical before/after
+(see `tests/golden_step_baseline.json`,
+`tests/test_partial_step.py::TestStepRegression`). The one sanctioned
+addition so far is `BrainRuntime.partial_step()`
+([clos_brain/brain_runtime.py](clos_brain/brain_runtime.py),
+[docs/spec_partial_step.md](docs/spec_partial_step.md)) — `step()` itself
+has zero behavior changes.
 
 Actively developed: `clos_academy/`, `clos_scientist/`, `clos_curriculum/`,
 `clos_studio/`, CI, docs, tests.
@@ -52,10 +63,10 @@ for its "Testy i CI" section, instead of the GitHub API.
 |---|---|
 | `genome/` | Genome Engine — genome definitions and gene expression. |
 | `birth/` | Birth Engine — instantiates a Brain from a genome. |
-| `clos_kernel/` | Kernel Runtime — tick loop, snapshots, event bus. **Core, frozen.** |
-| `clos_brain/` | Brain Runtime — perception, prediction, plasticity, precision, homeostasis, action. **Core, frozen.** |
+| `clos_kernel/` | Kernel Runtime — tick loop, snapshots, event bus. **Core, behavior frozen.** |
+| `clos_brain/` | Brain Runtime — perception, prediction, plasticity, precision, homeostasis, action, `partial_step()`. **Core, behavior frozen** (additive changes only, regression-tested). |
 | `clos_world/` | World Runtime — stimulus generators/scenarios (`stable_world`, `noise_world`, `drift_world`, `shock_world`). |
-| `clos_academy/` | Cognitive Academy — lessons (currently L1.1 "Pattern Echo") + [cognitive_ontology.md](clos_academy/cognitive_ontology.md). |
+| `clos_academy/` | Cognitive Academy — lessons (L1.1 "Pattern Echo", L1.2 "Shock Recovery") + [cognitive_ontology.md](clos_academy/cognitive_ontology.md). |
 | `clos_scientist/` | Metrics, experiment reports, Capability Analyzer, Competency Profile builder. |
 | `clos_curriculum/` | Statistics lab (CI95, Glass's delta, Cohen's d), curriculum levels. |
 | `clos_studio/` | Matrix runner, Publication Bundle builder, provenance/artifact management, [Panel Badacza](#panel-badacza) (`clos_studio/panel/`). |
@@ -64,7 +75,7 @@ for its "Testy i CI" section, instead of the GitHub API.
 | `publications/` | Publication Bundles (full provenance) + prerejestracje. |
 | `reports/` | Generated Academy/experiment reports + `status.json` (CI-written). |
 | `scripts/` | CI validators (`validate_publication.py`, `validate_artifacts.py`, `validate_panel.py`) + `write_status.py`. |
-| `docs/` | Design specs for not-yet-implemented Core extensions. |
+| `docs/` | Design specs and research hypotheses for not-yet-implemented work (`spec_partial_step.md` implemented in v0.9; `idio_morph_hypothesis.md` is hypothesis-only, zero code). |
 | `tests/` | pytest suite. |
 
 ## Cognitive Academy
@@ -74,15 +85,26 @@ for its "Testy i CI" section, instead of the GitHub API.
   anywhere in Academy reports (Perception, Attention, Pattern Recognition,
   Pattern Retention, Working Memory, Long-term Memory, Prediction,
   Adaptation, Exploration, Generalization, Planning, Stability, Energy
-  Efficiency). Every future lesson and metric refers back to this document.
+  Efficiency, Homeostatic Resilience — 14 total). Every future lesson and
+  metric refers back to this document.
 - [publications/competency_profile.md](publications/competency_profile.md) —
-  current `measured` / `insufficient_data` status for each of those 13
-  concepts, per genome, generated purely from `reports/academy/*.json` by
+  two profiles, generated purely from `reports/academy/*.json` by
   [clos_scientist/competency_profile.py](clos_scientist/competency_profile.py)
-  (no hand-editing).
-- [publications/preregistration_L1_1.json](publications/preregistration_L1_1.json) —
+  (no hand-editing): the **minimal profile** (official — only concepts
+  where every present genome has `ci95_valid=True`, currently 5/14), and
+  the **full profile** (all 14, with `measured`-but-degenerate and
+  `insufficient_data` kept as separate, explicit categories — nothing
+  hidden).
+- [publications/preregistration_L1_1.json](publications/preregistration_L1_1.json) /
+  [publications/preregistration_L1_2.json](publications/preregistration_L1_2.json) —
   the preregistered hypothesis, primary/secondary endpoints, and statistical
-  plan for L1.1, kept in sync with [clos_academy/lesson_L1_1.py](clos_academy/lesson_L1_1.py).
+  plan for each lesson, kept in sync with
+  [clos_academy/lesson_L1_1.py](clos_academy/lesson_L1_1.py) /
+  [clos_academy/lesson_L1_2.py](clos_academy/lesson_L1_2.py).
+- [docs/idio_morph_hypothesis.md](docs/idio_morph_hypothesis.md) — four
+  open research questions about representation (dynamic encoding, morphic
+  compression, idiosyncratic semantics, metabolic memory cost).
+  Hypothesis only — zero production code.
 
 ## Panel Badacza
 
