@@ -12,10 +12,10 @@ from clos_scientist.competency_profile import (
 
 
 class TestCompetencyProfileContents:
-    def test_profile_has_all_13_concepts(self):
+    def test_profile_has_all_14_concepts(self):
         profile = build_competency_profile()
-        assert profile["summary"]["total_concepts"] == 13
-        assert len(profile["concepts"]) == 13
+        assert profile["summary"]["total_concepts"] == 14
+        assert len(profile["concepts"]) == 14
 
     def test_insufficient_data_concepts_have_no_numeric_value(self):
         profile = build_competency_profile()
@@ -30,14 +30,14 @@ class TestCompetencyProfileContents:
         insufficient = sum(1 for c in profile["concepts"] if c["status"] == "insufficient_data")
         assert profile["summary"]["measured"] == measured
         assert profile["summary"]["insufficient_data"] == insufficient
-        assert measured + insufficient == 13
+        assert measured + insufficient == 14
 
 
 class TestGenomeCards:
-    def test_genome_cards_have_all_13_concepts_per_genome(self):
+    def test_genome_cards_have_all_14_concepts_per_genome(self):
         profile = build_competency_profile()
         for genome, card in profile["genome_cards"].items():
-            assert len(card) == 13
+            assert len(card) == 14
             assert {entry["concept"] for entry in card} == {
                 c["concept"] for c in profile["concepts"]
             }

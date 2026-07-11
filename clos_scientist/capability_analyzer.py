@@ -1,15 +1,25 @@
 """Capability Analyzer - mapuje endpointy lekcji Academy na pojecia z
 clos_academy/cognitive_ontology.md.
 
-Zasady (SPRINT_v0.8.4.md, Priorytet 4):
-  - Czyta reports/academy/*.json oraz odpowiadajaca prerejestracje
+Zasady (SPRINT_v0.8.4.md, Priorytet 4; relacja N:M: SPRINT_v0.9.md P6,
+Odkrycie #1 opcja 2):
+  - Czyta reports/academy/*.json oraz odpowiadajace prerejestracje
     (publications/preregistration_<lesson_id>.json) - scenariusz do
     porownania brany jest z prerejestracji, nie hardkodowany.
+  - CONCEPT_METRIC_MAP mapuje pojecie -> LISTA lekcji (N:M: jedno pojecie
+    moze byc zasilane przez wiele lekcji, jedna lekcja moze zasilac wiele
+    pojec). Wartosci z wielu lekcji dla tego samego genomu sa laczone w
+    jedna pule przed policzeniem CI95 - to jest agregacja replik, nie
+    wybor "lepszej" lekcji.
   - Kazde pojecie z CONCEPT_METRIC_MAP uzywa DOKLADNIE tej samej nazwy co
     naglowek w cognitive_ontology.md.
-  - Pojecie bez lekcji (albo lekcja z ontologii jeszcze nie istnieje w
-    reports/academy/) dostaje status "insufficient_data" i ZERO wartosci
-    liczbowych (pusty "genomes", "genome_comparison": None).
+  - Pojecie bez zadnej lekcji (mappings=None) dostaje status
+    "insufficient_data" i ZERO wartosci liczbowych (pusty "genomes",
+    "genome_comparison": None). Pojecie z lekcja(-ami), ale bez zadnego
+    dopasowanego raportu/wartosci, dostaje to samo - z intencja zachowana
+    w source_lesson (jakiej lekcji brakuje), nie zgadywana.
+  - extract() moze zwrocic None (np. run ucenzurowany) - filtrowane przed
+    CI95, NIE liczone jako 0.0 ani pomijane cicho z calego runu.
   - Porownanie genomow liczy Cohen's d MIEDZY GENOMAMI (nie Glass's delta
     wzgledem kontroli - to inne porownanie, uzywane w samej lekcji).
   - Zero interpretacji/ocen slownych w wyjsciu - tylko liczby i status.
@@ -27,23 +37,45 @@ PUBLICATIONS_DIR = Path("publications")
 
 GENOMES = ["default", "highly_plastic"]
 
-# Mapowanie pojecie -> lekcja + ekstraktor wartosci z pojedynczego run-dicta
-# (patrz clos_academy/lesson_L1_1.py:run_pattern_echo -> output).
+# Mapowanie pojecie -> LISTA {lesson, extract} (N:M, patrz docstring modulu).
 # None = pojecie bez zadnej lekcji (zgodnie z cognitive_ontology.md).
+# Kazdy wpis nadal ma dokladnie jedna lekcje w tej wersji - lista dowodzi
+# architektury (dodanie 2. lekcji do dowolnego pojecia nie wymaga zmiany
+# ksztaltu danych ani analyze_concept()), nie jest tu uzyta bo Adaptation/
+# Stability z L1.2 sa obecnie zdegenerowane u zrodla (patrz
+# RAPORT_P5_L1.2_dla_architekta.md) - dodanie ich jako drugiego zrodla
+# niczego by nie zmienilo, wiec nie robimy tego bez powodu.
 CONCEPT_METRIC_MAP = {
     "Perception": None,
     "Attention": None,
-    "Pattern Recognition": {"lesson": "L1.1", "extract": lambda r: r["mse_stimulus_phase"]},
-    "Pattern Retention": {"lesson": "L1.1", "extract": lambda r: r["memory_decay_rate"]},
-    "Working Memory": {"lesson": "L1.1", "extract": lambda r: r["primary_endpoint"]["value"]},
+    "Pattern Recognition": [
+        {"lesson": "L1.1", "extract": lambda r: r["mse_stimulus_phase"]},
+    ],
+    "Pattern Retention": [
+        {"lesson": "L1.1", "extract": lambda r: r["memory_decay_rate"]},
+    ],
+    "Working Memory": [
+        {"lesson": "L1.1", "extract": lambda r: r["primary_endpoint"]["value"]},
+    ],
     "Long-term Memory": None,
     "Prediction": None,
-    "Adaptation": {"lesson": "L1.1", "extract": lambda r: r["adaptation_tick"]},
+    "Adaptation": [
+        {"lesson": "L1.1", "extract": lambda r: r["adaptation_tick"]},
+    ],
     "Exploration": None,
     "Generalization": None,
     "Planning": None,
-    "Stability": {"lesson": "L1.1", "extract": lambda r: r["stability_score"]},
-    "Energy Efficiency": {"lesson": "L1.1", "extract": lambda r: r["final_energy"]},
+    "Stability": [
+        {"lesson": "L1.1", "extract": lambda r: r["stability_score"]},
+    ],
+    "Energy Efficiency": [
+        {"lesson": "L1.1", "extract": lambda r: r["final_energy"]},
+    ],
+    "Homeostatic Resilience": [
+        # None dla runow ucenzurowanych (recovery_time niezdefiniowany w oknie W) -
+        # filtrowane przez analyze_concept(), nie liczone jako 0.
+        {"lesson": "L1.2", "extract": lambda r: r["primary_endpoint"]["value"]},
+    ],
 }
 
 
@@ -87,43 +119,49 @@ def _cohens_d_with_flag(group_a: List[float], group_b: List[float]) -> Dict[str,
     return {"cohens_d": round((mean_b - mean_a) / pooled_std, 6), "computable": True}
 
 
-def _insufficient(concept: str, source_lesson: Optional[str]) -> Dict[str, Any]:
+def _insufficient(concept: str, source_lessons: List[str]) -> Dict[str, Any]:
     return {
         "concept": concept,
         "status": "insufficient_data",
-        "source_lesson": source_lesson,
+        "source_lesson": ", ".join(source_lessons) if source_lessons else None,
+        "source_lessons": list(source_lessons),
         "genomes": {},
         "genome_comparison": None,
     }
 
 
-def analyze_concept(concept: str, mapping: Optional[Dict[str, Any]],
+def analyze_concept(concept: str, mappings: Optional[List[Dict[str, Any]]],
                      reports: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
-    if mapping is None:
-        return _insufficient(concept, None)
+    if not mappings:
+        return _insufficient(concept, [])
 
-    lesson_id = mapping["lesson"]
-    report = reports.get(lesson_id)
-    if report is None:
-        return _insufficient(concept, lesson_id)
+    intended_lessons = [m["lesson"] for m in mappings]
+    found_lessons: List[str] = []
+    genome_values: Dict[str, List[float]] = {g: [] for g in GENOMES}
 
-    prereg = _load_json(_prereg_path_for_lesson(lesson_id))
-    scenario = (
-        prereg.get("experiment_design", {}).get("scenario")
-        if prereg else report.get("scenario")
-    )
+    for mapping in mappings:
+        lesson_id = mapping["lesson"]
+        report = reports.get(lesson_id)
+        if report is None:
+            continue
+        found_lessons.append(lesson_id)
 
-    extract = mapping["extract"]
-    genome_values: Dict[str, List[float]] = {}
-    for genome in GENOMES:
-        values = [
-            extract(r) for r in report.get("results", [])
-            if r.get("genome") == genome and r.get("scenario") == scenario
-        ]
-        genome_values[genome] = values
+        prereg = _load_json(_prereg_path_for_lesson(lesson_id))
+        scenario = (
+            prereg.get("experiment_design", {}).get("scenario")
+            if prereg else report.get("scenario")
+        )
 
-    if not any(genome_values.values()):
-        return _insufficient(concept, lesson_id)
+        extract = mapping["extract"]
+        for genome in GENOMES:
+            raw_values = [
+                extract(r) for r in report.get("results", [])
+                if r.get("genome") == genome and r.get("scenario") == scenario
+            ]
+            genome_values[genome].extend(v for v in raw_values if v is not None)
+
+    if not found_lessons or not any(genome_values.values()):
+        return _insufficient(concept, intended_lessons)
 
     genomes_out: Dict[str, Any] = {}
     for genome, values in genome_values.items():
@@ -153,7 +191,8 @@ def analyze_concept(concept: str, mapping: Optional[Dict[str, Any]],
     return {
         "concept": concept,
         "status": "measured",
-        "source_lesson": lesson_id,
+        "source_lesson": ", ".join(found_lessons),
+        "source_lessons": found_lessons,
         "genomes": genomes_out,
         "genome_comparison": comparison,
     }
@@ -162,8 +201,8 @@ def analyze_concept(concept: str, mapping: Optional[Dict[str, Any]],
 def build_capability_profile(reports_dir: Path = REPORTS_DIR) -> List[Dict[str, Any]]:
     """Zwraca liste rekordow (jeden na pojecie z CONCEPT_METRIC_MAP)."""
     reports = load_academy_reports(reports_dir)
-    return [analyze_concept(concept, mapping, reports)
-            for concept, mapping in CONCEPT_METRIC_MAP.items()]
+    return [analyze_concept(concept, mappings, reports)
+            for concept, mappings in CONCEPT_METRIC_MAP.items()]
 
 
 if __name__ == "__main__":

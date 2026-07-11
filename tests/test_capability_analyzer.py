@@ -39,7 +39,7 @@ class TestInsufficientData:
             "Perception", "Attention", "Pattern Recognition", "Pattern Retention",
             "Working Memory", "Long-term Memory", "Prediction", "Adaptation",
             "Exploration", "Generalization", "Planning", "Stability",
-            "Energy Efficiency",
+            "Energy Efficiency", "Homeostatic Resilience",
         }
         assert concepts == expected
 
@@ -84,6 +84,66 @@ class TestWorkingMemoryFromL11:
         assert comparison["computable"] is True
         assert isinstance(comparison["cohens_d"], float)
         assert isinstance(comparison["mean_diff"], float)
+
+
+class TestHomeostaticResilienceFromL12:
+    """Homeostatic Resilience (SPRINT_v0.9.md P6) - N:M refaktor, zasilane z L1.2."""
+
+    def test_default_measured_highly_plastic_absent(self):
+        profile = build_capability_profile()
+        hr = next(c for c in profile if c["concept"] == "Homeostatic Resilience")
+
+        assert hr["status"] == "measured"
+        assert hr["source_lesson"] == "L1.2"
+        assert hr["source_lessons"] == ["L1.2"]
+        assert "default" in hr["genomes"]
+        assert hr["genomes"]["default"]["ci95_valid"] is True
+        assert "highly_plastic" not in hr["genomes"], (
+            "highly_plastic w L1.2 jest w 100% ocenzurowany - bez wartosci"
+        )
+
+    def test_genome_comparison_not_computable_when_one_genome_censored(self):
+        profile = build_capability_profile()
+        hr = next(c for c in profile if c["concept"] == "Homeostatic Resilience")
+        assert hr["genome_comparison"] is None, (
+            "Cohen's d nieobliczalny (highly_plastic bez danych) - jawny None, nie 0.0"
+        )
+
+
+class TestConceptMetricMapIsNtoM:
+    """Architektura N:M (SPRINT_v0.9.md P6, Odkrycie #1 opcja 2)."""
+
+    def test_mappings_are_lists_not_single_dicts(self):
+        for concept, mappings in CONCEPT_METRIC_MAP.items():
+            assert mappings is None or isinstance(mappings, list), (
+                f"{concept}: CONCEPT_METRIC_MAP musi mapowac na liste lekcji (N:M), nie pojedynczy dict"
+            )
+
+    def test_protected_l1_1_concepts_unchanged_by_refactor(self):
+        """Regresja krytyczna: pojecia zasilane WYLACZNIE z L1.1 musza dawac
+        te same wartosci co przed wprowadzeniem relacji N:M (SPRINT_v0.9.md P6)."""
+        import json
+        from clos_curriculum.laboratory.statistics import compute_ci95
+
+        profile = build_capability_profile()
+        by_concept = {c["concept"]: c for c in profile}
+
+        with open("reports/academy/L1_1_pattern_echo.json", encoding="utf-8") as f:
+            l11_report = json.load(f)
+
+        checks = {
+            "Pattern Recognition": "mse_stimulus_phase",
+            "Pattern Retention": "memory_decay_rate",
+            "Energy Efficiency": "final_energy",
+        }
+        for concept, field in checks.items():
+            record = by_concept[concept]
+            assert record["source_lesson"] == "L1.1"
+            for genome in ("default", "highly_plastic"):
+                raw = [r[field] for r in l11_report["results"]
+                       if r["genome"] == genome and r["scenario"] == l11_report["scenario"]]
+                expected_mean = compute_ci95(raw)["mean"]
+                assert record["genomes"][genome]["value"] == expected_mean, concept
 
 
 class TestNoProseInOutput:

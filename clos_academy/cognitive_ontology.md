@@ -1,4 +1,4 @@
-# CLOS Cognitive Ontology (v0.8.4)
+# CLOS Cognitive Ontology (v0.9)
 
 Jedna obowiązująca definicja pojęć poznawczych używanych w CLOS Cognitive
 Academy. Każda przyszła metryka, lekcja i oś Competency Profile odnosi się
@@ -10,10 +10,14 @@ faktycznie **zmierzone przez istniejącą lekcję**, czy tylko **zaimplementowan
 jako mechanizm w Brain Runtime** bez lekcji, która by je testowała. Mechanizm
 bez lekcji nie jest dowodem zdolności poznawczej — jest tylko kodem.
 
-Obecnie istnieje jedna lekcja: **L1.1 "Pattern Echo"**
+Obecnie istnieją dwie lekcje: **L1.1 "Pattern Echo"**
 ([clos_academy/lesson_L1_1.py](../clos_academy/lesson_L1_1.py)), z hipotezą
 o Working Memory jako primary endpoint oraz kilkoma metrykami pobocznymi
-(secondary endpoints) liczonymi przy okazji tego samego przebiegu.
+(secondary endpoints) liczonymi przy okazji tego samego przebiegu, oraz
+**L1.2 "Shock Recovery"**
+([clos_academy/lesson_L1_2.py](../clos_academy/lesson_L1_2.py)), z primary
+endpoint mierzącym homeostatyczną odpowiedź na perturbację (patrz
+Homeostatic Resilience niżej).
 
 ---
 
@@ -229,3 +233,42 @@ jednostkę poprawnie odtworzonego wzorca).
 
 **(c) Lekcja:** L1.1 (secondary endpoint: `final_energy`), w węższym sensie
 "efektywności" (koszt/korzyść): not yet measured.
+
+---
+
+## Homeostatic Resilience
+
+**(a) Opis poznawczy:** Zdolność systemu do **osiągnięcia i utrzymania**
+pasma homeostazy (entropii wokół `homeostasis_target` genomu) po
+stochastycznej perturbacji środowiskowej — niezależnie od tego, czy Brain
+był w tym paśmie PRZED perturbacją. Ta sama metryka mierzy dwa różne
+zjawiska w zależności od stanu wyjściowego, i to rozróżnienie jest
+częścią definicji, nie szczegółem implementacyjnym:
+- jeśli Brain BYŁ w paśmie tuż przed perturbacją → metryka mierzy **powrót**
+  (recovery) do stanu już wcześniej osiągniętego;
+- jeśli Brain NIE BYŁ w paśmie przed perturbacją → metryka mierzy
+  **pierwsze osiągnięcie/ustanowienie** (establishment) tego stanu, sprowokowane
+  przez perturbację, nie odzyskanie czegoś utraconego.
+
+Które z dwóch zjawisk mierzy dany przebieg, rozstrzyga się **z danych**
+(`pre_shock_in_band_fraction`), nie z góry — patrz (c).
+
+**(b) Mierzalny korelat/metryka:** `time_to_sustained_band` (lub
+`recovery_time`, w zależności od przypadku powyżej) —
+liczba ticków od momentu perturbacji (`t_shock`) do pierwszego okna N=10
+kolejnych ticków, w których entropia mieści się w paśmie
+`[0.5×homeostasis_target, homeostasis_target]`
+([clos_academy/lesson_L1_2.py](../clos_academy/lesson_L1_2.py),
+`compute_recovery_time()`); pasmo wynika wprost z progów w `regulate()`
+([clos_brain/runtime/homeostasis.py](../clos_brain/runtime/homeostasis.py)).
+Formalna definicja: [publications/preregistration_L1_2.json](../publications/preregistration_L1_2.json)
+(`recovery_time_definition`).
+
+**(c) Lekcja:** L1.2 (primary endpoint). **Obecny wynik L1.2 to przypadek
+osiągnięcia (`time_to_sustained_band`), NIE powrotu**:
+`pre_shock_in_band_fraction = 0.0` dla obu genomów (próg rozstrzygający:
+0.8) — Brain nigdy nie zdążył osiągnąć pasma homeostazy przed perturbacją
+(szok następuje zbyt wcześnie po "narodzinach"), więc hipoteza w
+prerejestracji ("Brain odzyskuje homeostazę") została w raporcie L1.2
+skorygowana na "Brain **osiąga/ustanawia** homeostazę po szoku", zgodnie
+z regułą `pre_shock_band_check` z prerejestracji.
