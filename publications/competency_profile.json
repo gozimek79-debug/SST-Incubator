@@ -1,15 +1,465 @@
 {
-  "generated_at": "2026-07-08T22:29:02.982149",
+  "generated_at": "2026-07-11T06:09:52.605583",
   "summary": {
-    "total_concepts": 13,
-    "measured": 6,
-    "insufficient_data": 7
+    "total_concepts": 14,
+    "measured": 7,
+    "insufficient_data": 7,
+    "valid_ci95": 5,
+    "degenerate": 2
+  },
+  "minimal_profile": {
+    "description": "Oficjalny profil kompetencji - WYLACZNIE pojecia, dla ktorych wszystkie obecne genomy maja ci95_valid=True.",
+    "axes": [
+      "Pattern Recognition",
+      "Pattern Retention",
+      "Working Memory",
+      "Energy Efficiency",
+      "Homeostatic Resilience"
+    ],
+    "concepts": [
+      {
+        "concept": "Pattern Recognition",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.151568,
+            "std": 0.029078,
+            "ci95_low": 0.133546,
+            "ci95_high": 0.169591,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 0.150072,
+            "std": 0.030737,
+            "ci95_low": 0.131021,
+            "ci95_high": 0.169123,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": -0.001496,
+          "cohens_d": -0.050008,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Pattern Retention",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": -9.7e-05,
+            "std": 0.000676,
+            "ci95_low": -0.000515,
+            "ci95_high": 0.000322,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 9.8e-05,
+            "std": 0.000735,
+            "ci95_low": -0.000357,
+            "ci95_high": 0.000554,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": 0.000195,
+          "cohens_d": 0.276125,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Working Memory",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.156712,
+            "std": 0.051196,
+            "ci95_low": 0.12498,
+            "ci95_high": 0.188444,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 0.173229,
+            "std": 0.049756,
+            "ci95_low": 0.14239,
+            "ci95_high": 0.204068,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": 0.016517,
+          "cohens_d": 0.327187,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Energy Efficiency",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.4608,
+            "std": 0.007254,
+            "ci95_low": 0.456304,
+            "ci95_high": 0.465296,
+            "n": 10,
+            "n_effective": 6,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 0.4138,
+            "std": 0.002394,
+            "ci95_low": 0.412316,
+            "ci95_high": 0.415284,
+            "n": 10,
+            "n_effective": 3,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": -0.047,
+          "cohens_d": -8.701052,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Homeostatic Resilience",
+        "status": "measured",
+        "source_lesson": "L1.2",
+        "source_lessons": [
+          "L1.2"
+        ],
+        "genomes": {
+          "default": {
+            "value": 15.4,
+            "std": 4.247875,
+            "ci95_low": 12.76714,
+            "ci95_high": 18.03286,
+            "n": 10,
+            "n_effective": 7,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": null
+      }
+    ]
+  },
+  "full_profile": {
+    "description": "Wszystkie pojecia z ontologii, w tym zdegenerowane i insufficient_data - jawnie oznaczone, nie ukryte.",
+    "valid": [
+      {
+        "concept": "Pattern Recognition",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.151568,
+            "std": 0.029078,
+            "ci95_low": 0.133546,
+            "ci95_high": 0.169591,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 0.150072,
+            "std": 0.030737,
+            "ci95_low": 0.131021,
+            "ci95_high": 0.169123,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": -0.001496,
+          "cohens_d": -0.050008,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Pattern Retention",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": -9.7e-05,
+            "std": 0.000676,
+            "ci95_low": -0.000515,
+            "ci95_high": 0.000322,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 9.8e-05,
+            "std": 0.000735,
+            "ci95_low": -0.000357,
+            "ci95_high": 0.000554,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": 0.000195,
+          "cohens_d": 0.276125,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Working Memory",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.156712,
+            "std": 0.051196,
+            "ci95_low": 0.12498,
+            "ci95_high": 0.188444,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 0.173229,
+            "std": 0.049756,
+            "ci95_low": 0.14239,
+            "ci95_high": 0.204068,
+            "n": 10,
+            "n_effective": 10,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": 0.016517,
+          "cohens_d": 0.327187,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Energy Efficiency",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.4608,
+            "std": 0.007254,
+            "ci95_low": 0.456304,
+            "ci95_high": 0.465296,
+            "n": 10,
+            "n_effective": 6,
+            "ci95_valid": true
+          },
+          "highly_plastic": {
+            "value": 0.4138,
+            "std": 0.002394,
+            "ci95_low": 0.412316,
+            "ci95_high": 0.415284,
+            "n": 10,
+            "n_effective": 3,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": -0.047,
+          "cohens_d": -8.701052,
+          "computable": true
+        }
+      },
+      {
+        "concept": "Homeostatic Resilience",
+        "status": "measured",
+        "source_lesson": "L1.2",
+        "source_lessons": [
+          "L1.2"
+        ],
+        "genomes": {
+          "default": {
+            "value": 15.4,
+            "std": 4.247875,
+            "ci95_low": 12.76714,
+            "ci95_high": 18.03286,
+            "n": 10,
+            "n_effective": 7,
+            "ci95_valid": true
+          }
+        },
+        "genome_comparison": null
+      }
+    ],
+    "degenerate": [
+      {
+        "concept": "Adaptation",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.0,
+            "std": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "n": 10,
+            "n_effective": 1,
+            "ci95_valid": false
+          },
+          "highly_plastic": {
+            "value": 0.0,
+            "std": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "n": 10,
+            "n_effective": 1,
+            "ci95_valid": false
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": 0.0,
+          "cohens_d": null,
+          "computable": false
+        }
+      },
+      {
+        "concept": "Stability",
+        "status": "measured",
+        "source_lesson": "L1.1",
+        "source_lessons": [
+          "L1.1"
+        ],
+        "genomes": {
+          "default": {
+            "value": 0.0,
+            "std": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "n": 10,
+            "n_effective": 1,
+            "ci95_valid": false
+          },
+          "highly_plastic": {
+            "value": 0.0,
+            "std": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "n": 10,
+            "n_effective": 1,
+            "ci95_valid": false
+          }
+        },
+        "genome_comparison": {
+          "mean_diff": 0.0,
+          "cohens_d": null,
+          "computable": false
+        }
+      }
+    ],
+    "insufficient_data": [
+      {
+        "concept": "Perception",
+        "status": "insufficient_data",
+        "source_lesson": null,
+        "source_lessons": [],
+        "genomes": {},
+        "genome_comparison": null
+      },
+      {
+        "concept": "Attention",
+        "status": "insufficient_data",
+        "source_lesson": null,
+        "source_lessons": [],
+        "genomes": {},
+        "genome_comparison": null
+      },
+      {
+        "concept": "Long-term Memory",
+        "status": "insufficient_data",
+        "source_lesson": null,
+        "source_lessons": [],
+        "genomes": {},
+        "genome_comparison": null
+      },
+      {
+        "concept": "Prediction",
+        "status": "insufficient_data",
+        "source_lesson": null,
+        "source_lessons": [],
+        "genomes": {},
+        "genome_comparison": null
+      },
+      {
+        "concept": "Exploration",
+        "status": "insufficient_data",
+        "source_lesson": null,
+        "source_lessons": [],
+        "genomes": {},
+        "genome_comparison": null
+      },
+      {
+        "concept": "Generalization",
+        "status": "insufficient_data",
+        "source_lesson": null,
+        "source_lessons": [],
+        "genomes": {},
+        "genome_comparison": null
+      },
+      {
+        "concept": "Planning",
+        "status": "insufficient_data",
+        "source_lesson": null,
+        "source_lessons": [],
+        "genomes": {},
+        "genome_comparison": null
+      }
+    ]
   },
   "concepts": [
     {
       "concept": "Perception",
       "status": "insufficient_data",
       "source_lesson": null,
+      "source_lessons": [],
       "genomes": {},
       "genome_comparison": null
     },
@@ -17,6 +467,7 @@
       "concept": "Attention",
       "status": "insufficient_data",
       "source_lesson": null,
+      "source_lessons": [],
       "genomes": {},
       "genome_comparison": null
     },
@@ -24,6 +475,9 @@
       "concept": "Pattern Recognition",
       "status": "measured",
       "source_lesson": "L1.1",
+      "source_lessons": [
+        "L1.1"
+      ],
       "genomes": {
         "default": {
           "value": 0.151568,
@@ -54,6 +508,9 @@
       "concept": "Pattern Retention",
       "status": "measured",
       "source_lesson": "L1.1",
+      "source_lessons": [
+        "L1.1"
+      ],
       "genomes": {
         "default": {
           "value": -9.7e-05,
@@ -84,6 +541,9 @@
       "concept": "Working Memory",
       "status": "measured",
       "source_lesson": "L1.1",
+      "source_lessons": [
+        "L1.1"
+      ],
       "genomes": {
         "default": {
           "value": 0.156712,
@@ -114,6 +574,7 @@
       "concept": "Long-term Memory",
       "status": "insufficient_data",
       "source_lesson": null,
+      "source_lessons": [],
       "genomes": {},
       "genome_comparison": null
     },
@@ -121,6 +582,7 @@
       "concept": "Prediction",
       "status": "insufficient_data",
       "source_lesson": null,
+      "source_lessons": [],
       "genomes": {},
       "genome_comparison": null
     },
@@ -128,6 +590,9 @@
       "concept": "Adaptation",
       "status": "measured",
       "source_lesson": "L1.1",
+      "source_lessons": [
+        "L1.1"
+      ],
       "genomes": {
         "default": {
           "value": 0.0,
@@ -158,6 +623,7 @@
       "concept": "Exploration",
       "status": "insufficient_data",
       "source_lesson": null,
+      "source_lessons": [],
       "genomes": {},
       "genome_comparison": null
     },
@@ -165,6 +631,7 @@
       "concept": "Generalization",
       "status": "insufficient_data",
       "source_lesson": null,
+      "source_lessons": [],
       "genomes": {},
       "genome_comparison": null
     },
@@ -172,6 +639,7 @@
       "concept": "Planning",
       "status": "insufficient_data",
       "source_lesson": null,
+      "source_lessons": [],
       "genomes": {},
       "genome_comparison": null
     },
@@ -179,6 +647,9 @@
       "concept": "Stability",
       "status": "measured",
       "source_lesson": "L1.1",
+      "source_lessons": [
+        "L1.1"
+      ],
       "genomes": {
         "default": {
           "value": 0.0,
@@ -209,6 +680,9 @@
       "concept": "Energy Efficiency",
       "status": "measured",
       "source_lesson": "L1.1",
+      "source_lessons": [
+        "L1.1"
+      ],
       "genomes": {
         "default": {
           "value": 0.4608,
@@ -234,6 +708,26 @@
         "cohens_d": -8.701052,
         "computable": true
       }
+    },
+    {
+      "concept": "Homeostatic Resilience",
+      "status": "measured",
+      "source_lesson": "L1.2",
+      "source_lessons": [
+        "L1.2"
+      ],
+      "genomes": {
+        "default": {
+          "value": 15.4,
+          "std": 4.247875,
+          "ci95_low": 12.76714,
+          "ci95_high": 18.03286,
+          "n": 10,
+          "n_effective": 7,
+          "ci95_valid": true
+        }
+      },
+      "genome_comparison": null
     }
   ],
   "genome_cards": {
@@ -344,6 +838,18 @@
         "n": 10,
         "n_effective": 6,
         "ci95_valid": true
+      },
+      {
+        "concept": "Homeostatic Resilience",
+        "status": "measured",
+        "source_lesson": "L1.2",
+        "value": 15.4,
+        "std": 4.247875,
+        "ci95_low": 12.76714,
+        "ci95_high": 18.03286,
+        "n": 10,
+        "n_effective": 7,
+        "ci95_valid": true
       }
     ],
     "highly_plastic": [
@@ -453,6 +959,11 @@
         "n": 10,
         "n_effective": 3,
         "ci95_valid": true
+      },
+      {
+        "concept": "Homeostatic Resilience",
+        "status": "measured",
+        "source_lesson": "L1.2"
       }
     ]
   }

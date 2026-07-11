@@ -363,51 +363,61 @@
     setSectionHTML("lessons", notices + head + chartHtml);
   }
 
+  function renderConceptRow(c) {
+    var state = competencyRowState(c);
+    var label = state === "valid" ? "zmierzone" : state === "degenerate" ? "zdegenerowane" : "brak danych";
+    var color = state === "valid" ? "var(--ok)" : state === "degenerate" ? "var(--warn)" : "var(--mut)";
+
+    var body = "";
+    if (state === "valid" || state === "degenerate") {
+      var genomeKeys = Object.keys(c.genomes || {});
+      var colors = [C.chA, C.chB];
+      var gRows = genomeKeys.map(function (g, i) {
+        var gd = c.genomes[g];
+        return '<div class="gbar"><span class="gbar-lbl" style="color:' + colors[i % colors.length] + '">' +
+          escapeHtml(g) + "</span>" +
+          '<div class="gbar-track"><div class="gbar-fill" style="width:' +
+          Math.min(100, Math.abs(gd.value) / (Math.abs(gd.value) + 0.01) * 40 + 10) + "%;background:" + colors[i % colors.length] + '"></div></div>' +
+          '<code class="gbar-val">' + fmtNum(gd.value, 6) + "</code>" +
+          '<code class="gbar-ci">n_eff=' + gd.n_effective + " · ci95_valid=" + fmtBool(gd.ci95_valid) + "</code></div>";
+      }).join("");
+      var dHtml = (c.genome_comparison && c.genome_comparison.computable)
+        ? '<div class="crow-d">Cohen&apos;s d (genom vs genom): <code>' + fmtNum(c.genome_comparison.cohens_d, 3) + "</code></div>"
+        : "";
+      body = '<div class="crow-body">' + gRows + dHtml + "</div>";
+      if (state === "degenerate") {
+        body += '<div class="crow-warn">⚠ co najmniej jeden genom ma <code>ci95_valid=false</code> — ' +
+          "policzone, ale bez informacji o wariancji między seedami.</div>";
+      }
+    } else {
+      body = '<div class="crow-gap">brak lekcji mierzącej to pojęcie (status: <code>insufficient_data</code>)</div>';
+    }
+
+    return '<div class="crow ' + state + '"><div class="crow-head"><span class="crow-k">' + escapeHtml(c.concept) + "</span>" +
+      '<span class="pill" style="color:' + color + ";border-color:" + color + '55">' + label +
+      (c.source_lesson ? " · " + escapeHtml(c.source_lesson) : "") + "</span></div>" + body + "</div>";
+  }
+
   function renderCompetency(comp) {
     if (!comp) return;
     var measured = comp.summary.measured, total = comp.summary.total_concepts;
-    var valid = comp.concepts.filter(function (c) { return competencyRowState(c) === "valid"; }).length;
+    var byState = { valid: [], degenerate: [], insufficient: [] };
+    comp.concepts.forEach(function (c) { byState[competencyRowState(c)].push(c); });
 
-    var rows = comp.concepts.map(function (c) {
-      var state = competencyRowState(c);
-      var label = state === "valid" ? "zmierzone" : state === "degenerate" ? "zdegenerowane" : "brak danych";
-      var color = state === "valid" ? "var(--ok)" : state === "degenerate" ? "var(--warn)" : "var(--mut)";
+    var minimalCard =
+      '<section class="card span"><header class="card-h"><span class="card-t">Profil minimalny (oficjalny)</span>' +
+      '<span class="card-s">' + byState.valid.length + "/" + total + " pojęć z ważnym CI95</span></header>" +
+      '<div class="card-b"><div class="comp">' + byState.valid.map(renderConceptRow).join("") + "</div>" +
+      '<p class="note">Wyłącznie pojęcia, dla których wszystkie obecne genomy mają <code>ci95_valid=true</code> ' +
+      "— jedyny profil, na który można się powołać jako \"co system faktycznie mierzy wiarygodnie\".</p></div></section>";
 
-      var body = "";
-      if (state === "valid" || state === "degenerate") {
-        var genomeKeys = Object.keys(c.genomes || {});
-        var colors = [C.chA, C.chB];
-        var gRows = genomeKeys.map(function (g, i) {
-          var gd = c.genomes[g];
-          return '<div class="gbar"><span class="gbar-lbl" style="color:' + colors[i % colors.length] + '">' +
-            escapeHtml(g) + "</span>" +
-            '<div class="gbar-track"><div class="gbar-fill" style="width:' +
-            Math.min(100, Math.abs(gd.value) / (Math.abs(gd.value) + 0.01) * 40 + 10) + "%;background:" + colors[i % colors.length] + '"></div></div>' +
-            '<code class="gbar-val">' + fmtNum(gd.value, 6) + "</code>" +
-            '<code class="gbar-ci">n_eff=' + gd.n_effective + " · ci95_valid=" + fmtBool(gd.ci95_valid) + "</code></div>";
-        }).join("");
-        var dHtml = (c.genome_comparison && c.genome_comparison.computable)
-          ? '<div class="crow-d">Cohen&apos;s d (genom vs genom): <code>' + fmtNum(c.genome_comparison.cohens_d, 3) + "</code></div>"
-          : "";
-        body = '<div class="crow-body">' + gRows + dHtml + "</div>";
-        if (state === "degenerate") {
-          body += '<div class="crow-warn">⚠ co najmniej jeden genom ma <code>ci95_valid=false</code> — ' +
-            "policzone, ale bez informacji o wariancji między seedami.</div>";
-        }
-      } else {
-        body = '<div class="crow-gap">brak lekcji mierzącej to pojęcie (status: <code>insufficient_data</code>)</div>';
-      }
+    var fullCard =
+      '<section class="card span"><header class="card-h"><span class="card-t">Profil pełny</span>' +
+      '<span class="card-s">zmierzone ' + measured + "/" + total + " · ważne CI95 " + byState.valid.length + "/" + total +
+      ' — luki są jawne, nie ukryte</span></header><div class="card-b"><div class="comp">' +
+      comp.concepts.map(renderConceptRow).join("") + "</div></div></section>";
 
-      return '<div class="crow ' + state + '"><div class="crow-head"><span class="crow-k">' + escapeHtml(c.concept) + "</span>" +
-        '<span class="pill" style="color:' + color + ";border-color:" + color + '55">' + label +
-        (c.source_lesson ? " · " + escapeHtml(c.source_lesson) : "") + "</span></div>" + body + "</div>";
-    }).join("");
-
-    var html =
-      '<section class="card span"><header class="card-h"><span class="card-t">Instrument kompetencji</span>' +
-      '<span class="card-s">zmierzone ' + measured + "/" + total + " · ważne CI95 " + valid + "/" + total +
-      ' — luki są jawne, nie ukryte</span></header><div class="card-b"><div class="comp">' + rows + "</div></div></section>";
-    setSectionHTML("competency", html);
+    setSectionHTML("competency", minimalCard + fullCard);
   }
 
   function renderGenomes(comp) {

@@ -6,6 +6,19 @@ reformatowanie clos_scientist.capability_analyzer.build_capability_profile().
 Pojecia insufficient_data MUSZA byc w profilu, jawnie oznaczone, bez zadnej
 wartosci liczbowej. Zero ocen slownych/gwiazdek/poziomow - tylko liczby
 i status.
+
+Profil minimalny vs pelny (SPRINT_v0.9.md, Priorytet 6, Kroki 4-5):
+  - MINIMALNY (oficjalny) = WYLACZNIE pojecia, dla ktorych WSZYSTKIE obecne
+    genomy maja ci95_valid=True. To jest jedyny profil, na ktory mozna sie
+    powolac jako "co system faktycznie mierzy wiarygodnie".
+  - PELNY zachowuje WSZYSTKO: pojecia zmierzone ale zdegenerowane
+    (ci95_valid=False dla wszystkich obecnych genomow, np. Adaptation/
+    Stability z L1.1) oraz insufficient_data (brak lekcji) - jako osobne,
+    jawnie oznaczone kategorie. Nic nie jest ukrywane, tylko rozdzielone.
+  - Klasyfikacja (_concept_validity_state) MUSI byc zsynchronizowana z
+    clos_studio/panel/panel.js:competencyRowState() - to samo pytanie
+    zadane w dwoch miejscach (artefakt .md/.json i panel na zywo), musi
+    dawac ta sama odpowiedz.
 """
 
 import json
@@ -21,8 +34,20 @@ from clos_scientist.capability_analyzer import GENOMES, build_capability_profile
 OUTPUT_DIR = Path("publications")
 
 
+def _concept_validity_state(c: Dict[str, Any]) -> str:
+    """valid / degenerate / insufficient. Zwierciadlo
+    clos_studio/panel/panel.js:competencyRowState() - synchronizowac razem."""
+    if c["status"] != "measured":
+        return "insufficient"
+    genome_keys = list(c["genomes"].keys())
+    all_valid = bool(genome_keys) and all(
+        c["genomes"][g].get("ci95_valid") is True for g in genome_keys
+    )
+    return "valid" if all_valid else "degenerate"
+
+
 def _genome_card(genome: str, concepts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Ten sam zestaw 13 pojec, widziany z perspektywy jednego genomu."""
+    """Ten sam zestaw pojec, widziany z perspektywy jednego genomu."""
     card = []
     for c in concepts:
         entry = {
@@ -38,6 +63,12 @@ def _genome_card(genome: str, concepts: List[Dict[str, Any]]) -> List[Dict[str, 
 
 def build_competency_profile() -> Dict[str, Any]:
     concepts = build_capability_profile()
+    states = {c["concept"]: _concept_validity_state(c) for c in concepts}
+
+    valid_concepts = [c for c in concepts if states[c["concept"]] == "valid"]
+    degenerate_concepts = [c for c in concepts if states[c["concept"]] == "degenerate"]
+    insufficient_concepts = [c for c in concepts if states[c["concept"]] == "insufficient"]
+
     measured = sum(1 for c in concepts if c["status"] == "measured")
     total = len(concepts)
 
@@ -47,6 +78,25 @@ def build_competency_profile() -> Dict[str, Any]:
             "total_concepts": total,
             "measured": measured,
             "insufficient_data": total - measured,
+            "valid_ci95": len(valid_concepts),
+            "degenerate": len(degenerate_concepts),
+        },
+        "minimal_profile": {
+            "description": (
+                "Oficjalny profil kompetencji - WYLACZNIE pojecia, dla ktorych "
+                "wszystkie obecne genomy maja ci95_valid=True."
+            ),
+            "axes": [c["concept"] for c in valid_concepts],
+            "concepts": valid_concepts,
+        },
+        "full_profile": {
+            "description": (
+                "Wszystkie pojecia z ontologii, w tym zdegenerowane i "
+                "insufficient_data - jawnie oznaczone, nie ukryte."
+            ),
+            "valid": valid_concepts,
+            "degenerate": degenerate_concepts,
+            "insufficient_data": insufficient_concepts,
         },
         "concepts": concepts,
         "genome_cards": {genome: _genome_card(genome, concepts) for genome in GENOMES},
@@ -61,41 +111,70 @@ def _fmt(value: Any) -> str:
     return str(value)
 
 
+def _concept_row(c: Dict[str, Any]) -> str:
+    default_g = c["genomes"].get("default", {})
+    plastic_g = c["genomes"].get("highly_plastic", {})
+    comparison = c["genome_comparison"] or {}
+    return (
+        "| {concept} | {status} | {lesson} | {dv} | {dn} | {pv} | {pn} | {md} | {cd} |".format(
+            concept=c["concept"],
+            status=c["status"],
+            lesson=_fmt(c["source_lesson"]),
+            dv=_fmt(default_g.get("value")),
+            dn=_fmt(default_g.get("n_effective")),
+            pv=_fmt(plastic_g.get("value")),
+            pn=_fmt(plastic_g.get("n_effective")),
+            md=_fmt(comparison.get("mean_diff")),
+            cd=_fmt(comparison.get("cohens_d")),
+        )
+    )
+
+
+_CONCEPT_TABLE_HEADER = [
+    "| Concept | Status | Source lesson | default value | default n_eff | "
+    "highly_plastic value | highly_plastic n_eff | mean_diff | cohens_d |",
+    "|---|---|---|---|---|---|---|---|---|",
+]
+
+
 def render_markdown(profile: Dict[str, Any]) -> str:
     summary = profile["summary"]
+    minimal = profile["minimal_profile"]
+    full = profile["full_profile"]
+
     lines = [
         "# CLOS Competency Profile",
         "",
+        f"Profil minimalny: {summary['valid_ci95']} osi z waznym CI95 / {summary['total_concepts']} pojec",
         f"Measured: {summary['measured']}/{summary['total_concepts']}",
         f"Insufficient data: {summary['insufficient_data']}/{summary['total_concepts']}",
         f"Generated at: {profile['generated_at']}",
         "",
         "Definicje pojec: [cognitive_ontology.md](../clos_academy/cognitive_ontology.md).",
         "",
-        "## Pojecia",
+        "## Profil minimalny (oficjalny)",
         "",
-        "| Concept | Status | Source lesson | default value | default n_eff | "
-        "highly_plastic value | highly_plastic n_eff | mean_diff | cohens_d |",
-        "|---|---|---|---|---|---|---|---|---|",
-    ]
-
-    for c in profile["concepts"]:
-        default_g = c["genomes"].get("default", {})
-        plastic_g = c["genomes"].get("highly_plastic", {})
-        comparison = c["genome_comparison"] or {}
-        lines.append(
-            "| {concept} | {status} | {lesson} | {dv} | {dn} | {pv} | {pn} | {md} | {cd} |".format(
-                concept=c["concept"],
-                status=c["status"],
-                lesson=_fmt(c["source_lesson"]),
-                dv=_fmt(default_g.get("value")),
-                dn=_fmt(default_g.get("n_effective")),
-                pv=_fmt(plastic_g.get("value")),
-                pn=_fmt(plastic_g.get("n_effective")),
-                md=_fmt(comparison.get("mean_diff")),
-                cd=_fmt(comparison.get("cohens_d")),
-            )
-        )
+        minimal["description"],
+        "",
+        "Osie: " + (", ".join(minimal["axes"]) if minimal["axes"] else "(brak)"),
+        "",
+    ] + _CONCEPT_TABLE_HEADER + [_concept_row(c) for c in minimal["concepts"]] + [
+        "",
+        "## Profil pelny (wszystkie pojecia, luki jawne)",
+        "",
+        full["description"],
+        "",
+        f"### Wazne (CI95, {len(full['valid'])})",
+        "",
+    ] + _CONCEPT_TABLE_HEADER + [_concept_row(c) for c in full["valid"]] + [
+        "",
+        f"### Zdegenerowane ({len(full['degenerate'])}) - zmierzone, ale bez wiarygodnej wariancji",
+        "",
+    ] + _CONCEPT_TABLE_HEADER + [_concept_row(c) for c in full["degenerate"]] + [
+        "",
+        f"### Insufficient data ({len(full['insufficient_data'])}) - brak lekcji/mechanizmu",
+        "",
+    ] + _CONCEPT_TABLE_HEADER + [_concept_row(c) for c in full["insufficient_data"]]
 
     lines += ["", "## Karty genomow"]
 
