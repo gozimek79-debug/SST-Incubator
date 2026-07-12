@@ -78,7 +78,7 @@ def pre_shock_in_band(entropy_by_tick: dict, t_shock: int, band: tuple, n: int =
 
 
 def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
-                        ticks_total=TICKS_TOTAL):
+                        ticks_total=TICKS_TOTAL, observe=True):
     for name in ["BirthEngine", "root", ""]:
         logging.getLogger(name).setLevel(logging.ERROR)
 
@@ -95,6 +95,17 @@ def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
     for tick in range(ticks_total):
         signal = world.step(tick=tick, seed=seed, scenario=scenario)
         tissue = brain_rt.step(brain=tissue, sensory_input=signal, seed=seed, tick=tick)
+
+        # Read-Only Observer (SPRINT_v0.10.md P1/P2) - patrz docs/spec_snapshot_observer.md.
+        # Addytywne: czyta tissue juz obliczone powyzej, nie wplywa na entropy_by_tick/telemetry.
+        if observe:
+            kernel.snapshot_engine.create_snapshot(
+                brain_id=tissue.brain_id, tick=tick, seed=seed,
+                lifecycle_state="OBSERVED", brain_status="RUNNING",
+                entropy=tissue.entropy, energy=tissue.energy,
+                age=tick, step_counter=tick,
+            )
+
         entropy_by_tick[tick] = tissue.entropy
         if tick % 5 == 0:
             telemetry.append({
