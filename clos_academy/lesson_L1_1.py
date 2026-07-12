@@ -21,7 +21,7 @@ from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta
 from clos_academy.echo_runtime import silent_step
 
 
-def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100, scenario="noise_world"):
+def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100, scenario="noise_world", observe=True):
     # Wycisz WSZYSTKIE loggery
     for name in ["BirthEngine", "root", ""]:
         logging.getLogger(name).setLevel(logging.ERROR)
@@ -51,7 +51,19 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
             tissue = brain_rt.step(brain=tissue, sensory_input=pattern_signal, seed=seed, tick=tick)
         else:
             tissue = silent_step(tissue, seed=seed, tick=tick)  # opcja B: Core nietkniety
-        
+
+        # Read-Only Observer (SPRINT_v0.10.md P1): dopisuje snapshot z JUZ obliczonego
+        # stanu tissue, obok istniejacej sciezki wykonania - nie wola kernel.run_tick(),
+        # nie konsumuje RNG, nie zmienia zadnej lokalnej zmiennej ponizej. Usuwalne:
+        # observe=False odtwarza dokladnie poprzednia sciezke (patrz dowod usuwalnosci).
+        if observe:
+            kernel.snapshot_engine.create_snapshot(
+                brain_id=tissue.brain_id, tick=tick, seed=seed,
+                lifecycle_state="OBSERVED", brain_status="RUNNING",
+                entropy=tissue.entropy, energy=tissue.energy,
+                age=tick, step_counter=tick,
+            )
+
         mse_vs_pattern = abs(tissue.last_prediction - pattern_signal) if tissue.last_prediction is not None else 0
         
         if tick % 5 == 0:
