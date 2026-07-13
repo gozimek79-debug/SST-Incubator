@@ -146,6 +146,56 @@ class TestConceptMetricMapIsNtoM:
                 assert record["genomes"][genome]["value"] == expected_mean, concept
 
 
+class TestPoolFalseNonPoolingRule:
+    """SPRINT_v0.10.md P4: mapping z "pool": False (Adaptation <- L1.2) nie
+    moze wplynac na oficjalna wartosc pojecia, tylko trafic do
+    secondary_observations, jawnie oznaczona."""
+
+    def test_adaptation_official_value_sourced_only_from_l1_1(self):
+        profile = build_capability_profile()
+        adapt = next(c for c in profile if c["concept"] == "Adaptation")
+        assert adapt["source_lesson"] == "L1.1"
+        assert adapt["source_lessons"] == ["L1.1"]
+
+    def test_adaptation_l1_2_appears_only_as_secondary_observation(self):
+        profile = build_capability_profile()
+        adapt = next(c for c in profile if c["concept"] == "Adaptation")
+        assert len(adapt["secondary_observations"]) == 1
+        obs = adapt["secondary_observations"][0]
+        assert obs["lesson"] == "L1.2"
+        assert obs["pooled"] is False
+        assert obs["note"]
+        for genome in ("default", "highly_plastic"):
+            assert obs["genomes"][genome]["deterministic"] is True
+            assert obs["genomes"][genome]["ci95_valid"] is False
+            assert obs["genomes"][genome]["value"] == 10.0
+
+    def test_adaptation_pooled_stats_match_l1_1_only_ci95(self):
+        """Regresja: dodanie L1.2 jako pool=False nie zmienia ANI JEDNEJ
+        liczby w oficjalnym CI95 Adaptation wzgledem liczenia z samego L1.1."""
+        import json
+        from clos_curriculum.laboratory.statistics import compute_ci95
+
+        with open("reports/academy/L1_1_pattern_echo.json", encoding="utf-8") as f:
+            l11_report = json.load(f)
+
+        profile = build_capability_profile()
+        adapt = next(c for c in profile if c["concept"] == "Adaptation")
+
+        for genome in ("default", "highly_plastic"):
+            raw = [r["adaptation_tick"] for r in l11_report["results"]
+                   if r["genome"] == genome and r["scenario"] == l11_report["scenario"]]
+            expected = compute_ci95(raw)
+            assert adapt["genomes"][genome]["value"] == expected["mean"]
+            assert adapt["genomes"][genome]["n_effective"] == expected["n_effective"]
+            assert adapt["genomes"][genome]["ci95_valid"] == expected["ci95_valid"]
+
+    def test_concepts_without_secondary_observations_have_empty_list(self):
+        profile = build_capability_profile()
+        wm = next(c for c in profile if c["concept"] == "Working Memory")
+        assert wm["secondary_observations"] == []
+
+
 class TestNoProseInOutput:
     """Zero interpretacji/ocen slownych - tylko liczby i status."""
 

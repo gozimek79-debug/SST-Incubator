@@ -137,6 +137,39 @@ _CONCEPT_TABLE_HEADER = [
 ]
 
 
+def _secondary_observations_lines(concepts: List[Dict[str, Any]]) -> List[str]:
+    """SPRINT_v0.10.md P4: obserwacje z lekcji NIE wliczonych do puli CI95
+    pojecia (mapping "pool": False) - musza byc widoczne, nie tylko w JSON."""
+    with_secondary = [c for c in concepts if c.get("secondary_observations")]
+    if not with_secondary:
+        return []
+
+    lines = [
+        "",
+        "## Obserwacje dodatkowe (nie wliczone do puli CI95)",
+        "",
+        "Wartosci z lekcji jawnie oznaczonych `\"pool\": False` w "
+        "`CONCEPT_METRIC_MAP` (clos_scientist/capability_analyzer.py) - "
+        "policzone osobno, NIGDY nie mieszane ze wartoscia oficjalna "
+        "pojecia powyzej. Powod zawsze podany w `note`.",
+        "",
+        "| Concept | Lekcja | Genom | value | ci95_valid | deterministic | n | note |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for c in with_secondary:
+        for obs in c["secondary_observations"]:
+            for genome, stats in obs["genomes"].items():
+                lines.append(
+                    "| {concept} | {lesson} | {genome} | {value} | {valid} | {det} | {n} | {note} |".format(
+                        concept=c["concept"], lesson=obs["lesson"], genome=genome,
+                        value=_fmt(stats.get("value")), valid=_fmt(stats.get("ci95_valid")),
+                        det=_fmt(stats.get("deterministic")), n=_fmt(stats.get("n")),
+                        note=obs.get("note", "").split(" - ")[0],
+                    )
+                )
+    return lines
+
+
 def render_markdown(profile: Dict[str, Any]) -> str:
     summary = profile["summary"]
     minimal = profile["minimal_profile"]
@@ -176,6 +209,7 @@ def render_markdown(profile: Dict[str, Any]) -> str:
         "",
     ] + _CONCEPT_TABLE_HEADER + [_concept_row(c) for c in full["insufficient_data"]]
 
+    lines += _secondary_observations_lines(profile["concepts"])
     lines += ["", "## Karty genomow"]
 
     for genome in GENOMES:

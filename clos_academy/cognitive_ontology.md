@@ -147,13 +147,40 @@ w tym węższym sensie: not yet measured.
 (energetyczny/entropijny) po zmianie warunków — jak szybko "dostraja się"
 do nowego reżimu bodźców.
 
-**(b) Mierzalny korelat/metryka:** `adaptation_tick` = wynik
-`detect_phases()`
-([clos_scientist/analyzer.py](../clos_scientist/analyzer.py)),
-`_find_adaptation_end()` — tick, w którym energia stabilizuje się w oknie
-10 kroków poniżej progu zmienności.
+**(b) Mierzalny korelat/metryka:** `adaptation_tick` = pole `"adaptation"`
+zwracane przez `detect_phases()`
+([clos_scientist/analyzer.py](../clos_scientist/analyzer.py)) — tick, w
+którym `_find_chaos_end()` wykrywa koniec początkowej niestabilności
+entropii (rolling std < 0.02 w oknie 10 tickow), z `_estimate_adaptation()`
+jako fallback. To NIE jest wynik `_find_adaptation_end()` (ten liczy
+`adaptation_end`, uzywany wewnetrznie wylacznie do wyznaczenia
+`convergence_start` — poprzedni opis tego pola byl niescisly, poprawiony
+w SPRINT_v0.10.md P4).
 
-**(c) Lekcja:** L1.1 (secondary endpoint: `adaptation_tick`).
+**(c) Lekcja:** L1.1 (secondary endpoint: `adaptation_tick`; realna
+wariancja miedzy seedami i genomami, `ci95_valid=True` dla obu genomow od
+v0.10 P3 — Read-Only Observer, patrz `docs/spec_snapshot_observer.md`).
+
+**(d) L1.2 — WAZNE, nie mylic z degeneracja adaptacji:** L1.2 tez liczy
+`adaptation_tick` (ta sama funkcja `detect_phases()`), ale wynik jest
+**stalą = 10, dla wszystkich 10 seedow, obu genomow**. To NIE jest
+degeneracja "zdolnosci adaptacji do szoku" — to strukturalny artefakt
+konstrukcji lekcji L1.2: `_shock_tick()` zawsze losuje `t_shock >= 20`
+([clos_academy/lesson_L1_2.py](../clos_academy/lesson_L1_2.py)), a
+`_find_chaos_end()` sprawdza pierwsze okno od `tick=10` — a wiec zawsze
+**przed** szokiem, gdzie entropia narasta identycznym, gladkim rampem
+niezaleznie od seeda i genomu (zaden sygnal specyficzny dla genomu czy dla
+szoku jeszcze tam nie dotarl). L1.2's `adaptation_tick` mierzy wiec
+"kiedy stabilizuje sie baseline PRZED szokiem", nie "adaptacje DO szoku"
+— inne zjawisko niz L1.1's `adaptation_tick` (tick stabilizacji PO
+usunieciu bodzca), mimo tej samej nazwy metryki i tej samej funkcji ja
+liczacej. Z tego powodu `CONCEPT_METRIC_MAP["Adaptation"]`
+([clos_scientist/capability_analyzer.py](../clos_scientist/capability_analyzer.py))
+NIE laczy wartosci z L1.2 do wspolnej puli CI95 (`"pool": False`) —
+wartosc L1.2 jest widoczna osobno jako `secondary_observations`
+(`ci95_valid=False`, `deterministic=True`), nigdy nie miesza sie z
+oficjalna wartoscia pojecia (ktora pochodzi wylacznie z L1.1). Zobacz
+`RAPORT_v0.10.md`.
 
 ---
 
@@ -211,7 +238,18 @@ wstrząsów.
 w `ExperimentReport` ([clos_scientist/experiment.py](../clos_scientist/experiment.py)).
 
 **(c) Lekcja:** L1.1 (secondary endpoint: `stability_score`;
-`pass_conditions.stability_score_min = 0.3` w prerejestracji).
+`pass_conditions.stability_score_min = 0.3` w prerejestracji; realna
+wariancja, `ci95_valid=True` dla obu genomow od v0.10 P3).
+
+**(d) L1.2:** rowniez liczy `stability_score` (ta sama funkcja) i od
+v0.10 P3 tez daje `ci95_valid=True` dla obu genomow — ale NIE jest
+polaczona w `CONCEPT_METRIC_MAP["Stability"]` z L1.1 do wspolnej puli.
+Powod: L1.1 (pattern echo: stymulacja + cisza) i L1.2 (shock recovery:
+jednorazowa perturbacja) to rozne konteksty zadaniowe; czy stabilnosc
+zmierzona w tych dwoch kontekstach jest wspolmierna jako repliki tej
+samej cechy genomu, to osobna decyzja naukowa swiadomie odlozona poza
+zakres v0.10 P4 (SPRINT_v0.10.md P4 pytal wprost tylko o Adaptation) —
+nie przeoczenie, patrz `clos_scientist/capability_analyzer.py`.
 
 ---
 

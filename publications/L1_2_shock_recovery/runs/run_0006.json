@@ -9,8 +9,9 @@
     "high": 0.5
   },
   "fraction_in_band": 0.1,
-  "stability_score": 0.0,
-  "adaptation_tick": 0,
+  "stability_score": 1.7346,
+  "adaptation_tick": 10,
+  "snapshot_count": 300,
   "final_energy": 0.318,
   "final_entropy": 1.0,
   "memory_size": 28,

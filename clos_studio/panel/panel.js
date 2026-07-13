@@ -393,6 +393,19 @@
       body = '<div class="crow-gap">brak lekcji mierzącej to pojęcie (status: <code>insufficient_data</code>)</div>';
     }
 
+    if (c.secondary_observations && c.secondary_observations.length) {
+      var secHtml = c.secondary_observations.map(function (obs) {
+        var gHtml = Object.keys(obs.genomes || {}).map(function (g) {
+          var gs = obs.genomes[g];
+          return '<code class="gbar-ci">' + escapeHtml(g) + "=" + fmtNum(gs.value, 4) +
+            " · deterministic=" + fmtBool(gs.deterministic) + " · ci95_valid=" + fmtBool(gs.ci95_valid) + "</code>";
+        }).join(" ");
+        return '<div class="crow-warn">⊘ nie wliczone do puli CI95 (' + escapeHtml(obs.lesson) + "): " + gHtml +
+          '<br><span style="opacity:.8">' + escapeHtml(obs.note || "") + "</span></div>";
+      }).join("");
+      body += secHtml;
+    }
+
     return '<div class="crow ' + state + '"><div class="crow-head"><span class="crow-k">' + escapeHtml(c.concept) + "</span>" +
       '<span class="pill" style="color:' + color + ";border-color:" + color + '55">' + label +
       (c.source_lesson ? " · " + escapeHtml(c.source_lesson) : "") + "</span></div>" + body + "</div>";

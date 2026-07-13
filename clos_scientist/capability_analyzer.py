@@ -10,7 +10,19 @@ Odkrycie #1 opcja 2):
     moze byc zasilane przez wiele lekcji, jedna lekcja moze zasilac wiele
     pojec). Wartosci z wielu lekcji dla tego samego genomu sa laczone w
     jedna pule przed policzeniem CI95 - to jest agregacja replik, nie
-    wybor "lepszej" lekcji.
+    wybor "lepszej" lekcji. WYJATEK: mapping z "pool": False (patrz nizej).
+  - REGULA AGREGACJI, gdy jeden mapping ma "pool": False (SPRINT_v0.10.md
+    P4, przypadek Adaptation): wartosc NIE wchodzi do wspolnej puli
+    genome_values / oficjalnego CI95 pojecia. Zamiast tego trafia do
+    osobnego pola "secondary_observations" (lista, per lekcja: lesson,
+    pooled=False, note, per-genom CI95/deterministic policzone OSOBNO).
+    Powod: pooling zaklada, ze wartosci z roznych lekcji sa NIEZALEZNYMI
+    REPLIKAMI TEGO SAMEGO zjawiska. Gdy zrodlo jest metryka strukturalnie
+    stala z powodu konstrukcji sceny (nie realnym pomiarem tego pojecia w
+    tamtej lekcji), wrzucenie jej do puli po cichu obnizylby wariancje i
+    zafalszowal CI95 pojecia bez ostrzezenia - stad jawna flaga "pool" w
+    CONCEPT_METRIC_MAP zamiast automatycznej heurystyki (decyzja ma byc
+    czytelna w kodzie, nie zgadywana w locie z danych).
   - Kazde pojecie z CONCEPT_METRIC_MAP uzywa DOKLADNIE tej samej nazwy co
     naglowek w cognitive_ontology.md.
   - Pojecie bez zadnej lekcji (mappings=None) dostaje status
@@ -37,14 +49,26 @@ PUBLICATIONS_DIR = Path("publications")
 
 GENOMES = ["default", "highly_plastic"]
 
-# Mapowanie pojecie -> LISTA {lesson, extract} (N:M, patrz docstring modulu).
-# None = pojecie bez zadnej lekcji (zgodnie z cognitive_ontology.md).
-# Kazdy wpis nadal ma dokladnie jedna lekcje w tej wersji - lista dowodzi
-# architektury (dodanie 2. lekcji do dowolnego pojecia nie wymaga zmiany
-# ksztaltu danych ani analyze_concept()), nie jest tu uzyta bo Adaptation/
-# Stability z L1.2 sa obecnie zdegenerowane u zrodla (patrz
-# RAPORT_P5_L1.2_dla_architekta.md) - dodanie ich jako drugiego zrodla
-# niczego by nie zmienilo, wiec nie robimy tego bez powodu.
+# Mapowanie pojecie -> LISTA {lesson, extract, pool?, note?} (N:M, patrz
+# docstring modulu). None = pojecie bez zadnej lekcji (zgodnie z
+# cognitive_ontology.md). "pool" domyslnie True (wartosci wchodza do
+# wspolnej puli CI95 pojecia); "pool": False = wartosc widoczna tylko w
+# "secondary_observations", NIGDY nie miesza sie z oficjalna wartoscia.
+#
+# Adaptation (SPRINT_v0.10.md P4): L1.2 rowniez ma teraz realne snapshoty
+# (v0.10 P3), ale jej adaptation_tick jest STALA (=10) dla wszystkich 10
+# seedow, obu genomow - to NIE jest degeneracja adaptacji do szoku, tylko
+# strukturalny artefakt konstrukcji L1.2: t_shock zawsze >= 20 (patrz
+# _shock_tick() w lesson_L1_2.py), a detect_phases()._find_chaos_end()
+# sprawdza pierwsze okno od tick=10 - zawsze PRZED szokiem, gdzie entropia
+# narasta identycznym, gladkim rampem niezaleznie od seeda/genomu (zaden
+# genom-specyficzny/szokowy sygnal jeszcze tam nie dotarl). Innymi slowy:
+# L1.2 adaptation_tick mierzy "kiedy stabilizuje sie baseline PRZED
+# szokiem", nie "adaptacje DO szoku" - inne zjawisko niz L1.1's
+# adaptation_tick (tick stabilizacji PO usunieciu bodzca). Polaczenie ich w
+# jedna pule zafalszowaloby CI95 (mieszaloby dwa rozne zjawiska pod jedna
+# nazwa metryki) - stad "pool": False. Zobacz RAPORT_v0.10.md i
+# clos_academy/cognitive_ontology.md#Adaptation.
 CONCEPT_METRIC_MAP = {
     "Perception": None,
     "Attention": None,
@@ -61,12 +85,27 @@ CONCEPT_METRIC_MAP = {
     "Prediction": None,
     "Adaptation": [
         {"lesson": "L1.1", "extract": lambda r: r["adaptation_tick"]},
+        {
+            "lesson": "L1.2", "extract": lambda r: r["adaptation_tick"], "pool": False,
+            "note": (
+                "L1.2 adaptation_tick jest stala (=10, wszystkie seedy/genomy): "
+                "mierzy stabilizacje entropii w oknie PRZED szokiem (t_shock zawsze "
+                ">=20), nie adaptacje DO szoku. Nie laczona z pula L1.1 - inne "
+                "zjawisko pod ta sama nazwa metryki. Patrz RAPORT_v0.10.md."
+            ),
+        },
     ],
     "Exploration": None,
     "Generalization": None,
     "Planning": None,
     "Stability": [
         {"lesson": "L1.1", "extract": lambda r: r["stability_score"]},
+        # L1.2 stability_score jest teraz tez ci95_valid (v0.10 P3), ale NIE jest
+        # tu dolaczona jako pool=True: L1.1 (pattern echo, stymulacja+cisza) i
+        # L1.2 (shock recovery, jednorazowa perturbacja) to rozne konteksty
+        # zadaniowe - czy sa wspolmierne jako "repliki" ogolnej stabilnosci
+        # genomu, czy nie, to osobna decyzja naukowa, swiadomie odlozona poza
+        # zakres P4 (SPRINT_v0.10.md p.2 pytal wprost tylko o Adaptation).
     ],
     "Energy Efficiency": [
         {"lesson": "L1.1", "extract": lambda r: r["final_energy"]},
@@ -119,7 +158,8 @@ def _cohens_d_with_flag(group_a: List[float], group_b: List[float]) -> Dict[str,
     return {"cohens_d": round((mean_b - mean_a) / pooled_std, 6), "computable": True}
 
 
-def _insufficient(concept: str, source_lessons: List[str]) -> Dict[str, Any]:
+def _insufficient(concept: str, source_lessons: List[str],
+                   secondary_observations: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     return {
         "concept": concept,
         "status": "insufficient_data",
@@ -127,6 +167,21 @@ def _insufficient(concept: str, source_lessons: List[str]) -> Dict[str, Any]:
         "source_lessons": list(source_lessons),
         "genomes": {},
         "genome_comparison": None,
+        "secondary_observations": secondary_observations or [],
+    }
+
+
+def _genome_stats(values: List[float]) -> Dict[str, Any]:
+    stats = compute_ci95(values)
+    return {
+        "value": stats["mean"],
+        "std": stats["std"],
+        "ci95_low": stats["ci95_low"],
+        "ci95_high": stats["ci95_high"],
+        "n": stats["n"],
+        "n_effective": stats["n_effective"],
+        "ci95_valid": stats["ci95_valid"],
+        "deterministic": stats["deterministic"],
     }
 
 
@@ -136,15 +191,16 @@ def analyze_concept(concept: str, mappings: Optional[List[Dict[str, Any]]],
         return _insufficient(concept, [])
 
     intended_lessons = [m["lesson"] for m in mappings]
-    found_lessons: List[str] = []
+    pooled_lessons: List[str] = []
+    secondary_observations: List[Dict[str, Any]] = []
     genome_values: Dict[str, List[float]] = {g: [] for g in GENOMES}
+    any_data_found = False
 
     for mapping in mappings:
         lesson_id = mapping["lesson"]
         report = reports.get(lesson_id)
         if report is None:
             continue
-        found_lessons.append(lesson_id)
 
         prereg = _load_json(_prereg_path_for_lesson(lesson_id))
         scenario = (
@@ -153,30 +209,46 @@ def analyze_concept(concept: str, mappings: Optional[List[Dict[str, Any]]],
         )
 
         extract = mapping["extract"]
+        lesson_genome_values: Dict[str, List[float]] = {}
         for genome in GENOMES:
             raw_values = [
                 extract(r) for r in report.get("results", [])
                 if r.get("genome") == genome and r.get("scenario") == scenario
             ]
-            genome_values[genome].extend(v for v in raw_values if v is not None)
+            lesson_genome_values[genome] = [v for v in raw_values if v is not None]
 
-    if not found_lessons or not any(genome_values.values()):
-        return _insufficient(concept, intended_lessons)
+        if not any(lesson_genome_values.values()):
+            continue
+        any_data_found = True
+
+        if mapping.get("pool", True):
+            pooled_lessons.append(lesson_id)
+            for genome, values in lesson_genome_values.items():
+                genome_values[genome].extend(values)
+        else:
+            genome_stats = {
+                genome: _genome_stats(values)
+                for genome, values in lesson_genome_values.items() if values
+            }
+            secondary_observations.append({
+                "lesson": lesson_id,
+                "pooled": False,
+                "note": mapping.get("note", ""),
+                "genomes": genome_stats,
+            })
+
+    if not any_data_found:
+        return _insufficient(concept, intended_lessons, secondary_observations)
+
+    if not pooled_lessons:
+        # Wylacznie sekundarne (nie-pooled) obserwacje - brak oficjalnej wartosci.
+        return _insufficient(concept, intended_lessons, secondary_observations)
 
     genomes_out: Dict[str, Any] = {}
     for genome, values in genome_values.items():
         if not values:
             continue
-        stats = compute_ci95(values)
-        genomes_out[genome] = {
-            "value": stats["mean"],
-            "std": stats["std"],
-            "ci95_low": stats["ci95_low"],
-            "ci95_high": stats["ci95_high"],
-            "n": stats["n"],
-            "n_effective": stats["n_effective"],
-            "ci95_valid": stats["ci95_valid"],
-        }
+        genomes_out[genome] = _genome_stats(values)
 
     comparison = None
     if genome_values.get("default") and genome_values.get("highly_plastic"):
@@ -191,10 +263,11 @@ def analyze_concept(concept: str, mappings: Optional[List[Dict[str, Any]]],
     return {
         "concept": concept,
         "status": "measured",
-        "source_lesson": ", ".join(found_lessons),
-        "source_lessons": found_lessons,
+        "source_lesson": ", ".join(pooled_lessons),
+        "source_lessons": pooled_lessons,
         "genomes": genomes_out,
         "genome_comparison": comparison,
+        "secondary_observations": secondary_observations,
     }
 
 

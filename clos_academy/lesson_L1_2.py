@@ -129,6 +129,7 @@ def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
         "fraction_in_band": fraction_in_band,
         "stability_score": round(result.report.stability_score, 4),
         "adaptation_tick": phases.get("adaptation", 0),
+        "snapshot_count": len(snapshots),
         "final_energy": round(tissue.energy, 6), "final_entropy": round(tissue.entropy, 6),
         "memory_size": len(tissue.memory), "telemetry": telemetry,
     }
@@ -206,13 +207,15 @@ def run_lesson_L1_2():
         adapt_stats = compute_ci95(adapt_vals)
         stab_vals = [r["stability_score"] for r in genome_results]
         stab_stats = compute_ci95(stab_vals)
+        snapshot_counts = [r["snapshot_count"] for r in genome_results]
 
         print(f"  recovery_rate={recovery_rate}  n_censored={n_censored}/{n_total}  "
               f"mean_recovery_time={rt_stats['mean']}  n_effective={rt_stats['n_effective']}  "
               f"ci95_valid={rt_stats['ci95_valid']}")
         print(f"  pre_shock_in_band_fraction={pre_shock_in_band_fraction}  -> endpoint_path={endpoint_path}")
-        print(f"  adaptation_tick: n_effective={adapt_stats['n_effective']} ci95_valid={adapt_stats['ci95_valid']}  "
-              f"stability_score: n_effective={stab_stats['n_effective']} ci95_valid={stab_stats['ci95_valid']}")
+        print(f"  adaptation_tick: mean={adapt_stats['mean']:.4f} n_effective={adapt_stats['n_effective']} ci95_valid={adapt_stats['ci95_valid']}  "
+              f"stability_score: mean={stab_stats['mean']:.4f} n_effective={stab_stats['n_effective']} ci95_valid={stab_stats['ci95_valid']}")
+        print(f"  snapshot_count per run: min={min(snapshot_counts)} max={max(snapshot_counts)}")
 
         # Kontrola WARIANT B: stable_world raportuje stability_score + fraction_in_band, NIE recovery_time.
         control_results = [run_shock_recovery(genome_preset=genome, seed=seed, scenario="stable_world")
@@ -237,6 +240,7 @@ def run_lesson_L1_2():
                 "n_total": n_total, "n_censored": n_censored, "recovery_rate": recovery_rate,
                 "min_non_censored": MIN_NON_CENSORED,
             },
+            "snapshot_count": {"min": min(snapshot_counts), "max": max(snapshot_counts)},
             "pre_shock_band_check": {
                 "pre_shock_in_band_fraction": pre_shock_in_band_fraction,
                 "threshold": PRE_SHOCK_THRESHOLD, "endpoint_path": endpoint_path,

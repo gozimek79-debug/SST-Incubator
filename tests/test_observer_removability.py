@@ -22,14 +22,14 @@ L1_1_EXECUTION_FIELDS = [
     "primary_endpoint", "mse_stimulus_phase", "mse_silence_phase",
     "memory_decay_rate", "final_energy", "final_entropy", "memory_size", "passed",
 ]
-L1_1_OBSERVATION_FIELDS = ["stability_score", "adaptation_tick"]
+L1_1_OBSERVATION_FIELDS = ["stability_score", "adaptation_tick", "snapshot_count"]
 
 L1_2_EXECUTION_FIELDS = [
     "run_id", "lesson", "genome", "seed", "scenario",
     "homeostasis_band", "fraction_in_band", "final_energy", "final_entropy", "memory_size",
 ]
 L1_2_SHOCK_ONLY_EXECUTION_FIELDS = ["t_shock", "primary_endpoint", "pre_shock_in_band"]
-L1_2_OBSERVATION_FIELDS = ["stability_score", "adaptation_tick"]
+L1_2_OBSERVATION_FIELDS = ["stability_score", "adaptation_tick", "snapshot_count"]
 
 
 def _strip_telemetry(r):

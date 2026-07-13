@@ -99,6 +99,7 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
         "memory_decay_rate": round(memory_decay, 6),
         "stability_score": round(result.report.stability_score, 4),
         "adaptation_tick": phases.get("adaptation", 0),
+        "snapshot_count": len(snapshots),
         "final_energy": round(tissue.energy, 6), "final_entropy": round(tissue.entropy, 6),
         "memory_size": len(tissue.memory), "telemetry": telemetry,
     }
@@ -143,9 +144,24 @@ def run_lesson_L1_1():
         else:
             print(f"  Glass's delta vs control: not computable ({gd.get('reason','')})")
 
+        # SPRINT_v0.10.md P3: Adaptation/Stability na REALNYCH snapshotach (Read-Only Observer).
+        adapt_vals = [r["adaptation_tick"] for r in genome_results]
+        adapt_stats = compute_ci95(adapt_vals)
+        stab_vals = [r["stability_score"] for r in genome_results]
+        stab_stats = compute_ci95(stab_vals)
+        snapshot_counts = [r["snapshot_count"] for r in genome_results]
+        print(f"  adaptation_tick: mean={adapt_stats['mean']:.4f} n_effective={adapt_stats['n_effective']} "
+              f"ci95_valid={adapt_stats['ci95_valid']}")
+        print(f"  stability_score: mean={stab_stats['mean']:.4f} n_effective={stab_stats['n_effective']} "
+              f"ci95_valid={stab_stats['ci95_valid']}")
+        print(f"  snapshot_count per run: min={min(snapshot_counts)} max={max(snapshot_counts)}")
+
         per_genome[genome] = {
             "experimental_stats": stats, "baseline_stats": baseline_stats,
             "glass_delta_vs_control": gd,
+            "adaptation_tick_stats": adapt_stats,
+            "stability_score_stats": stab_stats,
+            "snapshot_count": {"min": min(snapshot_counts), "max": max(snapshot_counts)},
         }
 
     os.makedirs("reports/academy", exist_ok=True)

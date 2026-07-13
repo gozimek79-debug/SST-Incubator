@@ -25,16 +25,20 @@
         "recovery_rate": 1.0,
         "min_non_censored": 5
       },
+      "snapshot_count": {
+        "min": 300,
+        "max": 300
+      },
       "pre_shock_band_check": {
         "pre_shock_in_band_fraction": 0.0,
         "threshold": 0.8,
         "endpoint_path": "time_to_sustained_band (arrival)"
       },
       "adaptation_tick_stats": {
-        "mean": 0.0,
+        "mean": 10.0,
         "std": 0.0,
-        "ci95_low": 0.0,
-        "ci95_high": 0.0,
+        "ci95_low": 10.0,
+        "ci95_high": 10.0,
         "n": 10,
         "n_effective": 1,
         "deterministic": true,
@@ -42,22 +46,22 @@
         "interpretation": "wynik deterministyczny — CI95 nie ma zastosowania (oczekiwane dla środowiska kontrolnego)"
       },
       "stability_score_stats": {
-        "mean": 0.0,
-        "std": 0.0,
-        "ci95_low": 0.0,
-        "ci95_high": 0.0,
+        "mean": 1.72409,
+        "std": 0.028846,
+        "ci95_low": 1.706211,
+        "ci95_high": 1.741969,
         "n": 10,
-        "n_effective": 1,
-        "deterministic": true,
-        "ci95_valid": false,
-        "interpretation": "wynik deterministyczny — CI95 nie ma zastosowania (oczekiwane dla środowiska kontrolnego)"
+        "n_effective": 10,
+        "deterministic": false,
+        "ci95_valid": true,
+        "interpretation": "CI95 poprawne"
       },
       "control_stable_world": {
         "stability_score_stats": {
-          "mean": 0.0,
+          "mean": 2.2089,
           "std": 0.0,
-          "ci95_low": 0.0,
-          "ci95_high": 0.0,
+          "ci95_low": 2.2089,
+          "ci95_high": 2.2089,
           "n": 10,
           "n_effective": 1,
           "deterministic": true,
@@ -77,9 +81,9 @@
         }
       },
       "glass_delta_stability_shock_vs_control": {
-        "delta": null,
-        "computable": false,
-        "reason": "grupa eksperymentalna bez wariancji"
+        "delta": -16.806922,
+        "computable": true,
+        "reason": "OK"
       }
     },
     "highly_plastic": {
@@ -100,16 +104,20 @@
         "recovery_rate": 0.0,
         "min_non_censored": 5
       },
+      "snapshot_count": {
+        "min": 300,
+        "max": 300
+      },
       "pre_shock_band_check": {
         "pre_shock_in_band_fraction": 0.0,
         "threshold": 0.8,
         "endpoint_path": "time_to_sustained_band (arrival)"
       },
       "adaptation_tick_stats": {
-        "mean": 0.0,
+        "mean": 10.0,
         "std": 0.0,
-        "ci95_low": 0.0,
-        "ci95_high": 0.0,
+        "ci95_low": 10.0,
+        "ci95_high": 10.0,
         "n": 10,
         "n_effective": 1,
         "deterministic": true,
@@ -117,22 +125,22 @@
         "interpretation": "wynik deterministyczny — CI95 nie ma zastosowania (oczekiwane dla środowiska kontrolnego)"
       },
       "stability_score_stats": {
-        "mean": 0.0,
-        "std": 0.0,
-        "ci95_low": 0.0,
-        "ci95_high": 0.0,
+        "mean": 1.66855,
+        "std": 0.093768,
+        "ci95_low": 1.610432,
+        "ci95_high": 1.726668,
         "n": 10,
-        "n_effective": 1,
-        "deterministic": true,
-        "ci95_valid": false,
-        "interpretation": "wynik deterministyczny — CI95 nie ma zastosowania (oczekiwane dla środowiska kontrolnego)"
+        "n_effective": 10,
+        "deterministic": false,
+        "ci95_valid": true,
+        "interpretation": "CI95 poprawne"
       },
       "control_stable_world": {
         "stability_score_stats": {
-          "mean": 0.0,
+          "mean": 2.7205,
           "std": 0.0,
-          "ci95_low": 0.0,
-          "ci95_high": 0.0,
+          "ci95_low": 2.7205,
+          "ci95_high": 2.7205,
           "n": 10,
           "n_effective": 1,
           "deterministic": true,
@@ -152,9 +160,9 @@
         }
       },
       "glass_delta_stability_shock_vs_control": {
-        "delta": null,
-        "computable": false,
-        "reason": "grupa eksperymentalna bez wariancji"
+        "delta": -11.218657,
+        "computable": true,
+        "reason": "OK"
       }
     }
   },
@@ -181,8 +189,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.086667,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7493,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.308,
       "final_entropy": 1.0,
       "memory_size": 27,
@@ -205,8 +214,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.106667,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.6849,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.378,
       "final_entropy": 1.0,
       "memory_size": 29,
@@ -229,8 +239,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.08,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7715,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.3,
       "final_entropy": 1.0,
       "memory_size": 35,
@@ -253,8 +264,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.113333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7144,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.31,
       "final_entropy": 1.0,
       "memory_size": 34,
@@ -277,8 +289,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.076667,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7442,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.392,
       "final_entropy": 1.0,
       "memory_size": 34,
@@ -301,8 +314,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.07,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7052,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.378,
       "final_entropy": 1.0,
       "memory_size": 29,
@@ -325,8 +339,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.1,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7346,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.318,
       "final_entropy": 1.0,
       "memory_size": 28,
@@ -349,8 +364,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.093333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7456,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.328,
       "final_entropy": 1.0,
       "memory_size": 34,
@@ -373,8 +389,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.08,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.6986,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.344,
       "final_entropy": 0.999232,
       "memory_size": 31,
@@ -397,8 +414,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.08,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.6926,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.352,
       "final_entropy": 1.0,
       "memory_size": 32,
@@ -421,8 +439,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.01,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.8167,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.18,
       "final_entropy": 1.0,
       "memory_size": 16,
@@ -445,8 +464,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.003333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.5451,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.262,
       "final_entropy": 1.0,
       "memory_size": 25,
@@ -469,8 +489,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7432,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.182,
       "final_entropy": 1.0,
       "memory_size": 21,
@@ -493,8 +514,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.01,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7433,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.19,
       "final_entropy": 1.0,
       "memory_size": 23,
@@ -517,8 +539,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.585,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.248,
       "final_entropy": 1.0,
       "memory_size": 27,
@@ -541,8 +564,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.016667,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.5662,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.266,
       "final_entropy": 1.0,
       "memory_size": 22,
@@ -565,8 +589,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.006667,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7075,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.194,
       "final_entropy": 1.0,
       "memory_size": 21,
@@ -589,8 +614,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.7427,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.188,
       "final_entropy": 1.0,
       "memory_size": 27,
@@ -613,8 +639,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.016667,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.6422,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.218,
       "final_entropy": 1.0,
       "memory_size": 22,
@@ -637,8 +664,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.016667,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 1.5936,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.24,
       "final_entropy": 1.0,
       "memory_size": 24,
@@ -663,8 +691,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -680,8 +709,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -697,8 +727,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -714,8 +745,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -731,8 +763,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -748,8 +781,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -765,8 +799,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -782,8 +817,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -799,8 +835,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -816,8 +853,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.03,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.2089,
+      "adaptation_tick": 40,
+      "snapshot_count": 300,
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -833,8 +871,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -850,8 +889,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -867,8 +907,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -884,8 +925,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -901,8 +943,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -918,8 +961,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -935,8 +979,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -952,8 +997,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -969,8 +1015,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -986,8 +1033,9 @@
         "high": 0.5
       },
       "fraction_in_band": 0.013333,
-      "stability_score": 0.0,
-      "adaptation_tick": 0,
+      "stability_score": 2.7205,
+      "adaptation_tick": 10,
+      "snapshot_count": 300,
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6

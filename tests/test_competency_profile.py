@@ -69,16 +69,43 @@ class TestMarkdownRendering:
 
 
 class TestMinimalProfile:
-    """SPRINT_v0.9.md P6 Kroki 4-5: profil minimalny = wylacznie ci95_valid=True."""
+    """SPRINT_v0.9.md P6 Kroki 4-5: profil minimalny = wylacznie ci95_valid=True.
 
-    def test_minimal_profile_has_exactly_5_axes(self):
+    SPRINT_v0.10.md P4: liczba/skladnik osi NIE jest juz wpisana na sztywno
+    tutaj - re-liczona niezaleznie od surowych c["genomes"][g]["ci95_valid"],
+    zeby test rzeczywiscie sprawdzal profil, a nie powtarzal go (i zeby nie
+    trzeba bylo edytowac testu za kazdym razem, gdy realne dane sie zmienia,
+    tak jak sie zmienily miedzy P2 a P3 przez Read-Only Observer)."""
+
+    def _expected_valid_concepts(self, profile):
+        expected = set()
+        for c in profile["concepts"]:
+            if c["status"] != "measured":
+                continue
+            genome_keys = list(c["genomes"].keys())
+            if genome_keys and all(c["genomes"][g]["ci95_valid"] is True for g in genome_keys):
+                expected.add(c["concept"])
+        return expected
+
+    def test_minimal_profile_axes_match_concepts_with_valid_ci95_for_every_present_genome(self):
         profile = build_competency_profile()
-        assert profile["summary"]["valid_ci95"] == 5
-        assert len(profile["minimal_profile"]["axes"]) == 5
-        assert set(profile["minimal_profile"]["axes"]) == {
-            "Working Memory", "Pattern Recognition", "Pattern Retention",
-            "Energy Efficiency", "Homeostatic Resilience",
-        }
+        expected = self._expected_valid_concepts(profile)
+        assert set(profile["minimal_profile"]["axes"]) == expected
+        assert profile["summary"]["valid_ci95"] == len(expected)
+        assert len(profile["minimal_profile"]["axes"]) == len(expected)
+
+    def test_adaptation_and_stability_are_no_longer_degenerate(self):
+        """SPRINT_v0.10.md P3/P4: Read-Only Observer da realne snapshoty ->
+        Adaptation/Stability (zasilane z L1.1) maja teraz ci95_valid=True dla
+        obu genomow i NIE MOGA zostac w koszyku degenerate (byly tam do P2,
+        gdy snapshoty byly zawsze puste - patrz RAPORT_v0.9.md)."""
+        profile = build_competency_profile()
+        degenerate_names = {c["concept"] for c in profile["full_profile"]["degenerate"]}
+        valid_names = {c["concept"] for c in profile["full_profile"]["valid"]}
+        assert "Adaptation" not in degenerate_names
+        assert "Stability" not in degenerate_names
+        assert "Adaptation" in valid_names
+        assert "Stability" in valid_names
 
     def test_minimal_profile_concepts_all_have_valid_ci95_for_every_present_genome(self):
         profile = build_competency_profile()
@@ -101,10 +128,16 @@ class TestMinimalProfile:
             == len(profile["concepts"])
         ), "kategorie musza byc rozlaczne i wyczerpujace (partycja)"
 
-    def test_degenerate_concepts_are_adaptation_and_stability(self):
+    def test_degenerate_concepts_have_at_least_one_invalid_genome(self):
+        """Niezmiennik definicyjny stanu 'degenerate': zmierzone, ale co
+        najmniej jeden OBECNY genom ma ci95_valid=False. Nie zaklada KTORE
+        pojecia tam sa (to wynika z danych, patrz docstring klasy) -
+        pozwala kolekcji byc pusta, jesli aktualnie nic nie jest zdegenerowane."""
         profile = build_competency_profile()
-        degenerate_names = {c["concept"] for c in profile["full_profile"]["degenerate"]}
-        assert degenerate_names == {"Adaptation", "Stability"}
+        for c in profile["full_profile"]["degenerate"]:
+            genome_keys = list(c["genomes"].keys())
+            assert genome_keys, c["concept"]
+            assert any(c["genomes"][g]["ci95_valid"] is False for g in genome_keys), c["concept"]
 
     def test_minimal_profile_axes_subset_of_full_profile_valid(self):
         profile = build_competency_profile()
