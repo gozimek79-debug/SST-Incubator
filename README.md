@@ -14,7 +14,7 @@ not a claim of "Artificial Mind" — CLOS studies measurable *ontogenesis*
 not general intelligence. Two lessons exist (L1.1 "Pattern Echo", L1.2
 "Shock Recovery"), measuring 14 cognitive concepts total — the **minimal
 competency profile** (concepts with `ci95_valid=True` for every genome
-present) is currently **5 of 14**; see
+present) is currently **7 of 14**; see
 [Cognitive Academy](#cognitive-academy) below for exactly which, and which
 of the rest are explicitly `insufficient_data` vs measured-but-degenerate.
 
@@ -35,6 +35,13 @@ has zero behavior changes.
 Actively developed: `clos_academy/`, `clos_scientist/`, `clos_curriculum/`,
 `clos_studio/`, CI, docs, tests.
 
+**Execution Pipeline vs. Observation Pipeline (since v0.10):** the project
+also splits along a second axis — World/Brain/Kernel/Lesson (Execution)
+vs. Snapshot Engine/Capability Analyzer/Statistics/CI/Dashboard
+(Observation). Observation never influences Execution; the falsifiable
+test is that removing the Snapshot Engine leaves every Execution result
+byte-identical. See [docs/architecture.md](docs/architecture.md).
+
 ## Running tests
 
 ```bash
@@ -44,12 +51,13 @@ pytest -q
 ```
 
 CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on every
-push/PR: `pytest -q`, then three artifact validators:
+push/PR: `pytest -q`, then four artifact validators:
 
 ```bash
 python scripts/validate_publication.py   # every Publication Bundle has full provenance
 python scripts/validate_artifacts.py     # reports match their preregistration + scenario stochasticity
 python scripts/validate_panel.py         # clos_studio/panel/panel.js has zero hardcoded metrics/hashes
+python scripts/validate_observability.py # snapshot telemetry is complete (count, monotonicity, no gaps)
 ```
 
 On a successful run on `v0.7.2-scientific-integrity`, CI also writes
@@ -74,8 +82,8 @@ for its "Testy i CI" section, instead of the GitHub API.
 | `clos_research/`, `clos_dashboard/`, `clos_tower/` | Supporting benchmark/dashboard tooling. |
 | `publications/` | Publication Bundles (full provenance) + prerejestracje. |
 | `reports/` | Generated Academy/experiment reports + `status.json` (CI-written). |
-| `scripts/` | CI validators (`validate_publication.py`, `validate_artifacts.py`, `validate_panel.py`) + `write_status.py`. |
-| `docs/` | Design specs and research hypotheses for not-yet-implemented work (`spec_partial_step.md` implemented in v0.9; `idio_morph_hypothesis.md` is hypothesis-only, zero code). |
+| `scripts/` | CI validators (`validate_publication.py`, `validate_artifacts.py`, `validate_panel.py`, `validate_observability.py`) + `write_status.py`. |
+| `docs/` | Architecture (`architecture.md` — Execution/Observation Pipeline, permanent rule) + design specs/research hypotheses (`spec_partial_step.md`, `spec_snapshot_observer.md` implemented; `idio_morph_hypothesis.md` is hypothesis-only, zero code). |
 | `tests/` | pytest suite. |
 
 ## Cognitive Academy
@@ -91,10 +99,15 @@ for its "Testy i CI" section, instead of the GitHub API.
   two profiles, generated purely from `reports/academy/*.json` by
   [clos_scientist/competency_profile.py](clos_scientist/competency_profile.py)
   (no hand-editing): the **minimal profile** (official — only concepts
-  where every present genome has `ci95_valid=True`, currently 5/14), and
+  where every present genome has `ci95_valid=True`, currently 7/14), and
   the **full profile** (all 14, with `measured`-but-degenerate and
   `insufficient_data` kept as separate, explicit categories — nothing
-  hidden).
+  hidden). A concept may be fed by more than one lesson (N:M); a source
+  whose value is structurally constant for reasons unrelated to the
+  concept (not a real replicate of the same phenomenon) is marked
+  `"pool": False` in `CONCEPT_METRIC_MAP` and surfaces only as a
+  `secondary_observations` entry, never silently averaged into the
+  official CI95 — see [RAPORT_v0.10.md](RAPORT_v0.10.md) §6.
 - [publications/preregistration_L1_1.json](publications/preregistration_L1_1.json) /
   [publications/preregistration_L1_2.json](publications/preregistration_L1_2.json) —
   the preregistered hypothesis, primary/secondary endpoints, and statistical

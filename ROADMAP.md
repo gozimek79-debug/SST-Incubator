@@ -100,17 +100,65 @@ existing behavior is unchanged.
   root-caused: `kernel.snapshot_engine` is always empty because no lesson
   calls `kernel.run_tick()` — a known debt, **not fixed in this sprint**.
 
-## v0.10 — Predictive Coding, Latent Space
+## v0.10 — Observation Layer (this sprint, done)
+
+New constitutional rule (CTO, since v0.10): the project splits formally
+into an **Execution Pipeline** (World · Brain · Kernel · Lesson) and an
+**Observation Pipeline** (Snapshot Engine · Capability Analyzer ·
+Statistics · CI · Dashboard) — Observation never influences Execution.
+Falsifiable test: removing the Snapshot Engine must leave every Execution
+result byte-identical. Permanently documented in
+[docs/architecture.md](docs/architecture.md).
+
+- Root cause of the always-empty `kernel.snapshot_engine` (v0.9 debt) was
+  **two-layered**, not one: (1) lessons never call `kernel.run_tick()`,
+  the only place that creates a snapshot, **and** (2) `run_tick()` itself
+  hardcodes `entropy=0.0, energy=100.0`
+  ([clos_kernel/kernel.py:98](clos_kernel/kernel.py)) regardless of the
+  actual `tissue` state — architecturally disconnected from the object
+  the lesson uses. Naively wiring lessons to `run_tick()` would have
+  produced garbage data on a changed execution path, not a fix.
+- **Read-Only Observer**: `SnapshotEngine.create_snapshot()` called
+  directly from the lesson loop with real `tissue.entropy`/`tissue.energy`,
+  additively (one line beside existing calls), on both L1.1 and L1.2.
+  Removability proven empirically (Execution fields 40/40 byte-identical
+  with/without the observer) and pinned as a regression test
+  ([tests/test_observer_removability.py](tests/test_observer_removability.py)).
+  See [docs/spec_snapshot_observer.md](docs/spec_snapshot_observer.md).
+- **Real Adaptation/Stability**: minimal Competency Profile grew from
+  5/14 to **7/14**, purely data-driven (no hardcoded axis count/list —
+  computed from `ci95_valid` in every test). New N:M rule
+  (`CONCEPT_METRIC_MAP[...]["pool"]`, default `True`): a lesson feeding a
+  concept whose value is structurally constant for reasons unrelated to
+  the concept (L1.2's `adaptation_tick=10` — a pre-shock-window artifact,
+  not adaptation-to-shock degeneracy) is marked `"pool": False` and
+  surfaces only as a separate `secondary_observations` entry, never
+  silently pooled into the official CI95.
+- `scripts/validate_observability.py` — new CI validator: blocks merge on
+  missing/incomplete snapshot telemetry (count <20, non-monotonic
+  timeline, gaps in the tick sequence, timestamps going backward), with a
+  negative test suite (4 corruption cases → exit≠0, real report → exit 0).
+- Full account, including the honest caveat about large Cohen's d
+  (statistical certainty from small within-genome variance, not large
+  practical effect) in [RAPORT_v0.10.md](RAPORT_v0.10.md).
+- Core untouched (zero files in `clos_brain/`, `clos_kernel/`, `genome/`,
+  `birth/` across the whole sprint).
+
+## v0.11 — Predictive Coding, Latent Space
 
 Not started. Depends on:
 - New lessons beyond L1.1/L1.2, to raise the minimal Competency Profile's
-  count past 5/14 and give Predictive Coding / Latent Space work something
+  count past 7/14 and give Predictive Coding / Latent Space work something
   to be measured against.
 - Possibly new `PipelineStep` entries in `partial_step()` if this work
   needs to skip/reorder more than `PERCEIVE` — architecturally unblocked
   (see [docs/idio_morph_hypothesis.md](docs/idio_morph_hypothesis.md) §2),
   but each new certified-skippable step needs its own safety analysis
   first, same as `PERCEIVE` did.
+- Any new Observation Pipeline component (metrics, analyzers) built on
+  the v0.10 Read-Only Observer contract
+  ([docs/architecture.md](docs/architecture.md)) — same removability test
+  applies to whatever comes next, not just the Snapshot Engine.
 
 ## v1.0 — Evolution Engine
 

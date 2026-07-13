@@ -113,3 +113,33 @@ blokuje.**
 - Nowe geny, neurony, struktury pamięci.
 - Harmonogram/priorytetyzacja, który kierunek badać pierwszy — to decyzja
   poza tym dokumentem.
+
+## 4. Dlaczego warstwa obserwacji (v0.10) jest fundamentem, nie dygresją
+
+**SPRINT_v0.10.md dodał Read-Only Observer, jawną klasyfikację trójstanu
+A/B/C i walidator telemetrii (`scripts/validate_observability.py`) — zero
+kodu poznawczego, ale to jest warunek WSTĘPNY, żeby którykolwiek z
+czterech kierunków powyżej dało się kiedykolwiek uczciwie zweryfikować.**
+
+Bez wiarygodnej, zweryfikowanej telemetrii nie da się odróżnić:
+
+- realnej idiosynkratycznej reprezentacji (§1.3) od artefaktu metryki
+  liczonej na niepełnych/pustych snapshotach — dokładnie to degenerowało
+  `Adaptation`/`Stability` do v0.9 włącznie (`kernel.snapshot_engine`
+  zawsze pusty, patrz `RAPORT_v0.9.md` odkrycie (c));
+- realnej zmiany granularności kodowania w czasie (§1.1) od szumu
+  pomiarowego wynikającego z brakujących snapshotów w części trajektorii
+  (dokładnie to sprawdza `scripts/validate_observability.py` — kompletność
+  sekwencji, monotoniczność);
+- prawdziwego efektu metabolicznego pamięci (§1.4) od zdegenerowanego
+  `stability_index()`/`detect_phases()` liczonego poniżej progu 20
+  snapshotów (`clos_scientist/analyzer.py`, `clos_scientist/metrics.py`).
+
+Innymi słowy: gdyby ktoś zaimplementował dziś którykolwiek z czterech
+kierunków BEZ warstwy obserwacji z v0.10, wynik "to działa" byłby
+nieodróżnialny od "to tylko tak wygląda w danych, bo dane są zepsute" —
+dokładnie ten sam mechanizm degeneracji, który już raz zafałszował wnioski
+o Adaptation/Stability. v0.10 nie przybliża IDIO-MORPH treściowo (nadal
+zero kodu tutaj), ale usuwa tę konkretną przeszkodę. Patrz
+`docs/architecture.md` (zasada Execution/Observation Pipeline) i
+`RAPORT_v0.10.md`.
