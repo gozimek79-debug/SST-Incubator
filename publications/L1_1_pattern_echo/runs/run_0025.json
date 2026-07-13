@@ -15,6 +15,15 @@
   "stability_score": 3.3628,
   "adaptation_tick": 10,
   "snapshot_count": 200,
+  "snapshot_diagnostics": {
+    "count": 200,
+    "first_tick": 0,
+    "last_tick": 199,
+    "monotonic": true,
+    "complete": true,
+    "timestamps_monotonic": true,
+    "meets_minimum": true
+  },
   "final_energy": 0.414,
   "final_entropy": 1.0,
   "memory_size": 15,

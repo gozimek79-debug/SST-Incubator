@@ -37,9 +37,12 @@ jobs:
       - name: Validate panel (no hardcoded metrics)
         run: python scripts/validate_panel.py
 
+      - name: Validate observability (snapshot telemetry integrity)
+        run: python scripts/validate_observability.py
+
       # Zrodlo statusu testow/CI dla Panelu Badacza (SPRINT_v0.8.5.md, P3,
       # opcja a). Dochodzi do tego kroku WYLACZNIE gdy pytest i wszystkie
-      # trzy walidatory powyzej juz przeszly (kazdy krok bez
+      # cztery walidatory powyzej juz przeszly (kazdy krok bez
       # continue-on-error przerywa joba przy niezerowym exit code).
       - name: Write reports/status.json
         run: python scripts/write_status.py pytest_output.txt reports/status.json

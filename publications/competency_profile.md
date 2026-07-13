@@ -3,7 +3,7 @@
 Profil minimalny: 7 osi z waznym CI95 / 14 pojec
 Measured: 7/14
 Insufficient data: 7/14
-Generated at: 2026-07-13T07:24:02.534135
+Generated at: 2026-07-13T21:13:25.615396
 
 Definicje pojec: [cognitive_ontology.md](../clos_academy/cognitive_ontology.md).
 

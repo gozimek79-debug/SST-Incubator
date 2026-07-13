@@ -1,13 +1,13 @@
 {
   "experiment_id": "L1_2_shock_recovery",
-  "git_commit": "c3317e064a439e3220875d0a6051d8e092e83684",
+  "git_commit": "c6121cb20ad127201a0fefd8f101854c025e759a",
   "config_hash": "e04bcb753a5107089ec496fbd61c6ff9ac0964da0725ceb70bb5bb054cbbd08e",
   "manifest_hash": "f2a1ff5a599f5cc576cb4332ba46bf596fdddc9947850f06c2a2976e5949619f",
-  "timestamp": "2026-07-12T23:11:41.997297",
+  "timestamp": "2026-07-13T21:13:25.306612",
   "clos_version": "0.9",
   "cli_version": "0.1.1",
   "manifest_version": 1,
-  "bundled_at": "2026-07-12T23:11:41.997297",
+  "bundled_at": "2026-07-13T21:13:25.306612",
   "total_runs": 40,
   "reproducible": true
 }

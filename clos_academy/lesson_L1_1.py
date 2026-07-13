@@ -16,6 +16,7 @@ from clos_brain.brain_runtime import BrainRuntime
 from clos_brain.tissue import BrainTissue
 from clos_scientist.experiment import run_experiment
 from clos_scientist.analyzer import detect_phases
+from clos_scientist.telemetry import diagnose_snapshot_sequence
 from clos_kernel.event_bus import EventBus
 from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta
 from clos_academy.echo_runtime import silent_step
@@ -100,6 +101,7 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
         "stability_score": round(result.report.stability_score, 4),
         "adaptation_tick": phases.get("adaptation", 0),
         "snapshot_count": len(snapshots),
+        "snapshot_diagnostics": diagnose_snapshot_sequence(snapshots),
         "final_energy": round(tissue.energy, 6), "final_entropy": round(tissue.entropy, 6),
         "memory_size": len(tissue.memory), "telemetry": telemetry,
     }

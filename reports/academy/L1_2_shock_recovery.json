@@ -192,6 +192,15 @@
       "stability_score": 1.7493,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.308,
       "final_entropy": 1.0,
       "memory_size": 27,
@@ -217,6 +226,15 @@
       "stability_score": 1.6849,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.378,
       "final_entropy": 1.0,
       "memory_size": 29,
@@ -242,6 +260,15 @@
       "stability_score": 1.7715,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.3,
       "final_entropy": 1.0,
       "memory_size": 35,
@@ -267,6 +294,15 @@
       "stability_score": 1.7144,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.31,
       "final_entropy": 1.0,
       "memory_size": 34,
@@ -292,6 +328,15 @@
       "stability_score": 1.7442,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.392,
       "final_entropy": 1.0,
       "memory_size": 34,
@@ -317,6 +362,15 @@
       "stability_score": 1.7052,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.378,
       "final_entropy": 1.0,
       "memory_size": 29,
@@ -342,6 +396,15 @@
       "stability_score": 1.7346,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.318,
       "final_entropy": 1.0,
       "memory_size": 28,
@@ -367,6 +430,15 @@
       "stability_score": 1.7456,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.328,
       "final_entropy": 1.0,
       "memory_size": 34,
@@ -392,6 +464,15 @@
       "stability_score": 1.6986,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.344,
       "final_entropy": 0.999232,
       "memory_size": 31,
@@ -417,6 +498,15 @@
       "stability_score": 1.6926,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.352,
       "final_entropy": 1.0,
       "memory_size": 32,
@@ -442,6 +532,15 @@
       "stability_score": 1.8167,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.18,
       "final_entropy": 1.0,
       "memory_size": 16,
@@ -467,6 +566,15 @@
       "stability_score": 1.5451,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.262,
       "final_entropy": 1.0,
       "memory_size": 25,
@@ -492,6 +600,15 @@
       "stability_score": 1.7432,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.182,
       "final_entropy": 1.0,
       "memory_size": 21,
@@ -517,6 +634,15 @@
       "stability_score": 1.7433,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.19,
       "final_entropy": 1.0,
       "memory_size": 23,
@@ -542,6 +668,15 @@
       "stability_score": 1.585,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.248,
       "final_entropy": 1.0,
       "memory_size": 27,
@@ -567,6 +702,15 @@
       "stability_score": 1.5662,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.266,
       "final_entropy": 1.0,
       "memory_size": 22,
@@ -592,6 +736,15 @@
       "stability_score": 1.7075,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.194,
       "final_entropy": 1.0,
       "memory_size": 21,
@@ -617,6 +770,15 @@
       "stability_score": 1.7427,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.188,
       "final_entropy": 1.0,
       "memory_size": 27,
@@ -642,6 +804,15 @@
       "stability_score": 1.6422,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.218,
       "final_entropy": 1.0,
       "memory_size": 22,
@@ -667,6 +838,15 @@
       "stability_score": 1.5936,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.24,
       "final_entropy": 1.0,
       "memory_size": 24,
@@ -694,6 +874,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -712,6 +901,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -730,6 +928,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -748,6 +955,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -766,6 +982,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -784,6 +1009,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -802,6 +1036,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -820,6 +1063,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -838,6 +1090,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -856,6 +1117,15 @@
       "stability_score": 2.2089,
       "adaptation_tick": 40,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.148,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -874,6 +1144,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -892,6 +1171,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -910,6 +1198,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -928,6 +1225,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -946,6 +1252,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -964,6 +1279,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -982,6 +1306,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -1000,6 +1333,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -1018,6 +1360,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
@@ -1036,6 +1387,15 @@
       "stability_score": 2.7205,
       "adaptation_tick": 10,
       "snapshot_count": 300,
+      "snapshot_diagnostics": {
+        "count": 300,
+        "first_tick": 0,
+        "last_tick": 299,
+        "monotonic": true,
+        "complete": true,
+        "timestamps_monotonic": true,
+        "meets_minimum": true
+      },
       "final_energy": 0.114,
       "final_entropy": 1.0,
       "memory_size": 6
