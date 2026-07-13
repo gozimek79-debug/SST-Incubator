@@ -1,6 +1,6 @@
 {
   "tests": {
-    "passed": 287,
+    "passed": 292,
     "status": "green"
   },
   "validators": {
@@ -12,7 +12,7 @@
     "conclusion": "success",
     "workflow": "ci.yml"
   },
-  "commit": "c3317e064a439e3220875d0a6051d8e092e83684",
+  "commit": "c6121cb20ad127201a0fefd8f101854c025e759a",
   "branch": "v0.7.2-scientific-integrity",
-  "timestamp": "2026-07-12T21:03:19.595845+00:00"
+  "timestamp": "2026-07-13T05:48:11.791231+00:00"
 }
