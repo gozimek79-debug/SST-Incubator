@@ -1,0 +1,166 @@
+{
+  "study_id": "v0.10.1_population_validation",
+  "title": "Population Validation - Metrological Robustness Across a Genome Population",
+  "preregistration_date": "2026-07-14",
+  "status": "PENDING_REVIEW - BRAMKA (SPRINT_v0.10.1.md P1). NIE uruchamiac populacji (P3), dopoki ten dokument nie zostanie zatwierdzony przez audytora. Zadna liczba w tym dokumencie nie jest wynikiem - to sa progi/decyzje podjete PRZED zobaczeniem danych.",
+
+  "purpose": {
+    "goal": "NIE potwierdzic, ze infrastruktura dziala na wiekszej probce genomow. Znalezc, GDZIE i JAK metryki (Adaptation, Stability, Homeostatic Resilience, Pattern Recognition/Retention, Working Memory, Energy Efficiency) przestaja byc wiarygodne w miare zmiany parametrow genomu - zgodnie z zasada nadrzedna SPRINT_v0.10.1.md ('celem jest ZNALEZC, gdzie infrastruktura peka').",
+    "explicit_non_goal": "To NIE jest proba wykazania, ze konkretny genom jest 'lepszy'. Macierz z samymi ci95_valid=True bylaby PODEJRZANA (sugerowalaby, ze prog jest za slaby, nie ze infrastruktura jest odporna), nie sukcesem.",
+    "relationship_to_v0_10": "Zaklada Read-Only Observer (docs/architecture.md) i validate_observability.py (v0.10 P5) jako juz dzialajaca, zweryfikowana infrastruktura obserwacji. Ten dokument NIE zmienia tamtej architektury - rozszerza JEJ ZASTOSOWANIE z 2 genomow (default, highly_plastic) na populacje."
+  },
+
+  "invariant_v0_10_carried_forward": {
+    "execution_unchanged": "L1.1/L1.2 musza dawac bajtowo identyczne wyniki Execution (primary_endpoint, mse_*, final_energy/entropy, memory_size, telemetry) dla (default, highly_plastic) x istniejace scenariusze PO wprowadzeniu jakiegokolwiek kodu P2/P3 tego sprintu, co PRZED - dokladnie ten sam test regresyjny co tests/test_observer_removability.py, rozszerzony o test 'nowy kod population/environment nie zmienil starych wynikow', nie zastapiony.",
+    "observer_removability": "Snapshot Engine musi pozostac usuwalny (test observe=True/False) takze na KAZDYM nowym genomie i srodowisku wprowadzonym w P2/P3 - nie tylko na (default, highly_plastic) x (noise_world, shock_world, stable_world).",
+    "core_untouched": "genome/ i birth/ (Core, frozen) NIE sa modyfikowane. Populacja genomow jest konstruowana przez bezposrednie sparametryzowanie BrainTissue (clos_brain/tissue.py - rowniez Core, ale JUZ dzis parametryzowalny przez konstruktor, bez zmiany pliku) w warstwie Academy/Curriculum - dokladnie tak, jak dzis 3 istniejace presety (default/minimal/highly_plastic) trafiaja do BrainTissue przez brain_obj.expressed_genes.get(...) w lesson_L1_1.py/lesson_L1_2.py. Zero nowych genow, zero zmiany GenomeEngine/BirthEngine."
+  },
+
+  "population_design": {
+    "parameter_space": {
+      "source_of_bounds": "genome/presets.py (Core, TYLKO ODCZYT - min_value/max_value juz zadeklarowane w Gene() dla kazdego z tych parametrow w create_default_genome(), nie wymyslane na nowo dla tego badania).",
+      "dimensions": [
+        {
+          "name": "plasticity",
+          "brain_tissue_field": "plasticity",
+          "bounds": [0.1, 1.0],
+          "bounds_source": "genome/presets.py: Gene('plasticity', min_value=0.1, max_value=1.0)"
+        },
+        {
+          "name": "learning_rate",
+          "brain_tissue_field": "learning_rate",
+          "bounds": [0.01, 1.0],
+          "bounds_source": "genome/presets.py: Gene('learning_rate', min_value=0.01, max_value=1.0)"
+        },
+        {
+          "name": "decay_rate",
+          "brain_tissue_field": "decay_rate",
+          "bounds": [0.001, 0.1],
+          "bounds_source": "genome/presets.py: Gene('decay_rate', min_value=0.001, max_value=0.1)",
+          "note_on_retention": "CTO-owe pojecie 'retention' (jak dlugo przetrwa slad pamieciowy) jest OPERACYJNIE odwrotnoscia decay_rate w tym kodzie (update_memory()/apply_decay(), clos_brain/runtime/plasticity.py - Core, nie zmieniane) - NIE dodajemy osobnego wymiaru 'retention', bo bylby wspolliniowy z decay_rate (ta sama przyczyna fizyczna, dwie nazwy). Traktowanie ich jako dwoch niezaleznych osi sztucznie podwoilo by przestrzen prob bez nowej informacji."
+        },
+        {
+          "name": "homeostasis_target",
+          "brain_tissue_field": "homeostasis_target",
+          "bounds": [0.0, 1.0],
+          "bounds_source": "genome/presets.py: Gene('homeostasis_target', min_value=0.0, max_value=1.0)"
+        },
+        {
+          "name": "memory_capacity",
+          "brain_tissue_field": "memory_capacity",
+          "bounds": [10, 1000],
+          "type": "integer",
+          "bounds_source": "genome/presets.py: Gene('memory_capacity', min_value=10, max_value=1000)"
+        }
+      ],
+      "held_fixed_not_sampled": {
+        "fields": ["prediction_depth", "attention_threshold", "meta_cognition_sensitivity"],
+        "values": {"prediction_depth": 3, "attention_threshold": 0.3, "meta_cognition_sensitivity": 0.5},
+        "justification": "Te 3 pola SA funkcjonalnie uzywane w Core (clos_brain/runtime/perception.py, precision.py, prediction.py - zweryfikowane grepem przed napisaniem tego dokumentu), ale ZADEN z 3 istniejacych presetow (default/minimal/highly_plastic) nigdy ich nie nadpisal - wszystkie dotychczasowe wyniki L1.1/L1.2 (v0.8.4-v0.10) powstaly przy tych samych, stalych wartosciach. Trzymanie ich stalymi w tym badaniu utrzymuje porownywalnosc z ustalona baza (v0.9/v0.10); dodanie ich jako kolejnych 3 wymiarow LHS nie bylo czescia zadania CTO (decay_rate/learning_rate/retention/noise/plasticity - 5 osi) i strojenie 8 wymiarow rownoczesnie zamiast 5 rozmylaloby moc badania bez uzasadnienia."
+      },
+      "noise_explicitly_excluded_from_genome_space": {
+        "decision": "'noise' z listy CTO NIE jest tu traktowany jako parametr GENOMU. W tym kodzie szum jest wlasciwoscia SRODOWISKA (clos_world/scenarios.py: noise_world dodaje szum gaussowski niezalezny od genomu), nie genu Brain. Wlaczenie 'noise' do population_design pomieszaloby przestrzen genomow z przestrzenia srodowisk (P2) - to dwie rozne osie zmiennosci, nie jedna.",
+        "where_it_actually_lives": "Zmiennosc szumu srodowiskowego jest adresowana przez wybor srodowisk w sekcji 'environments' ponizej (noise_world juz istnieje; P2 tego sprintu moze dodac dalsze warianty poziomu szumu - wymaga ADDENDUM do tego dokumentu, patrz 'amendment_policy')."
+      }
+    },
+
+    "sampling_method": {
+      "method": "Latin Hypercube Sampling (LHS), 5 wymiarow (plasticity, learning_rate, decay_rate, homeostasis_target, memory_capacity)",
+      "justification": "LHS zapewnia rownomierne pokrycie kazdego wymiaru osobno (kazdy z N przedzialow rownej szerokosci na kazdej osi trafiony dokladnie raz) przy MALEJ liczbie prob - lepsze niz czysty losowy sampling dla N~20-23 w 5 wymiarach, gdzie czysty random.uniform() ryzykuje puste regiony przestrzeni przy tak malej probce. Nie jest to wybor 'ladnie wygladajacych' genomow - LHS nie ma pojecia o tym, jakie wyniki da dany punkt.",
+      "population_sampling_seed": 20101,
+      "seed_role": "Jeden, jawnie zadeklarowany seed dla SAMEGO PROCESU PROBKOWANIA (ktore punkty w przestrzeni parametrow trafiaja do populacji) - odrebny od per-run seedow eksperymentu (patrz seeds_plan). Ustalony PRZED zobaczeniem jakichkolwiek wynikow, zeby wykluczyc podejrzenie 'dobierania' genomow post-hoc.",
+      "algorithm": "Dla kazdego z 5 wymiarow: podziel [min,max] na N_NEW=20 rownych przedzialow, wylosuj (random.Random(20101)) dokladnie 1 punkt z kazdego przedzialu, niezaleznie permutuj przypisanie przedzialow do genomow miedzy wymiarami (standardowy LHS). memory_capacity zaokraglane do najblizszej liczby calkowitej po probkowaniu ciaglym."
+    },
+
+    "sample_size": {
+      "n_new_genomes": 20,
+      "n_anchor_presets": 3,
+      "anchor_presets": ["default", "minimal", "highly_plastic"],
+      "anchor_role": "Istniejace 3 presety NIE sa czescia LHS (juz scharakteryzowane w v0.8.4-v0.10) - wlaczone jako punkty odniesienia/ciaglosc z wczesniejszymi sprintami, nie losowane ponownie.",
+      "n_total_genomes": 23,
+      "justification_for_n_new_20": "23 genomy x do 3 srodowisk x 10 seedow x 2 lekcje ~= rzedu 1000-1400 runow - w granicach tego, co juz wykonalne w ramach jednego sprintu (dla porownania: L1.1+L1.2 dzis to 2 genomy x 2 scenariusze x 10 seedow x 2 lekcje = 80 runow, wykonalne w sekundach). N=20 nowych daje C(23,2)=253 par genomow do porownan per metryke - wystarczajaco duzo, zeby korekta na wielokrotne porownania (patrz nizej) byla FAKTYCZNIE potrzebna i sensowna do zademonstrowania (a nie tylko teoretyczna), a jednoczesnie na tyle malo, zeby czas wykonania pozostal rzedu minut, nie godzin. To jest decyzja kompromisowa (pokrycie vs koszt), nie 'optymalna' liczba w sensie formalnym - jesli audytor uzna, ze 20 jest za malo/za duzo, to jest dokladnie miejsce do rewizji przed zatwierdzeniem bramki."
+    }
+  },
+
+  "environments": {
+    "included_in_this_prereg": ["noise_world", "shock_world", "stable_world", "drift_world"],
+    "source": "WSZYSTKIE 4 juz istnieja w clos_world/scenarios.py (SCENARIOS dict) - zero nowego kodu srodowiskowego wymaganego, zeby ten dokument byl kompletny.",
+    "per_lesson_environment_set": {
+      "L1.1_pattern_echo": {
+        "environments": ["noise_world", "stable_world", "drift_world"],
+        "role": "noise_world=primary (istniejacy), stable_world=control (istniejacy), drift_world=NOWE zastosowanie (istnieje w kodzie od dawna, ale ZADNA lekcja Academy nigdy go nie uzyla - grep clos_academy/*.py potwierdza zero odwolan) - eksploracyjne, nie primary."
+      },
+      "L1.2_shock_recovery": {
+        "environments": ["shock_world", "stable_world", "drift_world"],
+        "role": "shock_world=primary (istniejacy), stable_world=control (istniejacy, WARIANT B jak w preregistration_L1_2.json), drift_world=eksploracyjne (jak wyzej)."
+      }
+    },
+    "drift_world_caveat": "recovery_time/homeostasis_band logika L1.2 (t_shock, pre_shock_in_band) zaklada strukture 'plaskie plateau -> pojedynczy skok' z shock_world. Zastosowanie tej samej logiki do drift_world (inny ksztalt sygnalu) jest JAWNIE eksploracyjne - jesli endpoint wyjdzie bez sensu (np. wszystko ucenzurowane, albo pre_shock_in_band niezdefiniowane), to jest to WYNIK (granica stosowalnosci endpointu), nie blad do naprawienia post-hoc.",
+    "excluded_new_p2_environments": {
+      "decision": "Srodowiska, ktore P2 tego sprintu MOZE dodac (nowe poziomy szumu/czestotliwosci zaklocen/dlugosci stabilnych okresow) sa JAWNIE WYLACZONE z tego dokumentu.",
+      "amendment_policy": "Jesli P2 zbuduje nowe srodowiska i ktos zechce wlaczyc je do populacyjnego przebiegu P3, wymaga to ADDENDUM do tego pliku (nowa sekcja 'environments_addendum_1' z data i uzasadnieniem) PRZED uruchomieniem - nie cichej rozbudowy listy 'environments' powyzej po fakcie. Bramka prerejestracji traci sens, jesli mozna ja rozszerzac bez rewizji po zobaczeniu, co dodaje P2."
+    }
+  },
+
+  "metrology": {
+    "seeds_plan": {
+      "seeds_per_genome_per_environment": 10,
+      "justification": "Ten sam precedens co preregistration_L1_1.json/L1_2.json (n=10/genom) - zachowana spojnosc metodologiczna z istniejacymi lekcjami, zeby wyniki populacji byly PORONYWALNE z juz opublikowanymi (default, highly_plastic) z v0.9/v0.10, nie osobnym, niezgodnym standardem."
+    },
+    "validity_threshold_per_genome_per_metric": {
+      "rule": "n_effective >= 5 (nieucenzurowanych/niepowtorzonych obserwacji) dla ci95_valid=True per (genom, srodowisko, metryka).",
+      "justification": "Identyczny prog co MIN_NON_CENSORED w preregistration_L1_2.json (clos_curriculum/laboratory/statistics.py: validate_sample_size(values, min_n=5)) - NIE nowy, osobny prog wymyslony dla populacji. compute_ci95() technicznie zwraca ci95_valid=True juz przy n_effective>=2, ale to 'zbyt malo, zeby estymacja byla wiarygodna' (dokladny cytat z uzasadnienia L1.2) - populacja dziedziczy ten sam, juz zaakceptowany standard zamiast negocjowac nowy."
+    },
+    "multiple_comparisons_correction": {
+      "problem": "Przy 23 genomach porownania parami per metryke to C(23,2)=253 par. Nawet jesli ZADEN genom nie rozni sie realnie od innego na danej metryce, przy alpha=0.05 oczekujemy okolo 253*0.05 =~ 12-13 'istotnych' wynikow WYLACZNIE z przypadku.",
+      "method_chosen": "Benjamini-Hochberg False Discovery Rate (FDR), q=0.05",
+      "why_not_bonferroni": "Bonferroni (alpha/253 =~ 0.0002 na porownanie) kontroluje family-wise error rate bardzo konserwatywnie - przy tak surowym progu PRAWDZIWE, realne roznice miedzy genomami (to, czego ten sprint ma szukac: 'gdzie infrastruktura peka') zostalyby zamaskowane jako 'nieistotne'. To jest DOKLADNIE zly kierunek bledu dla sprintu walidacyjnego, ktorego celem jest ZNALEZC granice, nie potwierdzic, ze 'nic sie nie rozni' (falszywa robustnosc). FDR (BH) kontroluje oczekiwany ODSETEK falszywych odkryc wsrod wynikow uznanych za istotne, nie prawdopodobienstwo ZADNEGO falszywego odkrycia w calej rodzinie testow - wlasciwsze dla badania eksploracyjnego/mapujacego (mapa zachowan, nie pojedyncza hipoteza potwierdzajaca), o co explicite prosi CTO (P3: 'raportuj przestrzen zachowan', nie 'potwierdz jedna hipoteze').",
+      "underlying_test": {
+        "test": "Welch's t-test (dwie sredniej, NIE zakladajace rownych wariancji miedzy genomami)",
+        "status": "NOWA funkcja do dopisania w clos_curriculum/laboratory/statistics.py w P3 implementation (nie w tym dokumencie) - ADDYTYWNIE, obok istniejacych compute_ci95/cohens_d/glass_delta, zero zmiany istniejacych funkcji. Wymaga wlasnego testu regresyjnego przed uzyciem (istniejace funkcje statystyczne maja pelne pokrycie testowe - nowa nie moze go obnizac).",
+        "justification_for_new_function": "Repo dzis liczy WYLACZNIE effect size (Cohen's d/Glass's delta) i CI95 - brak formalnej wartosci p. 'Bonferroni/FDR' scisle dziala na wartosciach p (kontrola bledu I rodzaju), nie na samych przedzialach ufnosci czy effect size - uczciwe zastosowanie tego, o co prosi CTO, wymaga wprowadzenia p-value gdzies w pipeline. Alternatywa (korekta poziomu ufnosci CI zamiast formalnego testu) rozwazona i odrzucona jako mniej precyzyjna aproksymacja tego samego pojecia."
+      },
+      "procedure": "Dla kazdej z metryk z sekcji 'metrics_under_study': policz Welch's t p-value dla wszystkich C(23,2)=253 par genomow (WYLACZNIE posrod par, gdzie OBA genomy maja ci95_valid=True per genomo-metryke - patrz validity_threshold powyzej), posortuj p-value rosnaco, zastosuj procedure Benjamini-Hochberg z q=0.05, raportuj liczbe par przechodzacych korekte vs liczbe 'surowych' istotnych wynikow przed korekta (roznica MIEDZY nimi jest sama w sobie wynikiem do zaraportowania w P4)."
+    },
+    "robustness_definition": {
+      "purpose": "Odpowiada wprost na wymog CTO: 'z gory: co znaczy metryka odporna na zmiane genomu (prog ilosciowy)'.",
+      "definition": "Metryka M jest klasyfikowana jako GENOME-ROBUST dla danego (lekcja, srodowisko), jesli udzial genomow z ci95_valid=True (posrod wszystkich N_total=23 probkowanych) wynosi >= 80%. Ponizej tego progu: GENOME-FRAGILE.",
+      "threshold_justification": "80%, nie 100% i nie 50%: (a) 100% byloby nierealistyczne i podejrzane - RAPORT_v0.10.md juz udokumentowal legitymny, zmechanizowany przypadek degeneracji (L1.2 Homeostatic Resilience, highly_plastic 100% ucenzurowany) na zaledwie 2 genomach - oczekujemy WIECEJ takich przypadkow przy 23 genomach, nie mniej; wymog 100% ci95_valid odrzucalby metryke za KAZDY pojedynczy, prawdziwie zdegenerowany genom, co jest zbyt kruche. (b) 50% bylby za luzny - metryka wiarygodna mniej niz w polowie przypadkow nie zasluguje na etykiete 'robust'. 80% pozwala na do ~20% (do 4-5 z 23) genomow z legitymna, zmechanizowana degeneracja (jak highly_plastic w L1.2 Homeostatic Resilience) bez odrzucania calej metryki, jednoczesnie wymagajac, zeby WIEKSZOSC przestrzeni parametrow dawala wiarygodny sygnal.",
+      "distinct_from_multiple_comparisons": "Ten prog (ci95_valid rate) odpowiada na pytanie INFRASTRUKTURALNE ('czy maszyneria CI95 daje sensowne liczby w tym punkcie przestrzeni parametrow') - jest ODREBNY od pytania NAUKOWEGO ('czy genomy X i Y faktycznie sie roznia na tej metryce', odpowiadanego przez Welch's t + FDR powyzej). Pomieszanie tych dwoch pytan w jedna definicje 'robustnosci' byloby bledem metodologicznym - infrastruktura moze byc w pelni sprawna (metryka zawsze policzalna, ci95_valid=True wszedzie) nawet jesli genomy sie NIE roznia (brak sygnalu naukowego) i odwrotnie."
+    },
+    "metrics_under_study": [
+      "primary_endpoint (L1.1: mse_vs_pattern_after_stimulus_removal)",
+      "primary_endpoint (L1.2: recovery_time / time_to_sustained_band)",
+      "adaptation_tick",
+      "stability_score",
+      "mse_stimulus_phase (Pattern Recognition)",
+      "memory_decay_rate (Pattern Retention)",
+      "final_energy (Energy Efficiency)"
+    ]
+  },
+
+  "implementation_plan_gate_for_p3": {
+    "requirement": "P3 (uruchomienie populacji) NIE MOZE zaczac sie zanim (a) ten dokument jest zatwierdzony PRZEZ AUDYTORA, ORAZ (b) ponizszy warunek regresyjny jest spelniony i pokazany.",
+    "additive_genome_injection": {
+      "what": "lesson_L1_1.run_pattern_echo() / lesson_L1_2.run_shock_recovery() dostana NOWY, opcjonalny parametr (np. genome_params: Optional[dict] = None) - gdy podany, NADPISUJE pola BrainTissue po jego zbudowaniu z presetu zamiast uzycia GenomeEngine.create_genome(preset) dla nieznanego presetu. Gdy None (domyslnie), zachowanie identyczne jak dzis.",
+      "regression_requirement": "Test dowodzacy, ze wywolanie z genome_params=None dla (default, highly_plastic) daje BAJTOWO IDENTYCZNE wyniki (Execution I Observation) jak PRZED dodaniem tego parametru - dokladnie ten sam wzorzec dowodu co observe=True/False z v0.10 P1/P2 (docs/spec_snapshot_observer.md), zastosowany do tego nowego parametru zamiast do obserwatora.",
+      "why_this_matters_for_the_gate": "Bez tego dowodu populacja P3 wprowadzalaby zmiane w Execution Pipeline (lesson_L1_1.py/lesson_L1_2.py sa czescia Execution, patrz docs/architecture.md) bez weryfikacji, ze stare wyniki sie nie zmienily - dokladnie to, czego zakazuje 'Inwariant v0.10 obowiazuje' z tego sprintu."
+    }
+  },
+
+  "reporting_requirements": {
+    "no_beautification": "Kazdy przypadek GENOME-FRAGILE, kazda zdegenerowana metryka, kazdy nieoczekiwany brak sygnalu MUSI byc zaraportowany w P4 (Validity Report) i P5 (Macierz odpornosci) z takim samym naciskiem jak przypadki GENOME-ROBUST. Tabela z sama kolumna ✔ jest sygnalem, ze COS zostalo przemilczane (zasada nadrzedna SPRINT_v0.10.1.md).",
+    "provenance": "Kazdy raport populacyjny (reports/population/*.json) musi zawierac population_sampling_seed, liste wszystkich 23 genomow z ich sparametryzowanymi wartosciami, git_commit, i odniesienie do tego pliku prerejestracji."
+  },
+
+  "explicitly_out_of_scope_for_this_document": [
+    "Uruchomienie populacji (P3) - ten dokument jest bramka PRZED P3, nie raportem wynikow.",
+    "Implementacja genome_params w lesson_L1_1.py/lesson_L1_2.py - opisana jako wymog bramki (implementation_plan_gate_for_p3), nie wykonana tutaj.",
+    "Nowa funkcja Welch's t-test w statistics.py - opisana jako wymog metodologii, nie zaimplementowana tutaj.",
+    "Nowe srodowiska P2 (poza 4 juz istniejacymi) - wymagaja osobnego addendum.",
+    "Jakakolwiek zmiana w clos_brain/, clos_kernel/, genome/, birth/ (Core, frozen).",
+    "Predictive Coding, Latent Space, IDIO-MORPH jako kod - zakazane przez SPRINT_v0.10.1.md."
+  ],
+
+  "version": "0.10.1.1"
+}
