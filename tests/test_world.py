@@ -134,7 +134,11 @@ class TestWorldRuntime:
     def test_get_available_scenarios(self):
         wr = WorldRuntime()
         scenarios = wr.get_available_scenarios()
-        assert len(scenarios) == 4
+        # SPRINT_v0.10.1.md P2 dodal 5 nowych srodowisk walidacyjnych - nie
+        # zakladamy tu stalej liczby (ten test byl kiedys "== 4" i zlamal sie
+        # przy pierwszym dodaniu srodowiska). Sprawdzamy tylko, ze oryginalny
+        # zestaw wciaz istnieje - lista MOZE rosnac.
+        assert {"stable_world", "noise_world", "drift_world", "shock_world"} <= set(scenarios)
 
     def test_all_scenarios_valid(self):
         wr = WorldRuntime()
