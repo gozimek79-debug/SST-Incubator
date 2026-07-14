@@ -259,15 +259,22 @@ CTO lista braków, nie krok do wykonania.
 4. **Czas wykonania kroku 5 (~7-9 minut) jest zależny od maszyny** —
    zmierzony na jednej konkretnej maszynie w tej sesji (patrz też ryzyko
    różnic sprzętowych niżej), nie jest gwarantowaną górną granicą.
-5. **Determinizm między platformami (Windows/Linux/macOS) nie został
-   wprost zweryfikowany w tej sesji** — cała ta procedura była
-   wykonywana na Windows. Kod używa wyłącznie `math`/`random` z biblioteki
-   standardowej (IEEE754, arytmetyka powinna być identyczna
-   międzyplatformowo dla tych operacji), a ścieżki plików idą przez
-   `pathlib`/proste konkatenacje stringów zgodne z oboma stylami — ale
-   **nikt w tej sesji nie uruchomił tego na Linux/macOS, żeby to
-   faktycznie potwierdzić.** Jeśli liczby w §2-5 wyjdą inne na innej
-   platformie, to jest odkrycie do zaraportowania, nie oczekiwany wynik.
+5. ~~**Determinizm między platformami (Windows/Linux/macOS) nie został
+   wprost zweryfikowany w tej sesji.**~~ **ZWERYFIKOWANY — 2026-07-14,
+   przez niezależnego audytora, ślepy test replikacji.** Audytor (badacz
+   spoza projektu) wykonał czysty klon + czysty venv + `pip install -r
+   requirements.txt` + `pip install pytest`, uruchomił komendy dosłownie z
+   tego dokumentu, na **Linux (Ubuntu), Python 3.12** — podczas gdy
+   procedura była wcześniej zweryfikowana tylko na Windows (Python 3.14.5,
+   ta sesja). Wynik: wszystkie główne liczby odtworzone dokładnie
+   (`0.156712`/`0.173229`/`15.4`/`7 z 14`), wszystkie 4 walidatory
+   zakończone `exit 0`. To jest niezależne potwierdzenie na innej maszynie,
+   innym systemie operacyjnym i innej (młodszej niż CI, starszej niż ta
+   sesja) wersji Pythona — nie tylko teoretyczne uzasadnienie (IEEE754,
+   `pathlib`) sprzed tej weryfikacji. Determinizm Windows↔Linux dla tej
+   procedury uznaje się za potwierdzony; macOS pozostaje niezweryfikowany
+   (audytor testował Linux, nie macOS) — to węższa, pozostała luka, nie
+   pełne zamknięcie punktu dla wszystkich trzech platform.
 6. **`git` musi być zainstalowany i dostępny w PATH** — `clos_studio/publication/bundle.py`
    i `clos_academy/population_validation.py` wołają `git rev-parse HEAD`
    dla prowenancji (`_git_commit()`); przy braku gita funkcja po cichu
