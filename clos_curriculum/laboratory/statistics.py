@@ -140,3 +140,116 @@ def validate_sample_size(values: List[float], min_n: int = 5) -> Dict[str, Any]:
         "can_compute_effect_size": n_eff >= 3,
         "pseudoreplication_warning": n_eff < n,
     }
+
+
+# --- SPRINT_v0.10.1.md P1/P3: Welch's t-test + Benjamini-Hochberg FDR ---
+# Dodane ADDYTYWNIE (zero zmiany istniejacych funkcji powyzej) dla korekty na
+# wielokrotne porownania w walidacji populacyjnej (publications/
+# preregistration_v0_10_1_population.json, sekcja metrology.
+# multiple_comparisons_correction). Zero zaleznosci zewnetrznych (brak scipy w
+# requirements.txt) - regularyzowana niezupelna funkcja beta liczona ulamkiem
+# lancuchowym (Numerical Recipes, standardowy algorytm), nie przyblizenie.
+
+def _betacf(a: float, b: float, x: float) -> float:
+    """Ulamek lancuchowy dla niezupelnej funkcji beta (Numerical Recipes 6.4)."""
+    MAXIT, EPS, FPMIN = 200, 3e-12, 1e-300
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c = 1.0
+    d = 1.0 - qab * x / qap
+    if abs(d) < FPMIN:
+        d = FPMIN
+    d = 1.0 / d
+    h = d
+    for m in range(1, MAXIT + 1):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        if abs(d) < FPMIN:
+            d = FPMIN
+        c = 1.0 + aa / c
+        if abs(c) < FPMIN:
+            c = FPMIN
+        d = 1.0 / d
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        if abs(d) < FPMIN:
+            d = FPMIN
+        c = 1.0 + aa / c
+        if abs(c) < FPMIN:
+            c = FPMIN
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < EPS:
+            break
+    return h
+
+
+def _regularized_incomplete_beta(a: float, b: float, x: float) -> float:
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    log_bt = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + a * math.log(x) + b * math.log(1.0 - x)
+    bt = math.exp(log_bt)
+    if x < (a + 1.0) / (a + b + 2.0):
+        return bt * _betacf(a, b, x) / a
+    return 1.0 - bt * _betacf(b, a, 1.0 - x) / b
+
+
+def _student_t_two_tailed_p(t: float, df: float) -> float:
+    """P(|T| >= |t|) dla Studenta z df stopniami swobody, dwustronne."""
+    if df <= 0:
+        return 1.0
+    x = df / (df + t * t)
+    prob_one_side = _regularized_incomplete_beta(df / 2.0, 0.5, x)
+    return max(0.0, min(1.0, prob_one_side))
+
+
+def welch_t_test(group_a: List[float], group_b: List[float]) -> Dict[str, Any]:
+    """Welch's t-test (nie zaklada rownych wariancji) - zwraca p-value dwustronne.
+
+    Uzywane WYLACZNIE do korekty wielokrotnych porownan w walidacji
+    populacyjnej (nie do PASS/FAIL pojedynczej lekcji - tam effect size/CI95
+    pozostaja glowna miara, zgodnie z reszta tego modulu).
+    """
+    n_a, n_b = len(group_a), len(group_b)
+    if n_a < 2 or n_b < 2:
+        return {"t": None, "df": None, "p_value": None, "computable": False,
+                "reason": "n<2 w co najmniej jednej grupie"}
+    mean_a = sum(group_a) / n_a
+    mean_b = sum(group_b) / n_b
+    var_a = sum((v - mean_a) ** 2 for v in group_a) / (n_a - 1)
+    var_b = sum((v - mean_b) ** 2 for v in group_b) / (n_b - 1)
+    se_a, se_b = var_a / n_a, var_b / n_b
+    denom = se_a + se_b
+    if denom < 1e-300:
+        return {"t": None, "df": None, "p_value": None, "computable": False,
+                "reason": "obie grupy zerowa wariancja - t niezdefiniowany (patrz glass_delta/deterministic)"}
+    t = (mean_a - mean_b) / math.sqrt(denom)
+    df = denom ** 2 / ((se_a ** 2) / (n_a - 1) + (se_b ** 2) / (n_b - 1))
+    p_value = _student_t_two_tailed_p(t, df)
+    return {"t": round(t, 6), "df": round(df, 4), "p_value": round(p_value, 8), "computable": True}
+
+
+def benjamini_hochberg(p_values: List[float], q: float = 0.05) -> List[bool]:
+    """Korekta Benjamini-Hochberg FDR. Zwraca liste bool (ta sama kolejnosc co
+    wejscie): True = istotne PO korekcie na wielokrotne porownania.
+
+    Procedura: posortuj p rosnaco: p_(1)<=...<=p_(m). Znajdz najwieksze k takie,
+    ze p_(k) <= (k/m)*q. Odrzuc H0 (uznaj za istotne) dla wszystkich p_(1..k).
+    """
+    m = len(p_values)
+    if m == 0:
+        return []
+    indexed = sorted(range(m), key=lambda i: p_values[i])
+    threshold_k = -1
+    for rank, idx in enumerate(indexed, start=1):
+        if p_values[idx] <= (rank / m) * q:
+            threshold_k = rank
+    significant = [False] * m
+    for rank, idx in enumerate(indexed, start=1):
+        if rank <= threshold_k:
+            significant[idx] = True
+    return significant

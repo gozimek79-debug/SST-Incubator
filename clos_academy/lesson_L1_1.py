@@ -22,22 +22,36 @@ from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta
 from clos_academy.echo_runtime import silent_step
 
 
-def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100, scenario="noise_world", observe=True):
+def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silence_ticks=100, scenario="noise_world", observe=True, genome_params=None, genome_label=None):
     # Wycisz WSZYSTKIE loggery
     for name in ["BirthEngine", "root", ""]:
         logging.getLogger(name).setLevel(logging.ERROR)
-    
+
     total_ticks = stimulus_ticks + silence_ticks
     ge = GenomeEngine(); genome = ge.create_genome(genome_preset)
     be = BirthEngine(ge); brain_obj = be.create_from_genome(genome)
-    
-    tissue = BrainTissue(
-        brain_id=brain_obj.identity.brain_id, genome_id=genome.id,
+
+    # SPRINT_v0.10.1.md P3: wstrzykiwanie parametrow populacji, ADDYTYWNIE.
+    # genome_params=None (domyslnie) -> zero zmiany zachowania wzgledem kodu
+    # sprzed tej zmiany (dokladnie te same 5 wartosci z brain_obj.expressed_genes
+    # co zawsze). Gdy podany, NADPISUJE wylacznie te same 5 pol NAD juz
+    # zbudowanym presetem (clos_curriculum/laboratory/population.py) - genom
+    # bazowy (Core: genome/, birth/) pozostaje nietkniety, uzywany tylko jako
+    # neutralne zrodlo brain_id/genome_id.
+    tissue_kwargs = dict(
         plasticity=brain_obj.expressed_genes.get("plasticity",0.5),
         homeostasis_target=brain_obj.expressed_genes.get("homeostasis_target",0.5),
         learning_rate=brain_obj.expressed_genes.get("learning_rate",0.1),
         decay_rate=brain_obj.expressed_genes.get("decay_rate",0.01),
         memory_capacity=int(brain_obj.expressed_genes.get("memory_capacity",100)),
+    )
+    if genome_params:
+        tissue_kwargs.update(genome_params)
+    label = genome_label if genome_label is not None else genome_preset
+
+    tissue = BrainTissue(
+        brain_id=brain_obj.identity.brain_id, genome_id=genome.id,
+        **tissue_kwargs,
     )
     
     kernel = Kernel(seed=seed); kernel.brain_id = tissue.brain_id
@@ -93,8 +107,8 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
     phases = detect_phases(snapshots)
     
     output = {
-        "run_id": f"L1.1_{genome_preset}_s{seed}_{scenario}", "lesson": "L1.1",
-        "genome": genome_preset, "seed": seed, "scenario": scenario,
+        "run_id": f"L1.1_{label}_s{seed}_{scenario}", "lesson": "L1.1",
+        "genome": label, "seed": seed, "scenario": scenario,
         "primary_endpoint": {"metric": "mse_vs_pattern_after_stimulus_removal", "measurement_tick": 50, "value": round(mse_at_tick_50, 6)},
         "mse_stimulus_phase": round(mse_stimulus, 6), "mse_silence_phase": round(mse_silence, 6),
         "memory_decay_rate": round(memory_decay, 6),

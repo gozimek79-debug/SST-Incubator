@@ -34,16 +34,24 @@ MIN_NON_CENSORED = 5    # censoring.min_non_censored
 PRE_SHOCK_THRESHOLD = 0.8  # pre_shock_band_check.conditional_definition
 
 
-def _build_tissue(genome_preset: str) -> BrainTissue:
+def _build_tissue(genome_preset: str, genome_params: dict = None) -> BrainTissue:
+    """genome_params=None -> zero zmiany zachowania (SPRINT_v0.10.1.md P3),
+    identycznie jak lesson_L1_1._build w run_pattern_echo. Patrz tam dla
+    pelnego uzasadnienia."""
     ge = GenomeEngine(); genome = ge.create_genome(genome_preset)
     be = BirthEngine(ge); brain_obj = be.create_from_genome(genome)
-    return BrainTissue(
-        brain_id=brain_obj.identity.brain_id, genome_id=genome.id,
+    tissue_kwargs = dict(
         plasticity=brain_obj.expressed_genes.get("plasticity", 0.5),
         homeostasis_target=brain_obj.expressed_genes.get("homeostasis_target", 0.5),
         learning_rate=brain_obj.expressed_genes.get("learning_rate", 0.1),
         decay_rate=brain_obj.expressed_genes.get("decay_rate", 0.01),
         memory_capacity=int(brain_obj.expressed_genes.get("memory_capacity", 100)),
+    )
+    if genome_params:
+        tissue_kwargs.update(genome_params)
+    return BrainTissue(
+        brain_id=brain_obj.identity.brain_id, genome_id=genome.id,
+        **tissue_kwargs,
     )
 
 
@@ -79,12 +87,13 @@ def pre_shock_in_band(entropy_by_tick: dict, t_shock: int, band: tuple, n: int =
 
 
 def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
-                        ticks_total=TICKS_TOTAL, observe=True):
+                        ticks_total=TICKS_TOTAL, observe=True, genome_params=None, genome_label=None):
     for name in ["BirthEngine", "root", ""]:
         logging.getLogger(name).setLevel(logging.ERROR)
 
-    tissue = _build_tissue(genome_preset)
+    tissue = _build_tissue(genome_preset, genome_params)
     band = (0.5 * tissue.homeostasis_target, tissue.homeostasis_target)
+    label = genome_label if genome_label is not None else genome_preset
 
     kernel = Kernel(seed=seed); kernel.brain_id = tissue.brain_id
     kernel.max_ticks = ticks_total; kernel.initialize()
@@ -124,8 +133,8 @@ def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
     fraction_in_band = round(in_band_count / ticks_total, 6)
 
     output = {
-        "run_id": f"L1.2_{genome_preset}_s{seed}_{scenario}", "lesson": "L1.2",
-        "genome": genome_preset, "seed": seed, "scenario": scenario,
+        "run_id": f"L1.2_{label}_s{seed}_{scenario}", "lesson": "L1.2",
+        "genome": label, "seed": seed, "scenario": scenario,
         "homeostasis_band": {"low": round(band[0], 6), "high": round(band[1], 6)},
         "fraction_in_band": fraction_in_band,
         "stability_score": round(result.report.stability_score, 4),
