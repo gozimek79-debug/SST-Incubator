@@ -30,6 +30,17 @@ code{font-family:'IBM Plex Mono',monospace}
 .brand-sub{font-size:12px; font-weight:500; color:var(--mut); letter-spacing:.02em}
 .top-r{display:flex; gap:8px; flex-wrap:wrap}
 
+/* SPRINT_v0.11.0.md Zadanie 3: globalny puls - sprint/data CI/wiek/commit,
+ * zeby zastoj danych (panel bez zmian przez wiele sprintow) byl widoczny
+ * SAM Z SIEBIE, nie wymagal wnioskowania. Zero literalow - patrz updatePulse(). */
+.pulse{
+  padding:7px 20px; border-bottom:1px solid var(--line); background:var(--bg);
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mut); text-align:center;
+}
+.pulse b{color:var(--txt); font-weight:600}
+.pulse code{color:var(--chA)}
+.pulse .age-stale{color:var(--warn); font-weight:600}
+
 .pill{
   font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:3px 9px;
   border:1px solid; border-radius:20px; display:inline-flex; align-items:center; gap:6px;
@@ -117,6 +128,19 @@ code{font-family:'IBM Plex Mono',monospace}
 .crow-warn{margin-top:8px; font-size:11.5px; color:var(--warn); line-height:1.5}
 .crow-warn code{color:var(--warn)}
 .crow-gap{margin-top:6px; font-size:11.5px; color:var(--mut)}
+
+/* SPRINT_v0.11.0.md Zadanie 3: trzy stany cyklu zycia danych, wizualnie
+ * rozroznione - ZYWE (zielony), EXPLORATORY DATASET (bursztynowy,
+ * "material badawczy nie dowod"), FROZEN (cyjan/niebieski - CELOWA decyzja,
+ * NIE awaria; bez tego panel wygladalby na zepsuty przy zamrozonym bundlu). */
+.datastate{font-size:12px; padding:9px 13px; border-radius:8px; margin-bottom:14px; line-height:1.55; border:1px solid var(--line); border-left:3px solid var(--line); background:var(--raised)}
+.datastate b{color:var(--txt)}
+.datastate-live{border-left-color:var(--ok)}
+.datastate-live b{color:var(--ok)}
+.datastate-exploratory{border-left-color:var(--warn)}
+.datastate-exploratory b{color:var(--warn)}
+.datastate-frozen{border-left-color:var(--chA)}
+.datastate-frozen b{color:var(--chA)}
 
 .tbl{width:100%; border-collapse:collapse; font-size:13px}
 .tbl th{text-align:left; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); padding:8px 10px; border-bottom:1px solid var(--line); font-weight:500}

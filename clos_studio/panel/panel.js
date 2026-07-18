@@ -91,6 +91,39 @@
     return h.slice(0, 12) + "…" + h.slice(-6);
   }
 
+  // SPRINT_v0.11.0.md Zadanie 3: formatowanie daty/wieku z timestampu ISO -
+  // ZERO literalow dat/wersji w tym pliku, wszystko liczone z pol JSON w
+  // momencie renderowania. "stale" = true gdy wiek > 7 dni, zeby zastoj
+  // danych byl widoczny wizualnie (age-stale w panel.css), nie tylko w tekscie.
+  function formatUtc(iso) {
+    if (!iso) return null;
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    var pad = function (n) { return n < 10 ? "0" + n : String(n); };
+    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) +
+      " " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + " UTC";
+  }
+
+  function ageInfo(iso) {
+    if (!iso) return null;
+    var then = new Date(iso).getTime();
+    if (isNaN(then)) return null;
+    var diffMs = Date.now() - then;
+    if (diffMs < 0) return { text: "przed chwilą", days: 0 };
+    var minutes = Math.floor(diffMs / 60000);
+    var hours = Math.floor(diffMs / 3600000);
+    var days = Math.floor(diffMs / 86400000);
+    var text;
+    if (minutes < 60) {
+      text = minutes <= 1 ? "przed chwilą" : minutes + " min temu";
+    } else if (hours < 24) {
+      text = hours + " " + (hours === 1 ? "godzinę" : hours < 5 ? "godziny" : "godzin") + " temu";
+    } else {
+      text = days + " " + (days === 1 ? "dzień" : "dni") + " temu";
+    }
+    return { text: text, days: days, stale: days > 7 };
+  }
+
   // Sekcje w index.html maja juz klase "grid" nadana statycznie — renderery
   // wstawiaja gotowe stringi HTML (karty/stuby) bezposrednio, bez
   // dodatkowego zagniezdzania wlasnego <div class="grid">.
@@ -450,6 +483,28 @@
       (c.source_lesson ? " · " + escapeHtml(c.source_lesson) : "") + "</span></div>" + body + "</div>";
   }
 
+  // SPRINT_v0.11.0.md Zadanie 3: banery cyklu zycia danych dla sekcji, ktore
+  // czytaja competency_profile.json - CZYTA pola juz obecne
+  // (comp.generated_at, comp.dataset_status), nie liczy/nie zgaduje niczego.
+  // Dwa banery moga wystapic razem: dane SA zywe (maja generated_at) I
+  // JEDNOCZESNIE oznaczone Exploratory (jeszcze nie potwierdzajace) - to nie
+  // sprzecznosc, to dwa rozne pytania (swiezosc artefaktu vs. status naukowy).
+  function datasetStateBannersHtml(comp) {
+    var html = "";
+    if (comp.generated_at) {
+      var age = ageInfo(comp.generated_at);
+      html += '<div class="datastate datastate-live">' +
+        "<b>Żywe:</b> zaktualizowano " + escapeHtml(formatUtc(comp.generated_at) || comp.generated_at) +
+        (age ? ' <span class="' + (age.stale ? "age-stale" : "") + '">(' + escapeHtml(age.text) + ")</span>" : "") +
+        "</div>";
+    }
+    if (comp.dataset_status) {
+      html += '<div class="datastate datastate-exploratory">' +
+        "<b>Exploratory Dataset:</b> " + escapeHtml(comp.dataset_status) + "</div>";
+    }
+    return html;
+  }
+
   function renderCompetency(comp) {
     if (!comp) return;
     var measured = comp.summary.measured, total = comp.summary.total_concepts;
@@ -496,7 +551,7 @@
       ' — luki są jawne, nie ukryte</span></header><div class="card-b"><div class="comp">' +
       comp.concepts.map(function (c) { return renderConceptRow(c, stateByName[c.concept]); }).join("") + "</div></div></section>";
 
-    setSectionHTML("competency", minimalCard + fullCard);
+    setSectionHTML("competency", datasetStateBannersHtml(comp) + minimalCard + fullCard);
   }
 
   function renderGenomes(comp) {
@@ -525,15 +580,29 @@
       "<tbody>" + (trHtml || '<tr><td colspan="5">Brak pojęć z ważnym CI95.</td></tr>') + "</tbody></table>" +
       '<p class="note">Porównanie opiera się wyłącznie na pojęciach, dla których <code>competency_profile.json</code> ' +
       "podaje <code>ci95_valid=true</code> dla obu genomów.</p></div></section>";
-    setSectionHTML("genomes", html);
+    setSectionHTML("genomes", datasetStateBannersHtml(comp) + html);
   }
 
   function renderProvenance(metadata, legacy, legacyError, metadataError) {
     var bundleCard = "";
     if (metadata) {
+      // SPRINT_v0.11.0.md Zadanie 3 (NAJWAZNIEJSZE z trzech stanow): bundle
+      // frozen=true NIGDY sie nie zaktualizuje (decyzja CTO, egzekwowana
+      // przez scripts/validate_bundle_freshness.py) - bez tej etykiety panel
+      // wygladalby na ZEPSUTY (dane "stare"), a jest POPRAWNY. Zamrozenie
+      // ma byc widoczne jako DECYZJA, nie awaria. Czyta WYLACZNIE pola juz
+      // obecne w metadata.json (frozen, frozen_reason, timestamp, clos_version).
+      var frozenBanner = metadata.frozen
+        ? '<div class="datastate datastate-frozen">' +
+          "<b>❄ Frozen Historical Artifact</b> — celowo niezmieniany od " +
+          escapeHtml(String(metadata.timestamp || "—").replace("T", " ")) +
+          (metadata.clos_version ? " (clos_version " + escapeHtml(metadata.clos_version) + ")" : "") +
+          ".<br>" + escapeHtml(metadata.frozen_reason || "") + "</div>"
+        : "";
       bundleCard =
         '<section class="card span"><header class="card-h"><span class="card-t">Bundle L1.1 — prowenancja</span>' +
-        '<span class="card-s">odtwarzalność eksperymentu</span></header><div class="card-b"><dl class="prov">' +
+        '<span class="card-s">odtwarzalność eksperymentu</span></header><div class="card-b">' + frozenBanner +
+        '<dl class="prov">' +
         ["experiment_id", "git_commit", "config_hash", "manifest_hash", "timestamp", "total_runs", "clos_version", "reproducible"]
           .map(function (k) {
             var v = metadata[k];
@@ -666,7 +735,29 @@
     var ts = metadata && metadata.timestamp ? String(metadata.timestamp).replace("T", " ") : null;
     foot.innerHTML = "Dane: gałąź <code>" + escapeHtml(BRANCH) + "</code>" +
       (ts ? " · bundle L1.1 wygenerowany " + escapeHtml(ts) : "") +
-      " · panel czyta na żywo z <code>reports/academy/</code> i <code>publications/</code>, żadna liczba nie jest wpisana na sztywno.";
+      " · panel czyta na żywo z <code>raw.githubusercontent.com</code> przy każdym otwarciu " +
+      "(cache GitHub ~5 min) — żadna liczba nie jest wpisana na sztywno.";
+  }
+
+  // SPRINT_v0.11.0.md Zadanie 3: globalny puls, widoczny niezaleznie od
+  // aktywnej sekcji - sprint (VERSION -> write_status.py -> status.json),
+  // data generacji CI, jej wiek liczony w JS, i commit. ZERO literalow -
+  // wszystko z parametru status (reports/status.json); brak -> jawny komunikat, nie cisza.
+  function updatePulse(status) {
+    var el = document.getElementById("pulse-banner");
+    if (!el) return;
+    if (!status) {
+      el.textContent = "Brak danych CI (reports/status.json niedostępny) — nie da się ustalić wieku danych.";
+      return;
+    }
+    var sprint = status.sprint ? escapeHtml(status.sprint) : "—";
+    var dateStr = formatUtc(status.timestamp) || "—";
+    var age = ageInfo(status.timestamp);
+    var commit = status.commit ? escapeHtml(status.commit.slice(0, 7)) : "—";
+    el.innerHTML =
+      "<b>Sprint " + sprint + "</b> · dane z CI: " + escapeHtml(dateStr) +
+      (age ? ' <span class="' + (age.stale ? "age-stale" : "") + '">(' + escapeHtml(age.text) + ")</span>" : "") +
+      " · commit <code>" + commit + "</code>";
   }
 
   /* ================= orkiestracja ================= */
@@ -713,8 +804,8 @@
       renderProvenance(vals[0], vals[1], results.legacyError, results.metadataError);
     });
 
-    loads.status.then(function (s) { renderTests(s, null); })
-      .catch(function (e) { renderTests(null, e); });
+    loads.status.then(function (s) { renderTests(s, null); updatePulse(s); })
+      .catch(function (e) { renderTests(null, e); updatePulse(null); });
 
     renderReports();
 

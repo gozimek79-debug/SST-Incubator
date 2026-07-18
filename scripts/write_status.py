@@ -7,6 +7,12 @@ jak pytest i wszystkie trzy walidatory juz przeszly (kazdy krok CI bez
 `continue-on-error` przerywa joba przy niezerowym exit code) - wiec samo
 dojscie do tego kroku jest dowodem, ze byly zielone.
 
+SPRINT_v0.11.0.md Zadanie 3 (decyzja CTO 2026-07-18): plik VERSION w roocie
+repo jest JEDYNYM zrodlem numeru sprintu - ten skrypt go czyta i wpisuje do
+status.json jako pole "sprint". Panel czyta WYLACZNIE status.json (ZERO
+literalow wersji w panel.js, egzekwowane przez scripts/validate_panel.py) -
+zeby zmienic wersje widoczna w panelu, edytuje sie TYLKO plik VERSION.
+
 Uzycie (w CI, po `pytest -q | tee pytest_output.txt`):
     python scripts/write_status.py pytest_output.txt reports/status.json
 """
@@ -17,8 +23,16 @@ import re
 import subprocess
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 PASSED_RE = re.compile(r"(\d+) passed")
+VERSION_FILE = Path("VERSION")
+
+
+def read_sprint_version() -> str:
+    if not VERSION_FILE.exists():
+        return ""
+    return VERSION_FILE.read_text(encoding="utf-8").strip()
 
 
 def parse_passed(pytest_output: str):
@@ -50,6 +64,7 @@ def main() -> int:
         return 1
 
     status = {
+        "sprint": read_sprint_version(),
         "tests": {"passed": passed, "status": "green"},
         "validators": {
             "validate_publication": "OK",
