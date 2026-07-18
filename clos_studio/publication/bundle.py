@@ -1,4 +1,31 @@
-﻿"""Publication Bundle – tworzy kompletne archiwum eksperymentu."""
+﻿"""Publication Bundle – tworzy kompletne archiwum eksperymentu.
+
+ZASADA "kod==artefakt": kazdy bundle w publications/ MUSI byc regenerowalny
+z biezacego kodu (uruchomienie odpowiedniego lesson/publish_*.py) dajac
+BAJTOWO IDENTYCZNE wyniki (poza metadanymi prowenancji: git_commit,
+config_hash, manifest_hash, timestamp - te ZAWSZE zmieniaja sie przy kazdej
+regeneracji). To gwarantuje, ze opublikowany bundle jest zawsze wiernym
+zapisem tego, co kod FAKTYCZNIE liczy, nie zamrozona migawka, ktora moze
+cicho rozjechac sie z prawda.
+
+JEDYNY dopuszczalny wyjatek (SPRINT_v0.11.0.md, decyzja CTO 2026-07-17):
+bundle jawnie oznaczony "frozen": true w metadata.json - dla przypadkow, gdy
+regeneracja zmienilaby WYLACZNIE nazwy pol/etykiety (nie wartosci), a bundle
+zostal juz opublikowany i niezaleznie zweryfikowany (np. slepa replikacja
+zewnetrznego audytora - patrz publications/L1_1_pattern_echo/metadata.json,
+pierwszy i na razie jedyny taki przypadek: pola mse_*->mae_*, SPRINT_v0.11.0.md
+P1). Regeneracja w takiej sytuacji stworzylaby pozor retroaktywnej zmiany
+historii publikacji bez realnej korzysci - "frozen" jest swiadomym wyjatkiem,
+nie zapomnianym TODO.
+
+Wyjatek jest kontrolowany TAK SAMO rygorystycznie jak sama regula:
+frozen=true BEZ pol "frozen_reason" (dlaczego zamrozony) i
+"regeneration_expected_diff" (co konkretnie zmieniloby sie przy regeneracji)
+jest BLEDEM, egzekwowanym przez scripts/validate_bundle_freshness.py
+(4 scenariusze testowe: frozen bez uzasadnienia / brak frozen_reason / brak
+regeneration_expected_diff / poprawny frozen - patrz
+tests/test_bundle_freshness_validator.py).
+"""
 
 import json
 import shutil

@@ -3,6 +3,16 @@
 Primary experiment: scenario=noise_world (wariancja srodowiskowa miedzy seedami).
 Control baseline: scenario=stable_world (deterministyczny, do Glass's delta).
 Patrz: publications/preregistration_L1_1.json.
+
+SPRINT_v0.11.0.md P1/audyt 2026-07-15: pola z prefiksem "mse_" ponizej sa
+policzone jako Mean Absolute Error (abs(), NIE kwadrat) - to byla NAZWA
+myslaca od poczatku (v0.8.4), nie zmiana pomiaru. WARIANT (c) (decyzja CTO):
+NAZWA naprawiona TUTAJ i we wszystkich miejscach, ktore z niej czytaja (od
+teraz, nowe artefakty); JUZ OPUBLIKOWANY bundle
+(publications/L1_1_pattern_echo/) i zamrozona prerejestracja
+(publications/preregistration_L1_1.json) NIE sa dotykane - patrz datowany
+aneks publications/preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json.
+Wartosci liczbowe (0.156712/0.173229) bez zmiany - to rename, nie nowy pomiar.
 """
 
 import json, os, sys, logging
@@ -79,38 +89,38 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
                 age=tick, step_counter=tick,
             )
 
-        mse_vs_pattern = abs(tissue.last_prediction - pattern_signal) if tissue.last_prediction is not None else 0
-        
+        mae_vs_pattern = abs(tissue.last_prediction - pattern_signal) if tissue.last_prediction is not None else 0
+
         if tick % 5 == 0:
             telemetry.append({
                 "tick": tick, "phase": "stimulus" if tick < stimulus_ticks else "silence",
                 "prediction": round(tissue.last_prediction, 6) if tissue.last_prediction else 0,
                 "pattern": round(pattern_signal, 6),
-                "mse_vs_pattern": round(mse_vs_pattern, 6),
+                "mae_vs_pattern": round(mae_vs_pattern, 6),
                 "entropy": round(tissue.entropy, 6), "energy": round(tissue.energy, 6),
                 "memory_size": len(tissue.memory),
             })
-    
+
     kernel.stop()
-    
+
     silence_phase = [t for t in telemetry if t["phase"] == "silence"]
     stimulus_phase = [t for t in telemetry if t["phase"] == "stimulus"]
     silence_after_50 = [t for t in silence_phase if t["tick"] >= stimulus_ticks + 50]
-    
-    mse_at_tick_50 = sum(t["mse_vs_pattern"] for t in silence_after_50) / len(silence_after_50) if silence_after_50 else 1.0
-    mse_stimulus = sum(t["mse_vs_pattern"] for t in stimulus_phase) / len(stimulus_phase) if stimulus_phase else 0
-    mse_silence = sum(t["mse_vs_pattern"] for t in silence_phase) / len(silence_phase) if silence_phase else 0
-    memory_decay = (mse_silence - mse_stimulus) / silence_ticks if silence_ticks > 0 else 0
-    
+
+    mae_at_tick_50 = sum(t["mae_vs_pattern"] for t in silence_after_50) / len(silence_after_50) if silence_after_50 else 1.0
+    mae_stimulus = sum(t["mae_vs_pattern"] for t in stimulus_phase) / len(stimulus_phase) if stimulus_phase else 0
+    mae_silence = sum(t["mae_vs_pattern"] for t in silence_phase) / len(silence_phase) if silence_phase else 0
+    memory_decay = (mae_silence - mae_stimulus) / silence_ticks if silence_ticks > 0 else 0
+
     snapshots = kernel.snapshot_engine.get_all_snapshots()
     result = run_experiment("pattern_echo", snapshots, EventBus().get_history())
     phases = detect_phases(snapshots)
-    
+
     output = {
         "run_id": f"L1.1_{label}_s{seed}_{scenario}", "lesson": "L1.1",
         "genome": label, "seed": seed, "scenario": scenario,
-        "primary_endpoint": {"metric": "mse_vs_pattern_after_stimulus_removal", "measurement_tick": 50, "value": round(mse_at_tick_50, 6)},
-        "mse_stimulus_phase": round(mse_stimulus, 6), "mse_silence_phase": round(mse_silence, 6),
+        "primary_endpoint": {"metric": "mae_vs_pattern_after_stimulus_removal", "measurement_tick": 50, "value": round(mae_at_tick_50, 6)},
+        "mae_stimulus_phase": round(mae_stimulus, 6), "mae_silence_phase": round(mae_silence, 6),
         "memory_decay_rate": round(memory_decay, 6),
         "stability_score": round(result.report.stability_score, 4),
         "adaptation_tick": phases.get("adaptation", 0),
@@ -141,19 +151,19 @@ def run_lesson_L1_1():
             print(f"  seed {seed:2d}...", end=" ")
             r = run_pattern_echo(genome_preset=genome, seed=seed, scenario="noise_world")
             genome_results.append(r); all_results.append(r)
-            print(f"{'PASS' if r['passed'] else 'FAIL'} (MSE@50={r['primary_endpoint']['value']:.4f})")
-        mse_vals = [r["primary_endpoint"]["value"] for r in genome_results]
-        stats = compute_ci95(mse_vals)
+            print(f"{'PASS' if r['passed'] else 'FAIL'} (MAE@50={r['primary_endpoint']['value']:.4f})")
+        mae_vals = [r["primary_endpoint"]["value"] for r in genome_results]
+        stats = compute_ci95(mae_vals)
         print(f"  Summary: {sum(1 for r in genome_results if r['passed'])}/{len(seeds)} passed, "
-              f"mean MSE@50={stats['mean']:.4f}, n_effective={stats['n_effective']}, ci95_valid={stats['ci95_valid']}")
+              f"mean MAE@50={stats['mean']:.4f}, n_effective={stats['n_effective']}, ci95_valid={stats['ci95_valid']}")
 
         baseline_genome_results = [run_pattern_echo(genome_preset=genome, seed=seed, scenario="stable_world")
                                     for seed in seeds]
         baseline_results.extend(baseline_genome_results)
-        baseline_mse = [r["primary_endpoint"]["value"] for r in baseline_genome_results]
-        baseline_stats = compute_ci95(baseline_mse)
-        gd = glass_delta(baseline_mse, mse_vals)
-        print(f"  Control baseline (stable_world): mean MSE@50={baseline_stats['mean']:.4f} "
+        baseline_mae = [r["primary_endpoint"]["value"] for r in baseline_genome_results]
+        baseline_stats = compute_ci95(baseline_mae)
+        gd = glass_delta(baseline_mae, mae_vals)
+        print(f"  Control baseline (stable_world): mean MAE@50={baseline_stats['mean']:.4f} "
               f"(deterministic={baseline_stats['deterministic']})")
         if gd.get("computable"):
             print(f"  Glass's delta vs control: {gd['delta']:.4f}")

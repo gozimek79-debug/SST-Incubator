@@ -3,15 +3,19 @@
 Profil minimalny: 7 osi z waznym CI95 / 14 pojec
 Measured: 7/14
 Insufficient data: 7/14
-Generated at: 2026-07-13T21:13:25.615396
+Generated at: 2026-07-17T05:16:23.109127
 
 Definicje pojec: [cognitive_ontology.md](../clos_academy/cognitive_ontology.md).
 
 ## Profil minimalny (oficjalny)
 
-Oficjalny profil kompetencji - WYLACZNIE pojecia, dla ktorych wszystkie obecne genomy maja ci95_valid=True.
+Oficjalny profil kompetencji - WYLACZNIE pojecia, dla ktorych wszystkie obecne genomy maja ci95_valid=True. UWAGA: to NIE jest jednorodna lista zdolnosci poznawczych - patrz cognitive_axes vs physiological_state_variables ponizej.
 
-Osie: Pattern Recognition, Pattern Retention, Working Memory, Adaptation, Stability, Energy Efficiency, Homeostatic Resilience
+6 osi poznawczych (zmierzonych zdolnosci lub kandydatow na nie) + 1 zmienna(ych) stanu fizjologicznego. Zmienna stanu fizjologicznego mierzy STAN systemu (np. poziom energii), NIE jego zdolnosc do czegokolwiek - nie sumowac z osiami poznawczymi jako rownowazne wpisy 'kompetencji'.
+
+Osie poznawcze: Pattern Recognition, Pattern Retention, Working Memory, Adaptation, Stability, Homeostatic Resilience
+
+Zmienne stanu fizjologicznego: Final Energy Level
 
 | Concept | Status | Source lesson | default value | default n_eff | highly_plastic value | highly_plastic n_eff | mean_diff | cohens_d |
 |---|---|---|---|---|---|---|---|---|
@@ -20,7 +24,7 @@ Osie: Pattern Recognition, Pattern Retention, Working Memory, Adaptation, Stabil
 | Working Memory | measured | L1.1 | 0.156712 | 10 | 0.173229 | 10 | 0.016517 | 0.327187 |
 | Adaptation | measured | L1.1 | 42.200000 | 7 | 10.500000 | 3 | -31.700000 | -8.904978 |
 | Stability | measured | L1.1 | 2.445580 | 10 | 3.245140 | 10 | 0.799560 | 9.460857 |
-| Energy Efficiency | measured | L1.1 | 0.460800 | 6 | 0.413800 | 3 | -0.047000 | -8.701052 |
+| Final Energy Level | measured | L1.1 | 0.460800 | 6 | 0.413800 | 3 | -0.047000 | -8.701052 |
 | Homeostatic Resilience | measured | L1.2 | 15.400000 | 7 | - | - | - | - |
 
 ## Profil pelny (wszystkie pojecia, luki jawne)
@@ -36,7 +40,7 @@ Wszystkie pojecia z ontologii, w tym zdegenerowane i insufficient_data - jawnie 
 | Working Memory | measured | L1.1 | 0.156712 | 10 | 0.173229 | 10 | 0.016517 | 0.327187 |
 | Adaptation | measured | L1.1 | 42.200000 | 7 | 10.500000 | 3 | -31.700000 | -8.904978 |
 | Stability | measured | L1.1 | 2.445580 | 10 | 3.245140 | 10 | 0.799560 | 9.460857 |
-| Energy Efficiency | measured | L1.1 | 0.460800 | 6 | 0.413800 | 3 | -0.047000 | -8.701052 |
+| Final Energy Level | measured | L1.1 | 0.460800 | 6 | 0.413800 | 3 | -0.047000 | -8.701052 |
 | Homeostatic Resilience | measured | L1.2 | 15.400000 | 7 | - | - | - | - |
 
 ### Zdegenerowane (0) - zmierzone, ale bez wiarygodnej wariancji
@@ -83,7 +87,7 @@ Wartosci z lekcji jawnie oznaczonych `"pool": False` w `CONCEPT_METRIC_MAP` (clo
 | Generalization | insufficient_data | - | - | - | - | - | - | - |
 | Planning | insufficient_data | - | - | - | - | - | - | - |
 | Stability | measured | L1.1 | 2.445580 | 2.410612 | 2.480548 | 10 | 10 | True |
-| Energy Efficiency | measured | L1.1 | 0.460800 | 0.456304 | 0.465296 | 10 | 6 | True |
+| Final Energy Level | measured | L1.1 | 0.460800 | 0.456304 | 0.465296 | 10 | 6 | True |
 | Homeostatic Resilience | measured | L1.2 | 15.400000 | 12.767140 | 18.032860 | 10 | 7 | True |
 
 ### highly_plastic
@@ -102,5 +106,5 @@ Wartosci z lekcji jawnie oznaczonych `"pool": False` w `CONCEPT_METRIC_MAP` (clo
 | Generalization | insufficient_data | - | - | - | - | - | - | - |
 | Planning | insufficient_data | - | - | - | - | - | - | - |
 | Stability | measured | L1.1 | 3.245140 | 3.179834 | 3.310446 | 10 | 10 | True |
-| Energy Efficiency | measured | L1.1 | 0.413800 | 0.412316 | 0.415284 | 10 | 3 | True |
+| Final Energy Level | measured | L1.1 | 0.413800 | 0.412316 | 0.415284 | 10 | 3 | True |
 | Homeostatic Resilience | measured | L1.2 | - | - | - | - | - | - |

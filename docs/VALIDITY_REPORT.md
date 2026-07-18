@@ -1,5 +1,18 @@
 # Validity Report — granice interpretacji 14 osi Competency Profile
 
+> **⚠ STATUS DANYCH: Exploratory Dataset v0.10 (SPRINT_v0.11.0.md).** Analiza
+> mocy statystycznej (v0.11.0 P0) wykazała, że populacja n=10/genom (v0.10.1
+> P3), na której oparty jest cały ten dokument, ma bardzo niską moc wykrycia
+> czegokolwiek poza ogromnymi efektami po korekcie na wielokrotne porównania
+> (patrz `publications/preregistration_v0_11_0_power_reproduction.json`).
+> **Ten dokument NIE jest poprawiany ani wycofywany** — pozostaje wiarygodnym
+> zapisem tego, co dało się ustalić na etapie n=10, wraz z metodologią, która
+> to ustaliła. Klasyfikacje ROBUST/FRAGILE i wnioski o dyskryminacji poniżej
+> mają status **Measurement/Construct validity: aktualny**, ale
+> **Power/Confirmatory validity: PENDING** do czasu re-run zatwierdzonego
+> przez CTO (Wariant A/B/C — decyzja w toku). Nie cytować klasyfikacji z tego
+> dokumentu jako ostatecznych bez sprawdzenia statusu re-run.
+
 **Status: SPRINT_v0.10.1.md P4 (Zadanie 3 CTO).** Ten dokument NIE poprawia
 żadnej metryki — dyrektywa CTO: "poznaj granice", nie "napraw". Konsoliduje
 ograniczenia znane z v0.9/v0.10 i rozszerza je o dane z walidacji populacyjnej
@@ -69,7 +82,7 @@ akurat tak wypadł"**. Populacja 23 genomów dająca odpowiedź "brak
 wystarczającego dowodu różnicy" jest bardziej wiarygodna niż pojedyncze
 porównanie par — to jest dokładnie to, po co CTO zlecił ten sprint.
 
-Kontrast: **Stability i Energy Efficiency (gdy ROBUST) DYSKRYMINUJĄ silnie**
+Kontrast: **Stability i Final Energy Level (gdy ROBUST) DYSKRYMINUJĄ silnie**
 — np. Stability w `noise_world`: 208/253 par przeżywa FDR (82% wszystkich
 par genomów różni się istotnie). Nie każda zmierzona oś ma ten sam charakter
 — stąd potrzeba tej tabeli per metryka, nie jednego zbiorczego wniosku.
@@ -77,6 +90,10 @@ par genomów różni się istotnie). Nie każda zmierzona oś ma ten sam charakt
 ---
 
 ## Perception
+
+**Formalna definicja (P1):** nie dotyczy — brak lekcji, brak endpointu do
+sformalizowania. Mechanizm (`perceive()`) istnieje w Core, ale mechanizm
+≠ zmierzony endpoint (zasada uczciwości, `cognitive_ontology.md`).
 
 **Co mierzy:** nic — `not yet measured` (bez zmian od v0.8.4).
 **Czego NIE mierzy:** brak lekcji izolującej percepcję jako endpoint.
@@ -89,6 +106,10 @@ Profile nie znaczy "słaba percepcja" — znaczy "nikt tego nie zmierzył".
 
 ## Attention
 
+**Formalna definicja (P1):** nie dotyczy — `attention_threshold` jest
+GENEM (wejsciem), nie zmierzonym wyjsciem; zaden endpoint go nie testuje
+jako zmienna niezalezna.
+
 **Co mierzy:** nic — `not yet measured`. `attention_threshold` istnieje i
 wpływa pośrednio na L1.1 (dobór rekordów pamięci w `predict()`), ale nie
 jest testowany jako zmienna niezależna, i (patrz P3) nigdy nie jest
@@ -99,7 +120,38 @@ próbkowany w populacji — trzymany na stałe 0.3 dla wszystkich 23 genomów.
 
 ---
 
-## Pattern Recognition (`mse_stimulus_phase`)
+## Pattern Recognition (`mae_stimulus_phase`, dawniej `mse_stimulus_phase`)
+
+**NAPRAWIONE (SPRINT_v0.11.0.md P1, 2026-07-15):** pole przemianowane z
+`mse_stimulus_phase` na `mae_stimulus_phase` w kodzie (`lesson_L1_1.py` i
+wszystkich konsumentach) — wartości i formuła BEZ ZMIAN, to korekta nazwy,
+nie pomiaru. Zamrożone `publications/preregistration_L1_1.json` i już
+opublikowany bundle `publications/L1_1_pattern_echo/` NIE zostały dotknięte
+(świadomie — patrz datowany aneks
+`publications/preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json` i
+`docs/MSE_MAE_NAMING_DECISION.md` dla pełnego uzasadnienia Wariantu (c)).
+Poniższy opis "NAZWA vs POMIAR" to zapis ODKRYCIA (historia), zachowany
+celowo — nazwa `mse_stimulus_phase` istniała od v0.8.4 do tej naprawy.
+
+**Formalna definicja (P1, SPRINT_v0.11.0.md):**
+```
+error(t)          = |tissue.last_prediction(t) - pattern_signal(t)|     (BLAD BEZWZGLEDNY, nie kwadrat)
+telemetry_ticks    = {t : t < stimulus_ticks, t mod 5 = 0}              (PROBKOWANE co 5. tick, nie kazdy)
+mae_stimulus_phase = mean_{t in telemetry_ticks} error(t)
+```
+Domena: `stimulus_ticks=100` (domyslnie L1.1). Warunek brzegowy: jesli
+`telemetry_ticks` jest puste, wynik = 0 (nie NaN/wyjatek - patrz P2 dla
+konsekwencji tego wyboru).
+
+**NAZWA vs POMIAR (P1, ODKRYCIE): NIEZGODNOSC PODWOJNA, JEDNA POLOWA
+NAPRAWIONA.** (1) Prefiks `mse_` sugerowal Mean SQUARED Error — kod liczy
+`abs()`, nie `**2`. To jest **Mean Absolute Error** — dotyczylo WSZYSTKICH
+pol z dawnym prefiksem `mse_` w L1.1 (`mse_stimulus_phase`→`mae_stimulus_phase`,
+`mse_silence_phase`→`mae_silence_phase`, `mse_at_tick_50`/Working Memory) —
+**NAPRAWIONE** (rename, wartosci bez zmian). (2) "Recognition" nadal sugeruje
+dyskretny, binarny osad (rozpoznane/nie) — metryka jest ciagla (sredni
+blad), nie ma progu decyzyjnego "rozpoznane" — **NIENAPRAWIONE**, poza
+zakresem tej korekty (pytanie o ontologie pojecia, nie o nazwe pola).
 
 **Co mierzy:** średni błąd predykcji PODCZAS prezentacji bodźca (tick<100,
 L1.1) — jak dobrze Brain trafia bieżący sygnał, gdy wciąż go widzi.
@@ -124,8 +176,30 @@ sprawdź zawsze `pairwise_comparisons.n_fdr_significant_q_0_05`, nie tylko
 
 ## Pattern Retention (`memory_decay_rate`)
 
-**Co mierzy:** `(mse_silence_phase - mse_stimulus_phase) / silence_ticks` —
-tempo pogarszania się trafności predykcji w fazie ciszy L1.1.
+**Formalna definicja (P1):**
+```
+memory_decay_rate = (mae_silence_phase - mae_stimulus_phase) / silence_ticks
+```
+(SPRINT_v0.11.0.md P1: pola przemianowane z `mse_*` na `mae_*`, patrz
+Pattern Recognition powyżej — formuła i wartości bez zmian) gdzie
+`mae_silence_phase`/`mae_stimulus_phase` sa srednimi bledami
+bezwzglednymi (patrz Pattern Recognition powyzej) po odpowiednio CALEJ
+fazie ciszy i CALEJ fazie stymulacji (nie tylko od ticku 50, w
+przeciwienstwie do Working Memory ponizej). Warunek brzegowy:
+`silence_ticks=0` -> wynik 0 (dzielenie przez zero unikniete cichym
+zerem, nie wyjatkiem - patrz P2).
+
+**NAZWA vs POMIAR (P1): ZNAK MOZE BYC UJEMNY, WBREW NAZWIE "decay" (rozpad).**
+Jesli `mae_silence_phase < mae_stimulus_phase` (siec radzi sobie LEPIEJ w
+ciszy niz podczas stymulacji - mozliwe np. gdy szum stymulacji utrudnia
+predykcje bardziej niz jego brak), `memory_decay_rate` wychodzi UJEMNE -
+"ujemny rozpad" jest pojeciowo niespojne z nazwa (rozpad z definicji nie
+powinien byc ujemny). Dodatkowo: to jest RÓŻNICA MIĘDZY DWOMA ŚREDNIMI
+podzielona przez czas, nie dopasowana krzywa zaniku - zaklada IMPLICITE
+model LINIOWY (stala szybkosc pogarszania), nie eksponencjalny/nasycajacy
+się, ktory bylby biologicznie bardziej prawdopodobny.
+
+**Co mierzy:** tempo pogarszania się trafności predykcji w fazie ciszy L1.1.
 **Czego NIE mierzy:** retencji w sensie długoterminowym (poza jednym
 przebiegiem 200 ticków); nie rozróżnia zapominania od braku uczenia się od
 początku.
@@ -143,7 +217,35 @@ jako "infrastruktura działa", nie jako "genomy się różnią".
 
 ---
 
-## Working Memory (`mse_vs_pattern_after_stimulus_removal`, primary endpoint L1.1)
+## Working Memory (`mae_vs_pattern_after_stimulus_removal`, dawniej `mse_vs_pattern_after_stimulus_removal`, primary endpoint L1.1)
+
+**NAPRAWIONE (SPRINT_v0.11.0.md P1, 2026-07-15):** to jest FLAGOWY endpoint
+projektu — patrz `docs/MSE_MAE_NAMING_DECISION.md` dla pełnego zasięgu
+zmiany. Wartości (0.156712/0.173229) i formuła bez zmian.
+
+**Formalna definicja (P1):**
+```
+silence_after_50 = {t : phase(t)="silence", t >= stimulus_ticks + 50}     (POMIJA pierwsze 50 tickow ciszy)
+mae_at_tick_50    = mean_{t in silence_after_50, t mod 5 = 0} |prediction(t) - pattern_signal(t)|
+PASS              <=> mae_at_tick_50 < 0.5
+```
+Warunek brzegowy: jesli `silence_after_50` puste (np. `silence_ticks<50`),
+wynik = **1.0** (nie 0, nie wyjatek - domyslna wartosc "najgorsza mozliwa",
+ukryta w kodzie, nie w prerejestracji explicite jako "co jesli za krotka
+faza ciszy"). **To osobny, NIENAPRAWIONY problem** ("cisza gorsza niz blad",
+zasada nadrzedna 1 tego sprintu) — poza zakresem tej korekty nazwy, patrz
+tabela P3 (Working Memory, kolumna Construct, przypis ¹).
+
+**NAZWA vs POMIAR: dlaczego "po tick 50", nie od razu po usunieciu bodzca
+(tick 100)?** Offset 50 ticków PRZED rozpoczęciem pomiaru zakłada, że
+efekty przejściowe usunięcia bodźca (np. chwilowy skok błędu przy pierwszej
+próbie predykcji bez sygnału) ustępują w tym czasie — to jest ZAŁOŻENIE
+PROJEKTOWE (uzasadnione w `preregistration_L1_1.json`), nie zmierzony fakt;
+gdyby prawdziwy czas ustępowania przejścia był inny niż 50 ticków, endpoint
+mierzyłby częściowo efekt przejściowy, nie ustabilizowaną pamięć. Metryka
+używa też `abs()`, nie kwadratu — dawniej ukryte pod `mse_` w nazwie,
+**NAPRAWIONE** (patrz Pattern Recognition powyżej — ten sam błąd
+nazewnictwa, ta sama korekta).
 
 **Co mierzy:** zdolność odtworzenia wzorca z pamięci PO usunięciu bodźca
 (tick≥150, bufor sensoryczny zamrożony przez `silent_step()`).
@@ -173,6 +275,10 @@ MIĘDZY GENOMAMI, które wymaga populacji, nie dwóch punktów.
 
 ## Long-term Memory
 
+**Formalna definicja (P1):** nie dotyczy — brak mechanizmu do
+sformalizowania (jedna, jednolita struktura pamięci w `BrainTissue`, zero
+rozróżnienia czasowego).
+
 **Co mierzy:** nic — `not yet measured`, brak mechanizmu odróżniającego
 pamięć długoterminową od roboczej w `BrainTissue`.
 **Czego NIE mierzy / kiedy zdegenerowana / myląca:** nie dotyczy.
@@ -181,6 +287,11 @@ pamięć długoterminową od roboczej w `BrainTissue`.
 ---
 
 ## Prediction
+
+**Formalna definicja (P1):** nie dotyczy jako osobny endpoint —
+`last_prediction` jest SKLADNIKIEM formul innych metryk (Pattern
+Recognition, Working Memory), nigdy testowanym samodzielnie jako
+predykcja "w przod" (przyszlego, jeszcze niewystapionego bodzca).
 
 **Co mierzy:** nic jako osobny endpoint — `last_prediction` jest składnikiem
 KAŻDEJ metryki MSE w L1.1, ale predykcja "w przód" (bodziec jeszcze
@@ -191,6 +302,26 @@ Recognition — te używają predykcji jako narzędzia, nie testują jej wprost.
 ---
 
 ## Adaptation (`adaptation_tick`)
+
+**Formalna definicja (P1):**
+```
+adaptation_tick = min{ t : t>=10, std(entropy[t : t+10]) < 0.02 }             (pierwsze okno 10 tickow, rolling std<0.02)
+                  ELSE (jesli zaden taki t) = pierwszy t>=len/4 gdzie entropy(t) < 0.8*max(entropy[:len/2])  (fallback)
+                  ELSE (jesli len(snapshots) < 20) = 0                        (degeneracja strukturalna, patrz P3/robustness)
+```
+`entropy` = trajektoria snapshotow (Read-Only Observer, v0.10). Snapshoty
+indeksowane od tick=0 W CALYM przebiegu (nie od jakiegokolwiek zdarzenia -
+"start szukania" to poczatek CALEGO runu, nie poczatek "nowego rezimu" jak
+sugerowalaby nazwa "Adaptation").
+
+**Domena zastosowania - UKRYTE ZALOZENIE:** formula zaklada, ze entropia
+jest NIESTABILNA na poczatku przebiegu i STABILIZUJE SIE w pewnym momencie.
+Jesli entropia jest stabilna OD SAMEGO POCZATKU (np. genom z wysokim
+`decay_rate`, gdzie rozpad pamieci dominuje nad szumem srodowiska - patrz
+`RAPORT_v0.10.md`), formula wykrywa to jako "koniec chaosu" natychmiast
+(najwczesniejszy mozliwy `t=10`) - NIE dlatego, ze system "szybko sie
+zaadaptowal", tylko dlatego, ze NIGDY NIE BYL w stanie chaosu do adaptacji.
+Formula nie odroznia tych dwoch sytuacji.
 
 **Co mierzy:** tick, w którym `_find_chaos_end()` wykrywa koniec
 POCZĄTKOWEJ niestabilności entropii (rolling std<0.02 w oknie 10 ticków) —
@@ -274,6 +405,10 @@ nie jest zdegenerowana, jest bardzo dyskryminująca, nie słabo.
 
 ## Exploration
 
+**Formalna definicja (P1):** nie dotyczy — `act()` nie ma zadnego
+mechanizmu wyboru (czysty `return brain.last_input`), zero zmiennej do
+sformalizowania.
+
 **Co mierzy:** nic — `not yet measured`, `act()` to czyste echo bodźca, brak
 mechanizmu wyboru działania.
 **Kiedy wymaga innej interpretacji:** jak Perception.
@@ -281,6 +416,12 @@ mechanizmu wyboru działania.
 ---
 
 ## Generalization
+
+**Formalna definicja (P1):** nie dotyczy — zaden endpoint nie porownuje
+wyniku treningu na scenariuszu A z testem na scenariuszu B w ramach
+JEDNEGO przebiegu (co odroznialoby to od Adaptation/Stability, gdzie
+rozne srodowiska sa PORÓWNYWANE MIĘDZY SOBĄ, ale kazde osobno, nie jako
+transfer).
 
 **Co mierzy:** nic — `not yet measured`, brak lekcji trenującej na jednym
 scenariuszu i testującej na innym w ramach tego samego przebiegu.
@@ -293,6 +434,10 @@ jest treningiem i testem na TYM SAMYM środowisku, nie transferem.
 
 ## Planning
 
+**Formalna definicja (P1):** nie dotyczy — `act()` dziala na pojedynczym
+ticku, brak jakiegokolwiek stanu reprezentujacego sekwencje/horyzont do
+sformalizowania.
+
 **Co mierzy:** nic — `not yet measured`, `act()` nie ma pojęcia sekwencji
 ani horyzontu czasowego.
 **Kiedy wymaga innej interpretacji:** jak Perception.
@@ -300,6 +445,28 @@ ani horyzontu czasowego.
 ---
 
 ## Stability (`stability_score`)
+
+**Formalna definicja (P1):**
+```
+error(t)        = |1 - energy(t)|                              (PROXY - snapshoty nie maja bezposredniego bledu predykcji)
+stability_score = 1 / ( std(entropy[0:T]) + std(error[0:T]) + 1e-6 )     (T = caly przebieg, wszystkie snapshoty)
+```
+
+**UKRYTE ZALOZENIE - PROXY, NIE PRAWDZIWY BLAD:** `error(t)=|1-energy(t)|`
+NIE jest bledem predykcji (ktorego snapshoty nie przechowuja) - to jest
+ZASTEPCZA wielkosc, zakladajaca ze "energia daleko od 1.0" koreluje z
+"bledem daleko od 0". Ta relacja NIE jest formalnie wyprowadzona z
+`regulate()` (Core) - jest przyjeta jako rozsadne przyblizenie. Jesli
+energia i faktyczny blad predykcji rozjezdzaja sie w jakims reżimie
+genomu/srodowiska, `stability_score` mierzy stabilnosc ENERGII, nie
+stabilnosc SYSTEMU POZNAWCZEGO w potocznym sensie tej nazwy.
+
+**NIELINIOWOSC (odwrotnosc) - male zmiany std dają duze zmiany SI blisko
+zera:** przy `std_total` idacym do 0, `SI` idzie do 1e6 (nie do
+nieskonczonosci, dzieki stalej 1e-6 w mianowniku, ale i tak bardzo duze
+liczby) - std=0.01 daje SI≈99, std=0.02 daje SI≈49 - **SI NIE jest skala
+liniowa "ile razy stabilniejszy"**, tylko odwrotnoscia, co matematycznie
+tlumaczy czesc duzych Cohen's d (patrz nizej).
 
 **Co mierzy:** `1/(std(entropy)+std(error)+1e-6)` na snapshotach całego
 przebiegu — odporność stanu wewnętrznego na fluktuacje.
@@ -331,7 +498,47 @@ funkcją, ale NIE są łączone w jedną pulę CI95 (`cognitive_ontology.md`
 
 ---
 
-## Energy Efficiency (`final_energy`)
+## Final Energy Level (`final_energy`, dawniej "Energy Efficiency")
+
+> **NAPRAWIONE (SPRINT_v0.11.0.md P1, decyzja CTO 2026-07-17, Opcja 1):**
+> pojęcie przemianowane z "Energy Efficiency" na "Final Energy Level" —
+> `final_energy` i wartości (0.460800 default / 0.413800 highly_plastic) bez
+> zmian. To był błąd KATEGORII (efektywność=stosunek, `final_energy`=poziom
+> punktowy), nie błąd nazwy w kategorii operacji matematycznej jak MSE/MAE —
+> nie da się go naprawić samym rename bez ryzyka nowego błędu, patrz niżej
+> "dlaczego nie 'Metabolic Cost'". **Ta oś jest teraz jawnie oznaczona jako
+> ZMIENNA STANU FIZJOLOGICZNEGO, NIE zdolność poznawcza** — patrz
+> "Podsumowanie" na końcu dokumentu i
+> `clos_scientist/capability_analyzer.py:CONCEPT_KIND`. Pełne uzasadnienie
+> trzech rozważanych opcji: `docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md`.
+
+**Dlaczego "Final Energy Level", nie "Metabolic Cost":** audytor zgłosił
+zastrzeżenie zapisane tu wprost, żeby nikt za rok nie "poprawił" nazwy z
+powrotem. `final_energy` mierzy ile energii ZOSTAŁO, nie ile wydano —
+`default=0.4608` (więcej zostało) vs `highly_plastic=0.4138` (mniej
+zostało) oznacza, że `default` miał NIŻSZY koszt metaboliczny mimo WYŻSZEJ
+wartości pola. Metryka nazwana "Metabolic Cost" byłaby odwrotnie
+skorelowana z rzeczywistym kosztem — dokładnie ten sam rodzaj błędu, który
+naprawiliśmy dzisiaj w MSE/MAE. Poprawny "Metabolic Cost" wymagałby
+`initial_energy - final_energy`, co ZMIENIA WARTOŚĆ liczbową i łamie
+zasadę "korekta nazwy, nie pomiaru" — nie zostało zrobione.
+
+**Formalna definicja (P1):**
+```
+final_energy = tissue.energy @ tick = ostatni_tick_przebiegu     (JEDEN PUNKT W CZASIE, nie srednia/calka)
+```
+Zero uśredniania, zero okna czasowego - to jest **pojedyncza wartość
+punktowa** odczytana na końcu (tick=199 dla L1.1, tick=299 dla L1.2).
+
+**NAZWA vs POMIAR (ODKRYCIE, NAPRAWIONE): BYŁA NAJWIEKSZĄ NIEZGODNOŚCIĄ ze
+wszystkich 7 zmierzonych osi.** "Efficiency" (wydajnosc/efektywnosc) z
+definicji jest STOSUNKIEM (output/koszt, korzysc/naklad) - metryka nie jest
+stosunkiem, jest surowym POZIOMEM energii w jednym punkcie czasu. Genom,
+ktory zuzywa duzo energii, ale osiaga swietne wyniki poznawcze, i genom,
+ktory zuzywa malo energii, ale nie robi nic uzytecznego, MOGA miec
+identyczny `final_energy` - "Efficiency" w nazwie obiecywał rozroznienie,
+ktorego metryka NIE dostarczała. **Naprawione:** nazwa "Final Energy Level"
+opisuje dosłownie to, co jest mierzone, zero interpretacji kierunku.
 
 **Co mierzy:** poziom energii `BrainTissue.energy` na koniec przebiegu.
 **Czego NIE mierzy:** efektywności koszt/korzyść względem zadania — nie ma
@@ -379,13 +586,33 @@ wysokim `decay_rate` nie jest błędem infrastruktury, jest realną
 konsekwencją dynamiki, ale sprawia, że liczba w raporcie nie niesie
 informacji różnicującej genomy w tym reżimie.
 
-**Kiedy wymaga innej interpretacji:** Energy Efficiency jest kontekstowo
+**Kiedy wymaga innej interpretacji:** Final Energy Level jest kontekstowo
 zmienna (ROBUST w szoku, FRAGILE bez szoku) bardziej niż jakakolwiek inna
-zmierzona oś — nie zakładać stałej wiarygodności między środowiskami.
+zmierzona oś — nie zakładać stałej wiarygodności między środowiskami. Poza
+tym: to zmienna stanu fizjologicznego, nie zdolność poznawcza (patrz wyżej)
+— "kontekstowo zmienna wiarygodność pomiaru" NIE implikuje "kontekstowo
+zmienna kompetencja poznawcza".
 
 ---
 
 ## Homeostatic Resilience (`recovery_time` / `time_to_sustained_band`)
+
+**Formalna definicja (P1) — JUZ ISTNIEJE w pelnej formie w
+`publications/preregistration_L1_2.json` (`recovery_time_definition`), NIE
+duplikowana tutaj w calosci - skrot:**
+```
+B          = [0.5*homeostasis_target, homeostasis_target]                (pasmo homeostazy)
+t*         = min{ tau >= t_shock : entropy(s) in B, dla wszystkich s w [tau, tau+N-1] }   (N=10)
+recovery_time (a.k.a. time_to_sustained_band) = t* - t_shock, szukane w tau w [t_shock, t_shock+W-N]  (W=150)
+censored   = TRUE, jesli zaden takie t* nie istnieje w oknie -> recovery_time=None
+```
+Nazwa `recovery_time` w kodzie POZOSTAJE, mimo ze §(c) nizej (i
+`cognitive_ontology.md`) stwierdza, ze faktyczny znaczony fenomen to
+USTANOWIENIE, nie POWROT (rozstrzygniete z danych, `pre_shock_in_band_fraction`
+< progu 0.8) — jawny przyklad "nazwa nie zostala zmieniona po tym, jak dane
+pokazaly, ze mierzy inne zjawisko niz zalozono", zachowany celowo dla
+ciaglosci artefaktow (patrz `preregistration_L1_2.json` dla pelnego
+uzasadnienia rewizji).
 
 **Co mierzy:** liczbę ticków od `t_shock` do pierwszego okna N=10 ticków w
 paśmie homeostazy — patrz `cognitive_ontology.md` dla pełnej definicji
@@ -408,42 +635,187 @@ przyrost entropii). **P3 pokazuje, że to nie wyjątek — to WIĘKSZOŚĆ
 przestrzeni parametrów** (18/23 genomów nie osiąga wystarczającej liczby
 nieucenzurowanych obserwacji).
 
-**Kiedy myląca — DWA UKRYTE OGRANICZENIA DZIEDZINY (P2, potwierdzone
-empirycznie w P3):**
+**Historia — DWA UKRYTE OGRANICZENIA DZIEDZINY, ODKRYTE w P2/P3, NAPRAWIONE
+w SPRINT_v0.11.0.md P2 (kod zmieniony, populacja v0.10.1 poniżej NIE
+przeliczona — patrz zastrzeżenie na końcu):**
 
-1. **Name-gate:** `run_shock_recovery()` liczy `t_shock`/`primary_endpoint`/
-   `pre_shock_in_band` WYŁĄCZNIE gdy `scenario == "shock_world"` dosłownie
-   (`lesson_L1_2.py:139`) — NIE gdy scenariusz jest semantycznie "szokowy".
-   P3 potwierdza to empirycznie: Homeostatic Resilience jest
-   **`not_applicable`** (nie "zdegenerowana", dosłownie brak pola) w
-   `stable_world` i `drift_world` — nawet `drift_world`, który ma realną,
-   ciągłą zmienność, nie aktywuje tego endpointu, bo nie nazywa się
-   dosłownie `"shock_world"`.
-2. **Granica t_shock≤150:** `compute_recovery_time()` zakłada
-   `t_shock + W - N ≤ ticks_total-1` (299) — dla `t_shock>159` funkcja
-   dostałaby `KeyError` z `entropy_by_tick` (dziura poza zarejestrowanym
-   zakresem). Populacja NIE natrafiła na ten przypadek (używa
-   `shock_world` z oryginalnym `t_shock∈[20,80]`), ale `long_stable_shock_world`
-   (P2) był świadomie zaprojektowany, by trzymać się PONIŻEJ tej granicy
-   (`t_shock∈[100,150]`) — sama granica pozostaje nietestowana boleśnie,
-   tylko udokumentowana jako znana krawędź domeny.
+1. **Name-gate (NAPRAWIONE).** Do SPRINT_v0.11.0.md P2, `run_shock_recovery()`
+   liczył `t_shock`/`primary_endpoint`/`pre_shock_in_band` WYŁĄCZNIE gdy
+   `scenario == "shock_world"` dosłownie — NIE gdy scenariusz był semantycznie
+   "szokowy". P3 (v0.10.1) potwierdził to empirycznie: Homeostatic Resilience
+   był **`not_applicable`** nawet w scenariuszach z realną, pojedynczą
+   perturbacją (`weak_shock_world`, `long_stable_shock_world`), tylko dlatego,
+   że nazwa się nie zgadzała. **Teraz:** `lesson_L1_2.py` używa
+   `clos_world.scenarios.has_single_perturbation(scenario)` — WŁAŚCIWOŚCI
+   scenariusza (rejestr `SINGLE_PERTURBATION_SCENARIOS`), nie jego nazwy.
+   `weak_shock_world`/`long_stable_shock_world` liczą teraz endpoint;
+   `recurring_shock_world` nadal go nie dostaje, ale świadomie — ma
+   WIELOKROTNE perturbacje, nie pasuje do modelu "jeden `t_shock`" (prawdziwy
+   brak zastosowania konstruktu, nie name-gate). Regresja: `shock_world`
+   (0.156712/0.173229/15.4) bez zmian — `tests/test_genome_params_regression.py`
+   zielony.
+2. **Granica t_shock (SKORYGOWANA I EGZEKWOWANA).** `compute_recovery_time()`
+   czyta `entropy_by_tick` aż do indeksu `t_shock+W-1` (nie tylko do
+   `deadline=t_shock+W-N`, jak poprzednia wersja tego dokumentu błędnie
+   zakładała) — poprawny warunek to `t_shock ≤ ticks_total-W` = **150**, nie
+   159 jak poprzednio udokumentowano (pomyłka o `N-1=9`, sama nigdy nie
+   ujawniona bo żaden zarejestrowany scenariusz jej nie przekraczał).
+   Naruszenie tego warunku (lub `t_shock<N` dla `pre_shock_in_band`) podnosi
+   teraz jawnie `RecoveryWindowOutOfDomainError` (metryka/scenariusz/warunek/
+   powód) zamiast cichego pominięcia lub niejasnego `KeyError` — zasada
+   nadrzędna 1 tego sprintu. `long_stable_shock_world` (`t_shock∈[100,150]`)
+   zostaje dokładnie na tej granicy, nigdy jej nie przekracza.
+
+**Zastrzeżenie o danych poniżej:** naprawa dotyczy WYŁĄCZNIE mechanizmu
+pomiaru w kodzie. Artefakt `reports/population/population_validation_v0_10_1.json`
+(P3, poniższe liczby) nadal obejmuje TYLKO `shock_world`/`stable_world`/
+`drift_world` (`LESSON_ENVIRONMENTS["L1.2"]` w `population_validation.py` nie
+zmienione) — `weak_shock_world`/`long_stable_shock_world` NIE mają populacyjnej
+walidacji Homeostatic Resilience, ta naprawa umożliwia ją dopiero w
+przyszłości. Liczby poniżej (`valid_rate=21.74%` itd.) są więc dokładnie te
+same, sprzed i po tej naprawie.
 
 **Kiedy wymaga innej interpretacji:** interpretując Homeostatic Resilience
-dla NOWEGO genomu/środowiska, zawsze sprawdzić najpierw: (a) czy scenariusz
-nazywa się dosłownie `"shock_world"` (inaczej pole nie istnieje wcale), (b)
-jaki jest `decay_rate` tego genomu (silny predyktor cenzurowania, patrz P3),
-(c) czy `t_shock` mógłby przekroczyć 159 dla `ticks_total=300`.
+dla NOWEGO genomu/środowiska, sprawdzić: (a) czy
+`clos_world.scenarios.has_single_perturbation(scenario)` (nie: czy nazwa to
+dosłownie `"shock_world"`), (b) jaki jest `decay_rate` tego genomu (silny
+predyktor cenzurowania, patrz P3), (c) czy `t_shock` mógłby przekroczyć 150
+dla `ticks_total=300` (teraz: jeśli tak, dostaniesz jawny wyjątek, nie cichy
+błąd).
 
 ---
 
-## Podsumowanie: 7 zmierzonych osi wg profilu degeneracji
+## Podsumowanie: 6 osi poznawczych + 1 zmienna stanu fizjologicznego
 
-| Oś | ROBUST wszędzie poza kontrolą? | Dyskryminuje po FDR? | Główny mechanizm ograniczenia |
-|---|---|---|---|
-| Pattern Recognition | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — (metryka czysta, ale bez sygnału w tej populacji) |
-| Pattern Retention | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — |
-| Working Memory | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — (patrz "Kluczowe odkrycie") |
-| Stability | Tak (4/4 środ. nie-kontrolnych) | **Tak, silnie** (82-92%) | mała wariancja resztowa → duże Cohen's d, ostrożna interpretacja |
-| Adaptation | **Nie** (35-43% w L1.1, 0% w L1.2) | Tak, gdy mierzalna | *hipoteza post-hoc, niepotwierdzona:* wysoki `decay_rate` → przedwczesna detekcja końca chaosu |
-| Energy Efficiency | **Częściowo** (39-100% zależnie od kontekstu) | Tak, gdy mierzalna | *hipoteza post-hoc, niepotwierdzona:* wysoki `decay_rate` → spłaszczenie energii między seedami |
-| Homeostatic Resilience | **Nie** (22% w shock_world, n/a gdzie indziej) | Tak, w małej próbce | cenzurowanie (większość populacji) + name-gate + granica t_shock |
+> **SPRINT_v0.11.0.md P1 (decyzja CTO 2026-07-17):** z 7 wierszy poniżej,
+> **6 to osie poznawcze** (zmierzone zdolności lub kandydaci na nie —
+> Pattern Recognition, Pattern Retention, Working Memory, Stability,
+> Adaptation, Homeostatic Resilience) i **1 to zmienna stanu
+> fizjologicznego** (Final Energy Level, dawniej "Energy Efficiency") — NIE
+> zdolność poznawcza, mierzy stan systemu, nie jego kompetencję. Ta sama
+> tabela je grupuje, bo obie kategorie przechodzą przez ten sam pipeline
+> pomiaru (Measurement/Construct/Power/Confirmatory) — rozróżnienie
+> kategorii jest dodatkowe, nie zastępuje tabeli. Pełne uzasadnienie:
+> `docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md`;
+> `publications/competency_profile.json` niesie to samo rozróżnienie jawnie
+> w polu `minimal_profile.cognitive_axes` vs
+> `minimal_profile.physiological_state_variables`.
+
+| Oś | Kategoria | ROBUST wszędzie poza kontrolą? | Dyskryminuje po FDR? | Główny mechanizm ograniczenia |
+|---|---|---|---|---|
+| Pattern Recognition | poznawcza | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — (metryka czysta, ale bez sygnału w tej populacji) |
+| Pattern Retention | poznawcza | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — |
+| Working Memory | poznawcza | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — (patrz "Kluczowe odkrycie") |
+| Stability | poznawcza | Tak (4/4 środ. nie-kontrolnych) | **Tak, silnie** (82-92%) | mała wariancja resztowa → duże Cohen's d, ostrożna interpretacja |
+| Adaptation | poznawcza | **Nie** (35-43% w L1.1, 0% w L1.2) | Tak, gdy mierzalna | *hipoteza post-hoc, niepotwierdzona:* wysoki `decay_rate` → przedwczesna detekcja końca chaosu |
+| Final Energy Level | **stan fizjologiczny** | **Częściowo** (39-100% zależnie od kontekstu) | Tak, gdy mierzalna | *hipoteza post-hoc, niepotwierdzona:* wysoki `decay_rate` → spłaszczenie energii między seedami |
+| Homeostatic Resilience | poznawcza | **Nie** (22% w shock_world, n/a gdzie indziej) | Tak, w małej próbce | cenzurowanie (większość populacji); name-gate NAPRAWIONY i granica t_shock skorygowana/egzekwowana (SPRINT_v0.11.0.md P2), populacja P3 nieprzeliczona |
+
+---
+
+## Cztery statusy walidacji per metryka × kontekst (SPRINT_v0.11.0.md P3)
+
+**Zadanie CTO:** jeden label ("ROBUST"/"FRAGILE") miesza ze sobą pytania,
+które są NIEZALEŻNE. Tabela niżej rozdziela je na cztery kolumny, osobno dla
+KAŻDEJ z 30 kombinacji (lekcja, środowisko, metryka) obecnych w
+`reports/population/population_validation_v0_10_1.json`:
+
+1. **Measurement validity** — czy metryka w tym kontekście daje wiarygodny
+   (CI95-ważny, `n_effective≥5`) wynik dla ≥80% populacji? Źródło: pole
+   `classification`/`valid_rate` w artefakcie P3, bez zmian.
+2. **Construct validity** — czy metryka mierzy to, co sugeruje jej nazwa?
+   Źródło: formalne definicje (P1, sekcje wyżej w tym dokumencie) i sekcje
+   "Czego NIE mierzy" — NIE duplikowane tutaj w całości, tylko przywołane
+   przypisem.
+3. **Power validity** — czy próbka (n=10/genom) ma moc statystyczną
+   wystarczającą do wykrycia efektu takiej wielkości, jaki faktycznie
+   zaobserwowano? **PENDING dla wszystkich 30 wierszy** — wymaga re-runu wg
+   `publications/preregistration_v0_11_0_power_reproduction.json`, decyzja
+   CTO (Wariant A/B/C) w toku, re-run WSTRZYMANY.
+4. **Confirmatory validity** — czy wynik replikuje się w NIEZALEŻNEJ,
+   prerejestrowanej próbie (nie tej, na której został po raz pierwszy
+   zaobserwowany)? **PENDING dla wszystkich 30 wierszy** — z definicji nie
+   może być odpowiedziane przed re-runem; obecny zbiór jest w całości
+   eksploracyjny (Exploratory Dataset v0.10).
+
+Legenda: ✔ = spełnione · ✘ = niespełnione/problematyczne · ◐ = częściowe,
+z zastrzeżeniami · — = nie dotyczy (konstrukt/pomiar nie istnieje w tym
+kontekście, NIE porażka).
+
+| Lekcja | Środowisko | Metryka | Measurement | Construct | Power | Confirmatory |
+|---|---|---|---|---|---|---|
+| L1.1 | noise_world | Working Memory | ✔ | ◐¹ | PENDING | PENDING |
+| L1.1 | noise_world | Adaptation | ✘ | ✘² | PENDING | PENDING |
+| L1.1 | noise_world | Stability | ✔ | ◐³ | PENDING | PENDING |
+| L1.1 | noise_world | Pattern Recognition | ✔ | ◐⁴ | PENDING | PENDING |
+| L1.1 | noise_world | Pattern Retention | ✔ | ◐⁵ | PENDING | PENDING |
+| L1.1 | noise_world | Final Energy Level | ✘ | ✘⁶ | PENDING | PENDING |
+| L1.1 | stable_world | Working Memory | ✘⁷ | ◐¹ | PENDING | PENDING |
+| L1.1 | stable_world | Adaptation | ✘⁷ | ✘² | PENDING | PENDING |
+| L1.1 | stable_world | Stability | ✘⁷ | ◐³ | PENDING | PENDING |
+| L1.1 | stable_world | Pattern Recognition | ✘⁷ | ◐⁴ | PENDING | PENDING |
+| L1.1 | stable_world | Pattern Retention | ✘⁷ | ◐⁵ | PENDING | PENDING |
+| L1.1 | stable_world | Final Energy Level | ✘⁷ | ✘⁶ | PENDING | PENDING |
+| L1.1 | drift_world | Working Memory | ✔ | ◐¹ | PENDING | PENDING |
+| L1.1 | drift_world | Adaptation | ✘ | ✘² | PENDING | PENDING |
+| L1.1 | drift_world | Stability | ✔ | ◐³ | PENDING | PENDING |
+| L1.1 | drift_world | Pattern Recognition | ✔ | ◐⁴ | PENDING | PENDING |
+| L1.1 | drift_world | Pattern Retention | ✔ | ◐⁵ | PENDING | PENDING |
+| L1.1 | drift_world | Final Energy Level | ✘ | ✘⁶ | PENDING | PENDING |
+| L1.2 | shock_world | Homeostatic Resilience | ✘ | ✘⁸ | PENDING | PENDING |
+| L1.2 | shock_world | Adaptation | ✘ | ✘² | PENDING | PENDING |
+| L1.2 | shock_world | Stability | ✔ | ◐³ | PENDING | PENDING |
+| L1.2 | shock_world | Final Energy Level | ✔ | ✘⁶ | PENDING | PENDING |
+| L1.2 | stable_world | Homeostatic Resilience | —⁹ | —⁹ | PENDING | PENDING |
+| L1.2 | stable_world | Adaptation | ✘⁷ | ✘² | PENDING | PENDING |
+| L1.2 | stable_world | Stability | ✘⁷ | ◐³ | PENDING | PENDING |
+| L1.2 | stable_world | Final Energy Level | ✘⁷ | ✘⁶ | PENDING | PENDING |
+| L1.2 | drift_world | Homeostatic Resilience | —⁹ | —⁹ | PENDING | PENDING |
+| L1.2 | drift_world | Adaptation | ✘ | ✘² | PENDING | PENDING |
+| L1.2 | drift_world | Stability | ✔ | ◐³ | PENDING | PENDING |
+| L1.2 | drift_world | Final Energy Level | ✘ | ✘⁶ | PENDING | PENDING |
+
+**Podsumowanie Measurement validity (30 wierszy, zgodne z klasyfikacją P3):**
+✔ 11 · ✘ (środowiska eksperymentalne) 8 · ✘⁷ (kontrola, oczekiwane) 9 · — 2.
+
+¹ **Working Memory:** `silence_after_50` puste → domyślnie **1.0 CICHO**
+(nie wyjątkiem) — narusza zasadę nadrzędną 1 tego sprintu.
+**NIENAPRAWIONE w tym sprincie** (P2 objął wyłącznie name-gate L1.2, nie ten
+silny-domyślny w L1.1) — kandydat do osobnego priorytetu.
+² **Adaptation:** `_find_chaos_end()` daje false-positive "natychmiastowa
+adaptacja" (`adaptation_tick=0`) dla genomów o wysokim `decay_rate` —
+hipoteza post-hoc `decay_rate≈0.035`, nieprzetestowana niezależnie (sekcja
+Adaptation wyżej, `docs/CURRENT_SCIENTIFIC_LIMITS.md` §5).
+³ **Stability:** `error(t)=|1-energy(t)|` to PROXY energii (nie realny błąd
+predykcji); `SI=1/(std+std+ε)` to skala odwrotna nieliniowa — utrudnia
+interpretację wartości bezwzględnej (nie tylko porównawczej).
+⁴ **Pattern Recognition:** dawna nazwa pola `mse_stimulus_phase` sugerowała
+błąd kwadratowy, formuła zawsze była błędem bezwzględnym (MAE) — **pole
+przemianowane na `mae_stimulus_phase` (SPRINT_v0.11.0.md P1, Wariant c,
+2026-07-15)**, wartości bez zmian. Construct nadal ◐, nie ✔, bo "Recognition"
+w nazwie pojęcia (nie pola) nadal sugeruje osąd binarny, którego metryka nie
+daje — sam konstrukt (błąd predykcji podczas bodźca) pozostaje sensowny.
+⁵ **Pattern Retention:** `memory_decay_rate` może być UJEMNY (przyrost, nie
+spadek błędu) i zakłada liniowy zanik — nazwa "decay" zakłada kierunek,
+którego dane nie gwarantują.
+⁶ **Final Energy Level (dawniej "Energy Efficiency"):** pojedyncza wartość
+energii w OSTATNIM ticku, NIE stosunek/wydajność — był to największy
+mismatch nazwa/pomiar spośród 7 zmierzonych osi, **naprawiony rename na
+"Final Energy Level"** (SPRINT_v0.11.0.md P1, sekcja wyżej) — Construct
+nadal ✘ tutaj oznacza cos innego niz w pozostalych osiach: to nie mismatch
+nazwa/formula (naprawiony), tylko fakt, ze ta os to zmienna stanu
+fizjologicznego, nie zdolnosc poznawcza (patrz "Podsumowanie" ponizej).
+⁷ `stable_world` to KONTROLA deterministyczna — `n_effective=1` dla każdej
+metryki każdego genomu jest OCZEKIWANYM dowodem działania mechanizmu
+CI95/pseudoreplikacji (`RESEARCH_READINESS_REPORT.md` §1.2), NIE usterką
+pomiaru. "✘" tutaj ma inne znaczenie niż w środowiskach eksperymentalnych —
+nie interpretować jako porażkę metryki.
+⁸ **Homeostatic Resilience:** nazwa `recovery_time` metodologicznie myląca —
+mierzy USTANOWIENIE (`time_to_sustained_band`), nie POWRÓT;
+`pre_shock_in_band_fraction` < progu 0.8 potwierdza to empirycznie (sekcja
+Homeostatic Resilience wyżej).
+⁹ `stable_world`/`drift_world` w L1.2: Homeostatic Resilience nie ma tu
+ZASTOSOWANIA (brak zdarzenia perturbacyjnego do zmierzenia) — to NIE jest
+name-gate (naprawiony w SPRINT_v0.11.0.md P2, sekcja Homeostatic Resilience
+wyżej), to prawdziwy brak konstruktu w tych środowiskach. Measurement i
+Construct oznaczone "—" (nie dotyczy), nie "✘".

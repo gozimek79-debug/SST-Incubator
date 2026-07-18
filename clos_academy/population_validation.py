@@ -35,18 +35,18 @@ LESSON_ENVIRONMENTS = {
 }
 
 L1_1_METRICS = {
-    "primary_endpoint_value": "Working Memory (MSE@50)",
+    "primary_endpoint_value": "Working Memory (MAE@50)",  # SPRINT_v0.11.0.md P1: MSE->MAE, wartosc bez zmian
     "adaptation_tick": "Adaptation",
     "stability_score": "Stability",
-    "mse_stimulus_phase": "Pattern Recognition",
+    "mae_stimulus_phase": "Pattern Recognition",  # SPRINT_v0.11.0.md P1: bylo mse_stimulus_phase
     "memory_decay_rate": "Pattern Retention",
-    "final_energy": "Energy Efficiency",
+    "final_energy": "Final Energy Level",  # SPRINT_v0.11.0.md P1: bylo "Energy Efficiency" (blad kategorii, nie nazwy - patrz docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md), zmienna stanu fizjologicznego nie zdolnosc poznawcza
 }
 L1_2_METRICS = {
     "primary_endpoint_value": "Homeostatic Resilience (recovery_time)",
     "adaptation_tick": "Adaptation",
     "stability_score": "Stability",
-    "final_energy": "Energy Efficiency",
+    "final_energy": "Final Energy Level",  # SPRINT_v0.11.0.md P1: bylo "Energy Efficiency" (blad kategorii, nie nazwy - patrz docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md), zmienna stanu fizjologicznego nie zdolnosc poznawcza
 }
 
 
@@ -167,6 +167,10 @@ def run_population_validation(verbose: bool = True) -> Dict[str, Any]:
     population = generate_population()
     report: Dict[str, Any] = {
         "study_id": "v0.10.1_population_validation",
+        "dataset_status": ("Exploratory Dataset v0.10 (SPRINT_v0.11.0.md P0) - n=10/genom, moc statystyczna "
+                            "niska po korekcie na wielokrotne porownania dla wiekszosci osi. Nie poprawiane, "
+                            "nie wycofywane. Power/Confirmatory validity: PENDING do re-run zatwierdzonego "
+                            "przez CTO. Patrz publications/preregistration_v0_11_0_power_reproduction.json."),
         "preregistration": "publications/preregistration_v0_10_1_population.json",
         "population_sampling_seed": POPULATION_SAMPLING_SEED,
         "git_commit": _git_commit(),

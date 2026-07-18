@@ -9,5 +9,9 @@
   "manifest_version": 1,
   "bundled_at": "2026-07-13T21:13:16.698585",
   "total_runs": 40,
-  "reproducible": true
+  "reproducible": true,
+  "status": "Frozen Historical Artifact",
+  "frozen": true,
+  "frozen_reason": "Bundle regenerowany 2026-07-13, pod polami mse_stimulus_phase/mse_silence_phase/primary_endpoint.metric=mse_vs_pattern_after_stimulus_removal. SPRINT_v0.11.0.md P1 (2026-07-15/17, Wariant c, decyzja CTO) naprawil nazwe tych pol na mae_stimulus_phase/mae_silence_phase/mae_vs_pattern_after_stimulus_removal w kodzie (abs(), nie kwadrat - bylo MAE od zawsze, nie MSE) - patrz publications/preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json. Ten bundle NIE zostal zregenerowany po tej korekcie: byl juz opublikowany i niezaleznie zreplikowany w slepym tescie (Linux/Python 3.12, docs/REPLICATION.md) POD STARYMI nazwami pol. Regeneracja teraz stworzylaby pozor retroaktywnej zmiany historii publikacji bez realnej korzysci (wartosci liczbowe identyczne) - patrz docs/MSE_MAE_NAMING_DECISION.md Wariant (c), punkt 3. frozen=true jest JEDYNYM dopuszczalnym wyjatkiem od zasady 'kod==artefakt' (scripts/validate_bundle_freshness.py) i wymaga tego pola + regeneration_expected_diff, inaczej walidator FAIL.",
+  "regeneration_expected_diff": "Gdyby ten bundle zostal zregenerowany biezacym kodem (clos_academy/publish_L1_1.py), w kazdym z 40 plikow runs/run_*.json zmienilyby sie WYLACZNIE nazwy kluczy: mse_stimulus_phase->mae_stimulus_phase, mse_silence_phase->mae_silence_phase, primary_endpoint.metric: 'mse_vs_pattern_after_stimulus_removal'->'mae_vs_pattern_after_stimulus_removal'. ZERO zmiany wartosci liczbowych - primary_endpoint.value, mae_stimulus_phase/mae_silence_phase (dawniej mse_*), memory_decay_rate, stability_score, final_energy, final_entropy, memory_size pozostaja bajtowo identyczne (zweryfikowane: test_genome_params_regression.py, mean default=0.156712, mean highly_plastic=0.173229, bez zmian po korekcie nazwy). metadata.json (ten plik) zmienilby git_commit/config_hash/manifest_hash/timestamp/bundled_at na nowe wartosci z chwili regeneracji."
 }

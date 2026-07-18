@@ -73,7 +73,7 @@ CONCEPT_METRIC_MAP = {
     "Perception": None,
     "Attention": None,
     "Pattern Recognition": [
-        {"lesson": "L1.1", "extract": lambda r: r["mse_stimulus_phase"]},
+        {"lesson": "L1.1", "extract": lambda r: r["mae_stimulus_phase"]},  # SPRINT_v0.11.0.md P1: bylo mse_stimulus_phase
     ],
     "Pattern Retention": [
         {"lesson": "L1.1", "extract": lambda r: r["memory_decay_rate"]},
@@ -107,7 +107,7 @@ CONCEPT_METRIC_MAP = {
         # genomu, czy nie, to osobna decyzja naukowa, swiadomie odlozona poza
         # zakres P4 (SPRINT_v0.10.md p.2 pytal wprost tylko o Adaptation).
     ],
-    "Energy Efficiency": [
+    "Final Energy Level": [  # SPRINT_v0.11.0.md P1: bylo "Energy Efficiency" - patrz CONCEPT_KIND ponizej
         {"lesson": "L1.1", "extract": lambda r: r["final_energy"]},
     ],
     "Homeostatic Resilience": [
@@ -116,6 +116,32 @@ CONCEPT_METRIC_MAP = {
         {"lesson": "L1.2", "extract": lambda r: r["primary_endpoint"]["value"]},
     ],
 }
+
+# SPRINT_v0.11.0.md P1 (decyzja CTO 2026-07-17): "Energy Efficiency" bylo
+# BLEDEM KATEGORII, nie nazwy - final_energy to POZIOM energii w ostatnim
+# ticku, nie STOSUNEK efekt/naklad (efektywnosc). W kodzie NIE ISTNIEJE
+# zadna formula efektywnosci, i nie ma czego dzielic przez energie, bo
+# act() jest echem (system nie ma wyjscia) - patrz
+# docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md. CTO wybral Opcje 1: rename
+# na "Final Energy Level" (doslownie to, co mierzy, zero interpretacji).
+# UWAGA dla przyszlych czytelnikow: "Metabolic Cost" byl ROZWAZANY i
+# ODRZUCONY - final_energy mierzy ile energii ZOSTALO (wiecej = nizszy
+# koszt), wiec "Cost" bylby ODWROTNIE skorelowany z wartoscia pola
+# (dokladnie ten sam rodzaj bledu co MSE/MAE). Poprawny "Metabolic Cost"
+# wymagalby initial_energy - final_energy, co ZMIENIA WARTOSC i lamie
+# bramke regresji (0.156712/0.173229/15.4 dotyczy innych metryk, ale
+# zasada "nie zmieniamy wartosci przy naprawie nazwy" jest ta sama). NIE
+# "poprawiac" tej nazwy z powrotem na "Metabolic Cost" bez ponownego
+# przeliczenia formuly.
+#
+# To pole odroznia OS POZNAWCZA (kandydata na zdolnosc poznawcza, mierzona
+# lub nie) od ZMIENNEJ STANU FIZJOLOGICZNEGO (mierzy stan systemu, nie jego
+# zdolnosc do czegokolwiek). "Final Energy Level" jest JEDYNYM pojeciem w
+# CONCEPT_METRIC_MAP oznaczonym jako "physiological_state" - wszystkie
+# pozostale (mierzone lub insufficient_data) to "cognitive" (zdolnosc
+# poznawcza zmierzona LUB kandydat na nia, patrz cognitive_ontology.md).
+CONCEPT_KIND = {concept: "cognitive" for concept in CONCEPT_METRIC_MAP}
+CONCEPT_KIND["Final Energy Level"] = "physiological_state"
 
 
 def _load_json(path: Path) -> Optional[Dict[str, Any]]:
@@ -163,6 +189,7 @@ def _insufficient(concept: str, source_lessons: List[str],
     return {
         "concept": concept,
         "status": "insufficient_data",
+        "kind": CONCEPT_KIND.get(concept, "cognitive"),
         "source_lesson": ", ".join(source_lessons) if source_lessons else None,
         "source_lessons": list(source_lessons),
         "genomes": {},
@@ -263,6 +290,7 @@ def analyze_concept(concept: str, mappings: Optional[List[Dict[str, Any]]],
     return {
         "concept": concept,
         "status": "measured",
+        "kind": CONCEPT_KIND.get(concept, "cognitive"),
         "source_lesson": ", ".join(pooled_lessons),
         "source_lessons": pooled_lessons,
         "genomes": genomes_out,

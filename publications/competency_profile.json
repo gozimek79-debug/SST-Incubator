@@ -1,5 +1,6 @@
 {
-  "generated_at": "2026-07-13T21:13:25.615396",
+  "generated_at": "2026-07-17T05:16:23.109127",
+  "dataset_status": "Exploratory Dataset v0.10 (SPRINT_v0.11.0.md P0) - profil oparty na n=10/genom (2 genomy anchor: default, highly_plastic). Moc statystyczna wystarcza tylko dla efektow bardzo duzych po korekcie. Nie poprawiane, nie wycofywane. Power/Confirmatory validity: PENDING do re-run zatwierdzonego przez CTO. Patrz publications/preregistration_v0_11_0_power_reproduction.json.",
   "summary": {
     "total_concepts": 14,
     "measured": 7,
@@ -8,20 +9,33 @@
     "degenerate": 0
   },
   "minimal_profile": {
-    "description": "Oficjalny profil kompetencji - WYLACZNIE pojecia, dla ktorych wszystkie obecne genomy maja ci95_valid=True.",
+    "description": "Oficjalny profil kompetencji - WYLACZNIE pojecia, dla ktorych wszystkie obecne genomy maja ci95_valid=True. UWAGA: to NIE jest jednorodna lista zdolnosci poznawczych - patrz cognitive_axes vs physiological_state_variables ponizej.",
     "axes": [
       "Pattern Recognition",
       "Pattern Retention",
       "Working Memory",
       "Adaptation",
       "Stability",
-      "Energy Efficiency",
+      "Final Energy Level",
       "Homeostatic Resilience"
     ],
+    "cognitive_axes": [
+      "Pattern Recognition",
+      "Pattern Retention",
+      "Working Memory",
+      "Adaptation",
+      "Stability",
+      "Homeostatic Resilience"
+    ],
+    "physiological_state_variables": [
+      "Final Energy Level"
+    ],
+    "cognitive_vs_physiological_note": "6 osi poznawczych (zmierzonych zdolnosci lub kandydatow na nie) + 1 zmienna(ych) stanu fizjologicznego. Zmienna stanu fizjologicznego mierzy STAN systemu (np. poziom energii), NIE jego zdolnosc do czegokolwiek - nie sumowac z osiami poznawczymi jako rownowazne wpisy 'kompetencji'.",
     "concepts": [
       {
         "concept": "Pattern Recognition",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -58,6 +72,7 @@
       {
         "concept": "Pattern Retention",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -94,6 +109,7 @@
       {
         "concept": "Working Memory",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -130,6 +146,7 @@
       {
         "concept": "Adaptation",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -194,6 +211,7 @@
       {
         "concept": "Stability",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -228,8 +246,9 @@
         "secondary_observations": []
       },
       {
-        "concept": "Energy Efficiency",
+        "concept": "Final Energy Level",
         "status": "measured",
+        "kind": "physiological_state",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -266,6 +285,7 @@
       {
         "concept": "Homeostatic Resilience",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.2",
         "source_lessons": [
           "L1.2"
@@ -293,6 +313,7 @@
       {
         "concept": "Pattern Recognition",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -329,6 +350,7 @@
       {
         "concept": "Pattern Retention",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -365,6 +387,7 @@
       {
         "concept": "Working Memory",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -401,6 +424,7 @@
       {
         "concept": "Adaptation",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -465,6 +489,7 @@
       {
         "concept": "Stability",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -499,8 +524,9 @@
         "secondary_observations": []
       },
       {
-        "concept": "Energy Efficiency",
+        "concept": "Final Energy Level",
         "status": "measured",
+        "kind": "physiological_state",
         "source_lesson": "L1.1",
         "source_lessons": [
           "L1.1"
@@ -537,6 +563,7 @@
       {
         "concept": "Homeostatic Resilience",
         "status": "measured",
+        "kind": "cognitive",
         "source_lesson": "L1.2",
         "source_lessons": [
           "L1.2"
@@ -562,6 +589,7 @@
       {
         "concept": "Perception",
         "status": "insufficient_data",
+        "kind": "cognitive",
         "source_lesson": null,
         "source_lessons": [],
         "genomes": {},
@@ -571,6 +599,7 @@
       {
         "concept": "Attention",
         "status": "insufficient_data",
+        "kind": "cognitive",
         "source_lesson": null,
         "source_lessons": [],
         "genomes": {},
@@ -580,6 +609,7 @@
       {
         "concept": "Long-term Memory",
         "status": "insufficient_data",
+        "kind": "cognitive",
         "source_lesson": null,
         "source_lessons": [],
         "genomes": {},
@@ -589,6 +619,7 @@
       {
         "concept": "Prediction",
         "status": "insufficient_data",
+        "kind": "cognitive",
         "source_lesson": null,
         "source_lessons": [],
         "genomes": {},
@@ -598,6 +629,7 @@
       {
         "concept": "Exploration",
         "status": "insufficient_data",
+        "kind": "cognitive",
         "source_lesson": null,
         "source_lessons": [],
         "genomes": {},
@@ -607,6 +639,7 @@
       {
         "concept": "Generalization",
         "status": "insufficient_data",
+        "kind": "cognitive",
         "source_lesson": null,
         "source_lessons": [],
         "genomes": {},
@@ -616,6 +649,7 @@
       {
         "concept": "Planning",
         "status": "insufficient_data",
+        "kind": "cognitive",
         "source_lesson": null,
         "source_lessons": [],
         "genomes": {},
@@ -628,6 +662,7 @@
     {
       "concept": "Perception",
       "status": "insufficient_data",
+      "kind": "cognitive",
       "source_lesson": null,
       "source_lessons": [],
       "genomes": {},
@@ -637,6 +672,7 @@
     {
       "concept": "Attention",
       "status": "insufficient_data",
+      "kind": "cognitive",
       "source_lesson": null,
       "source_lessons": [],
       "genomes": {},
@@ -646,6 +682,7 @@
     {
       "concept": "Pattern Recognition",
       "status": "measured",
+      "kind": "cognitive",
       "source_lesson": "L1.1",
       "source_lessons": [
         "L1.1"
@@ -682,6 +719,7 @@
     {
       "concept": "Pattern Retention",
       "status": "measured",
+      "kind": "cognitive",
       "source_lesson": "L1.1",
       "source_lessons": [
         "L1.1"
@@ -718,6 +756,7 @@
     {
       "concept": "Working Memory",
       "status": "measured",
+      "kind": "cognitive",
       "source_lesson": "L1.1",
       "source_lessons": [
         "L1.1"
@@ -754,6 +793,7 @@
     {
       "concept": "Long-term Memory",
       "status": "insufficient_data",
+      "kind": "cognitive",
       "source_lesson": null,
       "source_lessons": [],
       "genomes": {},
@@ -763,6 +803,7 @@
     {
       "concept": "Prediction",
       "status": "insufficient_data",
+      "kind": "cognitive",
       "source_lesson": null,
       "source_lessons": [],
       "genomes": {},
@@ -772,6 +813,7 @@
     {
       "concept": "Adaptation",
       "status": "measured",
+      "kind": "cognitive",
       "source_lesson": "L1.1",
       "source_lessons": [
         "L1.1"
@@ -836,6 +878,7 @@
     {
       "concept": "Exploration",
       "status": "insufficient_data",
+      "kind": "cognitive",
       "source_lesson": null,
       "source_lessons": [],
       "genomes": {},
@@ -845,6 +888,7 @@
     {
       "concept": "Generalization",
       "status": "insufficient_data",
+      "kind": "cognitive",
       "source_lesson": null,
       "source_lessons": [],
       "genomes": {},
@@ -854,6 +898,7 @@
     {
       "concept": "Planning",
       "status": "insufficient_data",
+      "kind": "cognitive",
       "source_lesson": null,
       "source_lessons": [],
       "genomes": {},
@@ -863,6 +908,7 @@
     {
       "concept": "Stability",
       "status": "measured",
+      "kind": "cognitive",
       "source_lesson": "L1.1",
       "source_lessons": [
         "L1.1"
@@ -897,8 +943,9 @@
       "secondary_observations": []
     },
     {
-      "concept": "Energy Efficiency",
+      "concept": "Final Energy Level",
       "status": "measured",
+      "kind": "physiological_state",
       "source_lesson": "L1.1",
       "source_lessons": [
         "L1.1"
@@ -935,6 +982,7 @@
     {
       "concept": "Homeostatic Resilience",
       "status": "measured",
+      "kind": "cognitive",
       "source_lesson": "L1.2",
       "source_lessons": [
         "L1.2"
@@ -1058,7 +1106,7 @@
         "deterministic": false
       },
       {
-        "concept": "Energy Efficiency",
+        "concept": "Final Energy Level",
         "status": "measured",
         "source_lesson": "L1.1",
         "value": 0.4608,
@@ -1186,7 +1234,7 @@
         "deterministic": false
       },
       {
-        "concept": "Energy Efficiency",
+        "concept": "Final Energy Level",
         "status": "measured",
         "source_lesson": "L1.1",
         "value": 0.4138,

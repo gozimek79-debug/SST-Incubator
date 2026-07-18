@@ -199,8 +199,12 @@
     });
   }
 
-  /* ================= SVG chart: MSE@50 ± CI95 ================= */
-  function mseChartSvg(genomeRows) {
+  /* ================= SVG chart: MAE@50 ± CI95 =================
+   * SPRINT_v0.11.0.md P1: pole bylo nazwane "MSE" (kod liczyl abs(), nie
+   * kwadrat) - etykieta naprawiona tutaj. passCond.mse_at_tick_50_max
+   * NIE jest zmieniane - to nazwa pola w zamrozonej prerejestracji
+   * (publications/preregistration_L1_1.json), patrz aneks. */
+  function maeChartSvg(genomeRows) {
     var W = 520, H = 220, padL = 48, padR = 16, padT = 18, padB = 34;
     var plotW = W - padL - padR, plotH = H - padT - padB;
     var maxVal = 0;
@@ -245,18 +249,54 @@
 
     return (
       '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" height="210" role="img" ' +
-      'aria-label="MSE po 50 tickach ciszy, srednia z przedzialem ufnosci 95%, per genom">' +
+      'aria-label="MAE po 50 tickach ciszy, srednia z przedzialem ufnosci 95%, per genom">' +
       gridSvg + barsSvg + "</svg>"
     );
   }
 
   /* ================= renderery sekcji ================= */
 
-  function competencyRowState(c) {
-    if (c.status !== "measured") return "insufficient";
-    var genomeKeys = Object.keys(c.genomes || {});
-    var allValid = genomeKeys.length > 0 && genomeKeys.every(function (g) { return c.genomes[g].ci95_valid === true; });
-    return allValid ? "valid" : "degenerate";
+  /* SPRINT_v0.11.0.md P1 (decyzja CTO 2026-07-18): PYTHON JEST JEDYNYM
+   * ZRODLEM klasyfikacji valid/degenerate/insufficient - clos_scientist/
+   * competency_profile.py juz ja liczy i zapisuje w comp.full_profile
+   * (valid/degenerate/insufficient_data, gotowe listy pojec) oraz
+   * comp.minimal_profile (axes/cognitive_axes/physiological_state_variables,
+   * gotowe listy nazw). classifyConcepts() CZYTA te gotowe listy - NIE
+   * liczy niczego. _fallbackClassifyConcepts() istnieje WYLACZNIE na
+   * wypadek starego/niezgodnego competency_profile.json bez pola
+   * full_profile (np. zacache'owany artefakt sprzed tej zmiany) - to jest
+   * FALLBACK, nie zrodlo prawdy. Powod tej zmiany: poprzednia wersja
+   * panelu liczyla klasyfikacje SAMA (competencyRowState()), wiec zmiana
+   * ontologii 6+1 w Pythonie NIE dotarla do panelu automatycznie - "kod
+   * (Python) != artefakt (widok)" w warstwie panelu, bez cracha i bez
+   * ostrzezenia. scripts/validate_panel.py sprawdza teraz statycznie, ze
+   * ten plik nie reimplementuje progow ci95_valid/n_effective poza tą
+   * jedną, jawnie nazwaną funkcją fallbacku. */
+  function _fallbackClassifyConcepts(concepts) {
+    var byState = { valid: [], degenerate: [], insufficient: [] };
+    concepts.forEach(function (c) {
+      var state;
+      if (c.status !== "measured") {
+        state = "insufficient";
+      } else {
+        var genomeKeys = Object.keys(c.genomes || {});
+        var allValid = genomeKeys.length > 0 && genomeKeys.every(function (g) { return c.genomes[g].ci95_valid === true; });
+        state = allValid ? "valid" : "degenerate";
+      }
+      byState[state].push(c);
+    });
+    return byState;
+  }
+
+  function classifyConcepts(comp) {
+    if (comp.full_profile) {
+      return {
+        valid: comp.full_profile.valid,
+        degenerate: comp.full_profile.degenerate,
+        insufficient: comp.full_profile.insufficient_data,
+      };
+    }
+    return _fallbackClassifyConcepts(comp.concepts);
   }
 
   function renderOverview(ctx) {
@@ -267,7 +307,7 @@
 
     var measured = comp ? comp.summary.measured : null;
     var total = comp ? comp.summary.total_concepts : null;
-    var validCount = comp ? comp.concepts.filter(function (c) { return competencyRowState(c) === "valid"; }).length : null;
+    var validCount = comp ? classifyConcepts(comp).valid.length : null;
     var lessonsCount = report ? 1 : 0;
 
     var tiles = [
@@ -338,7 +378,7 @@
       '<div class="kv">' +
       '<div><span>Primary endpoint</span><b>' + escapeHtml((prereg && prereg.primary_endpoint && prereg.primary_endpoint.metric) || "—") +
       (prereg && prereg.primary_endpoint ? " @ " + prereg.primary_endpoint.measurement_tick : "") + "</b></div>" +
-      '<div><span>Kryterium PASS</span><b>' + (passCond ? "MSE@50 &lt; " + fmtNum(passCond.mse_at_tick_50_max, 2) : "—") + "</b></div>" +
+      '<div><span>Kryterium PASS</span><b>' + (passCond ? "MAE@50 &lt; " + fmtNum(passCond.mse_at_tick_50_max, 2) : "—") + "</b></div>" +
       '<div><span>Seedy / genom</span><b>' + (seeds || "—") + "</b></div>" +
       '<div><span>Wynik</span><b style="color:' + (allPassed === null ? "var(--mut)" : allPassed ? "var(--ok)" : "var(--crit)") + '">' +
       (allPassed === null ? "—" : allPassed ? "PASS" : "FAIL") + "</b></div>" +
@@ -353,9 +393,9 @@
         return { name: g, mean: s.mean, lo: s.ci95_low, hi: s.ci95_high, valid: s.ci95_valid, color: colors[i % colors.length] };
       });
       chartHtml =
-        '<section class="card span"><header class="card-h"><span class="card-t">MSE @ 50 · średnia ± CI95</span>' +
+        '<section class="card span"><header class="card-h"><span class="card-t">MAE @ 50 · średnia ± CI95</span>' +
         '<span class="card-s">scenariusz: ' + escapeHtml(scenario) + "</span></header>" +
-        '<div class="card-b">' + mseChartSvg(rows) +
+        '<div class="card-b">' + maeChartSvg(rows) +
         '<p class="note">Kontrola <code>' + escapeHtml(control) + "</code> jest deterministyczna (n_effective=1, " +
         "CI95 nie dotyczy) — punkt odniesienia, nie źródło wariancji.</p></div></section>";
     }
@@ -363,8 +403,7 @@
     setSectionHTML("lessons", notices + head + chartHtml);
   }
 
-  function renderConceptRow(c) {
-    var state = competencyRowState(c);
+  function renderConceptRow(c, state) {
     var label = state === "valid" ? "zmierzone" : state === "degenerate" ? "zdegenerowane" : "brak danych";
     var color = state === "valid" ? "var(--ok)" : state === "degenerate" ? "var(--warn)" : "var(--mut)";
 
@@ -414,28 +453,55 @@
   function renderCompetency(comp) {
     if (!comp) return;
     var measured = comp.summary.measured, total = comp.summary.total_concepts;
-    var byState = { valid: [], degenerate: [], insufficient: [] };
-    comp.concepts.forEach(function (c) { byState[competencyRowState(c)].push(c); });
+    var byState = classifyConcepts(comp);
+
+    var stateByName = {};
+    byState.valid.forEach(function (c) { stateByName[c.concept] = "valid"; });
+    byState.degenerate.forEach(function (c) { stateByName[c.concept] = "degenerate"; });
+    byState.insufficient.forEach(function (c) { stateByName[c.concept] = "insufficient"; });
+
+    // SPRINT_v0.11.0.md P1 (decyzja CTO 2026-07-17/18): rozroznienie OS
+    // POZNAWCZYCH od ZMIENNYCH STANU FIZJOLOGICZNEGO (np. Final Energy
+    // Level - mierzy stan systemu, nie jego zdolnosc do czegokolwiek) jest
+    // CZYTANE z comp.minimal_profile.cognitive_axes/.physiological_state_variables
+    // (gotowe listy NAZW z Pythona), nie liczone tutaj z jakiegokolwiek
+    // pola per-koncept. Fallback (stary JSON bez tego podzialu): wszystko
+    // traktowane jako poznawcze - jawnie gorsza, ale bezpieczna degradacja.
+    var conceptByName = {};
+    comp.concepts.forEach(function (c) { conceptByName[c.concept] = c; });
+    var cognitiveNames = (comp.minimal_profile && comp.minimal_profile.cognitive_axes) || byState.valid.map(function (c) { return c.concept; });
+    var physiologicalNames = (comp.minimal_profile && comp.minimal_profile.physiological_state_variables) || [];
+    var validCognitive = cognitiveNames.map(function (name) { return conceptByName[name]; }).filter(Boolean);
+    var validPhysiological = physiologicalNames.map(function (name) { return conceptByName[name]; }).filter(Boolean);
 
     var minimalCard =
       '<section class="card span"><header class="card-h"><span class="card-t">Profil minimalny (oficjalny)</span>' +
-      '<span class="card-s">' + byState.valid.length + "/" + total + " pojęć z ważnym CI95</span></header>" +
-      '<div class="card-b"><div class="comp">' + byState.valid.map(renderConceptRow).join("") + "</div>" +
+      '<span class="card-s">' + byState.valid.length + "/" + total + " pojęć z ważnym CI95 — " +
+      validCognitive.length + " poznawczych + " + validPhysiological.length + " stanu fizjologicznego</span></header>" +
+      '<div class="card-b">' +
+      '<h4 class="comp-subhead">Osie poznawcze (' + validCognitive.length + ')</h4>' +
+      '<div class="comp">' + validCognitive.map(function (c) { return renderConceptRow(c, "valid"); }).join("") + "</div>" +
+      (validPhysiological.length ?
+        '<h4 class="comp-subhead">Zmienne stanu fizjologicznego (' + validPhysiological.length + ') — NIE zdolności poznawcze</h4>' +
+        '<div class="comp">' + validPhysiological.map(function (c) { return renderConceptRow(c, "valid"); }).join("") + "</div>"
+        : "") +
       '<p class="note">Wyłącznie pojęcia, dla których wszystkie obecne genomy mają <code>ci95_valid=true</code> ' +
-      "— jedyny profil, na który można się powołać jako \"co system faktycznie mierzy wiarygodnie\".</p></div></section>";
+      "— jedyny profil, na który można się powołać jako \"co system faktycznie mierzy wiarygodnie\". " +
+      "Zmienne stanu fizjologicznego mierzą STAN systemu, nie jego kompetencję — nie sumować z osiami " +
+      "poznawczymi jako równoważne wpisy.</p></div></section>";
 
     var fullCard =
       '<section class="card span"><header class="card-h"><span class="card-t">Profil pełny</span>' +
       '<span class="card-s">zmierzone ' + measured + "/" + total + " · ważne CI95 " + byState.valid.length + "/" + total +
       ' — luki są jawne, nie ukryte</span></header><div class="card-b"><div class="comp">' +
-      comp.concepts.map(renderConceptRow).join("") + "</div></div></section>";
+      comp.concepts.map(function (c) { return renderConceptRow(c, stateByName[c.concept]); }).join("") + "</div></div></section>";
 
     setSectionHTML("competency", minimalCard + fullCard);
   }
 
   function renderGenomes(comp) {
     if (!comp) return;
-    var rows = comp.concepts.filter(function (c) { return competencyRowState(c) === "valid"; });
+    var rows = classifyConcepts(comp).valid;
     var genomeKeys = rows.length ? Object.keys(rows[0].genomes) : [];
 
     var trHtml = rows.map(function (c) {

@@ -253,3 +253,307 @@ def benjamini_hochberg(p_values: List[float], q: float = 0.05) -> List[bool]:
         if rank <= threshold_k:
             significant[idx] = True
     return significant
+
+
+# --- SPRINT_v0.11.0.md P0: Analiza mocy statystycznej (BRAMKA) ---
+# Dodane ADDYTYWNIE (zero zmiany istniejacych funkcji powyzej). Powod: brak
+# wykrytego efektu (Working Memory, v0.10.1 P3) zostal zinterpretowany jako
+# "metryka nie dyskryminuje" bez znajomosci mocy testu - to nadinterpretacja
+# wyniku negatywnego (zasada nadrzedna 3, SPRINT_v0.11.0.md). Zero zaleznosci
+# zewnetrznych (brak scipy) - dystrybuanta t niecentralnego liczona przez
+# calkowanie numeryczne (metoda Simpsona) po definicji T=(Z+ncp)/sqrt(V/df),
+# Z~N(0,1), V~chi2_df niezalezne - standardowa, podrecznikowa definicja, nie
+# przyblizenie ad-hoc. Zweryfikowane w tests/test_power_analysis.py wprost
+# przeciwko klasycznym tablicom Cohena (1988): n=64,d=0.5,alpha=.05->moc~0.80;
+# n=26,d=0.8->moc~0.80; n=393,d=0.2->moc~0.80.
+
+def _chi2_pdf(v: float, df: float) -> float:
+    """Gestosc chi-kwadrat z df stopniami swobody, przez logarytm (stabilne
+    numerycznie dla duzych df)."""
+    if v <= 0:
+        return 0.0
+    log_pdf = (df / 2 - 1) * math.log(v) - v / 2 - (df / 2) * math.log(2) - math.lgamma(df / 2)
+    return math.exp(log_pdf)
+
+
+def _std_normal_cdf(x: float) -> float:
+    return 0.5 * (1 + math.erf(x / math.sqrt(2)))
+
+
+def _noncentral_t_cdf(t: float, df: float, ncp: float, n_steps: int = 4000) -> float:
+    """P(T<=t) dla T ~ t niecentralny (df stopni swobody, parametr
+    niecentralnosci ncp). Calkowanie Simpsona po V~chi2_df w definicji
+    T=(Z+ncp)/sqrt(V/df) - nie przyblizenie, dokladna definicja rozkladu,
+    z bledem wylacznie z dyskretyzacji calki (n_steps=4000 daje ~4 miejsca
+    po przecinku dokladnosci, zweryfikowane przeciwko tablicom Cohena)."""
+    v_max = df + 12 * math.sqrt(2 * df) + 50
+
+    def integrand(v: float) -> float:
+        if v <= 0:
+            return 0.0
+        z_thresh = t * math.sqrt(v / df) - ncp
+        return _std_normal_cdf(z_thresh) * _chi2_pdf(v, df)
+
+    h = v_max / n_steps
+    total = integrand(1e-9) + integrand(v_max)
+    for i in range(1, n_steps):
+        v = i * h
+        coeff = 4 if i % 2 == 1 else 2
+        total += coeff * integrand(v)
+    return total * h / 3
+
+
+def _t_critical_value(df: float, alpha: float = 0.05) -> float:
+    """Wartosc krytyczna t (dwustronna) dla danego df i alpha, przez
+    bisekcje na _student_t_two_tailed_p (juz zwalidowanej funkcji)."""
+    lo, hi = 0.0, 100.0
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        p = _student_t_two_tailed_p(mid, df)
+        if p > alpha:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def power_two_sample_t_test(d: float, n: int, alpha: float = 0.05) -> float:
+    """Moc dwupróbkowego testu t (dwustronnego) do wykrycia efektu d przy n
+    obserwacji NA GRUPĘ (n1=n2=n, standardowe zalozenie parametryzacji Cohen's
+    d - rownej wariancji obu grup; realna analiza w tym projekcie uzywa
+    Welch's t-test, ale d samo w sobie jest zdefiniowane przy zalozeniu rownej
+    wariancji, wiec analiza mocy dziedziczy to samo zalozenie - standardowa
+    praktyka, patrz G*Power/pakiet R `pwr`).
+
+    df = 2n-2, parametr niecentralnosci ncp = d*sqrt(n/2).
+    """
+    if n < 2:
+        return 0.0
+    df = 2 * n - 2
+    ncp = d * math.sqrt(n / 2)
+    tcrit = _t_critical_value(df, alpha)
+    p_upper = 1 - _noncentral_t_cdf(tcrit, df, ncp)
+    p_lower = _noncentral_t_cdf(-tcrit, df, ncp)
+    return max(0.0, min(1.0, p_upper + p_lower))
+
+
+def minimum_detectable_effect(n: int, alpha: float = 0.05, target_power: float = 0.8) -> float:
+    """Najmniejszy Cohen's d wykrywalny przy n/grupe, alpha, przy zadanej mocy
+    (domyslnie 0.8) - bisekcja na power_two_sample_t_test (monotoniczna w d
+    dla d>0)."""
+    lo, hi = 1e-4, 10.0
+    for _ in range(100):
+        mid = (lo + hi) / 2
+        p = power_two_sample_t_test(mid, n, alpha)
+        if p < target_power:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+# --- SPRINT_v0.11.0.md P0 (rozszerzenie po audycie): moc ANOVA (Design C) ---
+# Dodane ADDYTYWNIE. Powod: audytor zmierzyl OBSERWOWANY Cohen's f per metryka z
+# danych v0.10.1 P3 (zamiast zakladac konwencjonalny f), pokazujac ze Working
+# Memory ma f_obs~0.265 (efekt sredni), niewykrywalny przy n=10 (moc=0.185), ale
+# rozstrzygajacy przy n=30 (moc=0.952). Wymaga dystrybuanty F niecentralnego -
+# liczonej WYLACZNIE przez juz zwalidowana _regularized_incomplete_beta (ten sam
+# kod co Welch's t-test/power_two_sample_t_test), przez tozsamosc:
+#   P(F_df1,df2 <= f) = I_x(df1/2, df2/2), x = df1*f/(df1*f+df2)  [F centralny]
+#   P(F'_df1,df2(ncp) <= f) = SUM_j Pois(j; ncp/2) * I_x(df1/2+j, df2/2)  [niecentralny]
+# Zero incomplete gamma / chi2 potrzebne osobno. Zwalidowane w
+# tests/test_power_analysis.py: dla k=2 grup, power_anova(f=d/2, k=2, n) MUSI
+# byc identyczne (do 1e-4) z juz zwalidowanym power_two_sample_t_test(d, n) -
+# F z 1 stopniem swobody licznika = t^2 - relacja podrecznikowa, nie zbieg
+# okolicznosci.
+
+def _poisson_pmf(j: int, lam: float) -> float:
+    if lam <= 0:
+        return 1.0 if j == 0 else 0.0
+    return math.exp(-lam + j * math.log(lam) - math.lgamma(j + 1))
+
+
+def _central_f_cdf(f: float, df1: float, df2: float) -> float:
+    if f <= 0:
+        return 0.0
+    x = df1 * f / (df1 * f + df2)
+    return _regularized_incomplete_beta(df1 / 2, df2 / 2, x)
+
+
+def _noncentral_f_cdf(f: float, df1: float, df2: float, ncp: float, max_terms: int = 500) -> float:
+    if f <= 0:
+        return 0.0
+    x = df1 * f / (df1 * f + df2)
+    lam = ncp / 2
+    total = 0.0
+    for j in range(max_terms):
+        w = _poisson_pmf(j, lam)
+        if w < 1e-14 and j > lam:
+            break
+        total += w * _regularized_incomplete_beta(df1 / 2 + j, df2 / 2, x)
+    return total
+
+
+def _f_critical_value(df1: float, df2: float, alpha: float = 0.05) -> float:
+    """Wartosc krytyczna F (jednostronna - test ANOVA odrzuca H0 tylko dla
+    DUZYCH F), przez bisekcje na _central_f_cdf."""
+    lo, hi = 0.0, 1000.0
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        p_upper = 1 - _central_f_cdf(mid, df1, df2)
+        if p_upper > alpha:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def power_anova(f_effect: float, k: int, n: int, alpha: float = 0.05) -> float:
+    """Moc jednoczynnikowej ANOVA (omnibus, Design C): k grup (genomow),
+    n obserwacji/grupe (zbalansowane), Cohen's f. df1=k-1, df2=k*(n-1),
+    ncp=f^2*k*n (Cohen 1988)."""
+    if n < 2 or k < 2:
+        return 0.0
+    df1 = k - 1
+    df2 = k * (n - 1)
+    ncp = f_effect ** 2 * k * n
+    fcrit = _f_critical_value(df1, df2, alpha)
+    return max(0.0, min(1.0, 1 - _noncentral_f_cdf(fcrit, df1, df2, ncp)))
+
+
+def cohens_f_anova(means: List[float], stds: List[float], ns: List[int]) -> Dict[str, Any]:
+    """Cohen's f dla jednoczynnikowej ANOVA, z per-grupowych (per-genom) mean/
+    std/n - NIE z surowych obserwacji (te czesto juz nie sa przechowywane,
+    tylko zagregowane statystyki - patrz reports/population/*.json).
+
+    Konwencja: SD miedzy-grupowe dzielone przez k (populacyjna, k grup
+    TRAKTOWANE JAKO KOMPLETNY, USTALONY zestaw do tego konkretnego porownania -
+    standardowa konwencja Cohena dla ANOVA o efektach stalych), SD wewnatrz
+    jako spula (pooled) z per-grupowych wariancji wazonych stopniami swobody.
+    """
+    k = len(means)
+    if k < 2:
+        return {"f": 0.0, "computable": False, "reason": "k<2 grup"}
+    grand_mean = sum(m * n for m, n in zip(means, ns)) / sum(ns)
+    ss_between_pop = sum((m - grand_mean) ** 2 for m in means) / k
+    sd_between = math.sqrt(ss_between_pop)
+
+    df_within = sum(n - 1 for n in ns)
+    if df_within <= 0:
+        return {"f": None, "computable": False, "reason": "brak stopni swobody wewnatrz-grupowych (wszystkie n<=1)"}
+    ss_within = sum((n - 1) * s ** 2 for n, s in zip(ns, stds))
+    sd_within = math.sqrt(ss_within / df_within)
+
+    if sd_within < 1e-12:
+        return {"f": None, "computable": False, "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)"}
+
+    return {"f": round(sd_between / sd_within, 6), "computable": True,
+            "sd_between": round(sd_between, 6), "sd_within": round(sd_within, 6),
+            "k": k, "df_within": df_within}
+
+
+# --- SPRINT_v0.11.0.md P0 (druga runda): matematyka sekwencyjna (Wariant B) ---
+# Dodane ADDYTYWNIE. Uzasadnienie: audytor policzyl koszt/korzysc designu
+# sekwencyjnego (interim n=30 -> ewentualne rozszerzenie n=185) - dwa spojrzenia
+# na te same (nachodzace) dane sa SKORELOWANE (rho=sqrt(n1/n2)), wiec naiwne
+# powtorzenie tego samego progu istotnosci na obu spojrzeniach INFLATUJE blad
+# I rodzaju. Wymaga dwuwymiarowego rozkladu normalnego - liczonego przez
+# calkowanie numeryczne (Simpson 2D) gestosci dwuwymiarowej normalnej, zero
+# scipy. Zwalidowane na przypadkach brzegowych (rho=0: P(oba w granicach) =
+# P(pojedynczy)^2 dokladnie; rho=1: P(oba)=P(pojedynczy) dokladnie) oraz
+# przeciwko niezaleznemu przeliczeniu audytora (rho=0.4027 dla n1=30,n2=185;
+# inflacja bledu I rodzaju bez korekty = 1.9675x, alpha 0.00238->0.004685 -
+# zgodnosc do 4 cyfry, patrz tests/test_sequential_analysis.py).
+
+def _bivariate_normal_pdf(z1: float, z2: float, rho: float) -> float:
+    denom = 2 * math.pi * math.sqrt(1 - rho ** 2)
+    expo = -(z1 ** 2 - 2 * rho * z1 * z2 + z2 ** 2) / (2 * (1 - rho ** 2))
+    return math.exp(expo) / denom
+
+
+def _bivariate_normal_cdf(h: float, k: float, rho: float, n_steps: int = 150, lim: float = 6.0) -> float:
+    """P(Z1<=h, Z2<=k) dla standardowego dwuwymiarowego rozkladu normalnego
+    z korelacja rho - calkowanie Simpsona 2D. n_steps=150/lim=6.0 dobrane dla
+    dokladnosci ~1e-4, wystarczajacej do analizy mocy/inflacji (nie do
+    formalnych granic regulacyjnych)."""
+    if rho >= 0.999999:
+        return _std_normal_cdf(min(h, k))
+    if rho <= -0.999999:
+        return max(0.0, _std_normal_cdf(h) - _std_normal_cdf(-k))
+    if h <= -lim or k <= -lim:
+        return 0.0
+    hi1, hi2 = min(h, lim), min(k, lim)
+    lo1 = lo2 = -lim
+
+    def weights(n):
+        w = [1.0] * (n + 1)
+        for i in range(1, n):
+            w[i] = 4.0 if i % 2 == 1 else 2.0
+        return w
+
+    h1s, h2s = (hi1 - lo1) / n_steps, (hi2 - lo2) / n_steps
+    w = weights(n_steps)
+    total = 0.0
+    for i in range(n_steps + 1):
+        z1 = lo1 + i * h1s
+        row = 0.0
+        for j in range(n_steps + 1):
+            z2 = lo2 + j * h2s
+            row += w[j] * _bivariate_normal_pdf(z1, z2, rho)
+        row *= h2s / 3
+        total += w[i] * row
+    total *= h1s / 3
+    return max(0.0, min(1.0, total))
+
+
+def sequential_correlation(n_interim: int, n_final: int) -> float:
+    """rho miedzy statystykami interim i finalnego spojrzenia w grupowo-
+    sekwencyjnym designie z nachodzacymi probkami (pierwsze n_interim
+    obserwacji sa wspolne dla obu spojrzen) - standardowy wynik teorii
+    projektow sekwencyjnych: rho = sqrt(n_interim/n_final)."""
+    return math.sqrt(n_interim / n_final)
+
+
+def naive_two_look_type1_error(alpha_per_look: float, rho: float) -> Dict[str, Any]:
+    """Faktyczny blad I rodzaju przy DWOCH spojrzeniach na skorelowane dane,
+    KAZDE testowane niezaleznie na poziomie alpha_per_look (BEZ korekty na
+    sekwencyjnosc) - to jest dokladnie bledna praktyka, ktorej ten mechanizm
+    ma zapobiec wykrywajac. Zwraca alpha faktyczne i wspolczynnik inflacji."""
+    c = _t_critical_value_normal_approx(alpha_per_look)
+    p_both_within = (_bivariate_normal_cdf(c, c, rho) - _bivariate_normal_cdf(-c, c, rho)
+                     - _bivariate_normal_cdf(c, -c, rho) + _bivariate_normal_cdf(-c, -c, rho))
+    alpha_actual = 1 - p_both_within
+    return {"alpha_per_look": alpha_per_look, "alpha_actual": round(alpha_actual, 6),
+            "inflation_factor": round(alpha_actual / alpha_per_look, 4), "rho": round(rho, 4)}
+
+
+def _t_critical_value_normal_approx(alpha: float) -> float:
+    """Wartosc krytyczna z rozkladu normalnego (przyblizenie duzego df) -
+    uzywana wylacznie w kontekscie sekwencyjnym (Z-statystyki), nie myl z
+    _t_critical_value (dokladna, dla skonczonego df testu t)."""
+    lo, hi = 0.0, 10.0
+    for _ in range(100):
+        mid = (lo + hi) / 2
+        p_upper = 1 - _std_normal_cdf(mid)
+        if 2 * p_upper > alpha:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def pocock_boundary(target_alpha: float, rho: float) -> float:
+    """Granica Pococka: STALA wartosc krytyczna c (ta sama na obu spojrzeniach)
+    taka, ze P(|Z1|>c LUB |Z2|>c) = target_alpha, uwzgledniajac korelacje rho
+    miedzy spojrzeniami. Bisekcja na _bivariate_normal_cdf."""
+    lo, hi = 0.0, 8.0
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        p_both_within = (_bivariate_normal_cdf(mid, mid, rho) - _bivariate_normal_cdf(-mid, mid, rho)
+                         - _bivariate_normal_cdf(mid, -mid, rho) + _bivariate_normal_cdf(-mid, -mid, rho))
+        alpha_actual = 1 - p_both_within
+        if alpha_actual > target_alpha:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2

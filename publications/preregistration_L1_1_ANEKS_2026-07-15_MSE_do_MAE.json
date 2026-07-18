@@ -1,0 +1,60 @@
+{
+  "document_type": "aneks",
+  "amends": [
+    "publications/preregistration_L1_1.json",
+    "publications/preregistration_L1_1_v0.8.json"
+  ],
+  "amendment_date": "2026-07-15",
+  "detected_in": "SPRINT_v0.11.0.md P1 (formalne definicje metryk, docs/VALIDITY_REPORT.md)",
+  "detected_by": "audytor niezależny, potwierdzone w kodzie (clos_academy/lesson_L1_1.py:82)",
+  "policy": {
+    "originals_unchanged": true,
+    "reason": "preregistration_L1_1.json i preregistration_L1_1_v0.8.json to zamrożone bramki (v0.9.3 / historyczne) - ślad audytowy > czysty dokument. Ten aneks jest jedynym miejscem, gdzie korekta jest zapisana formalnie względem prerejestracji; oryginały pozostają z błędem NAZWY jako część historii projektu."
+  },
+  "finding": {
+    "summary": "Metryka opisana w preregistration_L1_1.json jako \"MSE\" (mean squared error) jest w rzeczywistości MAE (mean absolute error) - kod liczy abs(prediction - pattern_signal), nie kwadrat różnicy.",
+    "affected_fields_in_original_preregistration": {
+      "primary_endpoint.metric": "mse_after_stimulus_removal",
+      "pass_conditions.mse_at_tick_50_max": 0.5,
+      "fail_conditions.mse_at_tick_50_min": 0.9
+    },
+    "affected_fields_in_code_before_this_fix": [
+      "mse_vs_pattern (telemetry, lesson_L1_1.py)",
+      "mse_stimulus_phase / mse_silence_phase (output, lesson_L1_1.py)",
+      "primary_endpoint.metric = \"mse_vs_pattern_after_stimulus_removal\" (lesson_L1_1.py)"
+    ],
+    "code_evidence": "clos_academy/lesson_L1_1.py:82 - mae_vs_pattern = abs(tissue.last_prediction - pattern_signal); zero podnoszenia do kwadratu w calej sciezce liczacej ten endpoint.",
+    "root_cause": "nazwa mylaca od pierwszej wersji (v0.8.4) - nie regresja, nie zmiana pomiaru w czasie. Audytor sam powtarzal \"MSE@50\" w raportach przez 6 sprintow, mimo dostepu do kodu - dowod, ze sam klucz/etykieta wprowadza w blad nawet uwaznego czytelnika."
+  },
+  "what_changed": {
+    "computation": "NIC - abs() pozostaje abs(), zero zmiany formuly lub wartosci liczbowych.",
+    "published_golden_values_unchanged": {
+      "default_mean_L1_1": 0.156712,
+      "highly_plastic_mean_L1_1": 0.173229
+    },
+    "code_field_names_renamed_going_forward": {
+      "mse_vs_pattern": "mae_vs_pattern",
+      "mse_stimulus_phase": "mae_stimulus_phase",
+      "mse_silence_phase": "mae_silence_phase",
+      "mse_vs_pattern_after_stimulus_removal": "mae_vs_pattern_after_stimulus_removal"
+    },
+    "not_renamed_deliberately": {
+      "publications/preregistration_L1_1.json": "zamrożona bramka v0.9.3 - patrz policy.originals_unchanged",
+      "publications/preregistration_L1_1_v0.8.json": "wcześniejsza zamrożona wersja",
+      "publications/L1_1_pattern_echo/runs/*.json (40 plikow)": "juz opublikowany, zreplikowany bundle (blind replication Linux/Python 3.12, docs/REPLICATION.md) - nie modyfikowany retroaktywnie. Od 2026-07-17 formalnie oznaczony metadata.json.frozen=true (patrz frozen_status ponizej) - to NIE jest cichy wybor, jest walidowanym stanem.",
+      "clos_scientist/metrics.py::mse()": "NIEZWIAZANA, poprawnie kwadratowa metryka innego podsystemu (generyczny pipeline benchmarkowy) - nie pomylic z tym znaleziskiem"
+    },
+    "regenerated_as_working_fixture": {
+      "reports/academy/L1_1_pattern_echo.json": "regenerowany golden-baseline dla testow regresyjnych (nie publikowany, nie replikowany externally) - zawiera teraz mae_* zamiast mse_*, wartosci identyczne"
+    }
+  },
+  "frozen_status": {
+    "decided": "2026-07-15 (ten dokument)",
+    "implemented": "2026-07-17 (SPRINT_v0.11.0.md, decyzja CTO)",
+    "mechanism": "publications/L1_1_pattern_echo/metadata.json ma teraz frozen=true, frozen_reason i regeneration_expected_diff (dokladny opis co zmieniloby sie przy regeneracji - wylacznie nazwy kluczy, zero zmiany wartosci)",
+    "enforced_by": "scripts/validate_bundle_freshness.py - frozen=true JEST JEDYNYM dopuszczalnym wyjatkiem od zasady kod==artefakt (clos_studio/publication/bundle.py), i jest kontrolowany rownie rygorystycznie jak sama regula (frozen bez uzasadnienia = FAIL walidatora, exit 1). Testy: tests/test_bundle_freshness_validator.py."
+  },
+  "classification": "korekta NAZWY (label fix), NIE korekta POMIARU (measurement fix) - endpoint, formula i wyniki identyczne przed i po.",
+  "cto_decision_reference": "Wariant (c) - patrz docs/MSE_MAE_NAMING_DECISION.md",
+  "version": "1.1"
+}

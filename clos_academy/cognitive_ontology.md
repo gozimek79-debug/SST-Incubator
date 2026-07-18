@@ -65,12 +65,15 @@ pasującego do wcześniej zaobserwowanego wzorca (dopasowanie
 stimulus → istniejący ślad pamięciowy), odzwierciedlona w trafności
 predykcji w trakcie prezentacji bodźca.
 
-**(b) Mierzalny korelat/metryka:** `mse_stimulus_phase` — średni błąd
-(`|prediction - pattern_signal|`) liczony w fazie stymulacji (tick < 100),
-zwracany w `run_pattern_echo()`
+**(b) Mierzalny korelat/metryka:** `mae_stimulus_phase` (SPRINT_v0.11.0.md P1:
+przemianowane z `mse_stimulus_phase` — pole liczy `abs()`, nie kwadrat, od
+zawsze; naprawiona nazwa, wartości bez zmian, patrz
+`publications/preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json`) —
+średni błąd bezwzględny (`|prediction - pattern_signal|`) liczony w fazie
+stymulacji (tick < 100), zwracany w `run_pattern_echo()`
 ([clos_academy/lesson_L1_1.py](../clos_academy/lesson_L1_1.py)).
 
-**(c) Lekcja:** L1.1 (secondary endpoint: `mse_stimulus_phase`).
+**(c) Lekcja:** L1.1 (secondary endpoint: `mae_stimulus_phase`).
 
 ---
 
@@ -79,8 +82,10 @@ zwracany w `run_pattern_echo()`
 **(a) Opis poznawczy:** Zdolność śladu pamięciowego do utrzymania niskiego
 błędu (nieosłabiania się) w czasie, mimo naturalnego zaniku (decay).
 
-**(b) Mierzalny korelat/metryka:** `memory_decay_rate` = `(mse_silence_phase
-- mse_stimulus_phase) / silence_ticks`, liczone w `run_pattern_echo()`; u
+**(b) Mierzalny korelat/metryka:** `memory_decay_rate` = `(mae_silence_phase
+- mae_stimulus_phase) / silence_ticks` (SPRINT_v0.11.0.md P1: pola
+przemianowane z `mse_*` na `mae_*`, formuła i wartości bez zmian), liczone w
+`run_pattern_echo()`; u
 podstaw mechanizm `apply_decay()`
 ([clos_brain/runtime/plasticity.py:67](../clos_brain/runtime/plasticity.py))
 zwiększający `error` w rekordach pamięci co tick ciszy.
@@ -96,12 +101,15 @@ wzorca **po usunięciu bodźca** (faza ciszy), bez dalszej stymulacji — czyli
 odtworzenia wzorca "z pamięci", nie z bieżącego sygnału świata.
 
 **(b) Mierzalny korelat/metryka:** primary endpoint
-`mse_vs_pattern_after_stimulus_removal` @ tick 50 (`mse_at_tick_50`) —
-średni błąd predykcji względem `pattern_signal` w oknie ciszy od
-`stimulus_ticks + 50` do końca przebiegu, przy zamrożonym buforze
+`mae_vs_pattern_after_stimulus_removal` @ tick 50 (`mae_at_tick_50` w kodzie;
+prerejestracja `publications/preregistration_L1_1.json`, zamrożona, nadal
+używa historycznej nazwy `mse_at_tick_50_max` dla progu PASS — patrz aneks
+`preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json`, SPRINT_v0.11.0.md P1)
+— średni błąd bezwzględny predykcji względem `pattern_signal` w oknie ciszy
+od `stimulus_ticks + 50` do końca przebiegu, przy zamrożonym buforze
 sensorycznym (`silent_step()`,
 [clos_academy/echo_runtime.py](../clos_academy/echo_runtime.py)).
-PASS gdy `mse_at_tick_50 < 0.5`.
+PASS gdy wartość < 0.5.
 
 **(c) Lekcja:** L1.1 (primary endpoint) —
 patrz [publications/preregistration_L1_1.json](../publications/preregistration_L1_1.json).
@@ -253,11 +261,34 @@ nie przeoczenie, patrz `clos_scientist/capability_analyzer.py`.
 
 ---
 
-## Energy Efficiency
+## Final Energy Level (dawniej "Energy Efficiency")
 
-**(a) Opis poznawczy:** Koszt energetyczny utrzymania funkcji poznawczych w
-czasie — ile "budżetu" (energii) system zużywa na jednostkę działania lub
-czasu, w tym koszt dodatkowy stanu stresu.
+> **ZMIENNA STANU FIZJOLOGICZNEGO, NIE ZDOLNOŚĆ POZNAWCZA.** SPRINT_v0.11.0.md
+> P1 (decyzja CTO 2026-07-17): "Energy Efficiency" był błędem KATEGORII, nie
+> nazwy — `final_energy` to POZIOM energii w ostatnim ticku, nie STOSUNEK
+> efekt/nakład (czyli nie efektywność w żadnym sensie). W kodzie NIE ISTNIEJE
+> żadna formuła efektywności, i nie ma czego dzielić przez energię, bo
+> `act()` jest echem — system w obecnej architekturze nie ma wyjścia. Genom,
+> który nic nie robi, miałby NAJWYŻSZĄ "efektywność" wg dawnej metryki — to
+> odwraca sens słowa. Pełne uzasadnienie trzech rozważanych opcji (rename /
+> usunięcie z ontologii / prawdziwa definicja wymagająca mechanizmu wyjścia):
+> `docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md`.
+>
+> **Dlaczego "Final Energy Level", nie "Metabolic Cost":** audytor zgłosił
+> zastrzeżenie, które zapisujemy tu WPROST, żeby nikt za rok nie "poprawił"
+> nazwy z powrotem — `final_energy` mierzy ile energii ZOSTAŁO, nie ile
+> wydano. Wyższa wartość = WIĘCEJ zostało = NIŻSZY koszt metaboliczny.
+> Nazwanie tego pola "Metabolic Cost" dałoby korelację ODWROTNĄ do znaczenia
+> nazwy (dokładnie ten sam rodzaj błędu co MSE→MAE, tylko przy koszcie, nie
+> błędzie predykcji) — patrz `docs/MSE_MAE_NAMING_DECISION.md`. Poprawny
+> "Metabolic Cost" wymagałby formuły `initial_energy - final_energy`, co
+> ZMIENIA WARTOŚĆ liczbową (łamie zasadę "korekta nazwy, nie pomiaru") i nie
+> zostało zrobione. "Final Energy Level" opisuje dosłownie to, co pole
+> mierzy, zero interpretacji kierunku.
+
+**(a) Opis poznawczy:** ŻADEN — to pole NIE opisuje zdolności poznawczej.
+Opisuje stan systemu (ile energii ma na koniec przebiegu), analogicznie do
+"poziomu baterii", nie do "jak dobrze system coś robi".
 
 **(b) Mierzalny korelat/metryka:** `final_energy` (`BrainTissue.energy` na
 koniec przebiegu, wyjście `run_pattern_echo()`); u podstaw
@@ -265,12 +296,11 @@ koniec przebiegu, wyjście `run_pattern_echo()`); u podstaw
 stały koszt `energy_decay = 0.001`/tick + dodatkowy koszt stresu przy
 `entropy > 0.7`. Osobno: `energy_drift()`
 ([clos_scientist/metrics.py:46](../clos_scientist/metrics.py)).
-**Zastrzeżenie:** mierzymy zużycie energii, nie efektywność względem
-zadania — nie ma znormalizowanego wskaźnika koszt/korzyść (np. energia na
-jednostkę poprawnie odtworzonego wzorca).
 
-**(c) Lekcja:** L1.1 (secondary endpoint: `final_energy`), w węższym sensie
-"efektywności" (koszt/korzyść): not yet measured.
+**(c) Lekcja:** L1.1 i L1.2 (secondary endpoint: `final_energy`). Prawdziwa
+efektywność (koszt/korzyść) wymagałaby mechanizmu wyjścia w `act()` — not
+yet measured, i prawdopodobnie poza zakresem obecnego KPI (laboratorium, nie
+system poznawczy) — patrz Opcja 3 w `docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md`.
 
 ---
 

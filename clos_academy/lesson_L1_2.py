@@ -9,9 +9,19 @@ Implementacja DOKLADNIE wg publications/preregistration_L1_2.json (v0.9.3,
 BRAMKA zatwierdzona). Formuly (pasmo B, N, W, min_non_censored, prog
 pre_shock_band_check=0.8) sa 1:1 z tego dokumentu - nie zmieniac tu bez
 rewizji prerejestracji.
+
+SPRINT_v0.11.0.md P2: primary_endpoint/t_shock/pre_shock_in_band sa liczone
+dla kazdego scenariusza z clos_world.scenarios.has_single_perturbation()==True
+(WLASCIWOSC scenariusza), NIE dla dosłownej nazwy "shock_world" (dawny
+name-gate - patrz git historia tego pliku sprzed tego sprintu). Naprawia to
+odkrycie SPRINT_v0.10.1.md P2: weak_shock_world/long_stable_shock_world maja
+te sama jednoperturbacyjna strukture, ale byly pomijane bo nazwa sie nie
+zgadzala. Gdy okno sustained-in-band wykroczyloby poza zarejestrowany zakres
+tickow, podnoszony jest RecoveryWindowOutOfDomainError (opisowy wyjatek), NIE
+cichy brak endpointu ani niejasny KeyError - zasada nadrzedna 1 tego sprintu.
 """
 
-import json, os, random, sys, logging
+import json, os, sys, logging
 sys.path.insert(0, os.getcwd())
 
 from genome.engine import GenomeEngine
@@ -25,6 +35,7 @@ from clos_scientist.analyzer import detect_phases
 from clos_scientist.telemetry import diagnose_snapshot_sequence
 from clos_kernel.event_bus import EventBus
 from clos_curriculum.laboratory.statistics import compute_ci95, glass_delta, cohens_d
+from clos_world.scenarios import has_single_perturbation, single_perturbation_tick
 
 # Stale z preregistration_L1_2.json (recovery_time_definition) - nie zgadywane.
 N_SUSTAIN = 10          # sustained_stabilization_condition
@@ -32,6 +43,55 @@ W_WINDOW = 150          # observation_window
 TICKS_TOTAL = 300       # experiment_design.ticks_total
 MIN_NON_CENSORED = 5    # censoring.min_non_censored
 PRE_SHOCK_THRESHOLD = 0.8  # pre_shock_band_check.conditional_definition
+
+
+class RecoveryWindowOutOfDomainError(Exception):
+    """SPRINT_v0.11.0.md P2, zasada nadrzedna 1 ('cisza gorsza niz blad'):
+    gdy recovery_time/pre_shock_in_band nie da sie policzyc bo t_shock lezy
+    poza domena, dla ktorej okno sustained-in-band miesci sie w zarejestrowanym
+    zakresie tickow (entropy_by_tick), podnosimy WYJATEK z pelnym opisem
+    (metryka, scenariusz, naruszony warunek, powod) - NIGDY nie zwracamy
+    cichego/blednego wyniku ani nie pozwalamy na niejasny KeyError."""
+
+    def __init__(self, metric: str, scenario: str, condition: str, reason: str):
+        self.metric = metric
+        self.scenario = scenario
+        self.condition = condition
+        self.reason = reason
+        super().__init__(
+            f"{metric} nie do policzenia dla scenario={scenario!r}: "
+            f"naruszony warunek '{condition}' - {reason}"
+        )
+
+
+def _validate_recovery_window_domain(scenario: str, t_shock: int,
+                                      n: int = N_SUSTAIN, w: int = W_WINDOW,
+                                      ticks_total: int = TICKS_TOTAL) -> None:
+    """Sprawdza PRZED policzeniem, ze okno sustained-in-band miesci sie w
+    zarejestrowanym zakresie tickow. compute_recovery_time() czyta indeksy az
+    do t_shock+w-1 (deadline=t_shock+w-n, plus n-1 z samego okna) - wymaga
+    t_shock <= ticks_total-w. pre_shock_in_band() czyta od t_shock-n - wymaga
+    t_shock >= n. Naruszenie ktoregokolwiek -> jawny wyjatek, nie KeyError."""
+    max_t_shock = ticks_total - w
+    if t_shock > max_t_shock:
+        raise RecoveryWindowOutOfDomainError(
+            metric="recovery_time", scenario=scenario,
+            condition=f"t_shock <= ticks_total - W ({max_t_shock})",
+            reason=(
+                f"t_shock={t_shock} wykracza poza okno obserwacji W={w} przy "
+                f"ticks_total={ticks_total} - sustained-in-band czytaloby "
+                f"entropy_by_tick poza zarejestrowanym zakresem tickow"
+            ),
+        )
+    if t_shock < n:
+        raise RecoveryWindowOutOfDomainError(
+            metric="pre_shock_in_band", scenario=scenario,
+            condition=f"t_shock >= N ({n})",
+            reason=(
+                f"t_shock={t_shock} jest mniejszy niz okno pre-shock N={n} - "
+                f"pre_shock_in_band czytaloby entropy_by_tick[t<0]"
+            ),
+        )
 
 
 def _build_tissue(genome_preset: str, genome_params: dict = None) -> BrainTissue:
@@ -53,11 +113,6 @@ def _build_tissue(genome_preset: str, genome_params: dict = None) -> BrainTissue
         brain_id=brain_obj.identity.brain_id, genome_id=genome.id,
         **tissue_kwargs,
     )
-
-
-def _shock_tick(seed: int) -> int:
-    """t_shock - identyczna, pierwsza operacja RNG co wewnatrz shock_world."""
-    return random.Random(seed).randint(20, 80)
 
 
 def _in_band(value: float, band: tuple) -> bool:
@@ -145,8 +200,9 @@ def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
         "memory_size": len(tissue.memory), "telemetry": telemetry,
     }
 
-    if scenario == "shock_world":
-        t_shock = _shock_tick(seed)
+    if has_single_perturbation(scenario):
+        t_shock = single_perturbation_tick(scenario, seed)
+        _validate_recovery_window_domain(scenario, t_shock)
         rt_value, censored = compute_recovery_time(entropy_by_tick, t_shock, band)
         pre_in_band = pre_shock_in_band(entropy_by_tick, t_shock, band)
         output.update({

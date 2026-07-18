@@ -19,7 +19,7 @@ from clos_academy.lesson_L1_2 import run_shock_recovery
 
 L1_1_EXECUTION_FIELDS = [
     "run_id", "lesson", "genome", "seed", "scenario",
-    "primary_endpoint", "mse_stimulus_phase", "mse_silence_phase",
+    "primary_endpoint", "mae_stimulus_phase", "mae_silence_phase",  # SPRINT_v0.11.0.md P1: bylo mse_*
     "memory_decay_rate", "final_energy", "final_entropy", "memory_size", "passed",
 ]
 L1_1_OBSERVATION_FIELDS = ["stability_score", "adaptation_tick", "snapshot_count"]

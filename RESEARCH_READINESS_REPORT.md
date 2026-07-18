@@ -1,5 +1,15 @@
 # Research Readiness Report
 
+> **⚠ STATUS DANYCH: Exploratory Dataset v0.10 (SPRINT_v0.11.0.md).** Ocena
+> ponizej opiera sie na populacji n=10/genom, ktorej analiza mocy (v0.11.0
+> P0) wykazala bardzo niska moc statystyczna. **Ten dokument NIE jest
+> poprawiany ani wycofywany** — odpowiedz "jeszcze nie" na pytanie o
+> gotowosc publikacyjna pozostaje aktualna, teraz z dodatkowym, silniejszym
+> uzasadnieniem (odkrycie P0: przynajmniej czesc "negatywnych" wynikow z
+> tego raportu to prawdopodobnie brak mocy, nie brak efektu). Status
+> **Power/Confirmatory validity: PENDING** do czasu re-run zatwierdzonego
+> przez CTO (Wariant A/B/C — decyzja w toku).
+
 **SPRINT_v0.10.1.md P7, Zadanie 7 CTO. Jedno pytanie: czy można rozpocząć
 proces publikacyjny?**
 

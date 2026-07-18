@@ -96,6 +96,8 @@ code{font-family:'IBM Plex Mono',monospace}
 
 /* Competency instrument rows */
 .comp{display:flex; flex-direction:column; gap:8px}
+.comp-subhead{font-weight:600; font-size:12.5px; color:var(--mut); text-transform:uppercase; letter-spacing:.03em; margin:14px 0 8px}
+.comp-subhead:first-child{margin-top:0}
 .crow{border:1px solid var(--line); border-radius:8px; padding:11px 13px; border-left:3px solid var(--line); background:var(--raised)}
 .crow.valid{border-left-color:var(--ok)}
 .crow.degenerate{border-left-color:var(--warn)}

@@ -1,8 +1,9 @@
 {
   "study_id": "v0.10.1_population_validation",
+  "dataset_status": "Exploratory Dataset v0.10 (SPRINT_v0.11.0.md P0) - n=10/genom, moc statystyczna niska po korekcie na wielokrotne porownania dla wiekszosci osi. Nie poprawiane, nie wycofywane. Power/Confirmatory validity: PENDING do re-run zatwierdzonego przez CTO. Patrz publications/preregistration_v0_11_0_power_reproduction.json.",
   "preregistration": "publications/preregistration_v0_10_1_population.json",
   "population_sampling_seed": 20101,
-  "git_commit": "b60c47b4162b7e4f2d7f3c13bbd662039bf5c2a9",
+  "git_commit": "25c6a4b71c6adafac30d3713436fd47fa779f244",
   "n_genomes": 23,
   "seeds_per_genome_per_environment": [
     1,

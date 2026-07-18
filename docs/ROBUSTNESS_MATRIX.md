@@ -1,5 +1,16 @@
 # Robustness Matrix — kiedy ufać metryce, kiedy nie
 
+> **⚠ STATUS DANYCH: Exploratory Dataset v0.10 (SPRINT_v0.11.0.md).** Ta
+> macierz jest zbudowana na populacji n=10/genom (v0.10.1 P3), o ktorej
+> analiza mocy (v0.11.0 P0) wykazala bardzo niska moc wykrywania efektow
+> innych niz ogromne po korekcie na wielokrotne porownania (patrz
+> `publications/preregistration_v0_11_0_power_reproduction.json`). **Macierz
+> NIE jest poprawiana ani wycofywana** — kazdy ✔/✘/◐ ponizej pozostaje
+> prawdziwym zapisem tego, co wykryto na n=10. Kolumny dotyczace genomu/
+> srodowiska/seeda maja status **Measurement/Construct validity: aktualny**;
+> **Power/Confirmatory validity: PENDING** do czasu re-run zatwierdzonego
+> przez CTO (Wariant A/B/C — decyzja w toku).
+
 **Status: SPRINT_v0.10.1.md P5 (Zadanie 4 CTO).** Dokument dla przyszłych
 autorów eksperymentów: tabela każda z 7 zmierzonych osi × {genom, środowisko,
 seed, obserwacja, refaktoryzacja}. Każdy ✔/✘/◐ wynika z konkretnych danych
@@ -40,7 +51,7 @@ Legenda: ✔ = potwierdzone pozytywnie danymi · ✘ = potwierdzone negatywnie
 | Stability | ✔ 100% (4/4 środ. nie-kontr.) | ✔ 22-92% par, silnie | ✔ spójna w 4/4 testowanych | ✔ | ✔¹ | ◐² |
 | Adaptation | ✘ 35-43% (L1.1) / 0% (L1.2) | ✔ gdy mierzalna | ✘ silnie zależna od lekcji/env | ◐³ | ✔¹ | ◐² |
 | Energy Efficiency | ◐ 39-100% zależnie od kontekstu | ✔ gdy mierzalna | ✘ silnie zależna od lekcji/env | ◐³ | ✔ | ✔ (3/3 refaktory) |
-| Homeostatic Resilience | ✘ 21.7% | ✔ 8/10 par (mała próba) | ✘ tylko 1/3 środ. (name-gate) | ◐³ | ✔ | ✔⁴ |
+| Homeostatic Resilience | ✘ 21.7% | ✔ 8/10 par (mała próba) | ✘ tylko 1/3 środ.⁵ | ◐³ | ✔ | ✔⁴ |
 
 Kolumna "Środowisko" pokrywa WYŁĄCZNIE środowiska z pełną analizą
 populacyjną P3 (`noise_world`/`stable_world`/`drift_world` dla L1.1;
@@ -66,9 +77,18 @@ zamierzona naprawa długu, nie regresja, stąd ◐ zamiast ✔.
 populacji ma wysoką n_effective, część nie (patrz kolumna mierzalności).
 ⁴ Regresja formalna istnieje dla primary_endpoint na `shock_world`
 (`tests/test_genome_params_regression.py`), ale NIE dla pozostałych 2
-środowisk (`stable_world`/`drift_world`), gdzie pole w ogóle nie istnieje
-(name-gate) — regresja "pusta" tam jest trywialnie prawdziwa, nie
-testowana wprost.
+środowisk (`stable_world`/`drift_world`), gdzie pole w ogóle nie istnieje —
+regresja "pusta" tam jest trywialnie prawdziwa, nie testowana wprost.
+⁵ W SPRINT_v0.10.1.md P2 ta luka nazywała się "name-gate": brak endpointu w
+`stable_world`/`drift_world` (żaden z nich, słusznie — brak zdarzenia
+perturbacyjnego) był METODOLOGICZNIE POMIESZANY z osobnym, prawdziwym
+name-gate bugiem (`weak_shock_world`/`long_stable_shock_world` też
+pomijane, mimo że MAJĄ pojedynczą perturbację). SPRINT_v0.11.0.md P2
+naprawił bug (`clos_world.scenarios.has_single_perturbation()`, patrz
+`VALIDITY_REPORT.md` sekcja Homeostatic Resilience) — TA linia (1/3 środ. w
+już przeprowadzonej populacji P3) pozostaje niezmieniona, bo dotyczy
+`stable_world`/`drift_world`, które genuinely nie mają zdarzenia do
+zmierzenia, nie były objęte bugiem.
 
 ---
 

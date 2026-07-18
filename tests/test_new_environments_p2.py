@@ -35,7 +35,7 @@ SEEDS = [1, 2, 3]  # smoke-test mechaniki, NIE badanie statystyczne (to P3, po b
 
 L1_1_EXECUTION_FIELDS = [
     "run_id", "lesson", "genome", "seed", "scenario",
-    "primary_endpoint", "mse_stimulus_phase", "mse_silence_phase",
+    "primary_endpoint", "mae_stimulus_phase", "mae_silence_phase",  # SPRINT_v0.11.0.md P1: bylo mse_*
     "memory_decay_rate", "final_energy", "final_entropy", "memory_size", "passed",
 ]
 L1_1_OBSERVATION_FIELDS = ["stability_score", "adaptation_tick", "snapshot_count"]
@@ -47,17 +47,20 @@ L1_2_EXECUTION_FIELDS = [
 L1_2_SHOCK_ONLY_EXECUTION_FIELDS = ["t_shock", "primary_endpoint", "pre_shock_in_band"]
 L1_2_OBSERVATION_FIELDS = ["stability_score", "adaptation_tick", "snapshot_count"]
 
-# ODKRYCIE P2: lesson_L1_2.run_shock_recovery() liczy t_shock/primary_endpoint/
-# pre_shock_in_band WYLACZNIE gdy scenario == "shock_world" (dosl. string,
-# clos_academy/lesson_L1_2.py:139) - NIE gdy scenariusz jest semantycznie
-# "szokowy" (recurring_shock_world, weak_shock_world, long_stable_shock_world
-# tez zawieraja pojedyncze/wielokrotne skoki, ale nie sa nazwane doslownie
-# "shock_world", wiec endpoint sie nie uruchamia). Zaden z NEW_ENVIRONMENTS
-# nie dostaje wiec pol shock-only - to jest granica infrastruktury odkryta w
-# tym priorytecie (nazwa-gate, nie property-gate), NIE blad tego testu.
+# NAPRAWIONE w SPRINT_v0.11.0.md P2 (poprzednio ODKRYCIE SPRINT_v0.10.1.md P2):
+# lesson_L1_2.run_shock_recovery() liczyl t_shock/primary_endpoint/
+# pre_shock_in_band WYLACZNIE gdy scenario == "shock_world" (dosl. string) -
+# NIE gdy scenariusz byl semantycznie "szokowy". Teraz uzywa
+# clos_world.scenarios.has_single_perturbation(scenario) (WLASCIWOSC, nie
+# nazwa) - weak_shock_world i long_stable_shock_world MAJA te sama
+# jednoperturbacyjna strukture co shock_world, wiec dostaja teraz pola
+# shock-only. recurring_shock_world CELOWO nadal ich nie dostaje - ma
+# WIELOKROTNE, okresowe perturbacje, nie pasuje do modelu "jeden t_shock"
+# (prawdziwy brak zastosowania konstruktu, nie name-gate).
 def _l1_2_fields_for(scenario):
+    from clos_world.scenarios import has_single_perturbation
     fields = list(L1_2_EXECUTION_FIELDS)
-    if scenario == "shock_world":
+    if has_single_perturbation(scenario):
         fields += L1_2_SHOCK_ONLY_EXECUTION_FIELDS
     return fields
 

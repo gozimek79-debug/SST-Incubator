@@ -1,5 +1,14 @@
 # Current Scientific Limits — czego NIE wolno twierdzić
 
+> **⚠ STATUS DANYCH: Exploratory Dataset v0.10 (SPRINT_v0.11.0.md).**
+> Ograniczenia opisane ponizej (w tym §3, Working Memory) opieraja sie na
+> populacji n=10/genom, ktorej analiza mocy (v0.11.0 P0) wykazala bardzo
+> niska moc statystyczna. **Ten dokument NIE jest poprawiany ani wycofywany**
+> — zakazy sformulowane ponizej pozostaja w mocy (a w niektorych przypadkach
+> sa TERAZ jeszcze lepiej uzasadnione, patrz §3 zaktualizowane w duchu P0:
+> "nie wykryto" != "nie ma"). Status **Power/Confirmatory validity: PENDING**
+> do czasu re-run zatwierdzonego przez CTO (Wariant A/B/C — decyzja w toku).
+
 **Status: SPRINT_v0.10.1.md P7, Zadanie 6 CTO.** Ten dokument jest
 lustrzanym odbiciem `docs/VALIDITY_REPORT.md` (który mówi: kiedy ufać
 liczbie) i `docs/ROBUSTNESS_MATRIX.md` (który mówi: kiedy metryka

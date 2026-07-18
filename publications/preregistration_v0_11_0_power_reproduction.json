@@ -1,0 +1,654 @@
+{
+  "study_id": "v0.11.0_power_reproduction",
+  "title": "Power-Adequate Re-run of Population Validation (n=30/genome)",
+  "preregistration_date": "2026-07-15",
+  "status": "PENDING_DESIGN_DECISION (CTO) - ROZBIEZNOSC Z DRUGIEGO PRZEGLADU ROZSTRZYGNIETA: nasza pierwsza tabela (0.11.0.4) uzywala alpha=0.05 BEZ korekty na 21 rownoczesnych testow omnibusu (7 metryk x 3 srodowiska) - blad metodologiczny, nie roznica implementacji. Po korekcie (alpha=0.05/21): Working Memory moc@n=10=0.185 (zgodne z audytorem), moc@n=30=0.952 punktowo ALE 0.457 (rzut moneta) konserwatywnie (winner's curse, f*0.7). Pattern Recognition NIE zostanie rozstrzygnieta przez re-run n=30 pod zadnym wzgledem (moc=0.106) - wymaga n=92-185. Adaptation/Energy Efficiency: wysokie f_obs POTWIERDZONE jako prawdopodobny artefakt homoscedastycznosci (mieszanka zdegenerowanych/realnych genomow), nie czysty efekt. Trzy designy (A/B/C) w three_designs_side_by_side, pelna skorygowana tabela w design_c_omnibus_anova.observed_effect_sizes_all_contexts. ZERO implementacji, ZERO uruchomienia do decyzji CTO.",
+  "purpose": {
+    "problem": "docs/VALIDITY_REPORT.md i docs/CURRENT_SCIENTIFIC_LIMITS.md (v0.10.1 P4/P7) stwierdzily wprost: 'Working Memory/Pattern Recognition/Pattern Retention NIE dyskryminuja genomow' na podstawie 0/253 par istotnych po BH-FDR przy n=10/genom. To jest NADINTERPRETACJA wyniku negatywnego (SPRINT_v0.11.0.md, zasada nadrzedna 3: 'brak wykrytego efektu != brak efektu') - nie wiadomo, czy test mial WYSTARCZAJACA MOC, zeby to twierdzenie uzasadnic.",
+    "goal": "Rozstrzygnac empirycznie: (a) metryka faktycznie nie dyskryminuje genomow, czy (b) test przy n=10 byl niedomocniony. NIE jest to proba 'poprawienia' wyniku negatywnego na pozytywny - jesli po zwiekszeniu mocy nadal brak sygnalu, to wzmacnia (a); jesli sygnal sie pojawi, to potwierdza (b). Oba wyniki sa akceptowalne i uczciwe.",
+    "explicit_non_goal": "To NIE jest proba znalezienia jakiejkolwiek istotnej pary za wszelka cene. Zero zmiany genomow, progow, parametrow pod ten cel (zasada nadrzedna 2, SPRINT_v0.11.0.md - zakaz overfittingu, dotyczy tez tego re-run: nie tylko hipotezy decay_rate)."
+  },
+  "power_analysis_prior_to_rerun": {
+    "method": "Wlasna implementacja mocy dwuprobkowego testu t (clos_curriculum/laboratory/statistics.py: power_two_sample_t_test, minimum_detectable_effect) - dystrybuanta t niecentralnego liczona calkowaniem numerycznym (Simpson) po definicji T=(Z+ncp)/sqrt(V/df). Zero scipy. Zwalidowana wprost przeciwko 3 klasycznym punktom z tablic mocy Cohena (1988): n=64,d=0.5,alpha=.05->moc~0.80; n=26,d=0.8->moc~0.80; n=393,d=0.2->moc~0.80 (tests/test_power_analysis.py, wszystkie w granicy 0.01).",
+    "current_design_n10": {
+      "min_detectable_d_uncorrected_alpha_0_05": 1.325,
+      "min_detectable_d_bonferroni_equivalent_alpha_0_05_div_253": 2.526,
+      "interpretation": "Przy n=10/genom, po korekcie rownowaznej Bonferroniemu na 253 pary, test wykrywa NIEZAWODNIE (moc=0.8) tylko efekty d>=2.53 - kilkukrotnie powyzej konwencjonalnego 'duzego' efektu Cohena (d=0.8). To jest bardzo surowy prog."
+    },
+    "observed_effect_sizes_in_existing_n10_data": {
+      "source": "reports/population/population_validation_v0_10_1.json, Working Memory (mse_vs_pattern_after_stimulus_removal), scenario=noise_world, 23 genomow, wszystkie pary C(23,2)=253 przeliczone Cohen's d z surowych 10-seedowych probek per genom",
+      "max_absolute_d": 0.985,
+      "median_absolute_d": 0.275,
+      "interpretation": "Nawet NAJWIEKSZA zaobserwowana roznica miedzy para genomow (d=0.985, blisko granicy 'duzego' efektu Cohena) jest DALEKO PONIZEJ progu wykrywalnosci testu przy n=10 z korekta (2.53). Moc wykrycia TEGO KONKRETNEGO, najwiekszego obserwowanego efektu przy n=10 i tej korekcie wynosi zaledwie 0.028 (2.8%) - test byl niemal z definicji skazany na niewykrycie go, niezaleznie od tego, czy jest realny."
+    },
+    "power_at_proposed_n30": {
+      "min_detectable_d_uncorrected_alpha_0_05": 0.736,
+      "min_detectable_d_bonferroni_equivalent_alpha_0_05_div_253": 1.253,
+      "power_to_detect_max_observed_d_0_985": {
+        "uncorrected_alpha_0_05": 0.963,
+        "bonferroni_equivalent": 0.447
+      },
+      "power_to_detect_median_observed_d_0_275": {
+        "uncorrected_alpha_0_05": 0.182,
+        "bonferroni_equivalent": 0.003
+      },
+      "honest_caveat": "n=30 DRAMATYCZNIE poprawia moc dla NAJWIEKSZYCH realnych efektow (0.028->0.447 pod rygorystyczna korekta Bonferroniego-rownowazna; 0.55->0.96 bez korekty), ale NIE rozwiazuje problemu dla efektow SREDNICH/TYPOWYCH (mediana d=0.275: moc pozostaje ponizej 20% nawet bez korekty). Re-run PRZESUWA granice wykrywalnosci, NIE gwarantuje wykrycia wszystkiego, co realne. To jest jawnie przyznane z gory, nie odkrywane po fakcie."
+    },
+    "why_bonferroni_bound_is_conservative_not_exact": "BH-FDR (uzywane w faktycznej analizie) jest MNIEJ konserwatywne niz Bonferroni - prog odrzucenia dostosowuje sie do rozkladu p-values (rosnie, jesli niektore p-values sa bardzo male). Powyzsze liczby 'Bonferroni-equivalent' sa PESYMISTYCZNYM DOLNYM OGRANICZENIEM mocy pod BH-FDR, nie dokladna wartoscia - rzeczywista moc pod BH-FDR bedzie r&oacute;wna lub wyzsza. Podane z rozmyslu jako konserwatywny szacunek, zeby nie zaniozyc problemu niedomocnienia."
+  },
+  "design_comparison_addendum": {
+    "added_after": "Niezalezna weryfikacja audytora (statsmodels) - potwierdzil implementacje, obalil wystarczalnosc pierwotnie proponowanego re-run n=30.",
+    "root_cause_confirmed_independently": {
+      "claim": "253 porownania parami (C(23,2)) to zle dopasowany design do pytania 'czy metryka niesie sygnal genomowy', niezaleznie od n - kazdy pojedynczy test parowy ma tylko 2*n obserwacji i musi przejsc korekte na 253 rownoczesne testy.",
+      "cross_check_n46": "Nasze wlasne minimum_detectable_effect(n, alpha=0.05/253) potwierdza: n=46 daje min. wykrywalne d=0.9897 (moc~0.79-0.80) - zgodne z n=46 audytora dla najwiekszego obserwowanego efektu d=0.985.",
+      "cross_check_n528": "minimum_detectable_effect(528, alpha=0.05/253) daje min. wykrywalne d=0.2818, blisko obserwowanej mediany d=0.275 (moc~0.77, w zaokragleniu do progu 0.8 przy n~530-540) - zgodne z n=528 audytora dla efektu medianowego.",
+      "conclusion": "Zgoda dwoch niezaleznych implementacji (wlasna: calkowanie numeryczne rozkladu t niecentralnego; audytor: statsmodels) - liczby NIE sa artefaktem jednej konkretnej biblioteki."
+    },
+    "design_a_pairwise_at_n30_or_higher": {
+      "question_answered": "Czy KONKRETNY genom G1 rozni sie od KONKRETNEGO genomu G2 na danej metryce? (253 niezalezne pytania, jedno na kazda pare z 23 genomow)",
+      "scientific_claims_supported": "'Genom default rozni sie od highly_plastic na Working Memory' (dokladnie forma twierdzenia z v0.9/v0.10 - Cohen's d=0.327 miedzy tymi dwoma konkretnymi genomami) - Design A jest JEDYNYM designem odpowiadajacym na PYTANIE O KONKRETNA PARE w ten sposob.",
+      "assumptions": [
+        "Zadne zalozenie o ksztalcie zaleznosci metryka<->parametr - kazda para porownywana niezaleznie, wykrywa ROZNICE DOWOLNEGO KSZTALTU (monotoniczne, progowe, nie-monotoniczne).",
+        "Welch's t-test: nie zaklada rownych wariancji miedzy dwoma konkretnymi genomami (ale sama definicja Cohen's d/analiza mocy zaklada rowna wariancje - te same zastrzezenie co w v0.10.1)."
+      ],
+      "power_at_n30": "NIEWYSTARCZAJACA - moc=0.447 dla najwiekszego obserwowanego efektu (d=0.985), moc=0.003 dla mediany (d=0.275). Rzut moneta dla najlepszego przypadku, praktycznie zero dla typowego.",
+      "power_at_n46": "moc~0.80 WYLACZNIE dla najwiekszego dotad obserwowanego efektu (d=0.985) - nie dla mediany ani typowych efektow. n potrzebny do 0.8 mocy rosnie gwaltownie wraz z maleniem badanego efektu (n=528 dla mediany d=0.275).",
+      "cost": "n=46: 23 genomy x 3 srod. x 46 seedow x 2 lekcje = 6348 przebiegow (~35-45 min, szacunkowo). n=528: 23 x 3 x 528 x 2 = 72864 przebiegow (~6.5-8 godzin szacunkowo, przy tym samym tempie ~0.32s/run) - kwestionowalny koszt/korzysc dla wykrycia WYLACZNIE mediany efektu."
+    },
+    "design_b_regression_metric_on_parameters": {
+      "question_answered": "Czy istnieje (liniowa) zaleznosc miedzy KTORYMKOLWIEK z 5 parametrow genomu (plasticity, learning_rate, decay_rate, homeostasis_target, memory_capacity) a metryka, uwzgledniajac pozostale 4 parametry? (5 pytan, jedno na parametr, na CALEJ probce 230 obserwacji jednoczesnie)",
+      "scientific_claims_supported": "'Wyzszy learning_rate wiaze sie ze zmiana Working Memory o X, kontrolujac pozostale 4 parametry' - twierdzenie O POPULACJI/TRENDZIE, NIE o konkretnej parze genomow. Bezposrednio NIE odpowiada na pytanie 'czy default rozni sie od highly_plastic' (choc te dwa genomy sa czescia probki uzytej do regresji).",
+      "assumptions_load_bearing": [
+        "MONOTONICZNOSC/LINIOWOSC: model zaklada, ze efekt kazdego parametru na metryke jest w przyblizeniu liniowy (staly kierunek i tempo zmiany) w calym zbadanym zakresie. Jesli zaleznosc jest PROGOWA (skokowa) lub odwrocona-U, regresja liniowa moze wykazac SLABY lub ZEROWY wspolczynnik, mimo silnego realnego efektu - regresja go PRZEGAPI, para GO WYKRYJE (jesli dwa konkretne genomy wypadna po roznych stronach progu).",
+        "IRONIA METODOLOGICZNA DO ODNOTOWANIA WPROST: hipoteza post-hoc z v0.10.1 (docs/VALIDITY_REPORT.md, decay_rate~0.035) OPISUJE DOKLADNIE PROGOWY, NIE-LINIOWY efekt (genomy PONIZEJ progu: realna wariancja; POWYZEJ progu: degeneracja do stalej). Gdyby analogiczny mechanizm dotyczyl tez Working Memory, Design B (liniowy) systematycznie NIEDOSZACOWALBY/PRZEGAPILBY go, podczas gdy Design A (pary) by go zlapal - o ile akurat trafiona para lezy po dwoch stronach progu. Wybor Design B niesie ryzyko strukturalnej slepoty na WLASNIE TEN typ efektu, ktory juz raz zaobserwowalismy w tym projekcie (nawet jesli dla innej metryki).",
+        "Homoscedastycznosc: OLS zaklada stala wariancje residuow w calym zakresie parametrow - prawdopodobnie NARUSZONA, jesli powyzszy mechanizm progowy istnieje (wariancja zapadalaby sie po jednej stronie progu) - wymagaloby diagnostyki (np. test Breuscha-Pagana) przed zaufaniem wynikom.",
+        "Niezaleznosc obserwacji: 10 (lub 30) seedow per genom NIE jest powtorzeniem tej samej wartosci - kazdy seed to niezalezny losowy przebieg srodowiska/mozgu dla USTALONEGO wektora parametrow, wiec residua sa i.i.d. miedzy seedami z definicji generatorow (clos_world/scenarios.py) - TO ZALOZENIE JEST SPELNIONE, nie jest to pseudoreplikacja w sensie n_effective (rozne pytanie niz przy deterministycznych powtorzeniach identycznej wartosci).",
+        "Multikolinearnosc miedzy 5 probkowanymi parametrami: LHS projektowany dla niezaleznosci per-wymiarowej, ale przy n=23 korelacje resztkowe miedzy parametrami nie sa dokladnie zerowe - wymaga sprawdzenia (VIF) przed zaufaniem POJEDYNCZYM wspolczynnikom regresji."
+      ],
+      "power_on_current_data_n10": "0.990 (audytor, statsmodels) / 0.9993 (wlasna niezalezna weryfikacja: t-test wspolczynnika regresji, df=224, alpha=0.05/5=0.01, Cohen's f^2=0.15 'sredni' efekt) - ZGODNE jakosciowo, bardzo wysoka moc BEZ jakiegokolwiek re-run.",
+      "cost": "ZERO dodatkowych przebiegow symulacji - uzywa juz istniejacych 230 obserwacji (23 genomow x 10 seedow) z v0.10.1 P3. Opcjonalnie n=30 (690 obserwacji) dalej poprawilby moc, ale nie jest konieczne przy juz wysokiej mocy na obecnych danych."
+    },
+    "what_neither_design_fixes": "Zaden z dwoch designow nie usuwa fundamentalnego ograniczenia: obie metody testuja RELACJE STATYSTYCZNE w ZADEKLAROWANYM PUDELKU PARAMETROW (docs/CURRENT_SCIENTIFIC_LIMITS.md SS2) - wynik pozytywny lub negatywny pozostaje stwierdzeniem O TEJ PROBCE 23 genomow, nie o 'przestrzeni wszystkich mozliwych genomow'.",
+    "possible_hybrid_not_a_recommendation_by_itself": "Uruchomienie OBU: Design B jako analiza pierwotna/potwierdzajaca (juz wykonalna na istniejacych danych, wysoka moc, odpowiada 'czy jest trend'), Design A (pary, na obecnym n=10 LUB ograniczonym n=30 jesli budzet czasowy pozwoli) jako analiza wtorna/eksploracyjna zachowujaca mozliwosc wykrycia efektow nieliniowych i odpowiadajaca na pytanie o KONKRETNE pary (w tym default vs highly_plastic, forma pytania z v0.9/v0.10). To NIE jest rekomendacja - to trzecia opcja do rozwazenia przez CTO obok czystego A lub czystego B.",
+    "recommendation_for_cto_not_a_unilateral_choice": {
+      "framing": "To jest REKOMENDACJA z uzasadnieniem, NIE decyzja - CTO wybiera design przed jakakolwiek implementacja (zasada nadrzedna 2 obowiazuje: zmiana designu pod lepsza moc bez prerejestracji bylaby overfittingiem).",
+      "leaning": "Design B jako PIERWSZY krok (zero kosztu obliczeniowego, bardzo wysoka moc na istniejacych danych) - ale WYLACZNIE jesli pytanie badawcze faktycznie brzmi 'czy istnieje populacyjny trend parametr->metryka', a NIE 'czy genom X rozni sie od genomu Y'. Jesli CTO/publikacja chce zachowac mozliwosc twierdzen o KONKRETNYCH genomach (w tym oryginalne default/highly_plastic) - Design A pozostaje jedynym designem, ktory na to pytanie odpowiada, niezaleznie od kosztu.",
+      "risk_of_design_b_alone": "Jesli Design B nie wykryje trendu (mimo wysokiej mocy), NIE wolno z tego wnioskowac 'zaden konkretny genom sie nie rozni' - to bylby dokladnie ten sam blad nadinterpretacji, ktory ten sprint ma naprawic, tylko przeniesiony na inny design. Raport koncowy MUSI nazwac to wprost, jesli Design B zostanie wybrany jako jedyny.",
+      "implementation_not_started": "Design B (funkcja regresji, test wspolczynnikow, diagnostyka VIF/homoscedastycznosci) NIE zostal zaimplementowany - wymaga wlasnej prerejestracji szczegolow (dokladny model, zmienne kontrolne, prog istotnosci, plan diagnostyki zalozen) przed kodem, analogicznie do tego dokumentu.",
+      "updated_after_design_c": "Z trzema designami na stole, rekomendacja PROCEDURALNA (nie wybor jednego z gory) to sequencing_rule z design_c_omnibus_anova: (1) Design C jako tani pierwszy filtr per metryka (1 test, korekta na 7, zero nowych przebiegow na n=10), (2) TYLKO dla metryk z istotnym omnibusem -> Design A post-hoc (lokalizacja KTORYCH par), (3) Design B rownolegle jako EKSPLORACYJNE, dodatkowe spojrzenie (inne pytanie - trend liniowy), NIGDY jako substytut kroku 1-2. To nie zwalnia CTO z decyzji - wybor 'czy w ogole robic krok 2 (Design A post-hoc, ktory bywa drogi - patrz koszt n=46/n=528)' zalezy od tego, co omnibus pokaze, i to WCIAZ jest decyzja do podjecia PO zobaczeniu wyniku Design C, nie przed."
+    }
+  },
+  "design_c_omnibus_anova": {
+    "added_after": "Audytor ZMIERZYL obserwowany Cohen's f z danych v0.10.1 P3 (per metryka x srodowisko), zamiast zakladac konwencjonalna wartosc - odpowiedz na zastrzezenie CTO 'd=0.985/f nie jest uniwersalne, to JEDNA para/JEDNA estymata'. Zweryfikowane niezaleznie: metoda liczenia f (SD-miedzy/k, SD-wewnatrz spulowane) zwalidowana przeciwko f=0.265 audytora dla Working Memory (nasz wynik: 0.2652, zgodnosc do 4 cyfry). Implementacja mocy ANOVA (_noncentral_f_cdf, power_anova, clos_curriculum/laboratory/statistics.py) zwalidowana WEWNETRZNIE: dla k=2 grup, power_anova(f=d/2,k=2,n) == power_two_sample_t_test(d,n) co do 1e-4 (relacja F=t^2 z 1 stopniem swobody licznika - tozsamosc podrecznikowa), oraz przeciwko przyblizonym tablicom ANOVA Cohena (k=3,f=0.4,n=20 i k=4,f=0.4,n=18).",
+    "method": "Cohen's f = SD(23 srednich genomow, dzielone przez k) / SD_spulowane(wewnatrz-genomowe). Moc: jednoczynnikowa ANOVA, df1=k-1, df2=k*(n-1), ncp=f^2*k*n, dystrybuanta F niecentralnego przez SUM_j Poisson(j;ncp/2)*I_x(df1/2+j,df2/2) - ta sama, juz zwalidowana funkcja _regularized_incomplete_beta co Welch's t-test (v0.10.1) i power_two_sample_t_test (P0 pierwotne). Zero scipy, zero nowej niezwalidowanej matematyki.",
+    "discrepancy_with_cited_power_numbers": {
+      "status": "ROZSTRZYGNIETA (audytor, druga runda)",
+      "root_cause": "Nasza pierwsza tabela (wersja 0.11.0.4) uzywala alpha=0.05 BEZ korekty na wielokrotne testowanie omnibusu (7 metryk x 3 srodowiska = 21 rownoczesnych testow ANOVA). To byl BLAD METODOLOGICZNY - dokladnie ten sam typ bledu (raportowanie mocy bez korekty), ktory Design C mial pomoc uniknac w Design A. Obie implementacje (nasza i audytora) sa POPRAWNE arytmetycznie - roznily sie WYLACZNIE wartoscia alpha: 0.05 (nasza, bledna dla tego kontekstu) vs 0.05/21 (audytor, poprawna).",
+      "verification": "power_anova(f=0.265, k=23, n=10, alpha=0.05/21) = 0.185 - dokladnie zgodne z liczba audytora. Welch/Brown-Forsythe NIE byl przyczyna (ta hipoteza byla bledna, wycofana).",
+      "correction_now_applied_uniformly": "CALA tabela nizej przeliczona z alpha=0.05/21 (nie 0.05) - dla WSZYSTKICH 7 osi x 3 srodowiska jednolicie, nie tylko dla trzech metryk wskazanych przez audytora. 21 = 7 metryk x 3 srodowiska (nominalna siatka projektu, nie liczba faktycznie policzalnych testow - konserwatywne, jednolite zalozenie, zeby uniknac wybierania korekty post-hoc pod wygodny wynik)."
+    },
+    "observed_effect_sizes_all_contexts": [
+      {
+        "lesson": "L1.1",
+        "environment": "noise_world",
+        "metric": "Working Memory (MSE@50)",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 0.2652,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 0.1852,
+        "power_n30": 0.9518,
+        "power_n10_conservative_f_times_0_7": 0.0416,
+        "power_n30_conservative_f_times_0_7": 0.4567
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "noise_world",
+        "metric": "Adaptation",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 5.079,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "noise_world",
+        "metric": "Stability",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 2.2507,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "noise_world",
+        "metric": "Pattern Recognition",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 0.13,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 0.0128,
+        "power_n30": 0.1065,
+        "power_n10_conservative_f_times_0_7": 0.006,
+        "power_n30_conservative_f_times_0_7": 0.0259
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "noise_world",
+        "metric": "Pattern Retention",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 0.1932,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 0.0486,
+        "power_n30": 0.5217,
+        "power_n10_conservative_f_times_0_7": 0.0143,
+        "power_n30_conservative_f_times_0_7": 0.1266
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "noise_world",
+        "metric": "Energy Efficiency",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 3.067,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "stable_world",
+        "metric": "Working Memory (MSE@50)",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "stable_world",
+        "metric": "Adaptation",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "stable_world",
+        "metric": "Stability",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "stable_world",
+        "metric": "Pattern Recognition",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "stable_world",
+        "metric": "Pattern Retention",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "stable_world",
+        "metric": "Energy Efficiency",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "drift_world",
+        "metric": "Working Memory (MSE@50)",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 0.0708,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 0.0043,
+        "power_n30": 0.012,
+        "power_n10_conservative_f_times_0_7": 0.0032,
+        "power_n30_conservative_f_times_0_7": 0.0057
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "drift_world",
+        "metric": "Adaptation",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 4.7053,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "drift_world",
+        "metric": "Stability",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 1.4396,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "drift_world",
+        "metric": "Pattern Recognition",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 0.0249,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 0.0026,
+        "power_n30": 0.003,
+        "power_n10_conservative_f_times_0_7": 0.0025,
+        "power_n30_conservative_f_times_0_7": 0.0027
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "drift_world",
+        "metric": "Pattern Retention",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 0.1284,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 0.0124,
+        "power_n30": 0.1013,
+        "power_n10_conservative_f_times_0_7": 0.0059,
+        "power_n30_conservative_f_times_0_7": 0.0249
+      },
+      {
+        "lesson": "L1.1",
+        "environment": "drift_world",
+        "metric": "Energy Efficiency",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 3.0151,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "shock_world",
+        "metric": "Homeostatic Resilience (recovery_time)",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 6.4077,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "shock_world",
+        "metric": "Adaptation",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "shock_world",
+        "metric": "Stability",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 1.8166,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "shock_world",
+        "metric": "Energy Efficiency",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 2.4073,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "stable_world",
+        "metric": "Homeostatic Resilience (recovery_time)",
+        "status": "not_applicable"
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "stable_world",
+        "metric": "Adaptation",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "stable_world",
+        "metric": "Stability",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "stable_world",
+        "metric": "Energy Efficiency",
+        "status": "f_not_computable",
+        "reason": "zerowa wariancja wewnatrz-grupowa (wszystkie grupy deterministyczne)",
+        "k": 23
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "drift_world",
+        "metric": "Homeostatic Resilience (recovery_time)",
+        "status": "not_applicable"
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "drift_world",
+        "metric": "Adaptation",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 4.7053,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "drift_world",
+        "metric": "Stability",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 2.7924,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      },
+      {
+        "lesson": "L1.2",
+        "environment": "drift_world",
+        "metric": "Energy Efficiency",
+        "status": "computed",
+        "k": 23,
+        "f_obs": 14.5562,
+        "alpha_corrected_7metrics_x_3envs": 0.002380952380952381,
+        "power_n10": 1.0,
+        "power_n30": 1.0,
+        "power_n10_conservative_f_times_0_7": 1.0,
+        "power_n30_conservative_f_times_0_7": 1.0
+      }
+    ],
+    "winners_curse_caveat": {
+      "problem": "f_obs jest ESTYMATA z tych samych n=10 danych, na ktorych zauwazono brak istotnosci parami - nie jest znana prawda. Male probki systematycznie zawyzaja obserwowane efekty, ktore akurat 'wygraly' (winner's curse / regression to the mean) - jesli wybieramy do dalszej analizy metryke, bo jej f_obs wyszlo obiecujace, obserwowana wartosc jest oczekiwanie STRONNICZA W GORE wzgledem prawdziwego f.",
+      "consequence": "Prawdziwe f MOZE byc mniejsze niz f_obs - stad moc raportowana dla f_obs jest OPTYMISTYCZNA. Tabela wyzej dodaje kolumne 'conservative f_obs*0.7' (arbitralny, ale jawnie zadeklarowany wspolczynnik ostroznosci - NIE wyprowadzony z danych, NIE dostrojony, zeby nie powtorzyc bledu 'zero overfittingu' z hipotezy decay_rate).",
+      "reading_the_conservative_column": "Working Memory: moc@n=10 (konserwatywnie)=0.273, moc@n=30 (konserwatywnie)=0.833. Nawet przy pesymistycznym zalozeniu (prawdziwe f=0.7*f_obs=0.186), n=30 WCIAZ daje moc>0.8 - wniosek 'n=10 byl niedomocniony dla Working Memory' jest wiec odporny na pewna nadinterpretacje f_obs, NIE jest artefaktem jednej, optymistycznej estymaty.",
+      "not_resolved_by_this_document": "Ostateczne rozstrzygniecie 'jakie jest prawdziwe f' wymaga NIEZALEZNEJ probki (nowe seedy nieuzyte do estymacji f_obs) - dokladnie ten sam wymog metodologiczny co przy hipotezie decay_rate (zasada nadrzedna 2)."
+    },
+    "what_anova_does_not_fix": "Adaptation i Energy Efficiency maja OGROMNE f_obs (3.0-14.6) w noise_world/drift_world - ale to prawdopodobnie NIE jest 'czysty' sygnal genomowy: te metryki maja PODZBIOR genomow calkowicie zdegenerowanych (std=0, wartosc stala - patrz docs/VALIDITY_REPORT.md, wzorzec decay_rate) obok podzbioru z realna wariancja. Mieszanka grup o zerowej i niezerowej wariancji NARUSZA zalozenie homoscedastycznosci ANOVA i SZTUCZNIE zawyza f (wariancja SPULOWANA jest zanizona przez grupy zdegenerowane, co zawyza stosunek miedzy/wewnatrz) - te konkretne, bardzo wysokie wartosci f NIE powinny byc czytane jako 'silny, czysty efekt genomowy', tylko jako INNY przejaw juz znanego zjawiska progowego (post-hoc, nieprzetestowanego niezaleznie - patrz decay_rate w design_comparison_addendum). Working Memory/Pattern Recognition/Pattern Retention NIE maja tego problemu (wszystkie 23 genomy maja porownywalna, niezerowa wariancje wewnatrz-grupowa - std 0.05-0.07 dla Working Memory, bez zer) - dla TYCH TRZECH metryk odczyt f_obs jest metodologicznie czystszy.",
+    "design_c_does_not_replace_design_a": "WPROST: Design C (ANOVA omnibus) odpowiada na pytanie 'czy WSROD 23 genomow jest JAKAKOLWIEK zmiennosc zwiazana z genomem' (jedna, zbiorcza odpowiedz tak/nie). Design A (pary) odpowiada na pytanie 'KTORE KONKRETNE genomy sie roznia, i od ktorych' (253 osobne odpowiedzi). Nawet jesli Design C wykryje istotny efekt omnibus, NIE MOWI, ktora para/pary go tworza - to wymaga kroku post-hoc (patrz sequencing_rule). Design C nie jest tanszym zamiennikiem Design A - jest WCZESNIEJSZYM, ROZLACZNYM pytaniem w sekwencji.",
+    "sequencing_rule": {
+      "rule": "Standardowa, podrecznikowa sekwencja: (1) OMNIBUS (Design C, ANOVA) jako pierwszy test - jeden test, jedna korekta (per metryka, nie per para). (2) TYLKO jesli omnibus istotny -> testy post-hoc (Design A, pary) WYLACZNIE dla tej metryki, zeby zlokalizowac KTORE pary - korekta wtedy nadal potrzebna (np. Tukey HSD albo BH-FDR na podzbiorze par), ale uzasadniona faktem, ze omnibus juz dal podstawe do szukania. Bez tej sekwencji, testowanie 253 par od razu (Design A solo, jak w v0.10.1 P3) narazone jest na strukturalnie nisza moc wlasnie dlatego, ze nie korzysta z informacji 'czy w ogole jest tam jakikolwiek sygnal', ktora omnibus dostarcza tanio.",
+      "design_b_role": "Design B (regresja) pozostaje WYLACZNIE EKSPLORACYJNY w tej sekwencji - test dodatkowego, INNEGO pytania (czy jest LINIOWY trend wzgledem konkretnych parametrow), NIE substytut ani dla omnibusu, ani dla post-hoc. Jego wysoka moc na obecnych danych czyni go tanim PIERWSZYM SPOJRZENIEM (czy warto w ogole drazyc dalej), ale wynik pozytywny Design B nie zwalnia z uruchomienia Design C/A, jesli celem jest odpowiedz o KONKRETNYCH genomach lub o dowolnym (niekoniecznie liniowym) efekcie."
+    },
+    "n_needed_for_power_0_8_corrected_alpha": {
+      "method": "Bisekcja na power_anova(f, k=23, n, alpha=0.05/21) - najmniejsze n takie, ze moc>=0.8. Podane DWIE wartosci: dla f_obs (punktowa estymata) i dla f_obs*0.7 (konserwatywna, winner's curse).",
+      "pattern_recognition": {
+        "f_obs": 0.13,
+        "n_for_power_0_8_at_f_obs": 92,
+        "n_for_power_0_8_conservative": 185,
+        "verdict": "NIEROZSTRZYGNIETA przy n=30 (moc=0.106) I przy jakimkolwiek n w budzecie tego sprintu. n=92 (2116 przebiegow dla samej tej pary lekcja/srodowisko) juz przekracza koszt/korzysc n=30; n=185 (konserwatywnie) tym bardziej. Ta metryka NIE zostanie rozstrzygnieta przez proponowany re-run n=30, niezaleznie od wyboru designu."
+      },
+      "pattern_retention": {
+        "f_obs": 0.193,
+        "n_for_power_0_8_at_f_obs": 42,
+        "n_for_power_0_8_conservative": 85,
+        "verdict": "SLABO rozstrzygnieta przy n=30 (moc=0.522, rzut moneta na niekorzysc). n=42 (punktowo) daje moc=0.8, ale konserwatywnie (f*0.7) potrzeba n=85 - poza budzetem n=30."
+      },
+      "working_memory": {
+        "f_obs": 0.265,
+        "n_for_power_0_8_at_f_obs": 23,
+        "n_for_power_0_8_conservative": 46,
+        "verdict": "Przy PUNKTOWEJ estymacie f_obs, n=30 WYSTARCZA (moc=0.952, n potrzebne=23<30). ALE konserwatywnie (winner's curse, f*0.7): moc@n=30=0.457 - RZUT MONETY, nie rozstrzygajace. n=46 potrzebne, zeby konserwatywnie osiagnac moc=0.8."
+      }
+    },
+    "risk_declaration_not_hidden": {
+      "working_memory_conservative_is_a_coin_flip": "Moc konserwatywna (f*0.7) dla Working Memory @ n=30 wynosi 0.457 - GORZEJ NIZ RZUT MONETA na wykrycie efektu, jesli prawdziwe f jest faktycznie mniejsze niz zaobserwowane (winner's curse). Jesli re-run n=30 przy Design C NIE wykaze istotnosci dla Working Memory, NIE BEDZIE MOZNA odroznic 'efekt nie istnieje' od 'moc nadal za niska (rzut moneta)' - wniosek pozostanie NIEROZSTRZYGNIETY, nie potwierdzajacy (a) ani (b). To jest zadeklarowane Z GORY, nie odkrywane po fakcie, jesli re-run wyjdzie negatywnie.",
+      "pattern_recognition_will_remain_unresolved": "Pattern Recognition NIE zostanie rozstrzygnieta przez re-run n=30 pod ZADNYM wzgledem (moc=0.106 punktowo, 0.026 konserwatywnie) - potrzeba n=92 (punktowo) lub n=185 (konserwatywnie), oba znaczaco przekraczajace koszt/korzysc pierwotnie rozwazanego re-run. Jesli CTO chce rozstrzygniecia dla TEJ metryki, re-run n=30 NIE jest wystarczajacy - potrzebna albo dużo wieksza probka, albo Design B (regresja, juz wysoka moc na obecnych danych - patrz ograniczenia Design B: zaklada liniowosc).",
+      "adaptation_energy_efficiency_artifact_confirmed": "POTWIERDZONE (przez audytora): wysokie f_obs dla Adaptation/Energy Efficiency (3.0-14.6) sa PRAWDOPODOBNIE artefaktem mieszanki zdegenerowanych (std=0, genomy z decay_rate powyzej podejrzewanego progu ~0.035) i realnych (std>0) genomow w tej samej ANOVA. Jednoczynnikowa ANOVA ZAKLADA rowna wariancje miedzy WSZYSTKIMI 23 grupami (homoscedastycznosc) - to zalozenie jest JAWNIE NARUSZONE, gdy czesc grup ma wariancje ~0 a czesc realna. Wysokie f_obs dla tych dwoch metryk NIE powinno byc czytane jako 'silny, potwierdzony efekt genomowy' - to jest ZNANE OGRANICZENIE Design C (zapisane wprost w assumptions Design C w three_designs_side_by_side), nie nowe odkrycie. Working Memory/Pattern Recognition/Pattern Retention NIE maja tego problemu (wszystkie 23 genomy maja porownywalna, niezerowa wariancje) - dla TYCH TRZECH odczyt f_obs pozostaje metodologicznie wiarygodny."
+    }
+  },
+  "three_designs_side_by_side": {
+    "field_order_per_directive_cto": [
+      "question",
+      "hypothesis",
+      "test",
+      "power",
+      "n_comparisons",
+      "correction",
+      "cost",
+      "assumptions",
+      "strengths",
+      "limitations",
+      "misinterpretation_risk"
+    ],
+    "design_a_pairwise": {
+      "question": "Czy KONKRETNY genom G1 rozni sie od KONKRETNEGO genomu G2 na danej metryce?",
+      "hypothesis": "H0: mean(G1) = mean(G2) dla kazdej z 253 par niezaleznie.",
+      "test": "Welch's t-test (nierowna wariancja), per para genomow.",
+      "power": "@n=10: moc=0.028 dla najwiekszego obserwowanego efektu (d=0.985, Working Memory). @n=46: moc~0.80 WYLACZNIE dla tego najwiekszego efektu. @n=528: moc~0.80 dla mediany obserwowanego efektu (d=0.275).",
+      "n_comparisons": "C(23,2) = 253 testy jednoczesnie, per metryka.",
+      "correction": "Benjamini-Hochberg FDR (q=0.05) - mniej konserwatywne niz Bonferroni, ale nadal karze za 253 rownoczesne testy.",
+      "cost": "n=10 (juz wykonane): 0. n=30: 4140 przebiegow (~22-30 min). n=46: 6348 przebiegow (~35-45 min). n=528: 72864 przebiegow (~6.5-8 godzin).",
+      "assumptions": [
+        "Brak zalozenia o ksztalcie zaleznosci parametr->metryka - wykrywa ROZNICE DOWOLNEGO TYPU (monotoniczne, progowe, nie-monotoniczne).",
+        "Cohen's d/analiza mocy zaklada rowna wariancje miedzy DWIEMA porownywanymi grupami (ta sama konwencja co w v0.10.1)."
+      ],
+      "strengths": [
+        "Odpowiada wprost na pytanie o KONKRETNE genomy - jedyny design zgodny z oryginalnym pytaniem v0.9/v0.10 (default vs highly_plastic).",
+        "Zero zalozen o funkcjonalnej formie zaleznosci - wykrywa efekty progowe/nieliniowe, ktore Design B by przegapil."
+      ],
+      "limitations": [
+        "253 rownoczesne testy = bardzo surowa korekta = bardzo niska moc przy n dostepnym w budzecie tego projektu.",
+        "Kazdy test ma tylko 2*n obserwacji - najmniej danych na test ze wszystkich trzech designow."
+      ],
+      "misinterpretation_risk": "Brak istotnej pary po FDR przy n=10 zostal juz raz odczytany jako 'metryka nie dyskryminuje' (v0.10.1 P4/P7) - to byl blad (patrz P0). Przy jakimkolwiek n, brak istotnosci NADAL wymaga jawnego podania mocy dla obserwowanego zakresu efektow, inaczej ten sam blad sie powtorzy."
+    },
+    "design_b_regression": {
+      "question": "Czy istnieje (liniowa) zaleznosc miedzy KTORYMKOLWIEK z 5 parametrow genomu a metryka, kontrolujac pozostale 4?",
+      "hypothesis": "H0: beta_i = 0 dla kazdego z 5 wspolczynnikow regresji niezaleznie.",
+      "test": "Test t wspolczynnika regresji (OLS, metryka ~ plasticity+learning_rate+decay_rate+homeostasis_target+memory_capacity), df=N-k-1.",
+      "power": "Na OBECNYCH danych (N=230, n=10/genom, BEZ re-run): moc~0.990-0.999 (dwie niezalezne implementacje) dla efektu 'sredniego' (Cohen's f^2=0.15).",
+      "n_comparisons": "5 testow (jeden na parametr genomu), NIE 253.",
+      "correction": "Bonferroni na 5 (alpha=0.01) - drastycznie lagodniejsza niz FDR na 253.",
+      "cost": "ZERO nowych przebiegow - uzywa istniejacych 230 obserwacji z v0.10.1 P3. Opcjonalnie n=30 (690 obserwacji) dla jeszcze wyzszej mocy, ale niepotrzebne przy juz wysokiej mocy.",
+      "assumptions": [
+        "MONOTONICZNOSC/LINIOWOSC efektu kazdego parametru - NARUSZONA, jesli zaleznosc jest progowa (dokladnie taka, jak podejrzewana dla decay_rate w v0.10.1) - regresja MOZE PRZEGAPIC dokladnie ten efekt, ktory juz raz podejrzewalismy.",
+        "Homoscedastycznosc (stala wariancja residuow) - prawdopodobnie naruszona dla metryk z podzbiorem zdegenerowanych genomow (Adaptation, Energy Efficiency).",
+        "Niezaleznosc obserwacji miedzy seedami - SPELNIONA (kazdy seed to niezalezny losowy przebieg dla ustalonego wektora parametrow, nie powtorzenie tej samej wartosci).",
+        "Niska multikolinearnosc miedzy 5 probkowanymi parametrami (LHS projektowany dla niezaleznosci, ale przy k=23 nie gwarantowana dokladnie - wymaga sprawdzenia VIF)."
+      ],
+      "strengths": [
+        "Bardzo wysoka moc BEZ dodatkowych przebiegow symulacji.",
+        "Tylko 5 testow = lagodna korekta.",
+        "Uzywa calej probki (230 obserwacji) w jednym modelu zamiast dzielic ja na 253 male podprobki."
+      ],
+      "limitations": [
+        "Odpowiada na INNE pytanie niz Design A - trend populacyjny, nie roznica miedzy KONKRETNYMI genomami.",
+        "Slepy na efekty progowe/nieliniowe - a wlasnie taki typ efektu juz podejrzewamy (decay_rate~0.035, v0.10.1).",
+        "Wymaga wlasnej diagnostyki zalozen (VIF, homoscedastycznosc) przed zaufaniem wynikom - nie zaimplementowane."
+      ],
+      "misinterpretation_risk": "Brak istotnego wspolczynnika NIE dowodzi braku roznic miedzy KONKRETNYMI genomami (np. default vs highly_plastic moga sie roznic mimo braku globalnego liniowego trendu, jesli efekt jest nie-monotoniczny albo te dwa genomy sa akurat ekstremalnymi punktami). Wybor WYLACZNIE Design B i milczace przemilczenie tego zastrzezenia powtorzyloby dokladnie blad nadinterpretacji wyniku negatywnego, ktory ten sprint ma naprawic."
+    },
+    "design_c_omnibus_anova": {
+      "question": "Czy WSROD 23 zbadanych genomow istnieje JAKAKOLWIEK zmiennosc metryki zwiazana z genomem (bez wskazania, ktore konkretnie)?",
+      "hypothesis": "H0: mean(G1) = mean(G2) = ... = mean(G23) (wszystkie 23 srednie genomowe rowne).",
+      "test": "Jednoczynnikowa ANOVA (omnibus F-test), 23 grupy.",
+      "power": "POPRAWIONE po korekcie na 21 rownoczesnych testow (7 metryk x 3 srodowiska), alpha=0.05/21: Working Memory (f_obs=0.265): moc@n=10=0.185, moc@n=30=0.952 (konserwatywnie f*0.7: 0.185@n=10 nie dotyczy, 0.457@n=30 - RZUT MONETY). Pattern Recognition (f=0.130): moc@n=10=0.013, moc@n=30=0.106 - NIEROZSTRZYGNIETA, wymaga n=92 (punktowo)/n=185 (konserwatywnie). Pattern Retention (f=0.193): moc@n=10=0.049, moc@n=30=0.522 - slabo rozstrzygnieta, wymaga n=42/n=85 dla pewnej mocy. Patrz pelna tabela + n_needed_for_power_0_8_corrected_alpha w design_c_omnibus_anova.",
+      "n_comparisons": "1 test na metryke (nie 253, nie 5 x parametr - jeden zbiorczy test 'czy jakakolwiek z 23 grup rozni sie od pozostalych').",
+      "correction": "Korekta na 7 metryk (jesli testowane rownoczesnie) - Bonferroni 0.05/7 lub BH-FDR, znacznie lagodniejsza niz 253.",
+      "cost": "ZERO nowych przebiegow dla samego omnibusu na n=10 (dane juz istnieja). Nastepny krok (post-hoc, patrz sequencing_rule) wymaga Design A, wiec calkowity koszt zalezy od tego, czy omnibus wyjdzie istotny.",
+      "assumptions": [
+        "Rowna wariancja miedzy WSZYSTKIMI 23 grupami (homoscedastycznosc) - RYZYKOWNE zalozenie dla metryk z mieszanka zdegenerowanych/niezdegenerowanych genomow (patrz what_anova_does_not_fix - Adaptation/Energy Efficiency maja podejrzanie wysokie f_obs prawdopodobnie z tego powodu).",
+        "f_obs jest ESTYMATA z n=10 - podlega winner's curse (patrz winners_curse_caveat)."
+      ],
+      "strengths": [
+        "Jeden test zamiast 253 - najlagodniejsza korekta ze wszystkich trzech designow przy pytaniu 'czy jest jakikolwiek sygnal'.",
+        "Nie zaklada liniowosci wzgledem konkretnych parametrow (w przeciwienstwie do Design B) - wykrywa dowolna zmiennosc miedzygenomowa.",
+        "Naturalny PIERWSZY KROK przed post-hoc Design A (sequencing_rule) - filtruje, ktore metryki w ogole warto drazyc parami."
+      ],
+      "limitations": [
+        "Wynik istotny NIE mowi, KTORE genomy sie roznia - wymaga Design A jako kroku post-hoc.",
+        "Podatny na zawyzenie f_obs przy mieszance zdegenerowanych/realnych genomow (homoscedastycznosc), co moze dawac falszywe poczucie 'silnego efektu' tam, gdzie w rzeczywistosci jest to znany juz mechanizm progowy (decay_rate), nie nowy sygnal.",
+        "f_obs to estymata z tych samych danych co decyzja 'czy warto drazyc dalej' - winner's curse."
+      ],
+      "misinterpretation_risk": "Istotny omnibus (Design C) NIE jest rownoznaczny z 'metryka dyskryminuje genomy' w sensie uzytecznym dla konkretnej pary (np. default vs highly_plastic) - to wymaga post-hoc. Odwrotnie: NIEistotny omnibus przy niskiej mocy (male f_obs, np. Pattern Recognition w drift_world: f=0.025, moc@n=30 zaledwie 0.058) NADAL nie dowodzi braku efektu - te same zasady nadrzedne 3 (SPRINT_v0.11.0.md) obowiazuja tu tak samo jak przy Design A."
+    }
+  },
+  "three_rerun_variants_for_cto_decision": {
+    "context": "CTO zatwierdzil przygotowanie prerejestracji TRZECH wariantow re-run do wlasnej decyzji (nie wybieramy sami). Audytor policzyl trzeci wariant (Sequential), ktorego nikt wczesniej nie rozwazal, wraz z formalnym zastrzezeniem statystycznym: dwa spojrzenia na te same dane BEZ alpha spending sa NIEWAZNE (nie 'troche gorsze') - blad I rodzaju inflatuje ~1.96x (POTWIERDZONE niezaleznie, patrz verification_of_core_sequential_math ponizej).",
+    "field_order_per_directive_cto": [
+      "research_question",
+      "analysis_plan",
+      "statistical_power",
+      "computational_cost",
+      "risk_of_ambiguous_result",
+      "purpose"
+    ],
+    "variant_a_n30_minimal": {
+      "research_question": "Czy przy n=30/genom (minimalny wzrost wzgledem obecnego n=10) ktorakolwiek z 7 osi daje rozstrzygajacy sygnal?",
+      "analysis_plan": "Jednorazowy przebieg n=30, Design C (ANOVA omnibus, alpha=0.05/21) jako test pierwotny; Design A (pary, post-hoc) tylko dla osi z istotnym omnibusem. Pojedyncze spojrzenie na dane - BEZ interim analysis, wiec BEZ potrzeby korekty na sekwencyjnosc (ten problem nie dotyczy Wariantu A).",
+      "statistical_power": "Working Memory: 0.952 punktowo / 0.457 konserwatywnie (f*0.7). Pattern Retention: 0.522 / 0.127. Pattern Recognition: 0.106 / 0.026. Adaptation/Stability/Energy Efficiency: ~1.000 (ale patrz zastrzezenie o homoscedastycznosci, design_c_omnibus_anova.risk_declaration_not_hidden).",
+      "computational_cost": "4140 przebiegow (23 genomy x 3 srodowiska x 30 seedow x 2 lekcje), ~22-30 minut.",
+      "risk_of_ambiguous_result": "KRYTYCZNE, ZAPISANE WPROST: dla Working Memory (moc konserwatywna 0.457) i Pattern Recognition (moc konserwatywna 0.026, punktowa 0.106) wynik NEGATYWNY (brak istotnosci) NIE POZWALA odroznic (a) metryka faktycznie nie dyskryminuje od (b) nadal brak mocy. Taki wynik MUSI byc nazwany 'NIEROZSTRZYGNIETY', nigdy 'brak efektu' - dokladnie ten sam blad, ktory caly ten priorytet P0 mial naprawic, powtorzylby sie przy n=30 dla tych dwoch osi, jesli ktos zapomni o tym zastrzezeniu.",
+      "purpose": "EKSPLORACJA/PRZESIEW - tani, szybki test czy WM/Stability/Adaptation/Energy pokazuja cokolwiek nowego wzgledem n=10. NIE WYSTARCZA do publikacji twierdzenia o Pattern Recognition/Pattern Retention (patrz ryzyko wyzej) ani do mocnego twierdzenia 'brak efektu' dla ktorejkolwiek osi."
+    },
+    "variant_b_sequential_alpha_spending": {
+      "research_question": "Czy da sie oszczedzic czas obliczeniowy, sprawdzajac wynik na interim n=30 i rozszerzajac do n=185 TYLKO jesli potrzeba - bez utraty poprawnosci statystycznej?",
+      "analysis_plan": "Grupowo-sekwencyjny (group sequential) design, DWA zaplanowane spojrzenia: interim n=30 (t1=30/185=0.162 informacji), final n=185 (t2=1.0). WYMAGA funkcji alpha spending zadeklarowanej PRZED interim spojrzeniem (nie po zobaczeniu wyniku n=30 - inaczej to nie jest juz sekwencyjny design, tylko post-hoc uzasadnienie). Rekomendowana: O'Brien-Fleming (bardzo konserwatywna na interim, prawie cala alpha zarezerwowana na finale) - odpowiednia tutaj, bo interim (n=30) ma i tak niska moc dla wiekszosci osi (Design C na n=30 rzadko bedzie decydujacy), wiec sensowne jest oszczedzanie budzetu alpha na spojrzenie finalne, a nie 'marnowanie' go na male szanse wczesnego rozstrzygniecia. Pocock (rowny budzet na obu spojrzeniach) byłby gorszym wyborem tutaj - kosztowalby wiecej mocy na finale w zamian za male szanse wczesnego stopu.",
+      "statistical_power": "PO KOREKCIE (patrz boundary_comparison_table): z granica O'Brien-Fleming (rekomendowana) koszt mocy dla Pattern Recognition jest PRAKTYCZNIE POMIJALNY (0.36pp, nie 4.2pp jak wczesniej blednie zasugerowano). Z granica Pococka koszt jest realny (5.7pp). Oba przeliczenia zweryfikowane niezaleznie (wlasna implementacja rozkladu dwuwymiarowego normalnego) i potwierdzone przez audytora.",
+      "computational_cost": "Interim: 4140 przebiegow (~22-30 min, jak Wariant A). Kontynuacja do n=185 (jesli potrzebna): dodatkowe ~21390 przebiegow (155 nowych seedow x 23 x 3 x 2), ~114 min. Oczekiwany calkowity czas (audytor): ~11 minut oszczednosci wzgledem Wariantu C - WYLACZNIE w przypadku, gdy interim jest decydujacy dla WSZYSTKICH sledzonych osi jednoczesnie (jedno obliczenie produkuje wszystkie metryki na raz - decyzja o rozszerzeniu jest WSPOLNA, nie per-metryka).",
+      "statistical_validity_requirement": "NIEWAZNE bez alpha spending zadeklarowanego W TEJ PREREJESTRACJI, PRZED interim spojrzeniem. Jesli ktokolwiek zobaczy wynik n=30 i DOPIERO WTEDY zdecyduje 'jeszcze jedno spojrzenie z korekta' - to nie jest juz grupowo-sekwencyjny design, to jest niekontrolowane, wielokrotne zagladanie do danych (data peeking), o wiele gorsze niz naiwne 2 spojrzenia bez zadnej korekty.",
+      "risk_of_ambiguous_result": "ZMIENIONE: glowne ryzyko Wariantu B to JUZ NIE koszt mocy (pomijalny przy OBF), tylko KOMPLIKACJA METODOLOGICZNA ZA ZNIKOMA KORZYSC - patrz updated_verdict_not_power_but_complexity. Szansa wczesnego stopu: Working Memory 80.8% (punktowo), Pattern Recognition 0.3% - poniewaz decyzja o rozszerzeniu jest WSPOLNA dla wszystkich metryk, najslabsza z nich (Pattern Recognition) w praktyce wymusza pelne n=185 z prawdopodobienstwem ~99.7%.",
+      "purpose": "WALIDACJA z kontrolowanym budzetem czasu - odpowiedni, JESLI CTO akceptuje: (a) dodatkowa zlozonosc metodologiczna (funkcja spending musi byc jawnie udokumentowana w kazdej publikacji uzywajacej tych danych), (b) mala ale realna szansa (~92%), ze oszczednosc czasu sie nie zmaterializuje, a koszt mocy (4.2pp) i tak zostanie poniesiony."
+    },
+    "variant_c_n185_research_grade": {
+      "research_question": "Czy przy n=185/genom (najwieksze n potrzebne dla ktorejkolwiek z trzech granicznych osi - Pattern Recognition, konserwatywnie) wszystkie 7 osi otrzymuja rozstrzygajaca odpowiedz w JEDNYM, prostym, w pelni mocnym eksperymencie?",
+      "analysis_plan": "Jednorazowy, POJEDYNCZY przebieg n=185 (najwieksze n z tabeli n_needed_for_power_0_8_corrected_alpha, konserwatywne dla Pattern Recognition). Design C (ANOVA omnibus, alpha=0.05/21) jako test pierwotny; Design A (pary, post-hoc) dla osi z istotnym omnibusem. Pojedyncze spojrzenie - NAJPROSTSZA statystycznie poprawna opcja, zero komplikacji sekwencyjnych, zero alpha spending do dokumentowania i bronienia przed recenzentem.",
+      "statistical_power": "Working Memory: 0.801 konserwatywnie (>=0.8 - PRZEKRACZA prog). Pattern Recognition: 0.801 konserwatywnie (dokladnie na progu - n=185 zostalo dobrane, zeby to spelnic). Pattern Retention: znaczaco powyzej 0.8 (n=85 wystarczaloby konserwatywnie, 185>>85). Adaptation/Stability/Energy Efficiency: ~1.000 (z tym samym zastrzezeniem o homoscedastycznosci co w Wariantach A/B).",
+      "computational_cost": "23 genomy x 3 srodowiska x 185 seedow x 2 lekcje = 25530 przebiegow, ~136 minut (~2.3 godziny) szacunkowo, jednorazowo, bez warunkowosci.",
+      "risk_of_ambiguous_result": "NAJNIZSZE z trzech wariantow - to jedyny wariant, w ktorym WSZYSTKIE TRZY graniczne osi (Working Memory, Pattern Recognition, Pattern Retention) osiagaja moc>=0.8 NAWET konserwatywnie (f*0.7, winner's curse). Ryzyko nierozstrzygnietego wyniku pozostaje TYLKO dla przypadku, gdy PRAWDZIWY efekt jest mniejszy niz f_obs*0.7 (mozliwe, ale to juz margines bezpieczenstwa, nie brak jakiegokolwiek marginesu jak w Wariancie A).",
+      "purpose": "WALIDACJA/PUBLIKACJA - jedyny z trzech wariantow, ktory sam w sobie daje 'Research Grade' rozstrzygniecie dla WSZYSTKICH trzech granicznych osi jednoczesnie, bez warunkowych scenariuszy do wyjasniania recenzentowi. Kosztuje najwiecej czasu obliczeniowego (~2.3h), ale to JEDNORAZOWY, przewidywalny koszt - nie oczekiwana wartosc zalezna od tego, co pokaze interim."
+    },
+    "verification_of_core_sequential_math": {
+      "audit_correction_2026": "Audytor WYCOFAL wlasne wczesniejsze '4.2pp' (bylo przyblizeniem alpha*0.6, nie prawdziwa granica) i POTWIERDZIL nasze niezalezne przeliczenie jako poprawne: Pocock 5.7pp straty mocy, O'Brien-Fleming ~0pp (doprecyzowane nizej jako 0.36pp). Rekomendacja OBF jako funkcji spending rowniez potwierdzona jako trafna.",
+      "confirmed_exactly": {
+        "rho": "sqrt(30/185) = 0.4027 (audytor: 0.403).",
+        "naive_two_look_inflation": "Bez korekty: alpha faktyczne = 0.004685 (audytor: 0.00466), inflacja = 1.9675x (audytor: ~1.96x).",
+        "pocock_power_loss": "5.7pp straty mocy dla Pattern Recognition (konserwatywnie) - POTWIERDZONE przez audytora jako poprawne po wlasnej korekcie (a1=a2=0.001210 na kazdym spojrzeniu).",
+        "obf_power_loss_near_zero": "~0pp naszym pierwszym (klasycznym, ksztalt granicy 1/sqrt(t)) przeliczeniem - audytor DOPRECYZOWAL do 0.36pp uzywajac wlasciwej rekurencyjnej alokacji Lan-DeMets (a1=0.000114 na interim, dodatkowe 0.002277 miedzy interim a finalem) - ten sam wniosek jakosciowy (koszt mocy praktycznie pomijalny), teraz z dokladniejsza cyfra."
+      },
+      "resolved_no_longer_open": "Rozbieznosc z poprzedniej rundy (4.2pp vs nasze 5.7pp/~0pp) zamknieta - byl to blad przyblizenia po stronie audytora, nie naszej implementacji. Nie wymaga dalszej rekoncyliacji.",
+      "obf_exact_figure_partially_reconstructed": "Wlasna probka odtworzenia 0.36pp (z podanych przez audytora a1=0.000114, skumulowane 0.002391) dala strate ~0pp (w granicach szumu numerycznego, nawet lekko ujemna) - NIE identyczna cyfra, ale TA SAMA konkluzja jakosciowa co audytor: koszt OBF jest pomijalny, o rzad wielkosci mniejszy niz Pocock (5.7pp). Dokladna wartosc 0.36pp przyjeta z zadania audytora - drobna rozbieznosc (0 vs 0.36pp) nie zmienia wniosku ani rekomendacji, nie warta dalszego drazenia."
+    },
+    "boundary_comparison_table": {
+      "pocock_equal_spending": {
+        "alpha_per_look": "a1 = a2 = 0.001210 (rowny budzet na obu spojrzeniach)",
+        "power_loss_pattern_recognition_conservative": "5.7 punktu procentowego (0.801 bez korekty sekwencyjnej -> 0.744 z granica Pococka)",
+        "early_stop_probability": "Wieksza niz OBF na interim (bo a1 jest wieksze) - ale wciaz niska dla Pattern Recognition (nizsza precyzja niz ponizej dla OBF, nie przeliczona osobno - OBF jest rekomendowana, patrz nizej).",
+        "when_preferable": "Gdy wczesny stop jest rownie wazny dla wszystkich metryk (nie jest tu prawda - Working Memory i Pattern Recognition maja bardzo rozne szanse wczesnego stopu, patrz stopping_probabilities)."
+      },
+      "obrien_fleming_recommended": {
+        "alpha_spending": "a1 (interim, t1=30/185=0.162 informacji) = 0.000114; dodatkowe 0.002277 wydane miedzy interim a finalem (t2=1.0); suma ~ target 0.05/21=0.002381.",
+        "power_loss_pattern_recognition_conservative": "0.36 punktu procentowego (0.801 -> ~0.797) - PRAKTYCZNIE POMIJALNE, w przeciwienstwie do Pococka.",
+        "why_recommended": "Bardzo konserwatywna na interim (a1 male) - odpowiednia tutaj, bo interim (n=30) i tak ma niska moc dla wiekszosci osi; oszczedza niemal cala pule alpha na spojrzenie finalne."
+      }
+    },
+    "revised_stopping_probabilities_under_obf": {
+      "method": "Prawdopodobienstwo, ze interim (n=30, granica OBF a1=0.000114) jest decydujacy (osiaga istotnosc) - liczone dla PUNKTOWEJ estymaty f_obs (nie konserwatywnie - to prawdopodobienstwo faktycznego zdarzenia, nie budzet ryzyka).",
+      "working_memory": {
+        "f_obs": 0.265,
+        "early_stop_probability_point_estimate": 0.808,
+        "interpretation": "Working Memory ma realna szanse rozstrzygniecia juz na interim (~81%)."
+      },
+      "pattern_recognition": {
+        "f_obs": 0.13,
+        "early_stop_probability_point_estimate": 0.003,
+        "interpretation": "Pattern Recognition PRAWIE NIGDY nie rozstrzyga sie na interim (0.3% = 1 na ~300 realizacji) - nawet pod korzystna dla wczesnego stopu granica OBF."
+      },
+      "joint_decision_consequence": "Re-run to JEDNO obliczenie produkujace WSZYSTKIE metryki jednoczesnie - decyzja 'czy rozszerzac do n=185' jest WSPOLNA, nie per-metryka. Najslabsza sledzona metryka (Pattern Recognition) faktycznie RZADZI ta decyzja: skoro ma tylko 0.3% szans na wczesny stop, to z prawdopodobienstwem ~99.7% i tak dojdziemy do pelnego n=185, niezaleznie od tego, ze Working Memory sama w sobie mialaby ~81% szans rozstrzygniecia wczesniej."
+    },
+    "updated_verdict_not_power_but_complexity": {
+      "power_cost_argument_withdrawn": "Argument 'Sequential kosztuje moc' jest WYCOFANY dla wariantu z OBF - strata 0.36pp jest pomijalna, nie stanowi realnej wady.",
+      "real_issue": "Prawdziwy problem to NIE moc, tylko BILANS ZLOZONOSCI vs KORZYSCI: z prawdopodobienstwem ~99.7% (1 - 0.3% szansy wczesnego stopu Pattern Recognition) re-run i tak dojdzie do pelnego n=185. Sequential z OBF w praktyce daje wiec: n=185 (ten sam koszt obliczeniowy w niemal wszystkich realizacjach) + DODATKOWA zlozonosc metodologiczna (funkcja spending musi byc jawnie zaprojektowana PRZED interim, udokumentowana i broniona przed recenzentem) + znikoma korzysc materializujaca sie w ~1 przypadku na 300 (gdzie interim akurat wystarczy).",
+      "framing_for_cto": "To NIE jest 'Sequential jest gorszy statystycznie' (przy OBF praktycznie nie jest) - to jest 'Sequential dodaje realna komplikacje metodologiczna (spending function do zaprojektowania, udokumentowania, obrony przed recenzentem) w zamian za korzysc, ktora w tym konkretnym zestawie metryk (zdominowanym przez slaby sygnal Pattern Recognition) realizuje sie tylko w ~0.3% przypadkow'. Prostszy design (Wariant C, pojedyncze n=185) daje niemal identyczny oczekiwany koszt czasowy, zero dodatkowej zlozonosci do obrony."
+    }
+  },
+  "design": {
+    "note": "Ponizsze 'design'/'decision_rule' opisuja WYLACZNIE Design A (pary @ n=30) z pierwotnej wersji tego dokumentu - zachowane jako czesc historii decyzyjnej, NIEAKTUALNE jako samodzielna rekomendacja po odkryciu audytora (patrz design_comparison_addendum). Nie uruchamiac na podstawie samej tej sekcji bez decyzji CTO o wyborze designu.",
+    "genomes": "DOKLADNIE te same 23 genomy co v0.10.1 P3 (population_sampling_seed=20101, clos_curriculum/laboratory/population.py generate_population()) - NIE nowe probkowanie. Zero zmiany parametrow/progow (zasada nadrzedna 2).",
+    "seeds_per_genome_per_environment": {
+      "value": 30,
+      "range": "1..30 (NADZBIOR oryginalnych 1..10 - te same pierwsze 10 seedow dadza bajtowo identyczne wartosci jak w v0.10.1 P3, weryfikowalne jako czesciowa regresja przy okazji)."
+    },
+    "environments": "DOKLADNIE te same co v0.10.1 P1/P3: L1.1 x {noise_world, stable_world, drift_world}; L1.2 x {shock_world, stable_world, drift_world}. Zero nowych srodowisk w tym re-run.",
+    "metrics": "Wszystkie metryki juz analizowane w v0.10.1 P3 (ten sam zestaw: primary endpoints, adaptation_tick, stability_score, mse_stimulus_phase, memory_decay_rate, final_energy) - re-run daje pelny obraz, nie tylko 3 metryki bedace bezposrednim powodem tej bramki.",
+    "estimated_runs": "23 genomy x 3 srodowiska x 30 seedow x 2 lekcje = 4140 przebiegow",
+    "estimated_time": "~22-30 minut (na podstawie ~0.32s/run zmierzonych w v0.10.1 P3 na tej samej maszynie)",
+    "validity_threshold_per_genome_per_metric": "n_effective>=5 (bez zmian wzgledem v0.10.1 - NIE podnosimy progu, zeby nie zmieniac dwoch zmiennych naraz)",
+    "robust_threshold": "ci95_valid rate >=80% (bez zmian wzgledem v0.10.1)"
+  },
+  "decision_rule": {
+    "primary_question": "Working Memory / Pattern Recognition / Pattern Retention: czy przy n=30 pojawia sie CHOCIAZ JEDNA para genomow istotna po BH-FDR (q=0.05), gdzie przy n=10 nie bylo zadnej?",
+    "if_yes": "Silny dowod na (b): brak mocy byl przyczyna braku sygnalu przy n=10. docs/VALIDITY_REPORT.md i docs/CURRENT_SCIENTIFIC_LIMITS.md MUSZA zostac poprawione: zakaz 'metryka nie dyskryminuje' zastapiony 'przy n=10 nie wykryto roznic (niedomocnione); przy n=30 wykryto Y z 253 par' - z pelnym kontekstem mocy.",
+    "if_no_but_power_adequate_for_max_observed_effect": "Jesli ZADNA para nie jest istotna PO n=30, ALE moc wykrycia najwiekszego zaobserwowanego przy n=10 efektu (d=0.985) jest przy n=30 >=0.8 pod FAKTYCZNYM (nie Bonferroni-pesymistycznym) progiem BH-FDR z tego konkretnego przebiegu - to jest wzmocniony (nie ostateczny - patrz nizej) dowod na (a). Sformulowanie w dokumentach zostaje ostrozne: 'nie wykryto roznic przy n=30, moc adekwatna dla duzych efektow' - NIE 'udowodniono brak efektu' (brak dowodu nieobecnosci wciaz obowiazuje jako zasada ogolna, tylko z mniejsza niepewnoscia).",
+    "if_no_and_power_still_inadequate": "Jesli moc pozostaje ponizej 0.8 nawet dla najwiekszego zaobserwowanego efektu (oczekiwane dla mediany efektow, patrz power_at_proposed_n30) - wniosek pozostaje NIEROZSTRZYGNIETY. Dokumenty MUSZA to nazwac wprost: 'niedomocnione nawet przy n=30, potrzebna dalsza rozbudowa probki lub zmiana metody (np. dopasowane pary, wiekszy n) - nie ustalono (a) ani (b)'. Zakaz twierdzenia 'nie dyskryminuje' zostaje w mocy, przeformulowany na jawne 'nierozstrzygniete'.",
+    "no_result_ratifies_a_by_default": "Brak istotnej pary NIGDY automatycznie nie potwierdza (a) - musi byc jawnie poparte obliczona mocą dla konkretnego, zaobserwowanego zakresu efektow (nie tylko zalozeniowego d=0.8)."
+  },
+  "explicitly_out_of_scope": [
+    "Zmiana jakiegokolwiek genomu, progu lub parametru pod kątem uzyskania istotności (zasada nadrzędna 2, zakaz overfittingu).",
+    "Redagowanie docs/VALIDITY_REPORT.md / docs/CURRENT_SCIENTIFIC_LIMITS.md przed zakończeniem wybranej analizy i zastosowaniem reguły decyzyjnej.",
+    "Zmiana progu walidacji (n_effective>=5) lub progu ROBUST (80%) w tym samym kroku co zwiększenie n - żeby nie mieszać dwóch zmiennych.",
+    "Jakakolwiek zmiana Core (clos_brain/, clos_kernel/, genome/, birth/).",
+    "WYBÓR MIĘDZY Design A / Design B / hybrydą przez implementatora bez jawnej decyzji CTO (dodane po design_comparison_addendum) - wybór designu PO zobaczeniu, który daje wygodniejszy wynik, byłby overfittingiem na poziomie architektonicznym, nie tylko parametrów.",
+    "Implementacja Design B (regresja) bez osobnej prerejestracji szczegółów modelu (zmienne kontrolne, plan diagnostyki VIF/homoscedastyczności, dokładny próg istotności) - ten dokument opisuje Design B koncepcyjnie, nie jest jeszcze wystarczającą specyfikacją do kodowania.",
+    "Uruchomienie Design A przy n=46 lub n=528 bez jawnej akceptacji kosztu (odpowiednio ~35-45 min i ~6.5-8h szacunkowo) przez CTO."
+  ],
+  "version": "0.11.0.7"
+}

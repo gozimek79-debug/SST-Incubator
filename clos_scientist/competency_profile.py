@@ -69,11 +69,27 @@ def build_competency_profile() -> Dict[str, Any]:
     degenerate_concepts = [c for c in concepts if states[c["concept"]] == "degenerate"]
     insufficient_concepts = [c for c in concepts if states[c["concept"]] == "insufficient"]
 
+    # SPRINT_v0.11.0.md P1 (decyzja CTO 2026-07-17): profil minimalny miesza
+    # OSIE POZNAWCZE (kandydatow na/lub zmierzone zdolnosci poznawcze) ze
+    # ZMIENNYMI STANU FIZJOLOGICZNEGO ("Final Energy Level", dawniej "Energy
+    # Efficiency" - mierzy stan systemu, nie jego zdolnosc do czegokolwiek,
+    # patrz clos_scientist/capability_analyzer.py:CONCEPT_KIND i
+    # docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md). Rozroznienie musi byc
+    # JAWNE w artefakcie - nie tylko w dokumentacji - zeby "7 osi" nigdy nie
+    # bylo czytane jako "7 zdolnosci poznawczych".
+    valid_cognitive = [c for c in valid_concepts if c.get("kind") == "cognitive"]
+    valid_physiological = [c for c in valid_concepts if c.get("kind") == "physiological_state"]
+
     measured = sum(1 for c in concepts if c["status"] == "measured")
     total = len(concepts)
 
     return {
         "generated_at": datetime.now().isoformat(),
+        "dataset_status": ("Exploratory Dataset v0.10 (SPRINT_v0.11.0.md P0) - profil oparty na n=10/genom "
+                            "(2 genomy anchor: default, highly_plastic). Moc statystyczna wystarcza tylko dla "
+                            "efektow bardzo duzych po korekcie. Nie poprawiane, nie wycofywane. Power/"
+                            "Confirmatory validity: PENDING do re-run zatwierdzonego przez CTO. Patrz "
+                            "publications/preregistration_v0_11_0_power_reproduction.json."),
         "summary": {
             "total_concepts": total,
             "measured": measured,
@@ -84,9 +100,20 @@ def build_competency_profile() -> Dict[str, Any]:
         "minimal_profile": {
             "description": (
                 "Oficjalny profil kompetencji - WYLACZNIE pojecia, dla ktorych "
-                "wszystkie obecne genomy maja ci95_valid=True."
+                "wszystkie obecne genomy maja ci95_valid=True. UWAGA: to NIE "
+                "jest jednorodna lista zdolnosci poznawczych - patrz "
+                "cognitive_axes vs physiological_state_variables ponizej."
             ),
             "axes": [c["concept"] for c in valid_concepts],
+            "cognitive_axes": [c["concept"] for c in valid_cognitive],
+            "physiological_state_variables": [c["concept"] for c in valid_physiological],
+            "cognitive_vs_physiological_note": (
+                f"{len(valid_cognitive)} osi poznawczych (zmierzonych zdolnosci lub "
+                f"kandydatow na nie) + {len(valid_physiological)} zmienna(ych) stanu "
+                "fizjologicznego. Zmienna stanu fizjologicznego mierzy STAN systemu "
+                "(np. poziom energii), NIE jego zdolnosc do czegokolwiek - nie "
+                "sumowac z osiami poznawczymi jako rownowazne wpisy 'kompetencji'."
+            ),
             "concepts": valid_concepts,
         },
         "full_profile": {
@@ -189,7 +216,11 @@ def render_markdown(profile: Dict[str, Any]) -> str:
         "",
         minimal["description"],
         "",
-        "Osie: " + (", ".join(minimal["axes"]) if minimal["axes"] else "(brak)"),
+        minimal["cognitive_vs_physiological_note"],
+        "",
+        "Osie poznawcze: " + (", ".join(minimal["cognitive_axes"]) if minimal["cognitive_axes"] else "(brak)"),
+        "",
+        "Zmienne stanu fizjologicznego: " + (", ".join(minimal["physiological_state_variables"]) if minimal["physiological_state_variables"] else "(brak)"),
         "",
     ] + _CONCEPT_TABLE_HEADER + [_concept_row(c) for c in minimal["concepts"]] + [
         "",

@@ -81,13 +81,15 @@ def weak_shock_world(tick: int, seed: int = 0) -> float:
 def long_stable_shock_world(tick: int, seed: int = 0) -> float:
     """Os: DLUGOSC STABILNYCH OKRESOW. Jak shock_world, ale shock_tick w [100,150]
     zamiast [20,80] - znacznie dluzszy stabilny okres przed perturbacja. Gorna
-    granica 150 (nie wiecej) CELOWO zostaje w bezpiecznym zakresie dla L1.2:
-    deadline=t_shock+W-N=t_shock+140 musi zostac <= ticks_total-1=299, wiec
-    t_shock<=159 - powyzej tego lesson_L1_2.compute_recovery_time() dostalby
-    KeyError z entropy_by_tick (dziura poza zarejestrowanym zakresem tickow).
-    To jest udokumentowana granica infrastruktury (patrz P2 raport), NIE blad -
-    ten scenariusz zostaje bezpiecznie ponizej niej, zeby izolowac WYLACZNIE os
-    'dlugosc stabilnego okresu', bez mieszania jej z osobnym crashem okienka."""
+    granica 150 (nie wiecej) CELOWO zostaje DOKLADNIE na bezpiecznej granicy dla
+    L1.2: okno sustained-in-band sprawdzane przez compute_recovery_time() czyta
+    az do indeksu t_shock+W-1=t_shock+149 (nie tylko do deadline=t_shock+W-N),
+    wiec potrzeba t_shock+149 <= ticks_total-1=299, czyli t_shock<=150 (SPRINT_
+    v0.11.0.md P2 - poprzednia wersja tego komentarza podawala blednie t_shock
+    <=159, pomijajac +N-1 z samego okna; skorygowane, zero zmiany zachowania,
+    bo shock_tick i tak nigdy nie przekraczal 150). Powyzej tej granicy
+    lesson_L1_2.run_shock_recovery() podnosi teraz jawny wyjatek opisowy
+    (RecoveryWindowOutOfDomainError) zamiast cichego KeyError - patrz tam."""
     rng = random.Random(seed)
     shock_tick = rng.randint(100, 150)
     shock_magnitude = rng.uniform(0.3, 0.9)
@@ -117,3 +119,40 @@ def get_scenario(name: str):
     if name not in SCENARIOS: raise ValueError(f"Unknown: {name}")
     return SCENARIOS[name]
 def list_scenarios(): return list(SCENARIOS.keys())
+
+# --- SPRINT_v0.11.0.md P2: rejestr WLASCIWOSCI scenariusza (nie nazwy) ---
+# Ktore scenariusze deklaruja POJEDYNCZE, jednoznacznie zlokalizowane zdarzenie
+# perturbacyjne (jeden t_shock) - wlasciwosc, ktorej clos_academy/lesson_L1_2.py
+# uzywa do policzenia recovery_time/pre_shock_in_band, ZAMIAST dawnego
+# name-gate `scenario == "shock_world"` (odkrycie SPRINT_v0.10.1.md P2:
+# weak_shock_world i long_stable_shock_world maja DOKLADNIE tę sama
+# jednoperturbacyjna strukture co shock_world, ale byly pomijane bo nazwa
+# sie nie zgadzala - to byla "cisza gorsza niz blad", nie wlasciwosc scenariusza).
+#
+# recurring_shock_world CELOWO NIE jest w tym rejestrze: ma WIELOKROTNE,
+# okresowe perturbacje (interval=40), wiec nie pasuje do modelu "jeden t_shock"
+# ktory recovery_time/pre_shock_in_band zakladaja - to jest prawdziwy brak
+# zastosowania konstruktu (jak stable_world/drift_world), NIE bledny pomin.
+SINGLE_PERTURBATION_SCENARIOS = {
+    "shock_world": lambda seed: random.Random(seed).randint(20, 80),
+    "weak_shock_world": lambda seed: random.Random(seed).randint(20, 80),
+    "long_stable_shock_world": lambda seed: random.Random(seed).randint(100, 150),
+}
+
+
+def has_single_perturbation(scenario: str) -> bool:
+    """Czy `scenario` deklaruje dokladnie jedno, zlokalizowane zdarzenie
+    perturbacyjne (WLASCIWOSC scenariusza, nie jego nazwa dosłowna)."""
+    return scenario in SINGLE_PERTURBATION_SCENARIOS
+
+
+def single_perturbation_tick(scenario: str, seed: int) -> int:
+    """Tick zdarzenia perturbacyjnego dla scenariusza z has_single_perturbation()
+    == True. Replikuje DOKLADNIE pierwsza operacje RNG danego scenariusza (ten
+    sam mechanizm, uogólniony, co historyczny lesson_L1_2._shock_tick())."""
+    if scenario not in SINGLE_PERTURBATION_SCENARIOS:
+        raise ValueError(
+            f"'{scenario}' nie deklaruje pojedynczej perturbacji - sprawdz "
+            "has_single_perturbation(scenario) przed wywolaniem tej funkcji"
+        )
+    return SINGLE_PERTURBATION_SCENARIOS[scenario](seed)

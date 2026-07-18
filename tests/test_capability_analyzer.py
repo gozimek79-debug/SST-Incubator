@@ -39,7 +39,7 @@ class TestInsufficientData:
             "Perception", "Attention", "Pattern Recognition", "Pattern Retention",
             "Working Memory", "Long-term Memory", "Prediction", "Adaptation",
             "Exploration", "Generalization", "Planning", "Stability",
-            "Energy Efficiency", "Homeostatic Resilience",
+            "Final Energy Level", "Homeostatic Resilience",  # SPRINT_v0.11.0.md P1: bylo "Energy Efficiency"
         }
         assert concepts == expected
 
@@ -132,9 +132,9 @@ class TestConceptMetricMapIsNtoM:
             l11_report = json.load(f)
 
         checks = {
-            "Pattern Recognition": "mse_stimulus_phase",
+            "Pattern Recognition": "mae_stimulus_phase",  # SPRINT_v0.11.0.md P1: bylo mse_stimulus_phase
             "Pattern Retention": "memory_decay_rate",
-            "Energy Efficiency": "final_energy",
+            "Final Energy Level": "final_energy",  # SPRINT_v0.11.0.md P1: bylo "Energy Efficiency"
         }
         for concept, field in checks.items():
             record = by_concept[concept]

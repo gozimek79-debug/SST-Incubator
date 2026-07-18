@@ -71,8 +71,11 @@ python scripts/validate_publication.py
 python scripts/validate_artifacts.py
 python scripts/validate_panel.py
 python scripts/validate_observability.py
+python scripts/validate_bundle_freshness.py
 ```
-**Oczekiwane:** wszystkie 4 kończą się `exit 0` i drukują `OK`.
+**Oczekiwane:** wszystkie 5 kończą się `exit 0` i drukują `OK` (5. walidator
+dodany SPRINT_v0.11.0.md P1, 2026-07-17 — sprawdza, że każdy `frozen: true`
+bundle w `publications/` ma pełne uzasadnienie, patrz punkt 8 w §4bis).
 
 ---
 
@@ -287,6 +290,22 @@ CTO lista braków, nie krok do wykonania.
    `population_sampling_seed`), ale warto o tym wiedzieć przed
    uruchomieniem na kopii roboczej z niezacommitowanymi zmianami gdzie
    indziej.
+8. **`publications/L1_1_pattern_echo/` (bundle użyty w punkcie 5 tej listy —
+   ślepa replikacja Linux/Python 3.12) jest FROZEN od SPRINT_v0.11.0.md P1
+   (2026-07-15/17, `metadata.json.frozen: true`).** Zawiera pola
+   `mse_stimulus_phase`/`mse_silence_phase`/`primary_endpoint.metric=
+   "mse_vs_pattern_after_stimulus_removal"` — bieżący kod (`clos_academy/
+   lesson_L1_1.py`) generuje te SAME wartości pod nazwami
+   `mae_stimulus_phase`/`mae_silence_phase`/`"mae_vs_pattern_after_stimulus_removal"`
+   (naprawiona nazwa — kod zawsze liczył `abs()`, nie kwadrat; patrz
+   `docs/MSE_MAE_NAMING_DECISION.md`). **Jeśli przyszła replikacja
+   regeneruje ten bundle** (`python -m clos_academy.publish_L1_1`) **i
+   porównuje wynik z tym, co jest w repo, RÓŻNICA W NAZWACH KLUCZY JEST
+   OCZEKIWANA, nie regresją** — sprawdź `metadata.json.frozen` PRZED
+   zgłoszeniem rozbieżności jako błędu. `scripts/validate_bundle_freshness.py`
+   weryfikuje, że każdy `frozen: true` bundle ma pełne uzasadnienie
+   (`frozen_reason` + `regeneration_expected_diff`) — uruchom go, jeśli
+   napotkasz nieoczekiwany `frozen` bundle gdziekolwiek w repo.
 
 ---
 
