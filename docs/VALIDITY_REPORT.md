@@ -785,7 +785,14 @@ silny-domyślny w L1.1) — kandydat do osobnego priorytetu.
 ² **Adaptation:** `_find_chaos_end()` daje false-positive "natychmiastowa
 adaptacja" (`adaptation_tick=0`) dla genomów o wysokim `decay_rate` —
 hipoteza post-hoc `decay_rate≈0.035`, nieprzetestowana niezależnie (sekcja
-Adaptation wyżej, `docs/CURRENT_SCIENTIFIC_LIMITS.md` §5).
+Adaptation wyżej, `docs/CURRENT_SCIENTIFIC_LIMITS.md` §5). **Doprecyzowanie
+(SPRINT_v0.11.0.md, 2026-07-18):** to "✘" tutaj jest jednolite dla L1.1 i
+L1.2, ale rzeczywisty konstrukt RÓŻNI SIĘ per (lekcja, środowisko) —
+`docs/METRIC_STATUS_TABLE.md` §3 rozdziela to na ◐ (cold-start, L1.1 i
+L1.2/drift_world) vs ✘ (pre-shock window bez związku z tematem lekcji,
+wyłącznie L1.2/shock_world, gdzie wartość jest stała=10 dla 100% populacji).
+Ten dokument NIE jest tu edytowany wstecznie — METRIC_STATUS_TABLE.md jest
+teraz dokładniejszym źródłem dla Adaptation.
 ³ **Stability:** `error(t)=|1-energy(t)|` to PROXY energii (nie realny błąd
 predykcji); `SI=1/(std+std+ε)` to skala odwrotna nieliniowa — utrudnia
 interpretację wartości bezwzględnej (nie tylko porównawczej).
