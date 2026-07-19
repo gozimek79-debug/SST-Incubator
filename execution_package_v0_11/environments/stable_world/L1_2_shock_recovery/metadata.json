@@ -1,0 +1,12 @@
+{
+  "created": "2026-07-19",
+  "created_by": "BUILD-002 (Execution Package v0.11, Faza 1 Build)",
+  "lesson": "L1.2",
+  "environment": "stable_world",
+  "purpose": "Kontrola deterministyczna, izolowana od L1.1 - zero wspoldzielonego config/stanu",
+  "expected_measurement_properties": {
+    "n_effective_per_genome": 1,
+    "reason": "clos_world/scenarios.py:11-12 - stable_world(tick, seed=0) ignoruje parametr seed w kodzie - sygnal identyczny na kazdym seedzie. Kazdy genom da std=0 na wszystkich 92 seedach TEGO katalogu.",
+    "consequence": "ANOVA na tych danych bedzie f_not_computable - to OCZEKIWANE, nie blad. Homeostatic Resilience nie dotyczy tego srodowiska (not_applicable, brak zdarzenia perturbacyjnego)."
+  }
+}

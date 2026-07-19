@@ -1,0 +1,11 @@
+{
+  "environment": "stable_world",
+  "lesson": "L1.2",
+  "lesson_function": "clos_academy.lesson_L1_2.run_shock_recovery",
+  "role": "kontrola deterministyczna dla Adaptation / Stability / Final Energy Level (baza porownawcza L1.2 - Homeostatic Resilience nie dotyczy stable_world, patrz docs/METRIC_STATUS_TABLE.md, not_applicable)",
+  "design_decision": {
+    "problem_resolved": "publications/preregistration_v0_11_0_ANEKS_2026-07-19_run_count_i_fdr.json, sekcja 'stable_world_lesson_assignment_PYTANIE_OTWARTE_DO_ARCHITEKTA'.",
+    "decision": "Patrz L1_1_pattern_echo/config.json - ten sam podzial, uzupelniajaca polowa (seeds 94-185, nie 1-93).",
+    "not_yet_confirmed_by_architect": "Podzial seedow (93/92) jest moja decyzja inzynierska - prosze o potwierdzenie przed pelnym uruchomieniem."
+  }
+}

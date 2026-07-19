@@ -1,0 +1,265 @@
+{
+  "source": "clos_curriculum.laboratory.population.generate_population() - NIE zduplikowane, wywolane wprost",
+  "population_sampling_seed": 20101,
+  "n_genomes": 23,
+  "genomes": [
+    {
+      "genome_id": "pop_000",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.225702,
+        "learning_rate": 0.098462,
+        "decay_rate": 0.076602,
+        "homeostasis_target": 0.439367,
+        "memory_capacity": 620
+      }
+    },
+    {
+      "genome_id": "pop_001",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.762893,
+        "learning_rate": 0.228433,
+        "decay_rate": 0.089752,
+        "homeostasis_target": 0.482828,
+        "memory_capacity": 869
+      }
+    },
+    {
+      "genome_id": "pop_002",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.661464,
+        "learning_rate": 0.78489,
+        "decay_rate": 0.02441,
+        "homeostasis_target": 0.362123,
+        "memory_capacity": 449
+      }
+    },
+    {
+      "genome_id": "pop_003",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.978899,
+        "learning_rate": 0.518457,
+        "decay_rate": 0.065978,
+        "homeostasis_target": 0.829283,
+        "memory_capacity": 239
+      }
+    },
+    {
+      "genome_id": "pop_004",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.852589,
+        "learning_rate": 0.170725,
+        "decay_rate": 0.057999,
+        "homeostasis_target": 0.976306,
+        "memory_capacity": 131
+      }
+    },
+    {
+      "genome_id": "pop_005",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.461702,
+        "learning_rate": 0.875199,
+        "decay_rate": 0.093568,
+        "homeostasis_target": 0.240389,
+        "memory_capacity": 571
+      }
+    },
+    {
+      "genome_id": "pop_006",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.90674,
+        "learning_rate": 0.616793,
+        "decay_rate": 0.05014,
+        "homeostasis_target": 0.270315,
+        "memory_capacity": 982
+      }
+    },
+    {
+      "genome_id": "pop_007",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.257841,
+        "learning_rate": 0.570764,
+        "decay_rate": 0.04112,
+        "homeostasis_target": 0.146917,
+        "memory_capacity": 285
+      }
+    },
+    {
+      "genome_id": "pop_008",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.393386,
+        "learning_rate": 0.99409,
+        "decay_rate": 0.083525,
+        "homeostasis_target": 0.699351,
+        "memory_capacity": 177
+      }
+    },
+    {
+      "genome_id": "pop_009",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.919777,
+        "learning_rate": 0.361502,
+        "decay_rate": 0.054342,
+        "homeostasis_target": 0.568153,
+        "memory_capacity": 47
+      }
+    },
+    {
+      "genome_id": "pop_010",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.692653,
+        "learning_rate": 0.468018,
+        "decay_rate": 0.020717,
+        "homeostasis_target": 0.532506,
+        "memory_capacity": 718
+      }
+    },
+    {
+      "genome_id": "pop_011",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.43483,
+        "learning_rate": 0.685663,
+        "decay_rate": 0.098318,
+        "homeostasis_target": 0.714009,
+        "memory_capacity": 906
+      }
+    },
+    {
+      "genome_id": "pop_012",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.187689,
+        "learning_rate": 0.941787,
+        "decay_rate": 0.00238,
+        "homeostasis_target": 0.886424,
+        "memory_capacity": 487
+      }
+    },
+    {
+      "genome_id": "pop_013",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.608474,
+        "learning_rate": 0.84194,
+        "decay_rate": 0.010624,
+        "homeostasis_target": 0.055057,
+        "memory_capacity": 319
+      }
+    },
+    {
+      "genome_id": "pop_014",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.124111,
+        "learning_rate": 0.353381,
+        "decay_rate": 0.060689,
+        "homeostasis_target": 0.914825,
+        "memory_capacity": 670
+      }
+    },
+    {
+      "genome_id": "pop_015",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.789332,
+        "learning_rate": 0.430309,
+        "decay_rate": 0.035411,
+        "homeostasis_target": 0.623671,
+        "memory_capacity": 78
+      }
+    },
+    {
+      "genome_id": "pop_016",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.282014,
+        "learning_rate": 0.742591,
+        "decay_rate": 0.073308,
+        "homeostasis_target": 0.348645,
+        "memory_capacity": 800
+      }
+    },
+    {
+      "genome_id": "pop_017",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.352293,
+        "learning_rate": 0.261279,
+        "decay_rate": 0.040073,
+        "homeostasis_target": 0.000395,
+        "memory_capacity": 358
+      }
+    },
+    {
+      "genome_id": "pop_018",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.512532,
+        "learning_rate": 0.127496,
+        "decay_rate": 0.028821,
+        "homeostasis_target": 0.773465,
+        "memory_capacity": 548
+      }
+    },
+    {
+      "genome_id": "pop_019",
+      "kind": "lhs",
+      "genome_preset": "default",
+      "genome_params": {
+        "plasticity": 0.590952,
+        "learning_rate": 0.0388,
+        "decay_rate": 0.01268,
+        "homeostasis_target": 0.161882,
+        "memory_capacity": 836
+      }
+    },
+    {
+      "genome_id": "default",
+      "kind": "anchor",
+      "genome_preset": "default",
+      "genome_params": null
+    },
+    {
+      "genome_id": "minimal",
+      "kind": "anchor",
+      "genome_preset": "minimal",
+      "genome_params": null
+    },
+    {
+      "genome_id": "highly_plastic",
+      "kind": "anchor",
+      "genome_preset": "highly_plastic",
+      "genome_params": null
+    }
+  ]
+}

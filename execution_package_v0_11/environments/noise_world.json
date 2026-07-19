@@ -1,0 +1,15 @@
+{
+  "environment": "noise_world",
+  "lesson": "L1.1",
+  "lesson_function": "clos_academy.lesson_L1_1.run_pattern_echo",
+  "role": "eksperymentalne (Working Memory, Pattern Recognition, Pattern Retention, Adaptation, Stability, Final Energy Level)",
+  "seed_policy": {
+    "seeds": "range(1, 186)",
+    "n_seeds": 185,
+    "disjoint_from": [],
+    "note": "Pelne 185 powtorzen, bez podzialu - jedna lekcja (L1.1), zero ryzyka kontaminacji miedzy-lekcyjnej."
+  },
+  "n_genomes": 23,
+  "n_runs": 4255,
+  "arithmetic": "23 genomy x 185 seedow = 4255"
+}

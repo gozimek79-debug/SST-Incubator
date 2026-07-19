@@ -1,0 +1,57 @@
+{
+  "study_id": "v0.11.0_confirmatory_rerun",
+  "generated_by": "execution_package_v0_11/configs/generate_manifest.py (BUILD-003)",
+  "genomes": 23,
+  "environments": 3,
+  "environments_list": [
+    "noise_world",
+    "stable_world",
+    "shock_world"
+  ],
+  "repetitions": 185,
+  "n_groups": 69,
+  "total_runs": 12765,
+  "cells": [
+    {
+      "lesson": "L1.1",
+      "environment": "noise_world",
+      "n_genomes": 23,
+      "n_seeds": 185,
+      "seeds": "range(1, 186)",
+      "n_runs": 4255
+    },
+    {
+      "lesson": "L1.1",
+      "environment": "stable_world",
+      "n_genomes": 23,
+      "n_seeds": 93,
+      "seeds": "range(1, 94)",
+      "n_runs": 2139
+    },
+    {
+      "lesson": "L1.2",
+      "environment": "shock_world",
+      "n_genomes": 23,
+      "n_seeds": 185,
+      "seeds": "range(1, 186)",
+      "n_runs": 4255
+    },
+    {
+      "lesson": "L1.2",
+      "environment": "stable_world",
+      "n_genomes": 23,
+      "n_seeds": 92,
+      "seeds": "range(94, 186)",
+      "n_runs": 2116
+    }
+  ],
+  "arithmetic_gate": {
+    "formula": "n_genomes (23) x n_environment_slots (3) x n_repetitions_per_group (185) = 12765",
+    "computed": 12765,
+    "matches_cell_sum": true,
+    "matches_required_12765": true,
+    "status": "PASS"
+  },
+  "stable_world_split_note": "stable_world (23x185=4255 lacznie) podzielony miedzy L1.1 (93 seedow, 2139 runow) i L1.2 (92 seedow, 2116 runow) - suma 185 seedow, ZERO nakladania. Patrz environments/stable_world/*/config.json:design_decision.",
+  "manifest_sha256": "b06c7b611ede7bbb5c54fa20d6b4e49d848440c5754da95969f58832e5041832"
+}

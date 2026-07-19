@@ -1,0 +1,34 @@
+{
+  "study_id": "v0.11.0_confirmatory_rerun",
+  "preregistration": "publications/preregistration_v0_11_0_power_reproduction.json",
+  "annex": "publications/preregistration_v0_11_0_ANEKS_2026-07-19_run_count_i_fdr.json",
+  "environments_confirmed": ["noise_world", "stable_world", "shock_world"],
+  "environments_excluded": {
+    "drift_world": "poza zakresem re-runu konfirmacyjnego (nadmiarowy dla spornych osi, patrz aneks warunek_1)"
+  },
+  "environments_nonexistent_do_not_add": ["changing_world", "adversarial_world"],
+  "n_genomes": 23,
+  "population_sampling_seed": 20101,
+  "n_repetitions_per_group": 185,
+  "n_groups": 69,
+  "total_runs": 12765,
+  "fdr_correction": {
+    "alpha": 0.05,
+    "n_tests": 9,
+    "alpha_corrected": 0.005555555555555556,
+    "source": "publications/preregistration_v0_11_0_ANEKS_2026-07-19_run_count_i_fdr.json, warunek_2 - NIE 0.05/21"
+  },
+  "homoscedasticity_policy": {
+    "Adaptation": "Kruskal-Wallis pierwotny (nieparametryczny) - homoskedastycznosc potwierdzone zlamana (7/23 i 3/23 genomow std=0 przy n=10); ANOVA-bez-zdegenerowanych jako sensitivity analysis",
+    "default_for_others": "ANOVA (Design C), z pre-zadeklarowana regula: sprawdzic std=0 per genom PRZED policzeniem ANOVA; jesli zdegenerowany, zastosowac ta sama regule co Adaptation"
+  },
+  "critical_files_frozen": {
+    "scope": "24 pliki kanoniczne (runtime+World+lekcje+walidatory+prereg), NIE tylko Core-only 4 katalogi - patrz validators/hard_halt.py:CRITICAL_FILES_AUD_001",
+    "baseline_hash_aud_001": "cca6f8f933a73c1ff9ca9a3e482b966fef4c430ee50f3ed6c35137d3ab8ec935",
+    "status": "ZAMKNIETE 2026-07-19 - hash odtworzony dokladnie (algorytm: sciezka+sha256(zawartosc znormalizowana CRLF->LF)), patrz hashes/baseline_hash.txt",
+    "enforcement": "validators/hard_halt.py::enforce_hard_halt() - self-match i corruption-detection zweryfikowane"
+  },
+  "not_yet_confirmed": [
+    "Podzial seedow stable_world (93/92) miedzy L1.1/L1.2 - moja decyzja inzynierska, NIE zatwierdzona przez audytora (audytor wprost odmowil zatwierdzenia - to decyzja o strukturze eksperymentu, nalezaca do Architekta), wymaga potwierdzenia Architekta (patrz environments/stable_world/*/config.json)"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "lesson": "L1.1",
+  "environment": "stable_world",
+  "seeds": "range(1, 94)",
+  "n_seeds": 93,
+  "n_genomes": 23,
+  "n_runs": 2139,
+  "arithmetic": "23 genomy x 93 seedy = 2139",
+  "disjoint_from": {
+    "path": "environments/stable_world/L1_2_shock_recovery/seed_policy.json",
+    "their_seeds": "range(94, 186)",
+    "overlap_check": "range(1,94) INTERSECT range(94,186) = zbior pusty - zero nakladania, zweryfikowane programowo w validators/hard_halt.py::check_stable_world_disjoint_seeds()"
+  },
+  "genome_coverage": "wszystkie 23 genomy obecne (pelne pokrycie kontrolne dla L1.1, mniejsza liczba powtorzen niz eksperymentalne noise_world - 93 zamiast 185)"
+}

@@ -1,0 +1,16 @@
+{
+  "lesson": "L1.2",
+  "environment": "stable_world",
+  "seeds": "range(94, 186)",
+  "n_seeds": 92,
+  "n_genomes": 23,
+  "n_runs": 2116,
+  "arithmetic": "23 genomy x 92 seedy = 2116",
+  "disjoint_from": {
+    "path": "environments/stable_world/L1_1_pattern_echo/seed_policy.json",
+    "their_seeds": "range(1, 94)",
+    "overlap_check": "range(94,186) INTERSECT range(1,94) = zbior pusty - zero nakladania, zweryfikowane programowo w validators/hard_halt.py::check_stable_world_disjoint_seeds()"
+  },
+  "genome_coverage": "wszystkie 23 genomy obecne (pelne pokrycie kontrolne dla L1.2, mniejsza liczba powtorzen niz eksperymentalne shock_world - 92 zamiast 185)",
+  "combined_with_L1_1": "93 (L1.1) + 92 (L1.2) = 185 - suma rowna sie budzetowi JEDNEGO srodowiska 'stable_world', nie 370 (2x185)"
+}

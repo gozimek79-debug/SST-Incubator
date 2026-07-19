@@ -1,0 +1,11 @@
+{
+  "environment": "stable_world",
+  "lesson": "L1.1",
+  "lesson_function": "clos_academy.lesson_L1_1.run_pattern_echo",
+  "role": "kontrola deterministyczna dla Working Memory / Pattern Recognition / Pattern Retention / Adaptation / Stability / Final Energy Level (Glass's delta, baza porownawcza L1.1)",
+  "design_decision": {
+    "problem_resolved": "publications/preregistration_v0_11_0_ANEKS_2026-07-19_run_count_i_fdr.json, sekcja 'stable_world_lesson_assignment_PYTANIE_OTWARTE_DO_ARCHITEKTA' - pytanie, ktora lekcja dostaje kontrole stable_world, bylo celowo nierozstrzygniete do decyzji Architekta.",
+    "decision": "OBIE lekcje dostaja WLASNA, fizycznie odseparowana konfiguracje (ten katalog + L1_2_shock_recovery/) - zero wspoldzielonego stanu/configu, AUD-004 sprawdza cross-lesson contamination=0. Zeby zachowac total_runs=12765 (nie 17020), 185 powtorzen 'stable_world' jest PODZIELONE (nie zdublowane) miedzy dwie lekcje - patrz seed_policy.json.",
+    "not_yet_confirmed_by_architect": "Sam PODZIAL seedow (93/92, ktore konkretnie zakresy) jest MOJA decyzja inzynierska spelniajaca ograniczenia (zero nakladania, pelne pokrycie 23 genomow w obu polowach, suma=185) - nie dosłowna specyfikacja z komunikatu Architekta. Prosze o potwierdzenie przed pelnym uruchomieniem."
+  }
+}

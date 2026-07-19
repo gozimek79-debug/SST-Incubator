@@ -1,0 +1,54 @@
+# AUD-001 - kanoniczny baseline hash (ZAMKNIETE 2026-07-19)
+#
+# Status: ZWERYFIKOWANY NIEZALEZNIE - odtworzony dokladnie z algorytmu i listy
+# ponizej. Historia rozbieznosci (Core-only, potem 24-plikowa rekonstrukcja bez
+# powodzenia, w koncu dokladna lista + poprawka normalizacji CRLF/LF) opisana w
+# execution_package_v0_11/hashes/core_hash_reconciliation.json.
+#
+# BASELINE:
+cca6f8f933a73c1ff9ca9a3e482b966fef4c430ee50f3ed6c35137d3ab8ec935
+#
+# ALGORYTM (dokladnie):
+#   h = sha256()
+#   for p in sorted(CRITICAL_FILES_AUD_001):
+#       content = read_bytes(p) z normalizacja CRLF -> LF (b"\r\n" -> b"\n")
+#       content_hash_hex = sha256(content).hexdigest()
+#       h.update(p.encode("utf-8") + content_hash_hex.encode("utf-8"))
+#   baseline = h.hexdigest()
+#
+# Normalizacja CRLF->LF jest KLUCZOWA - bez niej hash NIE odtwarza sie na
+# checkout'ach z core.autocrlf=true (Windows). Zaimplementowane w
+# validators/hard_halt.py::_normalized_content_hash() i compute_files_hash(),
+# bez zaleznosci od `git` jako procesu zewnetrznego - dziala z samych plikow
+# na dysku, niezaleznie od platformy/ustawienia autocrlf.
+#
+# 24 PLIKI KRYTYCZNE (posortowane, dokladnie w tej kolejnosci uzyte w hashu):
+clos_academy/echo_runtime.py
+clos_academy/lesson_L1_1.py
+clos_academy/lesson_L1_2.py
+clos_brain/runtime/__init__.py
+clos_brain/runtime/action.py
+clos_brain/runtime/homeostasis.py
+clos_brain/runtime/perception.py
+clos_brain/runtime/plasticity.py
+clos_brain/runtime/precision.py
+clos_brain/runtime/prediction.py
+clos_world/scenarios.py
+clos_world/world_runtime.py
+publications/preregistration_L1_1.json
+publications/preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json
+publications/preregistration_L1_1_v0.8.json
+publications/preregistration_L1_2.json
+publications/preregistration_v0_10_1_population.json
+publications/preregistration_v0_11_0_ANEKS_2026-07-19_run_count_i_fdr.json
+publications/preregistration_v0_11_0_power_reproduction.json
+scripts/validate_artifacts.py
+scripts/validate_bundle_freshness.py
+scripts/validate_observability.py
+scripts/validate_panel.py
+scripts/validate_publication.py
+#
+# Weryfikacja niezalezna: python execution_package_v0_11/validators/hard_halt.py
+# (lub compute_files_hash(Path("."), CRITICAL_FILES_AUD_001) w Pythonie) powinno
+# dac dokladnie powyzszy baseline, na dowolnej platformie/checkout'cie tego repo
+# przy tym samym commicie.

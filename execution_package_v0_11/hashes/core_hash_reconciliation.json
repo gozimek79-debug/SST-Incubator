@@ -1,0 +1,17 @@
+{
+  "status": "ZAMKNIETE 2026-07-19 - hash odtworzony dokladnie, zero rozbieznosci",
+  "baseline_aud_001": "cca6f8f933a73c1ff9ca9a3e482b966fef4c430ee50f3ed6c35137d3ab8ec935",
+  "final_root_cause": "Dwie niezalezne przyczyny nalozone na siebie: (1) pierwsze proby uzywaly ZLEJ listy plikow (rekonstrukcja z kategorii, nie dosłowna lista audytora) - naprawione otrzymaniem AUD_001_CANONICAL.txt; (2) NAWET z poprawna lista i poprawnym algorytmem (sciezka+sha256(zawartosc)_hex), hash nie zgadzal sie - przyczyna: `git config core.autocrlf=true` na tym Windows checkout'cie normalizuje pliki tekstowe do CRLF na dysku, podczas gdy AUD-001 zostal policzony na tresci LF (tak jak jest przechowywana w repo/na Linuxie). Naprawione normalizacja CRLF->LF PRZED zewnetrznym hashowaniem zawartosci kazdego pliku.",
+  "resolution_confirmed": "compute_files_hash() z validators/hard_halt.py, na CRITICAL_FILES_AUD_001 (24 pliki dostarczone przez audytora), z normalizacja CRLF->LF, daje DOKLADNIE cca6f8f933a73c1ff9ca9a3e482b966fef4c430ee50f3ed6c35137d3ab8ec935 - zweryfikowane bezposrednio.",
+
+  "history_of_attempts": {
+    "narrow_core_only_5_attempts": "Core-only (4 katalogi: clos_brain/clos_kernel/genome/birth), 5 metod hashowania - zaden nie pasowal, bo ZAKRES byl za waski (audytor uzyl 24 konkretnych plikow spoza samego Core, np. clos_world/scenarios.py, scripts/validate_*.py, publications/preregistration_*.json).",
+    "wide_reconstruction_2_attempts": "24-plikowa rekonstrukcja WG KATEGORII (runtime/World/lekcje/walidatory/prereg) bez dosłownej listy od audytora - 2 warianty, zaden nie pasowal (zla interpretacja kategorii 'runtime' - mysleaem clos_kernel/clos_brain orkiestracja, audytor mial na mysli clos_brain/runtime/*.py, glebokie mechanizmy poznawcze: action/homeostasis/perception/plasticity/precision/prediction).",
+    "canonical_list_crlf_bug": "Z dosłowna lista 24 plikow od audytora (AUD_001_CANONICAL.txt) i dokladnym algorytmem z instrukcji - PIERWSZA proba (surowe bajty z dysku) DALEJ nie pasowala (8b3b2bbd...). Przyczyna znaleziona: core.autocrlf=true, CRLF na dysku vs LF w AUD-001.",
+    "final_fix": "Normalizacja b'\\r\\n' -> b'\\n' PRZED hashowaniem kazdego pliku - hash odtworzony DOKLADNIE za pierwszym razem po tej poprawce."
+  },
+
+  "lesson_learned": "Ten sam wzorzec co poprzednie 2 rozbieznosci w tym sprincie (alpha bez korekty; power 0.906) - kazda pozorna 'niezgodnosc metod' okazala sie miec KONKRETNA, mozliwa do zidentyfikowania przyczyne (zla lista plikow, potem CRLF/LF), nie byla arbitralna. Weryfikacja niezalezna + trzymanie sie az do znalezienia przyczyny (zamiast poddania sie na 'to sie po prostu nie zgadza') dziala.",
+
+  "mechanism_status": "PRODUKCYJNY - CRITICAL_FILES_AUD_001 + AUD_001_BASELINE w validators/hard_halt.py sa teraz POTWIERDZONYM, gotowym do uzycia jako formalna bramka Hard-Halt dla pelnego wykonania 12765 runow."
+}
