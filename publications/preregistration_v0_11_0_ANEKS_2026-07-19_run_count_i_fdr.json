@@ -1,0 +1,170 @@
+{
+  "document_type": "aneks",
+  "amends": [
+    "publications/preregistration_v0_11_0_power_reproduction.json"
+  ],
+  "amendment_date": "2026-07-19",
+  "detected_in": "Decyzja CEO 'READY FOR START z warunkami Audytora' - dwa warunki wstepne przed uruchomieniem re-run",
+  "detected_by": "Audytor (AIA v4) + CEO, potwierdzone przeliczeniem wprost z danych ponizej",
+  "policy": {
+    "originals_unchanged": true,
+    "reason": "publications/preregistration_v0_11_0_power_reproduction.json pozostaje zapisem PIERWOTNEJ, kompleksowej analizy mocy (wszystkie 7 osi x wszystkie srodowiska, wlacznie z drift_world) - nie edytowany w miejscu. Ten aneks zapisuje KOREKTE ZAKRESU re-runu (nie korekte matematyki mocy, ktora w oryginale jest poprawna dla zadeklarowanego wtedy zakresu) - slad audytowy > czysty dokument, ten sam wzorzec co preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json.",
+    "status_before_this_annex": "Re-run WSTRZYMANY do zatwierdzenia dokumentow (bez zmian) - ten aneks jest CZESCIA przygotowania warunkow wstepnych, NIE zezwoleniem na uruchomienie. ZERO eksperymentu wykonane."
+  },
+
+  "warunek_1_run_count_reconciliation": {
+    "finding": {
+      "original_prereg_figure": 25530,
+      "original_prereg_source": "design_c_omnibus_anova (wariant 'Design C, pojedynczy przebieg n=185'), computational_cost: '23 genomy x 3 srodowiska x 185 seedow x 2 lekcje = 25530 przebiegow'",
+      "ceo_aia_v4_figure": 12765,
+      "auditor_confirmation": "12765 (zakres {noise_world, stable_world, shock_world}, drift_world pominiety) WYSTARCZA - wszystkie sporne osie (Working Memory/Pattern Recognition/Pattern Retention w noise_world, Homeostatic Resilience w shock_world) sa objete."
+    },
+    "arithmetic_reconciliation": {
+      "original_formula": "23 genomow x 185 seedow x 3 srodowiska x 2 lekcje = 25530 - formula ZAKLADA, ze KAZDA z 3 nazwanych srodowisk (noise_world, stable_world, drift_world DLA L1.1; shock_world, stable_world, drift_world DLA L1.2) jest uruchamiana przez OBIE lekcje bez wzgledu na to, czy dana lekcja w ogole potrzebuje danego srodowiska dla swoich spornych osi - tj. 6 odrebnych par (lekcja, srodowisko): {L1.1: noise, stable, drift} + {L1.2: shock, stable, drift} = 6 x 23 x 185 = 25530.",
+      "revised_formula": "23 genomow x 185 seedow x 3 pary (lekcja, srodowisko) = 12765, gdzie 3 pary = {L1.1 x noise_world, L1.1 x stable_world, L1.2 x shock_world}.",
+      "why_exactly_these_3_pairs": "Sporne osie to Working Memory/Pattern Recognition/Pattern Retention (wylacznie L1.1, potrzebuja noise_world jako srodowiska eksperymentalnego ORAZ stable_world jako kontroli/bazy do Glass's delta) i Homeostatic Resilience (wylacznie L1.2, potrzebuje shock_world - jedynego srodowiska, gdzie ten konstrukt w ogole ma zastosowanie, patrz docs/METRIC_STATUS_TABLE.md wiersz 'not_applicable' dla stable_world/drift_world). L1.2 x stable_world NIE jest w zakresie: (a) Homeostatic Resilience tam nie dotyczy (not_applicable, nie brak danych), (b) pozostale osie L1.2 mierzone w stable_world (Adaptation/Stability/Energy Efficiency) NIE sa wsrod spornych osi tego re-runu, (c) stable_world jest w kazdym kontekscie deterministyczna kontrola (patrz warunek_2 nizej) - uruchomienie jej DRUGI raz przez L1.2 nie doda zadnej testowalnej informacji ponad to, co daje L1.1 x stable_world.",
+      "explicit_caveat_not_independently_confirmed": "Ta rekonstrukcja 'dlaczego dokladnie te 3 pary' jest WYPROWADZONA z arytmetyki (23x185x3=12765 pasuje TYLKO przy dokladnie 3 parach) i z logiki 'ktore srodowiska sa faktycznie potrzebne dla spornych osi' - NIE jest to dosłowny cytat z dokumentu AIA v4 (ktorego nie mam). Prosze o jawne potwierdzenie CEO/Audytora, ze L1.2 x stable_world jest rzeczywiscie wylaczony (a nie, na przyklad, ze zamiast tego wspoldzielony jest jeden zbior stable_world miedzy obiema lekcjami w inny sposob)."
+    }
+  },
+
+  "warunek_1_consequences_for_confirmatory_validity": {
+    "scope_of_confirmatory_re_run": ["L1.1 x noise_world", "L1.1 x stable_world", "L1.2 x shock_world"],
+    "drift_world_exclusivity_check": {
+      "method": "Sprawdzone programowo wprost z reports/population/population_validation_v0_10_1.json: dla kazdej z 7 zmierzonych osi wypisano PELNY zbior srodowisk, w ktorych metryka ma status inny niz brak.",
+      "result": "ZERO osi jest mierzone WYLACZNIE w drift_world - kazda os obecna w drift_world jest TAKZE obecna w noise_world (L1.1) lub shock_world (L1.2) lub obu.",
+      "per_axis_environment_coverage": {
+        "Working Memory": ["drift_world", "noise_world", "stable_world"],
+        "Pattern Recognition": ["drift_world", "noise_world", "stable_world"],
+        "Pattern Retention": ["drift_world", "noise_world", "stable_world"],
+        "Adaptation": ["drift_world", "noise_world", "shock_world", "stable_world"],
+        "Stability": ["drift_world", "noise_world", "shock_world", "stable_world"],
+        "Final Energy Level": ["drift_world", "noise_world", "shock_world", "stable_world"],
+        "Homeostatic Resilience": ["drift_world", "shock_world", "stable_world"]
+      }
+    },
+    "axes_losing_confirmatory_coverage_in_dropped_contexts": {
+      "explanation": "Zaden konstrukt nie traci CALEJ swojej Confirmatory validity (zaden nie jest drift-only), ale TRZY osie tracą CZESCIOWA sciezke potwierdzenia - byly mierzone w wiecej niz jednym srodowisku/lekcji w kompleksowym badaniu P3, a re-run potwierdzi je tylko tam, gdzie miesci sie w zakresie 3 par.",
+      "Adaptation": "mierzona w 4 kontekstach (L1.1 noise/drift, L1.2 shock/drift) w P3 - re-run potwierdzi WYLACZNIE L1.1 x noise_world. L1.1 x drift_world, L1.2 x shock_world (tam i tak f_not_computable, patrz warunek_2), L1.2 x drift_world NIE otrzymaja Confirmatory validity z tego re-runu.",
+      "Stability": "mierzona w 4 kontekstach (L1.1 noise/drift, L1.2 shock/drift) - re-run potwierdzi L1.1 x noise_world ORAZ L1.2 x shock_world (oba w zakresie). L1.1 x drift_world i L1.2 x drift_world NIE.",
+      "Final Energy Level": "identycznie jak Stability - potwierdzone w L1.1 x noise_world i L1.2 x shock_world, NIE w zadnym z dwoch kontekstow drift_world.",
+      "Working Memory / Pattern Recognition / Pattern Retention": "mierzone w P3 w noise_world i drift_world (obie L1.1) - re-run potwierdzi WYLACZNIE noise_world. drift_world NIE otrzyma Confirmatory validity, ale audytor juz to zaakceptowal jako nadmiarowe dla tych 3 spornych osi.",
+      "Homeostatic Resilience": "mierzona WYLACZNIE w shock_world (stable_world/drift_world = not_applicable, nie brak pomiaru) - re-run w pelni w zakresie, zero utraconego kontekstu."
+    }
+  },
+
+  "warunek_2_fdr_correction": {
+    "claim_in_aia_v4": "21 rownoczesnych testow omnibusu (7 metryk x 3 srodowiska), alpha_corrected = 0.05/21 = 0.002381",
+    "problem": "Siatka 7x3 NIE jest pelna - nie kazda z 7 osi ma zastosowanie w kazdym z 3 srodowisk, i CZESC komorek jest DETERMINISTYCZNIE zdegenerowana (zero wariancji wewnatrzgrupowej we WSZYSTKICH 23 genomach) - test ANOVA nie jest tam w ogole obliczalny (status 'f_not_computable' w publications/preregistration_v0_11_0_power_reproduction.json), wiec nie powinien wchodzic do liczby 'rownoczesnych testow' korygowanych FDR/Bonferronim (nie ma czego korygowac - test sie nie odbywa).",
+    "real_grid_within_scope_noise_stable_shock": {
+      "total_metric_environment_pairs_in_scope": 20,
+      "computed_realnie_testowalne": 9,
+      "f_not_computable_zdegenerowane": 10,
+      "not_applicable_konstrukt_nie_istnieje": 1,
+      "computed_rows": [
+        {"lesson": "L1.1", "environment": "noise_world", "metric": "Working Memory", "f_obs": 0.2652},
+        {"lesson": "L1.1", "environment": "noise_world", "metric": "Adaptation", "f_obs": 5.079},
+        {"lesson": "L1.1", "environment": "noise_world", "metric": "Stability", "f_obs": 2.2507},
+        {"lesson": "L1.1", "environment": "noise_world", "metric": "Pattern Recognition", "f_obs": 0.13},
+        {"lesson": "L1.1", "environment": "noise_world", "metric": "Pattern Retention", "f_obs": 0.1932},
+        {"lesson": "L1.1", "environment": "noise_world", "metric": "Final Energy Level", "f_obs": 3.067},
+        {"lesson": "L1.2", "environment": "shock_world", "metric": "Homeostatic Resilience", "f_obs": 6.4077},
+        {"lesson": "L1.2", "environment": "shock_world", "metric": "Stability", "f_obs": 1.8166},
+        {"lesson": "L1.2", "environment": "shock_world", "metric": "Final Energy Level", "f_obs": 2.4073}
+      ],
+      "f_not_computable_rows": [
+        "L1.1 stable_world: WSZYSTKIE 6 osi (deterministyczna kontrola, n_eff=1 dla kazdego genomu - patrz warunek_2 nizej)",
+        "L1.2 stable_world: Adaptation, Stability, Final Energy Level (to samo zjawisko)",
+        "L1.2 shock_world: Adaptation (stala=10 dla WSZYSTKICH 23 genomow x 10 seedow - degeneracja konstruktu, patrz docs/METRIC_STATUS_TABLE.md §3, NIE brak wariancji z powodu kontroli)"
+      ],
+      "not_applicable_rows": ["L1.2 stable_world: Homeostatic Resilience (konstrukt nie istnieje bez perturbacji, nie porazka pomiaru)"],
+      "does_stable_world_enter_correction": "NIE. Zero z 6 (L1.1) + 3 z pozostalych sprawdzanych (L1.2) komorek stable_world jest obliczalne - stable_world (kontrola deterministyczna, n_eff=1 z definicji mechanizmu CI95/pseudoreplikacji, RESEARCH_READINESS_REPORT.md §1.2) nie wnosi ANI JEDNEJ testowalnej komorki ANOVA do puli wymagajacej korekty."
+    },
+    "corrected_alpha": {
+      "real_n_tests": 9,
+      "alpha_bonferroni_equivalent": 0.005556,
+      "alpha_bonferroni_equivalent_exact": 0.005555555555555556,
+      "note": "0.05/9 = 0.005556 (mniej konserwatywne niz bledne 0.05/21 = 0.002381, bo REALNA liczba rownoczesnych testow jest mniejsza niz zakladano - to NIE 'ulatwienie' wynikow, to poprawka bledu przeszacowania liczby testow). BH-FDR (metoda faktycznie uzywana w analizie parowej, nie tylko omnibusie) rowniez powinien byc liczony na tych samych 9 testach, nie 21, gdziekolwiek 'liczba testow omnibusu' wchodzi do planu analizy konfirmacyjnej."
+    },
+    "declaration": "Plan analizy dla re-runu konfirmacyjnego MUSI korygowac na 9 rownoczesnych testow omnibusu (nie 21) w zakresie {L1.1 x noise_world (6 osi), L1.2 x shock_world (3 osie, Adaptation wylaczona z powodu degeneracji konstruktu - patrz warunek_2 homoskedastycznosc)}. Ta liczba MOZE ulec zmianie po realnym re-runie n=185, jesli ktoras z 10 obecnie 'f_not_computable' komorek okaze sie miec realna wariancje przy wiekszej probie (malo prawdopodobne dla stable_world - kontrola jest deterministyczna z definicji scenariusza, nie z powodu wielkosci probki) - korekta MUSI byc przeliczona na RZECZYWISCIE obliczalnych komorkach z re-runu, nie zalozona z gory na podstawie n=10."
+  },
+
+  "warunek_2_homoscedasticity": {
+    "problem_statement": "ANOVA (Design C, power_anova/cohens_f_anova) zaklada rownosc wariancji miedzygrupowej (homoskedastycznosc). Dla genomow z deterministyczna degeneracja (std=0 na WSZYSTKICH 10 seedach przy obecnym n=10) zalozenie to jest ZLAMANE w obrebie samej metryki - grupa (genom) o std=0 obok grup o std>0 narusza zalozenie rownosci wariancji wymagane przez klasyczna ANOVA. Zadna moc raportowana dla takiej metryki/kontekstu (np. cytowana przez CEO/AIA v4 wartosc 0.906) nie jest wazna, dopoki to zalozenie jest zlamane - NIEZALEZNIE od tego, jak duzy jest f_obs.",
+    "note_on_cited_0_906_figure": "Nie znaleziono wartosci 0.906 w zadnym pliku tego repo (sprawdzone: publications/preregistration_v0_11_0_power_reproduction.json, reports/population/population_validation_v0_10_1.json) - prawdopodobnie pochodzi z zewnetrznego dokumentu AIA v4, do ktorego nie mam dostepu. Nie moge zweryfikowac jej dokladnego zrodla, ale DEKLARACJA ponizej obowiazuje niezaleznie od tego, jaka dokladnie liczba byla cytowana - problem jest w zalozeniu (homoskedastycznosc), nie w konkretnej wartosci mocy.",
+    "verified_degeneracy_per_axis_from_n10_data": {
+      "method": "policzone wprost z reports/population/population_validation_v0_10_1.json: dla kazdego genomu w kazdej (lekcja, srodowisko, metryka) sprawdzono per_genome[genom].std == 0.0 (10 identycznych wartosci na 10 seedach tego samego genomu).",
+      "Adaptation": {
+        "L1.1_noise_world": "7 z 23 genomow ma std=0 (deterministyczna 'natychmiastowa adaptacja', wysoki decay_rate - znany mechanizm falszywie-pozytywny, docs/CURRENT_SCIENTIFIC_LIMITS.md §5)",
+        "L1.1_drift_world": "3 z 23 genomow ma std=0",
+        "L1.2_shock_world": "23 z 23 (WSZYSTKIE) - stala=10, konstrukt calkowicie zdegenerowany tutaj (patrz docs/METRIC_STATUS_TABLE.md §3, INVALID_CONSTRUCT, nie problem homoskedastycznosci - test i tak jest f_not_computable)",
+        "verdict": "POTWIERDZONE zlamanie homoskedastycznosci w L1.1 (obu srodowiskach w zakresie tego re-runu). Nie dotyczy L1.2/shock_world - tam konstrukt jest niewlasciwy (INVALID_CONSTRUCT), nie tylko zalozenie ANOVA."
+      },
+      "Final_Energy_Level_dawniej_Energy_Efficiency": {
+        "L1.1_noise_world": "0 z 23 genomow ma std=0",
+        "L1.2_shock_world": "0 z 23 genomow ma std=0",
+        "verdict": "NIEPOTWIERDZONE w obecnych danych n=10 - w przeciwienstwie do twierdzenia w zleceniu ('Adaptation/Energy'), Final Energy Level NIE wykazuje degeneracji homoskedastycznosci w ZADNYM sprawdzonym srodowisku eksperymentalnym przy obecnym n=10. Zglaszam te rozbieznosc zamiast po cichu przyjac, ze Energy ma ten sam problem co Adaptation - nie jest to potwierdzone danymi, ktore mam."
+      },
+      "bonus_finding_not_explicitly_requested": {
+        "Homeostatic_Resilience_L1.2_shock_world": "15 z 23 genomow ma std=0 - RowNIEZ narusza homoskedastycznosc, ale mechanizm jest inny (prawdopodobnie cenzurowanie/deterministyczny recovery_time przy ustalonych parametrach genomu, nie ten sam artefakt 'falszywie-pozytywnej adaptacji' co przy Adaptation) - nie badane tu z tym samym poziomem szczegolowosci. Flaguje to jako DODATKOWE odkrycie do sprawdzenia, wykraczajace poza to, o co pytano ('Adaptation/Energy') - homoskedastycznosc powinna byc sprawdzona dla WSZYSTKICH 9 realnie testowalnych komorek przed re-runem, nie zakladana wylacznie dla dwoch nazwanych osi."
+      }
+    },
+    "declaration": {
+      "Adaptation": "PIERWOTNY test konfirmacyjny: Kruskal-Wallis (nieparametryczny, rangowy, nie zaklada homoskedastycznosci/normalnosci) zamiast ANOVA, dla L1.1 x noise_world (jedyny kontekst Adaptation w zakresie tego re-runu z realna, choc czesciowo zdegenerowana, wariancja - L1.2/shock_world jest i tak wylaczone jako INVALID_CONSTRUCT, nie wymaga tej decyzji). DODATKOWA analiza wrazliwosci: powtorzenie ANOVA z WYKLUCZENIEM zdegenerowanych genomow (std=0), jawnie oznaczona jako sensitivity analysis, NIE jako test pierwotny - zeby uniknac zarzutu wybierania podpróby pod pozadany wynik (zasada nadrzedna 2, zero overfittingu).",
+      "Final_Energy_Level": "Brak potwierdzonej degeneracji w obecnych danych n=10 - test pierwotny pozostaje ANOVA (Design C) BEZ zmian, ALE z pre-zadeklarowana regula: PO re-runie n=185, przed policzeniem ANOVA, sprawdzic std=0 per genom w L1.1 x noise_world i L1.2 x shock_world; jesli ktorykolwiek genom okaze sie zdegenerowany przy n=185, zastosowac TA SAMA regule co dla Adaptation (Kruskal-Wallis pierwotny + ANOVA-bez-zdegenerowanych jako sensitivity). Ta regula jest zadeklarowana TERAZ (prospektywnie), zeby decyzja o teście nie byla podejmowana PO zobaczeniu wynikow n=185.",
+      "Homeostatic_Resilience": "Ta sama pre-zadeklarowana regula co Final Energy Level - sprawdzic std=0 po re-runie, zanim wybierze sie test.",
+      "general_rule_for_remaining_6_of_9_cells": "Working Memory, Pattern Recognition, Pattern Retention, Stability (oba srodowiska) - 0 zdegenerowanych genomow przy n=10 dla wszystkich (sprawdzone), ale ta sama regula homoskedastycznosci (sprawdz std=0 PRZED wyborem testu, nie po) obowiazuje dla wszystkich 9 komorek, nie tylko dla explicite wymienionych w tym zleceniu."
+    }
+  },
+
+  "aia_v4_reconciliation_2026-07-19_ROZSTRZYGNIETE": {
+    "context": "Audytor dostarczyl pelny tekst AIA v4, zweryfikowal 3 otwarte punkty z pierwszej rekoncyliacji (wersja 1.1 tego aneksu) i rozstrzygnal 2 z nich. Trzeci pozostaje otwarty CELOWO - decyzja nalezy do Architekta/CTO, nie do audytora ani do mnie.",
+
+    "run_count_confirmed": {
+      "result": "ZGODNE (bez zmian od wersji 1.1). AIA v4 wprost: '23 unikalne genomy testowane w 3 niezaleznych srodowiskach (noise_world, stable_world, shock_world)', '69 niezaleznych grup', 'N=185', '12 765 runow (69 x 185)'. Dokladnie ta sama arytmetyka co w warunek_1 powyzej."
+    },
+
+    "power_0_906_WYCOFANE": {
+      "aia_v4_original_claim": "'Moc statystyczna: 0.906 dla efektu sredniego (f=0.265) przy zalozeniu jednorodnosci wariancji wewnatrz grup.'",
+      "resolution": "WYCOFANE przez audytora 2026-07-19. Audytor zweryfikowal niezaleznie: przy n=185 moc dla f=0.265 = 1.000, nie 0.906. Zrodlo bledu: 0.906 to relikt wczesniejszej analizy przy MNIEJSZYM n (prawdopodobnie n=30, patrz publications/preregistration_v0_11_0_power_reproduction.json: power_n30=0.9518 dla tego samego f_obs=0.265, alpha/21 - liczba bliska 0.906 rzedu wielkosci, ale z innego etapu analizy), bledny w tekscie AIA v4.",
+      "my_own_verification_was_correct": "Moja proba reprodukcji (poprzednia wersja tego aneksu) nie znalazla ZADNEJ kombinacji alpha/n/k dajacej 0.906 dla n=185 - audytor potwierdza, ze mialem racje nie akceptujac tej liczby bez weryfikacji.",
+      "declared_power_going_forward": {
+        "anova_average_effect": "~1.000 dla efektu sredniego (f=0.265, Working Memory) przy n=185, dowolna rozsadna korekta (0.05/9 lub nawet konserwatywnie 0.05/21) - patrz power_anova() w clos_curriculum/laboratory/statistics.py.",
+        "explicit_caveat": "Powyzsze ~1.000 dotyczy WYLACZNIE osi, dla ktorych zalozenie homoskedastycznosci ANOVA jest spelnione. Dla osi ze zerwanym zalozeniem (Adaptation - potwierdzone w warunek_2_homoscedasticity: 7/23 i 3/23 genomow std=0 w L1.1) moc liczona jest OSOBNO, metoda Kruskal-Wallis (nieparametryczna, nie zaklada homoskedastycznosci) - NIE przez power_anova(). ~1.000 z ANOVA NIE obowiazuje dla tych osi, niezaleznie od tego, jak wysoki jest ich f_obs.",
+        "nie_cytowac_0_906": "0.906 nie pojawia sie juz nigdzie w tym dokumencie jako liczba do cytowania - zachowane powyzej wylacznie jako zapis bledu i jego korekty (slad audytowy)."
+      }
+    },
+
+    "fdr_correction_0_05_over_9_POTWIERDZONA": {
+      "aia_v4_original_claim": "'Metoda: Omnibus ANOVA z korekcja dla 21 testow (7 metryk x 3 srodowiska)'.",
+      "resolution": "0.05/21 z AIA v4 uznane przez audytora za BLEDNE. Dowod strukturalny (stable_world ignoruje seed w kodzie zrodlowym -> ANOVA tam NIGDY nie jest obliczalna, niezaleznie od n) oceniony przez audytora jako MOCNIEJSZY niz argument oparty wylacznie na danych n=10 - bo nie zalezy od wielkosci proby, jest wlasnoscia kodu.",
+      "code_evidence_kept_as_proof": {
+        "file": "clos_world/scenarios.py",
+        "lines": "11-12",
+        "code": "def stable_world(tick: int, seed: int = 0) -> float:\n    return sine_wave(tick, frequency=0.1, amplitude=0.4)",
+        "proof": "Parametr 'seed' jest przyjety przez funkcje, ale NIGDZIE nie uzyty w jej ciele - sygnal stable_world zalezy WYLACZNIE od 'tick', jest identyczny dla kazdego seeda. Dowolny genom uruchomiony na stable_world da dokladnie te sama trajektorie entropii/energii na kazdym z 185 seedow - std=0 gwarantowane strukturalnie, nie empirycznie. Zaden test ANOVA w stable_world (dla zadnej metryki, w zadnej lekcji) nie stanie sie obliczalny przy wiekszym n - to nie jest kwestia mocy proby, to fakt o definicji scenariusza."
+      },
+      "declared_correction": {
+        "real_n_tests": 9,
+        "alpha_bonferroni_equivalent": 0.005556,
+        "alpha_bonferroni_equivalent_exact": 0.005555555555555556,
+        "scope": "L1.1 x noise_world (6 osi: Working Memory, Adaptation, Stability, Pattern Recognition, Pattern Retention, Final Energy Level) + L1.2 x shock_world (3 osie obliczalne: Homeostatic Resilience, Stability, Final Energy Level - Adaptation w shock_world pozostaje f_not_computable, patrz warunek_2/docs/METRIC_STATUS_TABLE.md §3, INVALID_CONSTRUCT tam, nie problem mocy).",
+        "status": "OSTATECZNE dla tego aneksu - 0.05/9 zastepuje 0.05/21 z AIA v4 jako korekta obowiazujaca w planie analizy konfirmacyjnej."
+      }
+    },
+
+    "stable_world_lesson_assignment_PYTANIE_OTWARTE_DO_ARCHITEKTA": {
+      "status": "CELOWO NIEROZSTRZYGNIETE - to realna luka, decyzja nalezy do Architekta/CTO, nie do audytora ani do mnie. Nie zgaduje odpowiedzi.",
+      "pytanie": "AIA v4 mowi '3 srodowiska' (noise_world, stable_world, shock_world), jakby srodowisko samo definiowalo grupe - ale w kodzie (clos_academy/population_validation.py) L1.1 x stable_world i L1.2 x stable_world to OSOBNE zbiory przebiegow (rozne funkcje lekcji - run_pattern_echo vs run_shock_recovery, rozne zapisywane metryki), nie jeden wspoldzielony zbior. Czy re-run n=185 uzywa JEDNEGO wspolnego zbioru stable_world (185 przebiegow, wspoldzielonych miedzy L1.1 i L1.2), czy DWOCH OSOBNYCH zbiorow per lekcja (2x185=370 przebiegow na stable_world, laczna liczba runow 23x185x4=17020, nie 12765)? Wplywa na to, ktora lekcja (L1.1 czy L1.2, czy obie) ma wlasna kontrole bazowa (Working Memory/Pattern Recognition/Pattern Retention z L1.1 potrzebuja swojej kontroli do Glass's delta; Adaptation/Stability/Final Energy Level z L1.2 - analogicznie).",
+      "why_not_resolved_by_aia_v4": "AIA v4 nie uzywa ani razu terminow 'L1.1'/'L1.2'/'lekcja' - nie adresuje tego rozroznienia w ogole.",
+      "consequence_if_unresolved_before_start": "Jesli re-run uruchomi sie z zalozeniem 'jeden wspolny zbior 185' bez jawnej decyzji, KTORA lekcja go dostanie, dwie osobne implementacje (moja i ewentualnego wykonawcy re-runu) moga rozbiezniе to zalozyc - dokladnie ten rodzaj cichej niezgodnosci, ktoremu ten cale sprint ma zapobiegac."
+    },
+
+    "homoscedasticity_assumption_explicitly_flagged_by_aia_v4_itself": {
+      "note": "AIA v4 samo dopisywalo zastrzezenie 'przy zalozeniu jednorodnosci wariancji wewnatrz grup' do (bledenej) liczby 0.906 - to POTWIERDZA, ze AIA v4 bylo SWIADOME, ze to zalozenie moze nie obowiazywac, ale nie precyzowalo dla ktorych osi. warunek_2_homoscedasticity powyzej odpowiada na to wprost: Adaptation (7/23 i 3/23 genomow std=0 w L1.1) NARUSZA to zalozenie, empirycznie potwierdzone; Final Energy Level - NIE narusza (0/23) w obecnych danych n=10."
+    }
+  },
+
+  "not_yet_done": "ZERO uruchomienia eksperymentu - re-run pozostaje WSTRZYMANY. Ten dokument przygotowuje warunki wstepne do audytu pre-execution, nie jest zezwoleniem na start.",
+  "cto_ceo_decision_reference": "CEO: 'READY FOR START z warunkami Audytora' (2026-07-19) - warunki 1 i 2 zaadresowane. Audytor rozstrzygnal 2026-07-19 dwa z trzech punktow rekoncyliacji AIA v4 (patrz aia_v4_reconciliation_2026-07-19_ROZSTRZYGNIETE): (1) moc 0.906 WYCOFANA, poprawna wartosc ~1.000 dla efektu sredniego przy n=185, z zastrzezeniem Kruskal-Wallis dla osi ze zerwana homoskedastycznoscia; (2) korekta FDR 0.05/9 POTWIERDZONA (nie 0.05/21 z AIA v4), dowod strukturalny w kodzie stable_world; (3) przypisanie lekcji do stable_world pozostaje CELOWO OTWARTYM pytaniem do Architekta/CTO - nie rozstrzygniete przez audytora ani przeze mnie. Re-run pozostaje WSTRZYMANY do decyzji w punkcie (3) i formalnego zatwierdzenia audytu pre-execution.",
+  "version": "1.2"
+}
