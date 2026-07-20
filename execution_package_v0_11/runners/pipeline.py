@@ -116,13 +116,16 @@ def _record(lesson: str, environment: str, genome_id: str, seed: int, metrics: D
     }
 
 
-def write_checkpoint(logs_dir: Path, completed: int, total: int, results_path: Path) -> Path:
+def write_checkpoint(logs_dir: Path, completed: int, total: int, results_path: Path,
+                      core_hash: Optional[str] = None) -> Path:
     ckpt = {
         "completed": completed,
         "total": total,
         "fraction": round(completed / total, 6),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "results_path": str(results_path),
+        "hard_halt_status": "PASS (hash zgodny z baseline AUD-001)" if core_hash else "nie sprawdzane przy tym checkpoincie",
+        "core_hash_at_checkpoint": core_hash,
     }
     ckpt_path = logs_dir / f"checkpoint_{completed}.json"
     with open(ckpt_path, "w", encoding="utf-8") as f:
@@ -174,7 +177,11 @@ def run_pipeline(specs: List[Tuple[str, str, str, int]], results_path: Path, log
 
             if completed in checkpoint_intervals or completed == total:
                 out.flush()
-                write_checkpoint(logs_dir, completed, total, results_path)
+                if enforce_core_hash:
+                    # Hard-Halt AKTYWNY PRZEZ CALY BIEG (nie tylko na starcie) -
+                    # ponowna weryfikacja przy kazdym checkpoincie, nie tylko raz.
+                    core_hash = enforce_hard_halt(REPO_ROOT, baseline=baseline)
+                write_checkpoint(logs_dir, completed, total, results_path, core_hash=core_hash)
 
     return {
         "total": total,
@@ -183,6 +190,27 @@ def run_pipeline(specs: List[Tuple[str, str, str, int]], results_path: Path, log
         "core_hash": core_hash,
         "resumed_from": start_index,
     }
+
+
+PRODUCTION_RESULTS_PATH_NAME = "full_rerun_results.jsonl"
+
+
+def run_full_experiment() -> Dict[str, Any]:
+    """PELNY re-run konfirmacyjny (12765 runow) - START AUTORYZOWANY przez
+    Final Audit Gate (audytor, klon 5098e1f, 2026-07-19). Zapisuje do NOWEGO
+    pliku (results/full_rerun_results.jsonl), NIE dotyka Exploratory Dataset
+    v0.10 (reports/population/population_validation_v0_10_1.json)."""
+    specs = build_run_specs(n_seeds_per_group=None)
+    assert len(specs) == 12765, f"Pelny re-run oczekuje 12765 specow, otrzymano {len(specs)}"
+    results_path = PACKAGE_ROOT / "results" / PRODUCTION_RESULTS_PATH_NAME
+    logs_dir = PACKAGE_ROOT / "logs" / "full_rerun"
+    summary = run_pipeline(
+        specs, results_path, logs_dir,
+        checkpoint_intervals=CHECKPOINT_INTERVALS,
+        enforce_core_hash=True, baseline=AUD_001_BASELINE,
+        resume=True,
+    )
+    return summary
 
 
 def hard_halt_self_test(repo_root: Path) -> Dict[str, Any]:

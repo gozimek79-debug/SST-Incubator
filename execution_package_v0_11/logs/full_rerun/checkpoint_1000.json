@@ -1,0 +1,9 @@
+{
+  "completed": 1000,
+  "total": 12765,
+  "fraction": 0.078339,
+  "timestamp": "2026-07-19T20:12:30.343886+00:00",
+  "results_path": "C:\\Users\\48661\\Desktop\\SST-Incubator\\execution_package_v0_11\\results\\full_rerun_results.jsonl",
+  "hard_halt_status": "PASS (hash zgodny z baseline AUD-001)",
+  "core_hash_at_checkpoint": "cca6f8f933a73c1ff9ca9a3e482b966fef4c430ee50f3ed6c35137d3ab8ec935"
+}
