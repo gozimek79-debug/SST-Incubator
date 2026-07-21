@@ -557,3 +557,138 @@ def pocock_boundary(target_alpha: float, rho: float) -> float:
         else:
             hi = mid
     return (lo + hi) / 2
+
+
+# --- SPRINT_v0.11.0.md, Red Team (2026-07-20): Kruskal-Wallis ---
+# Test parami (welch_t_test + benjamini_hochberg) zaklada, ze efekt jest
+# MONOTONICZNY miedzy grupami parami - slaby, NIEMONOTONICZNY efekt (np.
+# genomy roznia sie w sposob, ktory nie sprowadza sie do "para A > para B"
+# konsekwentnie) moze dac 0 istotnych par przy tescie parowym, mimo
+# realnego efektu wykrywalnego testem OMNIBUSOWYM na rangach (Kruskal-Wallis).
+# To NIE jest sprzecznosc - to dwa rozne pytania (ten sam wzorzec co "ROBUST
+# != dyskryminuje", VALIDITY_REPORT.md). Zero scipy - dystrybuanta chi-kwadrat
+# liczona calkowaniem numerycznym (Simpson) po _chi2_pdf (juz istniejacej,
+# zwalidowanej wyzej). Zwalidowane wprost: 3 grupy [1,2,3]/[4,5,6]/[7,8,9]
+# (rangi 1..9 bez remisow) daje H=7.2, df=2 - dla df=2 chi-kwadrat ma
+# zamkniety wzor CDF=1-exp(-x/2), p=exp(-3.6)=0.027323722... zgodne co do
+# 12 miejsca po przecinku (patrz tests/test_kruskal_wallis.py).
+
+def _chi2_cdf(x: float, df: float, n_steps: int = 2000) -> float:
+    """P(X<=x) dla X~chi2_df, calkowanie Simpsona po _chi2_pdf od ~0 do x.
+    UWAGA: dla bardzo duzych x (CDF bliskie 1.0) traci precyzje przez
+    katastroficzne skracanie w 1-CDF - do p-wartosci w gornym ogonie uzywac
+    chi2_survival() ponizej, NIE 1-_chi2_cdf()."""
+    if x <= 0:
+        return 0.0
+    h = x / n_steps
+    total = _chi2_pdf(1e-9, df) + _chi2_pdf(x, df)
+    for i in range(1, n_steps):
+        v = i * h
+        total += (4 if i % 2 == 1 else 2) * _chi2_pdf(v, df)
+    return (h / 3) * total
+
+
+def _log_upper_incomplete_gamma_q(a: float, x: float, max_iter: int = 200, eps: float = 1e-14) -> float:
+    """log(Q(a,x)), Q = regularyzowana GORNA niepelna funkcja gamma, przez
+    ulamek lancuchowy Lentza (Numerical Recipes 6.2) - zbiega szybko i
+    stabilnie dokladnie w rezimie x>a (nasz przypadek: gorny ogon chi-kwadrat
+    dla duzego H). Liczone w log-przestrzeni, zeby uniknac underflow do 0.0
+    kiedy prawdziwe Q jest astronomicznie male (np. 1e-700)."""
+    tiny = 1e-300
+    b = x + 1 - a
+    if abs(b) < tiny:
+        b = tiny
+    c = 1 / tiny
+    d = 1 / b
+    h = d
+    for i in range(1, max_iter):
+        an = -i * (i - a)
+        b += 2
+        d = an * d + b
+        if abs(d) < tiny:
+            d = tiny
+        c = b + an / c
+        if abs(c) < tiny:
+            c = tiny
+        d = 1 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1) < eps:
+            break
+    return -x + a * math.log(x) - math.lgamma(a) + math.log(h)
+
+
+def chi2_survival(x: float, df: float) -> float:
+    """P(X>x) dla X~chi2_df - funkcja przezycia liczona BEZPOSREDNIO (gorna
+    niepelna gamma), NIE jako 1-_chi2_cdf(x,df) (ktore traci precyzje/daje
+    ujemne wyniki przez katastroficzne skracanie, gdy prawdziwe p jest
+    ekstremalnie male - dokladnie przypadek duzych H w kruskal_wallis()
+    ponizej). Zwalidowane wprost przeciwko zamknietej formie dla df=2
+    (survival=exp(-x/2)) w tests/test_kruskal_wallis.py."""
+    if x <= 0:
+        return 1.0
+    log_q = _log_upper_incomplete_gamma_q(df / 2, x / 2)
+    return math.exp(log_q) if log_q > -700 else 0.0
+
+
+def chi2_survival_log10(x: float, df: float) -> float:
+    """log10(P(X>x)) - dla p-wartosci zbyt ekstremalnych, zeby exp() nie
+    dal underflow do 0.0 (np. p~1e-700). Uzywane do RAPORTOWANIA, gdy
+    chi2_survival() zwrocilaby 0.0 (informatywne 'p<1e-300', nie cicha zera)."""
+    log_q = _log_upper_incomplete_gamma_q(df / 2, x / 2)
+    return log_q / math.log(10)
+
+
+def kruskal_wallis(groups: List[List[float]]) -> Dict[str, Any]:
+    """Test Kruskala-Wallisa (nieparametryczny, oparty na rangach, NIE
+    zaklada homoskedastycznosci ani normalnosci) - z korekta na remisy
+    (tie correction, standardowa formula podrecznikowa). Zwraca H (po
+    korekcie), df, p_value, computable (False gdy <2 grupy z danymi lub
+    N<3)."""
+    groups = [g for g in groups if g]
+    if len(groups) < 2:
+        return {"H": None, "df": None, "p_value": None, "computable": False,
+                "reason": "mniej niz 2 grupy z danymi"}
+
+    all_vals = [(v, gi) for gi, g in enumerate(groups) for v in g]
+    n_total = len(all_vals)
+    if n_total < 3:
+        return {"H": None, "df": None, "p_value": None, "computable": False,
+                "reason": "N<3"}
+
+    all_vals.sort(key=lambda x: x[0])
+    ranks = [0.0] * n_total
+    tie_group_sizes: List[int] = []
+    i = 0
+    while i < n_total:
+        j = i
+        while j + 1 < n_total and all_vals[j + 1][0] == all_vals[i][0]:
+            j += 1
+        avg_rank = (i + 1 + j + 1) / 2
+        for k in range(i, j + 1):
+            ranks[k] = avg_rank
+        if j > i:
+            tie_group_sizes.append(j - i + 1)
+        i = j + 1
+
+    rank_sums = [0.0] * len(groups)
+    for idx, (_, gi) in enumerate(all_vals):
+        rank_sums[gi] += ranks[idx]
+
+    h_raw = (12 / (n_total * (n_total + 1))) * sum(
+        rs ** 2 / len(groups[gi]) for gi, rs in enumerate(rank_sums)
+    ) - 3 * (n_total + 1)
+
+    tie_correction = 1 - sum(t ** 3 - t for t in tie_group_sizes) / (n_total ** 3 - n_total)
+    h_corrected = h_raw / tie_correction if tie_correction > 0 else h_raw
+
+    df = len(groups) - 1
+    p_value = chi2_survival(h_corrected, df)
+    result = {"H": round(h_corrected, 6), "df": df, "p_value": p_value, "computable": True,
+              "n_groups": len(groups), "n_total": n_total, "tie_correction": round(tie_correction, 6)}
+    if p_value == 0.0:
+        # p prawdziwie astronomicznie male (underflow ponizej ~1e-308) -
+        # raportuj log10(p), zeby nie zgubic "jak bardzo istotne", nie
+        # cichy zera (zasada nadrzedna 1).
+        result["p_value_log10"] = round(chi2_survival_log10(h_corrected, df), 2)
+    return result

@@ -180,38 +180,54 @@ endpoint (zasada uczciwości `cognitive_ontology.md`). `NOT_MEASURED` ≠
 
 ### 4b. Siedem osi zmierzonych × konteksty (30 wierszy)
 
-| Lekcja | Środ. | Metryka | Definicja (skrót) | Interpretacja biologiczna | Measurement | Construct | Power | Confirm. | Rekomendacja |
-|---|---|---|---|---|---|---|---|---|---|
-| L1.1 | noise_world | Working Memory | `mean(mae@t≥stim+50)` | błąd predykcji utrzymany 50 ticków po ustaniu bodźca | ✔ | ◐¹ | PENDING | PENDING | **INSUFFICIENT_POWER** (moc PENDING do prospektywnego re-run; 0/253 par FDR-istotnych) |
-| L1.1 | drift_world | Working Memory | jw. | jw. | ✔ | ◐¹ | PENDING | PENDING | **INSUFFICIENT_POWER** (moc PENDING do prospektywnego re-run; 0/253 par FDR-istotnych) |
-| L1.1 | stable_world | Working Memory | jw. | jw. | ✘⁷ | ◐¹ | PENDING | PENDING | — (kontrola, nie klasyfikowana) |
-| L1.1 | noise_world | Pattern Recognition | `mean(mae) w fazie bodźca` | błąd predykcji PODCZAS bodźca | ✔ | ◐⁴ | PENDING | PENDING | **INSUFFICIENT_POWER** (moc PENDING do prospektywnego re-run; 0/253 par FDR-istotnych) |
-| L1.1 | drift_world | Pattern Recognition | jw. | jw. | ✔ | ◐⁴ | PENDING | PENDING | **INSUFFICIENT_POWER** (moc PENDING do prospektywnego re-run; 0/253 par FDR-istotnych) |
-| L1.1 | stable_world | Pattern Recognition | jw. | jw. | ✘⁷ | ◐⁴ | PENDING | PENDING | — (kontrola) |
-| L1.1 | noise_world | Pattern Retention | `(mae_silence-mae_stim)/silence_ticks` | tempo zaniku błędu po ustaniu bodźca | ✔ | ◐⁵ | PENDING | PENDING | **MEASURED_BUT_NULL** (wartości ∈[-0.000235, 0.000204], grand mean 1.3e-5) |
-| L1.1 | drift_world | Pattern Retention | jw. | jw. | ✔ | ◐⁵ | PENDING | PENDING | **MEASURED_BUT_NULL** (wartości ∈[-0.000014, 0.000191], grand mean 9.0e-5) |
-| L1.1 | stable_world | Pattern Retention | jw. | jw. | ✘⁷ | ◐⁵ | PENDING | PENDING | — (kontrola) |
-| L1.1 | noise_world | Adaptation | tick stabilizacji entropii od startu | czas do ustania chaosu początkowego | ✘ | ◐ⁱ | PENDING | PENDING | **INSUFFICIENT_POWER** (35% valid_rate — fałszywie-pozytywne "tick=0", §3) |
-| L1.1 | drift_world | Adaptation | jw. | jw. | ✘ | ◐ⁱ | PENDING | PENDING | **INSUFFICIENT_POWER** (43% valid_rate, jw.) |
-| L1.1 | stable_world | Adaptation | jw. | jw. | ✘⁷ | ◐ⁱ | PENDING | PENDING | — (kontrola) |
-| L1.1 | noise_world | Stability | `1/(std(entropy)+std(\|1-energy\|)+ε)` | stałość dynamiki wewnętrznej w czasie | ✔ | ◐³ | PENDING | PENDING | **EXPERIMENTAL** (208/253 par FDR-istotnych, 82%; moc prospektywna PENDING) |
-| L1.1 | drift_world | Stability | jw. | jw. | ✔ | ◐³ | PENDING | PENDING | **EXPERIMENTAL** (168/253 par FDR-istotnych, 66%; moc prospektywna PENDING) |
-| L1.1 | stable_world | Stability | jw. | jw. | ✘⁷ | ◐³ | PENDING | PENDING | — (kontrola) |
-| L1.1 | noise_world | Final Energy Level | `energy` w ostatnim ticku | poziom rezerwy energetycznej na koniec | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | **INSUFFICIENT_POWER** (39% valid_rate; gdzie mierzalne: 31/36 par FDR-istotnych; moc prospektywna PENDING) |
-| L1.1 | drift_world | Final Energy Level | jw. | jw. | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | **INSUFFICIENT_POWER** (78% valid_rate, graniczne; gdzie mierzalne: 110/153 par) |
-| L1.1 | stable_world | Final Energy Level | jw. | jw. | ✘⁷ | ✘⁶ⁱⁱ | PENDING | PENDING | — (kontrola) |
-| L1.2 | shock_world | Homeostatic Resilience | `t*-t_shock`, pierwsze trwałe okno w paśmie | czas do USTANOWIENIA homeostazy po perturbacji | ✘ | ✘⁸ | PENDING | PENDING | **INVALID_CONSTRUCT** (mierzy ustanowienie, nie powrót; 78% cenzurowane) |
-| L1.2 | stable_world | Homeostatic Resilience | nie dotyczy | brak zdarzenia do powrotu | —⁹ | —⁹ | — | — | — (brak zastosowania konstruktu, nie porażka) |
-| L1.2 | drift_world | Homeostatic Resilience | nie dotyczy | jw. | —⁹ | —⁹ | — | — | — (jw.) |
-| L1.2 | shock_world | Adaptation | tick stabilizacji entropii w oknie PRZED szokiem | (deklarowane: adaptacja do szoku — FAKTYCZNIE: nic związanego z szokiem) | ✘ | **✘** | PENDING | PENDING | **INVALID_CONSTRUCT** (stała=10 dla 100% genomów/seedów, §3) |
-| L1.2 | stable_world | Adaptation | jw. | jw. | ✘⁷ | ✘ | PENDING | PENDING | — (kontrola) |
-| L1.2 | drift_world | Adaptation | tick stabilizacji entropii od startu | jak L1.1 — cold start, NIE pre-shock window (brak szoku w tym środ.) | ✘ | ◐ⁱ | PENDING | PENDING | **INSUFFICIENT_POWER** (43% valid_rate, §3 — inny konstrukt niż shock_world!) |
-| L1.2 | shock_world | Stability | jw. jak L1.1 | jw. | ✔ | ◐³ | PENDING | PENDING | **EXPERIMENTAL** (22/253 par FDR-istotnych, 9% — słabsza dyskryminacja niż L1.1; moc prospektywna PENDING) |
-| L1.2 | stable_world | Stability | jw. | jw. | ✘⁷ | ◐³ | PENDING | PENDING | — (kontrola) |
-| L1.2 | drift_world | Stability | jw. | jw. | ✔ | ◐³ | PENDING | PENDING | **EXPERIMENTAL** (192/253 par FDR-istotnych, 76%; moc prospektywna PENDING) |
-| L1.2 | shock_world | Final Energy Level | jw. jak L1.1 | jw. | ✔ | ✘⁶ⁱⁱ | PENDING | PENDING | **EXPERIMENTAL** (113/253 par FDR-istotnych, 45%; moc prospektywna PENDING) |
-| L1.2 | stable_world | Final Energy Level | jw. | jw. | ✘⁷ | ✘⁶ⁱⁱ | PENDING | PENDING | — (kontrola) |
-| L1.2 | drift_world | Final Energy Level | jw. | jw. | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | **INSUFFICIENT_POWER** (74% valid_rate, graniczne; gdzie mierzalne: 108/136 par, 79%) |
+> **AKTUALIZACJA 2026-07-20 (re-run konfirmacyjny + Red Team):** 6 wierszy
+> poniżej (L1.1×noise_world × {Working Memory, Pattern Recognition, Pattern
+> Retention, Adaptation, Stability} + L1.2×shock_world × Homeostatic
+> Resilience) ma teraz Measurement/Power/Confirm./Rekomendację przeliczone
+> z **`reports/population/population_validation_v0_11_0.json`** (re-run
+> n=185/93/92, `execution_package_v0_11/results/full_rerun_results.jsonl`,
+> Hard-Halt PASS cały bieg) i zweryfikowane niezależnie testem
+> Kruskal-Wallisa (`clos_curriculum/laboratory/statistics.py::kruskal_wallis`,
+> nowy w tym sprincie, zwalidowany w `tests/test_kruskal_wallis.py`
+> przeciwko zamkniętej formie chi-kwadrat df=2). **Pełny opis metodologii
+> i co dokładnie Red Team obalił/potwierdził: §7.** Wiersze `drift_world`
+> (poza zakresem re-runu, patrz aneks) oraz L1.2×shock_world×{Adaptation,
+> Stability, Final Energy Level} (nie objęte korektą Red Teamu) pozostają
+> BEZ ZMIAN — nadal oparte wyłącznie na Exploratory Dataset v0.10,
+> Power/Confirmatory nadal PENDING.
+
+| Lekcja | Środ. | Metryka | Definicja (skrót) | Interpretacja biologiczna | Measurement | Construct | Power | Confirm. | Test | Rekomendacja |
+|---|---|---|---|---|---|---|---|---|---|---|
+| L1.1 | noise_world | Working Memory | `mean(mae@t≥stim+50)` | błąd predykcji utrzymany 50 ticków po ustaniu bodźca | ✔ (ROBUST, 100%, n=185) | ◐¹ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (0/253) + Kruskal-Wallis (p=8.1e-17) | **VALIDATED**¹⁰ (winner's curse: f 0.265→0.154, efekt UMIARKOWANY nie duży) |
+| L1.1 | drift_world | Working Memory | jw. | jw. | ✔ | ◐¹ | PENDING | PENDING | Welch-pary (0/253) | **INSUFFICIENT_POWER** (poza zakresem re-runu — patrz aneks) |
+| L1.1 | stable_world | Working Memory | jw. | jw. | ✘⁷ | ◐¹ | PENDING | PENDING | — | — (kontrola, nie klasyfikowana) |
+| L1.1 | noise_world | Pattern Recognition | `mean(mae) w fazie bodźca` | błąd predykcji PODCZAS bodźca | ✔ (ROBUST, 100%, n=185) | ◐⁴ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (0/253) + Kruskal-Wallis (p=4.5e-14) | **VALIDATED**¹⁰ (f_obs WZROSŁO 0.130→0.164 — odwrotnie niż typowy winner's curse, patrz §7) |
+| L1.1 | drift_world | Pattern Recognition | jw. | jw. | ✔ | ◐⁴ | PENDING | PENDING | Welch-pary (0/253) | **INSUFFICIENT_POWER** (poza zakresem re-runu) |
+| L1.1 | stable_world | Pattern Recognition | jw. | jw. | ✘⁷ | ◐⁴ | PENDING | PENDING | — | — (kontrola) |
+| L1.1 | noise_world | Pattern Retention | `(mae_silence-mae_stim)/silence_ticks` | tempo zaniku błędu po ustaniu bodźca | ✔ (ROBUST, 100%, n=185) | ◐⁵ | **CONFIRMED**¹¹ | **CONFIRMED**¹¹ | Welch-pary (0/253) + **Kruskal-Wallis (p=0.0254, ISTOTNE)** | **EXPERIMENTAL**¹¹ (było MEASURED_BUT_NULL — Red Team: zły TYP testu dał fałszywe zero, §7) |
+| L1.1 | drift_world | Pattern Retention | jw. | jw. | ✔ | ◐⁵ | PENDING | PENDING | Welch-pary (0/253) | **MEASURED_BUT_NULL** (poza zakresem re-runu — NIE przeliczone Kruskal-Wallisem, patrz §7 ryzyko) |
+| L1.1 | stable_world | Pattern Retention | jw. | jw. | ✘⁷ | ◐⁵ | PENDING | PENDING | — | — (kontrola) |
+| L1.1 | noise_world | Adaptation | tick stabilizacji entropii od startu | czas do ustania chaosu początkowego | ✘ (FRAGILE, 56.5%, n=185 — było 35% przy n=10) | ◐ⁱ | **CONFIRMED**¹² | **CONFIRMED**¹² | Welch-pary (75/78 obliczalnych) + **Kruskal-Wallis (p≈0, log₁₀p=-773.3)** | **EXPERIMENTAL**¹² (było INSUFFICIENT_POWER — status z Kruskal-Wallisa, NIE z ANOVA, §7) |
+| L1.1 | drift_world | Adaptation | jw. | jw. | ✘ | ◐ⁱ | PENDING | PENDING | Welch-pary | **INSUFFICIENT_POWER** (poza zakresem re-runu) |
+| L1.1 | stable_world | Adaptation | jw. | jw. | ✘⁷ | ◐ⁱ | PENDING | PENDING | — | — (kontrola) |
+| L1.1 | noise_world | Stability | `1/(std(entropy)+std(\|1-energy\|)+ε)` | stałość dynamiki wewnętrznej w czasie | ✔ (ROBUST, 100%, n=185) | ◐³ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (244/253, 96%) + Kruskal-Wallis (p≈0, log₁₀p=-686.8) | **VALIDATED**¹⁰ (leave-one-out 69→45 odporny; f 2.25→2.06, spadek umiarkowany) |
+| L1.1 | drift_world | Stability | jw. | jw. | ✔ | ◐³ | PENDING | PENDING | Welch-pary (168/253) | **EXPERIMENTAL** (poza zakresem re-runu) |
+| L1.1 | stable_world | Stability | jw. | jw. | ✘⁷ | ◐³ | PENDING | PENDING | — | — (kontrola) |
+| L1.1 | noise_world | Final Energy Level | `energy` w ostatnim ticku | poziom rezerwy energetycznej na koniec | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (31/36) | **INSUFFICIENT_POWER** (Red Team NIE adresował tej osi — bez zmian) |
+| L1.1 | drift_world | Final Energy Level | jw. | jw. | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (110/153) | **INSUFFICIENT_POWER** (poza zakresem re-runu) |
+| L1.1 | stable_world | Final Energy Level | jw. | jw. | ✘⁷ | ✘⁶ⁱⁱ | PENDING | PENDING | — | — (kontrola) |
+| L1.2 | shock_world | Homeostatic Resilience | `t*-t_shock`, pierwsze trwałe okno w paśmie | czas powrotu do pasma homeostazy po perturbacji | ✘ (FRAGILE, 78.6%, n=185 — było 21.7% przy n=10) | ◐¹⁴ | **CONFIRMED**¹³ | **CONFIRMED**¹³ | Welch-pary (48/55) + **Kruskal-Wallis (p=4.1e-192)** | **EXPERIMENTAL**¹³ (było INVALID_CONSTRUCT — Construct skorygowany na ◐, patrz ¹⁴) |
+| L1.2 | stable_world | Homeostatic Resilience | nie dotyczy | brak zdarzenia do powrotu | —⁹ | —⁹ | — | — | — | — (brak zastosowania konstruktu, nie porażka) |
+| L1.2 | drift_world | Homeostatic Resilience | nie dotyczy | jw. | —⁹ | —⁹ | — | — | — | — (poza zakresem konstruktu i re-runu) |
+| L1.2 | shock_world | Adaptation | tick stabilizacji entropii w oknie PRZED szokiem | (deklarowane: adaptacja do szoku — FAKTYCZNIE: nic związanego z szokiem) | ✘ | **✘** | PENDING | PENDING | Welch-pary (0 obliczalnych — stała) | **INVALID_CONSTRUCT** (stała=10 dla 100% genomów/seedów, §3 — Red Team NIE adresował, konstrukt nadal zepsuty niezależnie od testu) |
+| L1.2 | stable_world | Adaptation | jw. | jw. | ✘⁷ | ✘ | PENDING | PENDING | — | — (kontrola) |
+| L1.2 | drift_world | Adaptation | tick stabilizacji entropii od startu | jak L1.1 — cold start, NIE pre-shock window (brak szoku w tym środ.) | ✘ | ◐ⁱ | PENDING | PENDING | Welch-pary | **INSUFFICIENT_POWER** (poza zakresem re-runu — inny konstrukt niż shock_world!) |
+| L1.2 | shock_world | Stability | jw. jak L1.1 | jw. | ✔ | ◐³ | PENDING | PENDING | Welch-pary (22/253, 9%) | **EXPERIMENTAL** (Red Team NIE adresował tej konkretnej komórki — moja własna kontrola KW dała p=1.3e-131, ale BEZ autoryzacji nie podnoszę statusu, patrz §7) |
+| L1.2 | stable_world | Stability | jw. | jw. | ✘⁷ | ◐³ | PENDING | PENDING | — | — (kontrola) |
+| L1.2 | drift_world | Stability | jw. | jw. | ✔ | ◐³ | PENDING | PENDING | Welch-pary (192/253) | **EXPERIMENTAL** (poza zakresem re-runu) |
+| L1.2 | shock_world | Final Energy Level | jw. jak L1.1 | jw. | ✔ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (113/253, 45%) | **EXPERIMENTAL** (Red Team NIE adresował — bez zmian) |
+| L1.2 | stable_world | Final Energy Level | jw. | jw. | ✘⁷ | ✘⁶ⁱⁱ | PENDING | PENDING | — | — (kontrola) |
+| L1.2 | drift_world | Final Energy Level | jw. | jw. | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (108/136) | **INSUFFICIENT_POWER** (poza zakresem re-runu) |
 
 ⁱ Construct Adaptation "cold-start" = ◐, patrz §3 (nie ✔, nie ✘ — inaczej
 niż zarówno pierwotna tabela VALIDITY_REPORT.md — ✘² — jak i propozycja
@@ -228,32 +244,99 @@ Rekomendacja jest więc oparta WYŁĄCZNIE na Measurement + legalnych (nie
 retrospektywnych) faktach o dyskryminacji (FDR/valid_rate), tak jak dla
 osi poznawczych — celowo NIE oznaczona INVALID_CONSTRUCT.
 
+¹⁰ **VALIDATED (Working Memory, Pattern Recognition, Stability — L1.1/noise_world):**
+potwierdzone re-runem konfirmacyjnym n=185 (`population_validation_v0_11_0.json`)
++ Kruskal-Wallis niezależny od ANOVA + leave-one-out (69→45 par, odporny na
+usunięcie pojedynczego genomu) — wszystkie trzy kryteria VALIDATED (Measurement=✔,
+Construct=◐ z akceptowalnymi zastrzeżeniami, Power i Confirmatory
+potwierdzone). **Zastrzeżenie winner's curse obowiązkowe:** wielkość efektu
+w eksploracji (n=10) była zawyżona — Working Memory f_obs 0.2652→0.1537,
+Stability 2.2507→2.0615 (spadek, jak oczekiwano). Pattern Recognition
+f_obs **WZROSŁO** 0.130→0.1638 — przeciwny kierunek niż typowy winner's
+curse dla tej jednej osi, odnotowane w §7, nie ukryte.
+
+¹¹ **EXPERIMENTAL (Pattern Retention — było MEASURED_BUT_NULL):** Red Team
+wykrył, że test parami (Welch, 0/253 istotnych par) dał fałszywe zero —
+Kruskal-Wallis na tych samych 23 grupach (n=185) daje H=36.72, p=0.0254,
+**istotne**. Mechanizm: słaby, NIEMONOTONICZNY efekt między genomami (żadna
+POJEDYNCZA para nie różni się wystarczająco, ale rozkład rang jako całość
+odbiega od losowego) — dokładnie ten rodzaj sygnału, który test parami
+strukturalnie pomija, a test omnibusowy na rangach wykrywa. Zobacz §7 punkt
+1 dla pełnej analizy tego odwróconego błędu.
+
+¹² **EXPERIMENTAL (Adaptation, L1.1/noise_world — było INSUFFICIENT_POWER):**
+Kruskal-Wallis (p≈0, log₁₀p=-773.3) jest testem WŁAŚCIWYM dla tej osi —
+NIE ANOVA, bo homoskedastyczność jest potwierdzona złamana (7/23 genomów
+std=0 przy n=10; przy n=185 nadal część genomów zdegenerowana, stąd
+Measurement pozostaje FRAGILE mimo poprawy 35%→56.5%). Status EXPERIMENTAL,
+NIE VALIDATED — Construct pozostaje ◐ (mechanizm fałszywie-pozytywny nadal
+udokumentowany, §3), a Confirmatory tutaj oznacza "potwierdzone WŁAŚCIWYM
+testem", nie "brak zastrzeżeń".
+
+¹³ **EXPERIMENTAL (Homeostatic Resilience, L1.2/shock_world — było
+INVALID_CONSTRUCT):** Kruskal-Wallis (p=4.09e-192 — skorygowane z błędnie
+cytowanego "<10⁻³⁰⁰", patrz §7.3) potwierdza, że genomy RÓŻNIĄ SIĘ silnie w
+tym, co metryka mierzy. Zmiana statusu na EXPERIMENTAL jest teraz zgodna z
+regułą pierwszeństwa (Construct=◐, nie ✘ — patrz ¹⁴), NIE jest już
+wyjątkiem od niej — napięcie zgłoszone w poprzedniej wersji tego przypisu
+zostało rozstrzygnięte przez Architekta 2026-07-20, nie obchodzone.
+
+¹⁴ **Construct Homeostatic Resilience skorygowany z ✘⁸ na ◐ — decyzja
+Architekta, 2026-07-20, ODWRACA wcześniej udokumentowane ustalenie
+(VALIDITY_REPORT.md footnote 8, niedotknięta — ślad audytowy, nie edycja
+w miejscu):** `recovery_time`/`time_to_sustained_band` MIERZY to, co
+obiecuje nazwa (czas powrotu do pasma homeostazy), w odróżnieniu od
+`adaptation_tick` w L1.2 (który mierzy okno PRZED szokiem — konstrukt
+naprawdę zepsuty, pozostaje ✘, §3). Cenzurowanie 21% (n=10) / 21.4% (n=185,
+`1-0.786`) jest ograniczeniem POMIARU (część genomów nie osiąga trwałego
+powrotu w oknie obserwacji W=150), NIE błędem konstruktu — stąd ◐, nie ✘.
+**Zapisuję to jako rozstrzygnięcie nadrzędne, nie jako mój własny wniosek**
+— poprzednia analiza (VALIDITY_REPORT.md, ten dokument w wersji sprzed
+2026-07-20) argumentowała ✘ na podstawie `pre_shock_in_band_fraction<0.8`
+jako dowodu "ustanowienia, nie powrotu"; Architekt uznał to za
+niewystarczające do klasyfikacji Construct=✘. Obie argumentacje pozostają
+w historii repo (git log), czytelnik może ocenić samodzielnie który poziom
+szczegółowości preferuje przy interpretacji tej osi.
+
 ---
 
 ## 5. Podsumowanie liczbowe
 
+> **Zaktualizowane 2026-07-20 po re-runie konfirmacyjnym + Red Team — patrz §7.**
+
 | Rekomendacja | Liczba wierszy (z 37) |
 |---|---|
-| VALIDATED | **0** — żaden wiersz nie spełnia (wymaga potwierdzonej mocy I repliki, oba PENDING) |
-| EXPERIMENTAL | 6 (Stability ×4 środowiska eksperymentalne, Final Energy Level L1.2 shock_world) |
-| MEASURED_BUT_NULL | 2 (Pattern Retention, oba środowiska eksperymentalne L1.1) |
-| INSUFFICIENT_POWER | 12 (Working Memory ×2, Pattern Recognition ×2, Adaptation ×3 [L1.1×2 + L1.2/drift], Final Energy Level ×3 [L1.1×2 + L1.2/drift]) |
-| INVALID_CONSTRUCT | 2 (Homeostatic Resilience shock_world, Adaptation L1.2/shock_world) |
-| NOT_MEASURED | 7 (Perception, Attention, Long-term Memory, Prediction, Exploration, Generalization, Planning) |
-| — (kontrola/nie dotyczy) | 8 (6× `stable_world` L1.1 + 2× L1.2 `stable_world`/`drift_world` Homeostatic Resilience) |
+| VALIDATED | **3** — Working Memory, Pattern Recognition, Stability (wszystkie L1.1/noise_world, z zastrzeżeniem winner's curse¹⁰) |
+| EXPERIMENTAL | **7** — Pattern Retention L1.1/noise¹¹ (nowe), Adaptation L1.1/noise¹² (nowe), Stability L1.1/drift, Homeostatic Resilience L1.2/shock¹³ (nowe), Stability L1.2/shock, Stability L1.2/drift, Final Energy Level L1.2/shock |
+| MEASURED_BUT_NULL | **1** — Pattern Retention, WYŁĄCZNIE L1.1/drift_world (poza zakresem re-runu, NIE przeliczone Kruskal-Wallisem — nie zakładać, że wynik byłby taki sam, §7 ryzyko) |
+| INSUFFICIENT_POWER | **7** — Working Memory L1.1/drift, Pattern Recognition L1.1/drift, Adaptation L1.1/drift, Adaptation L1.2/drift, Final Energy Level L1.1/noise, Final Energy Level L1.1/drift, Final Energy Level L1.2/drift |
+| INVALID_CONSTRUCT | **1** — Adaptation L1.2/shock_world (Homeostatic Resilience w tym samym `shock_world` to ODRĘBNA metryka — teraz EXPERIMENTAL¹³, nie liczona tu) |
+| NOT_MEASURED | **7** — Perception, Attention, Long-term Memory, Prediction, Exploration, Generalization, Planning |
+| — (kontrola/nie dotyczy) | **11** — 6× `stable_world` L1.1 (WM/PatRec/PatRet/Adaptation/Stability/FinalEnergy) + 3× `stable_world` L1.2 (Adaptation/Stability/FinalEnergy) + 2× Homeostatic Resilience (`stable_world`+`drift_world` L1.2, konstrukt nie dotyczy) |
 
-**0+6+2+12+2+7+8 = 37.** Zgadza się z 14 osi × (do 3 środowisk, gdzie
-dotyczy) + 7 wierszy bez kontekstu.
+**3+7+1+7+1+7+11 = 37.** Przeliczone ręcznie wiersz-po-wierszu wprost z
+tabeli §4b (nie z opisów w nawiasach) po korekcie Red Teamu — zgadza się
+dokładnie z 14 osi × (do 3 środowisk, gdzie dotyczy) + 7 wierszy bez
+kontekstu, bez zmiany całkowitej liczby wierszy (37 sprzed i po korekcie —
+zmieniły się WYŁĄCZNIE etykiety 4 komórek objętych re-runem/Red Teamem,
+nie struktura tabeli).
 
-**Najważniejszy pojedynczy wniosek:** **0/37 wierszy jest VALIDATED.**
-Najlepszy obecny status to EXPERIMENTAL (6 wierszy, wszystkie albo
-Stability, albo Final Energy Level w L1.2/shock_world) — realny,
-dyskryminujący sygnał, ale bez niezależnego potwierdzenia. To jest zgodne
-z dyrektywą CTO cytowaną w SPRINT_v0.11.0.md: *"Jeżeli okaże się, że
-Adaptation przestanie istnieć, Working Memory okaże się bezużyteczne,
-profil spadnie z 7 osi do 2 — akceptuję taki wynik."* Ta tabela pokazuje
-dokładnie, które 2 (a właściwie: 1 metryka × 4 konteksty) obecnie
-najlepiej się trzymają.
+**Najważniejszy pojedynczy wniosek (zaktualizowany 2026-07-20):** **3/37
+wierszy jest teraz VALIDATED** (Working Memory, Pattern Recognition,
+Stability — wszystkie L1.1/noise_world) — pierwsze VALIDATED w tym
+dokumencie, po re-runie konfirmacyjnym (n=185, Hard-Halt PASS cały bieg)
+i niezależnej weryfikacji Red Teamu (leave-one-out + Kruskal-Wallis +
+winner's curse). Pozostałe 22 z 30 zmierzonych wierszy (poza kontrolami)
+są NADAL oparte wyłącznie na Exploratory Dataset v0.10 — re-run objął
+TYLKO {noise_world, stable_world, shock_world}, NIE `drift_world`
+(świadoma decyzja zakresu, patrz aneks). To jest zgodne z dyrektywą CTO
+cytowaną w SPRINT_v0.11.0.md: *"Jeżeli okaże się, że Adaptation przestanie
+istnieć, Working Memory okaże się bezużyteczne, profil spadnie z 7 osi do
+2 — akceptuję taki wynik."* Wynik jest LEPSZY niż ten scenariusz — 3 osie
+VALIDATED, 3 więcej podniesione do EXPERIMENTAL przez poprawny test
+statystyczny (§7) — wciąż z jawnym zastrzeżeniem winner's curse dla
+VALIDATED (¹⁰) i skorygowanym Construct dla Homeostatic Resilience
+(◐, nie ✘ — decyzja Architekta, ¹⁴).
 
 ---
 
@@ -264,3 +347,127 @@ Zgodnie z dyrektywą CTO: `publications/competency_profile.json`
 zmierzonych osi nadal tam są, z tymi samymi wartościami. Ten dokument jest
 DODATKOWĄ warstwą interpretacji nałożoną NA te dane, nie zmianą samych
 danych ani usunięciem czegokolwiek przed końcem przeglądu.
+
+---
+
+## 7. Wynik Red Team (2026-07-20) — co zaatakowano, co obalono, co trafiło
+
+**Metoda:** Red Team zweryfikował ocenę Power/Confirmatory audytora
+BEZPOŚREDNIO na danych z pełnego re-runu konfirmacyjnego (12765 runów,
+`execution_package_v0_11/results/full_rerun_results.jsonl`, Hard-Halt PASS
+przez cały bieg — patrz `git log`), trzema niezależnymi metodami:
+leave-one-out (odporność wyniku na usunięcie pojedynczego genomu),
+Kruskal-Wallis (test omnibusowy na rangach, nowy w tym sprincie —
+`clos_curriculum/laboratory/statistics.py::kruskal_wallis`, zwalidowany w
+`tests/test_kruskal_wallis.py` przeciwko zamkniętej formie chi-kwadrat
+df=2), i analizą winner's curse (porównanie wielkości efektu eksploracja
+vs konfirmacja). **Cztery zarzuty, wynik: 3 obalone, 1 trafiony.**
+
+### 7.1 Zarzut TRAFIONY — Pattern Retention: zły typ testu dał fałszywe zero
+
+**Zarzut:** klasyfikacja `MEASURED_BUT_NULL` dla Pattern Retention
+(L1.1/noise_world) była BŁĘDNA — test parami (Welch + BH-FDR, 0/253
+istotnych par) przegapił realny, ale słaby i NIEMONOTONICZNY efekt.
+
+**Weryfikacja niezależna (nie tylko przyjęta na słowo):** policzyłem
+Kruskal-Wallis bezpośrednio na 23 grupach genomów z
+`population_validation_v0_11_0.json` (`memory_decay_rate`,
+L1.1/noise_world): **H=36.72, p=0.0254** — istotne przy α=0.05 (choć NIE
+przy skorygowanym α=0.05/9=0.0056 z aneksu — zwracam uwagę na tę
+subtelność: test omnibusowy Kruskal-Wallisa to INNY test niż omnibus ANOVA,
+dla którego korekta 0.05/9 była wyprowadzona; czy ta sama korekta powinna
+być zastosowana do KW, to pytanie METODOLOGICZNE nierozstrzygnięte tutaj —
+odnotowuję, nie rozstrzygam).
+
+**Werdykt: TRAFIONY.** Mechanizm dokładnie odwrotny do błędu P0 (tam: zły
+brak korekty dał fałszywie WYSOKĄ pewność; tu: zły TYP testu dał fałszywie
+NISKĄ/zerową pewność) — ten sam rodzaj lekcji, przeciwny kierunek. Status
+zmieniony na `EXPERIMENTAL` (nie `VALIDATED` — brak jeszcze leave-one-out
+dla tej konkretnej osi, brak niezależnej repliki tego konkretnego wyniku
+KW, i istotność znika przy pełnej korekcie na 9 testów).
+
+**Ryzyko jawnie odnotowane:** L1.1/drift_world Pattern Retention (poza
+zakresem re-runu) NIE zostało przeliczone Kruskal-Wallisem — zostaje
+`MEASURED_BUT_NULL` ze starych (Exploratory) danych. NIE zakładam, że
+wynik tam byłby taki sam (mógłby być, mógłby nie być) — to by wymagało
+osobnego sprawdzenia, którego nie zlecono.
+
+### 7.2 Zarzuty OBALONE (3) — Working Memory / Pattern Recognition / Stability trzymają się
+
+**Zarzut (domniemany, testowany przez Red Team):** czy VALIDATED dla tych
+trzech osi (L1.1/noise_world) przetrwa (a) usunięcie pojedynczego genomu
+(leave-one-out) i (b) niezależny test (Kruskal-Wallis zamiast ANOVA)?
+
+**Weryfikacja niezależna:**
+- Working Memory: Kruskal-Wallis H=127.31, **p=8.1×10⁻¹⁷** (policzone
+  bezpośrednio, nie przyjęte na słowo).
+- Pattern Recognition: Kruskal-Wallis H=112.17, **p=4.5×10⁻¹⁴** — zgadza
+  się dokładnie z liczbą cytowaną w zleceniu.
+- Stability: Kruskal-Wallis H=3280.47 — p tak ekstremalnie małe, że
+  bezpośrednie `1-CDF` daje ujemny wynik przez katastroficzne skracanie
+  (naprawione: `chi2_survival()`/`chi2_survival_log10()`, nowe funkcje w
+  tym sprincie, patrz kod) — **log₁₀(p)≈-686.8**.
+- Leave-one-out (69→45): odnotowane z relacji Red Teamu, NIE zweryfikowane
+  przeze mnie niezależnie (nie miałem czasu odtworzyć pełnej procedury
+  "usuń 1 z 23 genomów, przelicz FDR-istotne pary, powtórz 23×" w tej
+  turze) — jawnie oznaczone jako NIEZWERYFIKOWANE przeze mnie, w
+  odróżnieniu od liczb Kruskal-Wallisa powyżej, które SĄ zweryfikowane.
+
+**Werdykt: OBALONE.** Wszystkie trzy osie przechodzą niezależny test
+(Kruskal-Wallis) z ogromnym marginesem — status VALIDATED trzyma.
+
+**Zastrzeżenie winner's curse — sprawdzone precyzyjnie, NIE w przybliżeniu
+z zlecenia:**
+
+| Metryka | f_obs eksploracja (n=10) | f_obs konfirmacja (n=185) | Kierunek |
+|---|---|---|---|
+| Working Memory | 0.2652 | 0.1537 | ↓ skurczyło się (winner's curse jak oczekiwano) |
+| Pattern Recognition | 0.1300 | 0.1638 | **↑ WZROSŁO** (przeciwny kierunek!) |
+| Stability | 2.2507 | 2.0615 | ↓ skurczyło się umiarkowanie |
+
+Zlecenie cytowało "f 0.265→0.164" jako jedną liczbę dla całej trójki — **to
+myli wartość PRZED Working Memory z wartością PO Pattern Recognition**.
+Sprawdzone i skorygowane: nie ma jednego uniwersalnego "0.265→0.164" dla
+tych trzech osi — każda ma własną trajektorię, a Pattern Recognition
+zachowuje się WBREW narracji winner's curse. Zgłaszam tę nieścisłość
+zamiast przepisać ją bez sprawdzenia.
+
+### 7.3 Adaptation/Homeostatic Resilience — status z Kruskal-Wallisa, nie z ANOVA
+
+Patrz przypisy ¹² i ¹³ przy tabeli §4b dla pełnego uzasadnienia. Skrót:
+Adaptation (L1.1/noise_world) ma potwierdzoną złamaną homoskedastyczność
+(część genomów deterministycznie zdegenerowana) — ANOVA tam jest
+niewłaściwym narzędziem z definicji, Kruskal-Wallis (p≈0,
+log₁₀p=-773.3) jest właściwym testem i daje jednoznaczny wynik.
+Status: `EXPERIMENTAL`.
+
+Homeostatic Resilience (L1.2/shock_world): Kruskal-Wallis daje
+**p=4.1×10⁻¹⁹²** — sprawdzone dokładnie, i to **NIE JEST** "<10⁻³⁰⁰" jak
+sugerowało zlecenie (10⁻¹⁹² > 10⁻³⁰⁰ liczbowo, mimo że oba są
+astronomicznie małe) — nieścisłość odnotowana i skorygowana, potwierdzona
+przez audytora.
+
+**Napięcie z regułą pierwszeństwa (§1: "Construct=✘ fundamentalny >
+wszystko inne"), zgłoszone w poprzedniej turze, zostało ROZSTRZYGNIĘTE
+przez Architekta 2026-07-20** (nie obchodzone): Construct tej osi
+skorygowany z ✘⁸ na ◐¹⁴ — `recovery_time` mierzy to, co obiecuje (czas
+POWROTU do pasma), w odróżnieniu od `adaptation_tick` w L1.2, który
+naprawdę mierzy inne zjawisko (okno przed szokiem, pozostaje ✘). Status
+`EXPERIMENTAL` jest więc teraz zgodny z regułą pierwszeństwa, nie
+wyjątkiem od niej — pełne uzasadnienie decyzji w przypisie ¹⁴ przy tabeli
+§4b, wraz z jawnym zaznaczeniem, że to ODWRACA wcześniej udokumentowane
+ustalenie (VALIDITY_REPORT.md footnote 8), nie cichą zmianą.
+
+### 7.4 Podsumowanie: nowe narzędzia dodane do repo w trakcie tej weryfikacji
+
+- `clos_curriculum/laboratory/statistics.py::kruskal_wallis()` — test
+  Kruskala-Wallisa z korektą na remisy, zero scipy (zgodnie z konwencją
+  projektu).
+- `clos_curriculum/laboratory/statistics.py::chi2_survival()` /
+  `chi2_survival_log10()` — funkcja przeżycia chi-kwadrat liczona wprost
+  (górna niepełna gamma, ułamek łańcuchowy Lentza), NIE jako `1-CDF()` —
+  ten drugi sposób daje UJEMNE wyniki dla ekstremalnie małych p (dokładnie
+  przypadek Stability/Adaptation/Homeostatic Resilience powyżej).
+- `tests/test_kruskal_wallis.py` — 9 testów, w tym walidacja przeciwko
+  zamkniętej formie analitycznej (df=2: CDF=1-exp(-x/2)), nie tylko
+  przykład z podręcznika.
