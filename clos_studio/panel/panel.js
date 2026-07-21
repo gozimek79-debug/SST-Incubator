@@ -31,7 +31,17 @@
     metadata: "publications/L1_1_pattern_echo/metadata.json",
     prereg: "publications/preregistration_L1_1.json",
     status: "reports/status.json",
+    chronicle: "reports/history.json",
   };
+
+  // Auto-odswiezanie: pelny loadAll() co 10 minut (raw.githubusercontent ma
+  // cache ~5 min, wiec czesciej nie ma sensu; GitHub API ma limit 60/h na IP
+  // bez autoryzacji - 10 min => ~12-18 zapytan API/h, bezpiecznie ponizej).
+  // Dodatkowo wiek danych w pulsie przeliczany co minute z JUZ pobranego
+  // statusu (bez zadnego fetchu) - "3 min temu" nie zamarza na ekranie.
+  var REFRESH_MS = 10 * 60 * 1000;
+  var lastStatus = null;
+  var lastRefreshAt = null;
 
   var C = {
     chA: "#4FC8E0", chB: "#A98CFF", ok: "#5FC98C", warn: "#F2B049",
@@ -39,9 +49,9 @@
   };
 
   /* ---------- sekcje (musi byc zgodne z index.html) ---------- */
-  var SECTIONS = ["overview", "lessons", "competency", "genomes", "provenance", "tests", "reports"];
+  var SECTIONS = ["overview", "history", "lessons", "competency", "genomes", "provenance", "tests", "reports"];
   var SECTION_LABELS = {
-    overview: "Przegląd", lessons: "Lekcje i wyniki", competency: "Profil kompetencji",
+    overview: "Przegląd", history: "Historia", lessons: "Lekcje i wyniki", competency: "Profil kompetencji",
     genomes: "Porównanie genomów", provenance: "Prowenancja", tests: "Testy i CI", reports: "Raporty",
   };
 
@@ -689,28 +699,116 @@
     setSectionHTML("tests", '<div class="tiles" style="grid-column:1/-1">' + tilesHtml + "</div>" + validatorsCard + metaCard);
   }
 
-  function renderReports() {
-    var reports = [
-      { f: "RAPORT_KONCOWY_v0.8.4.md", d: "Raport końcowy sprintu v0.8.4 — uczciwa ocena gotowości" },
-      { f: "publications/preregistration_L1_1.json", d: "Prerejestracja L1.1 (noise_world)" },
-      { f: "publications/competency_profile.md", d: "Profil kompetencji + karty genomów" },
-      { f: "clos_academy/cognitive_ontology.md", d: "Ontologia — 13 pojęć poznawczych" },
-      { f: "docs/spec_partial_step.md", d: "Specyfikacja partial_step() (pod v0.9)" },
-      { f: "README.md", d: "Status projektu, jak uruchomić testy, struktura modułów" },
-      { f: "ROADMAP.md", d: "v0.7.x → v0.8.4 → v0.9 → v1.0" },
-    ];
-    var rowsHtml = reports.map(function (r) {
-      var url = "https://github.com/" + OWNER + "/" + REPO + "/blob/" + BRANCH + "/" + r.f;
-      return '<div class="rep-row"><a class="rep-f" href="' + url + '" target="_blank" rel="noopener">' +
-        escapeHtml(r.f) + "</a><span class=\"rep-d\">" + escapeHtml(r.d) + "</span></div>";
-    }).join("");
+  /* ================= Historia (kronika laboratorium) =================
+   * Wpisy kroniki pochodza z reports/history.json (DANE, recznie
+   * utrzymywana kronika - jak lista w sekcji Raporty), NIE z tego pliku:
+   * validate_panel.py skanuje panel.js pod katem wklejonych metryk/hashy,
+   * wiec tresc historyczna (liczby, commity) MUSI zyc w artefakcie JSON.
+   * Obok kroniki - zywy strumien commitow z GitHub API (operacje biezace). */
+  function renderHistory(chron, commits, chronErr, commitsErr) {
+    var chronicleCard;
+    if (chron && chron.entries && chron.entries.length) {
+      var entriesHtml = chron.entries.map(function (ev) {
+        var commitHtml = ev.commit
+          ? '<div class="hist-commit">commit <a href="https://github.com/' + OWNER + "/" + REPO + "/commit/" +
+            encodeURIComponent(ev.commit) + '" target="_blank" rel="noopener"><code>' + escapeHtml(ev.commit) + "</code></a></div>"
+          : "";
+        return '<article class="hist-entry">' +
+          '<div class="hist-when">' + escapeHtml(ev.date || "—") +
+          (ev.sprint ? '<span class="hist-sprint">' + escapeHtml(ev.sprint) + "</span>" : "") + "</div>" +
+          "<div>" +
+          '<h3 class="hist-title">' + escapeHtml(ev.title || "") + "</h3>" +
+          '<p class="hist-body">' + escapeHtml(ev.body || "") + "</p>" +
+          commitHtml +
+          "</div></article>";
+      }).join("");
+      chronicleCard =
+        '<section class="card span"><header class="card-h"><span class="card-t">' + escapeHtml(chron.title || "Kronika") + "</span>" +
+        '<span class="card-s">' + chron.entries.length + " wpisów · aktualizacja " + escapeHtml(chron.updated || "—") + "</span></header>" +
+        '<div class="card-b"><div class="hist">' + entriesHtml + "</div>" +
+        '<p class="note">' + escapeHtml(chron.note || "") + "</p></div></section>";
+    } else {
+      chronicleCard = missingArtifactHtml(ARTIFACTS.chronicle, chronErr);
+    }
 
-    var html =
-      '<section class="card span"><header class="card-h"><span class="card-t">Artefakty i raporty</span>' +
-      '<span class="card-s">gałąź ' + escapeHtml(BRANCH) + "</span></header>" +
-      '<div class="card-b"><div class="reports">' + rowsHtml + "</div>" +
-      '<p class="note">Lista wybranych plików dokumentacyjnych, utrzymywana ręcznie (jak spis treści) — ' +
-      "linki prowadzą wprost do repo na GitHubie. To ścieżki, nie metryki naukowe.</p></div></section>";
+    var liveCard;
+    if (commits && commits.length) {
+      var liveRows = commits.map(function (gc) {
+        var when = gc.commit && gc.commit.author && gc.commit.author.date
+          ? formatUtc(gc.commit.author.date) : "—";
+        var msg = gc.commit && gc.commit.message ? gc.commit.message.split("\n")[0] : "—";
+        var sha = gc.sha ? gc.sha.slice(0, 7) : "—";
+        return '<div class="tl-row"><span class="tl-c">' + escapeHtml(when) + "</span>" +
+          '<span class="tl-p">' + escapeHtml(sha) + "</span>" +
+          '<span class="tl-t">' + escapeHtml(msg) + "</span></div>";
+      }).join("");
+      liveCard =
+        '<section class="card span"><header class="card-h"><span class="card-t">Operacje bieżące (git, na żywo)</span>' +
+        '<span class="card-s">ostatnie ' + commits.length + " commitów · GitHub API</span></header>" +
+        '<div class="card-b"><div class="timeline">' + liveRows + "</div>" +
+        '<p class="note">Strumień pobierany na żywo z GitHub API przy każdym odświeżeniu — uzupełnia kronikę ' +
+        "wyżej o operacje, które nie mają jeszcze swojego wpisu.</p></div></section>";
+    } else {
+      liveCard = '<section class="card span"><div class="card-b">' +
+        apiErrorHtml("lista commitów", commitsErr) + "</div></section>";
+    }
+
+    setSectionHTML("history", chronicleCard + liveCard);
+  }
+
+  function renderReports() {
+    var groups = [
+      { t: "Sprint v0.11.0 — walidacja konfirmacyjna", items: [
+        { f: "docs/METRIC_STATUS_TABLE.md", d: "Finalna tabela statusów: 14 osi × konteksty, 4 wymiary walidacji, wynik Red Team" },
+        { f: "reports/population/population_validation_v0_11_0.json", d: "Surowe dane re-runu konfirmacyjnego (12765 przebiegów, n=185)" },
+        { f: "publications/preregistration_v0_11_0_power_reproduction.json", d: "Prerejestracja P0 — analiza mocy, trzy warianty re-runu" },
+        { f: "publications/preregistration_v0_11_0_ANEKS_2026-07-19_run_count_i_fdr.json", d: "Aneks: 12765 przebiegów, korekta FDR, rekoncyliacja AIA v4" },
+        { f: "execution_package_v0_11/experiment_manifest.json", d: "Manifest eksperymentu z bramką arytmetyczną" },
+        { f: "execution_package_v0_11/hashes/baseline_hash.txt", d: "Kanoniczny baseline Hard-Halt (AUD-001, 24 pliki krytyczne)" },
+        { f: "docs/MSE_MAE_NAMING_DECISION.md", d: "Decyzja MSE→MAE — zasięg, warianty, realizacja" },
+        { f: "docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md", d: "Decyzja ontologiczna: Energy Efficiency → Final Energy Level" },
+      ]},
+      { t: "Walidacja naukowa v0.10.1 (Exploratory Dataset v0.10)", items: [
+        { f: "docs/VALIDITY_REPORT.md", d: "Granice interpretacji 14 osi — co mierzy, czego nie, kiedy myli" },
+        { f: "docs/ROBUSTNESS_MATRIX.md", d: "Macierz odporności: mierzalność i dyskryminacja jako osobne osie" },
+        { f: "docs/CURRENT_SCIENTIFIC_LIMITS.md", d: "Jawne granice naukowe projektu" },
+        { f: "RESEARCH_READINESS_REPORT.md", d: "Gotowość publikacyjna: metodologia TAK, zdolności poznawcze JESZCZE NIE" },
+        { f: "docs/REPLICATION.md", d: "Procedura replikacji + wynik ślepego testu (Linux/Python 3.12)" },
+        { f: "reports/population/population_validation_v0_10_1.json", d: "Dane populacyjne 23 genomy × 3 środowiska × 10 seedów (zamrożone)" },
+        { f: "publications/preregistration_v0_10_1_population.json", d: "Prerejestracja walidacji populacyjnej (bramka)" },
+      ]},
+      { t: "Prerejestracje lekcji i aneksy", items: [
+        { f: "publications/preregistration_L1_1.json", d: "Prerejestracja L1.1 Pattern Echo (zamrożona bramka)" },
+        { f: "publications/preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json", d: "Aneks L1.1: korekta nazwy MSE→MAE (wartości bez zmian)" },
+        { f: "publications/preregistration_L1_2.json", d: "Prerejestracja L1.2 Shock Recovery (zamrożona bramka)" },
+        { f: "publications/competency_profile.md", d: "Profil kompetencji + karty genomów" },
+        { f: "clos_academy/cognitive_ontology.md", d: "Ontologia — 14 pojęć (w tym 1 zmienna stanu fizjologicznego)" },
+      ]},
+      { t: "Raporty sprintów i dokumentacja projektu", items: [
+        { f: "RAPORT_v0.10.md", d: "Raport sprintu v0.10 — Read-Only Observer, realne snapshoty" },
+        { f: "RAPORT_v0.9.md", d: "Raport sprintu v0.9 — L1.2, korekta hipotezy z danych" },
+        { f: "RAPORT_v0.8.5.md", d: "Raport sprintu v0.8.5 — Panel Badacza" },
+        { f: "RAPORT_KONCOWY_v0.8.4.md", d: "Raport końcowy v0.8.4 — uczciwa ocena gotowości" },
+        { f: "docs/architecture.md", d: "Architektura + zasada Execution/Observation" },
+        { f: "docs/spec_snapshot_observer.md", d: "Specyfikacja Read-Only Observer" },
+        { f: "README.md", d: "Status projektu, jak uruchomić testy, struktura modułów" },
+        { f: "ROADMAP.md", d: "Mapa drogowa projektu" },
+      ]},
+    ];
+
+    var html = groups.map(function (grp) {
+      var rowsHtml = grp.items.map(function (r) {
+        var url = "https://github.com/" + OWNER + "/" + REPO + "/blob/" + BRANCH + "/" + r.f;
+        return '<div class="rep-row"><a class="rep-f" href="' + url + '" target="_blank" rel="noopener">' +
+          escapeHtml(r.f) + "</a><span class=\"rep-d\">" + escapeHtml(r.d) + "</span></div>";
+      }).join("");
+      return '<section class="card span"><header class="card-h"><span class="card-t">' + escapeHtml(grp.t) + "</span>" +
+        '<span class="card-s">' + grp.items.length + " plików · gałąź " + escapeHtml(BRANCH) + "</span></header>" +
+        '<div class="card-b"><div class="reports">' + rowsHtml + "</div></div></section>";
+    }).join("") +
+      '<section class="card span"><div class="card-b">' +
+      '<p class="note">Lista utrzymywana ręcznie (jak spis treści) — linki prowadzą wprost do repo na GitHubie. ' +
+      "To ścieżki, nie metryki naukowe.</p></div></section>";
     setSectionHTML("reports", html);
   }
 
@@ -733,10 +831,12 @@
     var foot = document.getElementById("foot");
     if (!foot) return;
     var ts = metadata && metadata.timestamp ? String(metadata.timestamp).replace("T", " ") : null;
+    var refreshed = lastRefreshAt ? formatUtc(lastRefreshAt.toISOString()) : null;
     foot.innerHTML = "Dane: gałąź <code>" + escapeHtml(BRANCH) + "</code>" +
       (ts ? " · bundle L1.1 wygenerowany " + escapeHtml(ts) : "") +
-      " · panel czyta na żywo z <code>raw.githubusercontent.com</code> przy każdym otwarciu " +
-      "(cache GitHub ~5 min) — żadna liczba nie jest wpisana na sztywno.";
+      (refreshed ? " · ostatnie odświeżenie " + escapeHtml(refreshed) : "") +
+      " · panel czyta na żywo z <code>raw.githubusercontent.com</code> i odświeża dane automatycznie " +
+      "co 10 minut (cache GitHub ~5 min) — żadna liczba nie jest wpisana na sztywno.";
   }
 
   // SPRINT_v0.11.0.md Zadanie 3: globalny puls, widoczny niezaleznie od
@@ -762,12 +862,14 @@
 
   /* ================= orkiestracja ================= */
   function loadAll() {
+    lastRefreshAt = new Date();
     var loads = {
       report: fetchJSON(ARTIFACTS.report),
       competency: fetchJSON(ARTIFACTS.competency),
       metadata: fetchJSON(ARTIFACTS.metadata),
       prereg: fetchJSON(ARTIFACTS.prereg),
       status: fetchJSON(ARTIFACTS.status),
+      chronicle: fetchJSON(ARTIFACTS.chronicle),
       legacy: fetchLegacyBundles(),
       commits: fetchCommits(10),
     };
@@ -804,8 +906,18 @@
       renderProvenance(vals[0], vals[1], results.legacyError, results.metadataError);
     });
 
-    loads.status.then(function (s) { renderTests(s, null); updatePulse(s); })
+    loads.status.then(function (s) { lastStatus = s; renderTests(s, null); updatePulse(s); })
       .catch(function (e) { renderTests(null, e); updatePulse(null); });
+
+    // Historia: kronika (raw) + zywe commity (API) - bledy per zrodlo,
+    // czesciowy sukces renderuje to, co sie udalo pobrac.
+    var chronState = {};
+    Promise.all([
+      loads.chronicle.catch(function (e) { chronState.chronErr = e; return null; }),
+      loads.commits.catch(function (e) { chronState.commitsErr = e; return null; }),
+    ]).then(function (vals) {
+      renderHistory(vals[0], vals[1], chronState.chronErr, chronState.commitsErr);
+    });
 
     renderReports();
 
@@ -828,5 +940,11 @@
   document.addEventListener("DOMContentLoaded", function () {
     initNav();
     loadAll();
+    // Pelne odswiezenie wszystkich danych co 10 minut...
+    setInterval(loadAll, REFRESH_MS);
+    // ...a sam WIEK danych w pulsie przeliczany co minute z juz pobranego
+    // statusu (zero fetchu; guard - nie nadpisuj komunikatu bledu, gdy
+    // status jeszcze/w ogole nie zostal pobrany).
+    setInterval(function () { if (lastStatus) updatePulse(lastStatus); }, 60 * 1000);
   });
 })();

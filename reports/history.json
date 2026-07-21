@@ -1,0 +1,98 @@
+{
+  "title": "Historia laboratorium CLOS",
+  "note": "Recznie utrzymywana kronika (jak spis tresci w sekcji Raporty) - daty i fakty pochodza z git log oraz artefaktow repo, nie sa generowane automatycznie. Wpisy najnowsze na gorze. Panel dodatkowo pokazuje zywy strumien commitow z GitHub API obok tej kroniki.",
+  "updated": "2026-07-21",
+  "entries": [
+    {
+      "date": "2026-07-21",
+      "sprint": "v0.11.0",
+      "title": "Sprint v0.11.0 zamkniety - pierwsze statusy VALIDATED w historii projektu",
+      "body": "Finalna tabela statusow (docs/METRIC_STATUS_TABLE.md) po re-runie konfirmacyjnym i Red Teamie: 3 osie VALIDATED (Working Memory, Pattern Recognition, Stability - wszystkie w L1.1/noise_world, z jawnym zastrzezeniem winner's curse: wielkosc efektu z eksploracji byla zawyzona), 7 EXPERIMENTAL. Red Team obalil wczesniejszy wniosek MEASURED_BUT_NULL dla Pattern Retention: test parami (Welch, 0/253 par) przegapil slaby NIEMONOTONICZNY efekt, ktory Kruskal-Wallis wykryl (p=0.025) - zly typ testu dal falszywe zero, blad odwrotny do bledu z P0. Wykonawca zlapal przy okazji 2 bledy audytora (pomieszane f_obs dwoch metryk; utrata precyzji w 1-CDF). Homeostatic Resilience: Construct skorygowany przez Architekta z 'zepsuty' na 'czesciowy' - recovery_time mierzy to co obiecuje, cenzura 21% to ograniczenie pomiaru, nie blad konstruktu.",
+      "commit": "4035cf8"
+    },
+    {
+      "date": "2026-07-20",
+      "sprint": "v0.11.0",
+      "title": "Re-run konfirmacyjny ukonczony: 12765/12765, Hard-Halt PASS przez caly bieg",
+      "body": "Pelny eksperyment konfirmacyjny zakonczony o 00:12 (start 22:05 dnia poprzedniego, ~127 minut). Wszystkie 12765 przebiegow ukonczone, hash 24 plikow krytycznych (baseline AUD-001) weryfikowany przy kazdym checkpoincie (100/500/1000/5000/12765) - zero niezgodnosci, zero HALT. Surowe dane zapisane do NOWEGO pliku reports/population/population_validation_v0_11_0.json - Exploratory Dataset v0.10 nietkniety. Zero interpretacji w danych: ocena Power/Confirmatory nalezala do audytora, potem Red Team zweryfikowal wnioski na danych (leave-one-out, Kruskal-Wallis, winner's curse). Nowe narzedzia w statistics.py: kruskal_wallis() z korekta na remisy i chi2_survival() (gorna niepelna gamma - 1-CDF tracilo precyzje przy ekstremalnie malych p).",
+      "commit": "5a4bb3a"
+    },
+    {
+      "date": "2026-07-19",
+      "sprint": "v0.11.0",
+      "title": "Final Audit Gate: EXECUTION APPROVED - start pelnego re-runu",
+      "body": "Audytor wykonal finalny audyt pre-execution na swiezym klonie: zero niezgodnosci. Hard-Halt zweryfikowany empirycznie (self-match PASS, celowe uszkodzenie -> HALT). Wieczorem START autoryzowany i pelny re-run 12765 przebiegow ruszyl (23 genomy x 3 srodowiska, N=185/grupa, stable_world podzielony 93/92 miedzy lekcje bez nakladania seedow).",
+      "commit": "cfc15e2"
+    },
+    {
+      "date": "2026-07-19",
+      "sprint": "v0.11.0",
+      "title": "Execution Package v0.11 (BUILD-001..007) + zamkniecie zagadki hasha AUD-001",
+      "body": "Zbudowany kompletny pakiet wykonawczy: manifest z bramka arytmetyczna (dokladnie 12765 przebiegow, nie 25530), pipeline z checkpointingiem i resume, schemat rekordu per-run (run_id/genom/srodowisko/lekcja/seed/timestamp/metryki/hash wyniku), walidator Hard-Halt. Dry-run 207 przebiegow (23x3x3) PASS - mechanika sprawdzona bez uruchamiania eksperymentu. Zagadka niezgodnego hasha baseline rozwiazana po 7 nieudanych probach: audytor dostarczyl kanoniczna liste 24 plikow krytycznych, a ostatnia rozbieznosc okazala sie normalizacja CRLF/LF (Windows checkout vs tresc LF w repo) - hash odtworzony DOKLADNIE.",
+      "commit": "cfc15e2"
+    },
+    {
+      "date": "2026-07-19",
+      "sprint": "v0.11.0",
+      "title": "Aneks prerejestracji: 12765 przebiegow, korekta FDR 0.05/9, moc '0.906' wycofana",
+      "body": "Datowany aneks (oryginalna prerejestracja nietknieta - slad audytowy wazniejszy niz czysty dokument): liczba przebiegow konfirmacyjnych skorygowana z 25530 na 12765 (drift_world wylaczony jako nadmiarowy - zadna os nie jest mierzona wylacznie tam). Korekta na wielokrotne porownania przeliczona z zalozonych 21 testow na 9 REALNIE obliczalnych - dowod strukturalny: stable_world ignoruje parametr seed w kodzie zrodlowym, wiec ANOVA tam nigdy nie bedzie obliczalna, niezaleznie od wielkosci proby. Bledna moc '0.906' z AIA v4 wycofana przez audytora po tym, jak wykonawca nie zdolal jej odtworzyc zadna rozsadna kombinacja parametrow (relikt analizy przy mniejszym n).",
+      "commit": "caa9ac7"
+    },
+    {
+      "date": "2026-07-18",
+      "sprint": "v0.11.0",
+      "title": "METRIC_STATUS_TABLE.md: 37 wierszy, 4 wymiary walidacji, 7 statusow rekomendacji",
+      "body": "Nowa tabela statusow per (metryka x lekcja x srodowisko) - 14 osi ontologii, w tym 7 bez lekcji (NOT_MEASURED). Cztery OSOBNE wymiary walidacji: Measurement / Construct / Power / Confirmatory. Nowe statusy: MEASURED_BUT_NULL, INSUFFICIENT_POWER, NOT_MEASURED obok VALIDATED/EXPERIMENTAL/INVALID_CONSTRUCT. Kluczowa korekta metodologiczna: moc RETROSPEKTYWNA (liczona z efektu zaobserwowanego na tych samych danych) usunieta z uzasadnien jako statystycznie bezwartosciowa (power approach paradox, Hoenig & Heisey 2001) - statusy stoja na faktach niecyrkularnych (valid_rate, pary FDR).",
+      "commit": "f651e8d"
+    },
+    {
+      "date": "2026-07-18",
+      "sprint": "v0.11.0",
+      "title": "Panel: wersjonowanie, puls danych i jedno zrodlo klasyfikacji",
+      "body": "Plik VERSION jako jedyne zrodlo numeru sprintu (VERSION -> write_status.py -> status.json -> panel, zero literalow w JS). Globalny puls: sprint, data danych z CI, wiek danych liczony na zywo - zastoj danych staje sie widoczny sam z siebie. Trzy stany zrodel rozroznione wizualnie: ZYWE / Exploratory Dataset / Frozen Historical Artifact. Naprawiona realna luka: panel liczyl klasyfikacje kompetencji SAM zamiast czytac ja z Pythona - zmiana ontologii nie docierala do widoku bez zadnego ostrzezenia. validate_panel.py rozszerzony o wykrywanie reimplementacji klasyfikacji i odczytow nieistniejacych pol JSON.",
+      "commit": "13a1a19"
+    },
+    {
+      "date": "2026-07-18",
+      "sprint": "v0.11.0",
+      "title": "MSE okazalo sie MAE + 'Energy Efficiency' nie istnieje - dwie korekty nazw po audycie",
+      "body": "Flagowy endpoint 'MSE@50' liczyl od zawsze wartosc bezwzgledna (abs), nie kwadrat - przez 6 sprintow nikt tego nie zauwazyl, wlacznie z audytorem. Naprawa wariantem (c): nazwa naprawiona w kodzie (mae_*), zamrozone prerejestracje NIETKNIETE, datowany aneks jako slad audytowy, opublikowany bundle L1.1 oznaczony formalnie jako Frozen Historical Artifact (frozen:true + walidator z testem negatywnym). Druga korekta glebsza - blad KATEGORII, nie nazwy: 'Energy Efficiency' nie mierzy zadnej efektywnosci (w kodzie nie ma formuly stosunku; final_energy to poziom, ile energii ZOSTALO). Przemianowana na 'Final Energy Level'; nazwa 'Metabolic Cost' odrzucona, bo bylaby odwrotnie skorelowana ze swoim znaczeniem. Ontologia rozdzielona: 6 osi poznawczych + 1 zmienna stanu fizjologicznego.",
+      "commit": "87ff740"
+    },
+    {
+      "date": "2026-07-15",
+      "sprint": "v0.11.0",
+      "title": "P0 analiza mocy: n=10 nie mogl wykryc niczego - fundament re-runu",
+      "body": "Zbudowana od zera (bez scipy) infrastruktura analizy mocy statystycznej: rozklad t niecentralny, ANOVA (rozklad F niecentralny), design sekwencyjny (Pocock/O'Brien-Fleming) - wszystko zwalidowane przeciwko tablicom Cohena (1988). Odkrycie: przy n=10/genom i korekcie na wielokrotne porownania moc wykrycia nawet najwiekszego zaobserwowanego efektu Working Memory wynosila 2.8% - dotychczasowe 'brak roznic miedzy genomami' moglo byc artefaktem zbyt malej proby, nie faktem o systemie. Trzy warianty re-runu przygotowane do decyzji CTO. Po drodze dwie rozbieznosci rozwiazane wspolna weryfikacja: brakujaca korekta alpha (blad wykonawcy) i granice alpha-spending (blad audytora, wycofany).",
+      "commit": "87ff740"
+    },
+    {
+      "date": "2026-07-14",
+      "sprint": "v0.10.1",
+      "title": "Walidacja populacyjna 23 genomow: mierzalnosc to nie dyskryminacja",
+      "body": "1380 przebiegow (23 genomy LHS x 3 srodowiska x 10 seedow) wedlug zatwierdzonej prerejestracji. Wynik: 11 kontekstow GENOME-ROBUST / 17 FRAGILE / 2 nie dotyczy. Najwazniejsze odkrycie sprintu: Working Memory jest w 100% mierzalne, ale ZERO z 253 par genomow przezywa korekte FDR - metryka moze byc doskonale mierzalna i nie roznicowac niczego. Powstaly: VALIDITY_REPORT.md (granice interpretacji 14 osi), ROBUSTNESS_MATRIX.md, REPLICATION.md, CURRENT_SCIENTIFIC_LIMITS.md, RESEARCH_READINESS_REPORT.md (werdykt: artykul metodologiczny TAK, artykul o zdolnosciach poznawczych JESZCZE NIE). Niezalezny audytor wykonal SLEPA replikacje na Linux/Python 3.12: wszystkie glowne wyniki odtworzone dokladnie.",
+      "commit": "25c6a4b"
+    },
+    {
+      "date": "2026-07-13",
+      "sprint": "v0.10",
+      "title": "Sprint v0.10 zamkniety: obserwator naprawde usuwalny, snapshoty naprawde realne",
+      "body": "Read-Only Observer z falsyfikowalnym dowodem usuwalnosci: pola Execution 40/40 bajtowo identyczne z obserwatorem i bez niego. Adaptation/Stability licza sie z realnych trajektorii (wczesniej: puste snapshoty - zadna lekcja nie wolala run_tick, a run_tick i tak hardkodowal entropy=0/energy=100). Walidator telemetrii w CI. Zasada Execution/Observation wpisana do konstytucji architektury. Bundle L1.1 opublikowany z pelna prowenancja.",
+      "commit": "a485874"
+    },
+    {
+      "date": "2026-07-11",
+      "sprint": "v0.9",
+      "title": "L1.2 Shock Recovery + uczciwa korekta hipotezy z danych",
+      "body": "Druga lekcja wedlug prerejestracji-bramki: recovery_time zdefiniowany formalnie przed implementacja. Wyniki: genom default odzyskuje homeostaze (srednio 15.4 ticka), highly_plastic w 100% ocenzurowany (nigdy nie odzyskuje - decay_rate 5x wyzszy). Kontrola pre_shock_band_check pokazala 0.0 -> endpoint uczciwie przemianowany z 'powrotu' na 'osiagniecie' (time_to_sustained_band). 14. pojecie ontologii: Homeostatic Resilience. Capability Analyzer przebudowany na relacje N:M. Profil minimalny: 5 osi z waznym CI95. IDIO-MORPH pozostaje hipoteza badawcza - zero kodu.",
+      "commit": "beec073"
+    },
+    {
+      "date": "2026-07-09",
+      "sprint": "v0.8.4-v0.8.5",
+      "title": "Narodziny Panelu Badacza i statusu Research Grade Infrastructure",
+      "body": "Raport koncowy v0.8.4: uczciwa ocena gotowosci, CI weryfikowane per-commit, status projektu ustalony jako Research Grade Infrastructure (infrastruktura badawcza, nie system poznawczy). Sprint v0.8.5: powstal ten panel - 7 sekcji czytajacych dane NA ZYWO z artefaktow repo, zero liczb wpisanych na sztywno (pilnowane walidatorem validate_panel.py z testem negatywnym w CI), status testow z reports/status.json generowanego wylacznie po zielonym pytest, staly URL na GitHub Pages.",
+      "commit": "55f3e75"
+    }
+  ]
+}

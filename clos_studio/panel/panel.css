@@ -157,6 +157,18 @@ code{font-family:'IBM Plex Mono',monospace}
 .leg-row code{font-size:12.5px}
 .leg-note{font-size:11px; color:var(--mut)}
 
+/* Historia — kronika laboratorium (blog) */
+.hist{display:flex; flex-direction:column}
+.hist-entry{display:grid; grid-template-columns:112px 1fr; gap:16px; padding:15px 0; border-bottom:1px solid var(--line)}
+.hist-entry:last-child{border-bottom:none}
+.hist-when{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--chA); padding-top:2px; white-space:nowrap}
+.hist-sprint{display:block; margin-top:5px; color:var(--mut); font-size:10px; letter-spacing:.05em}
+.hist-title{font-weight:600; font-size:13.5px; margin:0 0 6px; color:var(--txt)}
+.hist-body{font-size:12.5px; color:var(--txt); line-height:1.65; margin:0; opacity:.92}
+.hist-commit{font-size:10.5px; color:var(--mut); margin-top:7px; font-family:'IBM Plex Mono',monospace}
+.hist-commit a{color:var(--chA); text-decoration:none}
+.hist-commit a:hover, .hist-commit a:focus-visible{text-decoration:underline}
+
 .reports{display:flex; flex-direction:column}
 .rep-row{display:flex; gap:14px; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--line); flex-wrap:wrap}
 .rep-row:last-child{border-bottom:none}
@@ -190,6 +202,7 @@ code{font-family:'IBM Plex Mono',monospace}
   .nav.on{border-left:none; border-bottom-color:var(--chA)}
   .grid{grid-template-columns:1fr}
   .prov{grid-template-columns:1fr}
+  .hist-entry{grid-template-columns:1fr; gap:6px}
 }
 
 @media(prefers-reduced-motion:reduce){
