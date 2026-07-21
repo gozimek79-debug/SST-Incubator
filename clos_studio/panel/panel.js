@@ -32,7 +32,22 @@
     prereg: "publications/preregistration_L1_1.json",
     status: "reports/status.json",
     chronicle: "reports/history.json",
+    population: "reports/population/population_validation_v0_11_0.json",
   };
+
+  // Audytor 2026-07-21: sekcja "Lekcje i wyniki" CZYTA WYLACZNIE ten plik
+  // (re-run konfirmacyjny, 23 genomy x n=185/genom, Hard-Halt PASS) - NIE
+  // demo-raporty ARTIFACTS.report/prereg (2 genomy, n=10, v0.8/v0.9), ktore
+  // panel wczesniej mylnie pokazywal tutaj jako "wynik" mimo ze istniala
+  // pelna populacyjna dana. Lista metryk per lekcja to WYLACZNIE klucz
+  // wyboru KTORE juz-istniejace pola pokazac (nie liczy niczego) - liczby
+  // (69/77/0/244 itd.) pochodza zawsze z fetchowanego pliku, nigdy stad.
+  var POPULATION_LESSONS = [
+    { lessonKey: "L1.1", envKey: "noise_world", title: "L1.1 — Pattern Echo",
+      metrics: ["Working Memory (MAE@50)", "Pattern Recognition", "Pattern Retention", "Stability"] },
+    { lessonKey: "L1.2", envKey: "shock_world", title: "L1.2 — Shock Recovery",
+      metrics: ["Homeostatic Resilience (recovery_time)", "Stability", "Final Energy Level"] },
+  ];
 
   // Auto-odswiezanie: pelny loadAll() co 10 minut (raw.githubusercontent ma
   // cache ~5 min, wiec czesciej nie ma sensu; GitHub API ma limit 60/h na IP
@@ -344,14 +359,20 @@
 
   function renderOverview(ctx) {
     var comp = ctx.competency;
-    var report = ctx.report;
+    var population = ctx.population;
     var commits = ctx.commits;
     var status = ctx.status;
 
     var measured = comp ? comp.summary.measured : null;
     var total = comp ? comp.summary.total_concepts : null;
     var validCount = comp ? classifyConcepts(comp).valid.length : null;
-    var lessonsCount = report ? 1 : 0;
+    // Audytor 2026-07-21: liczba lekcji CZYTANA z tego, ile lekcji population
+    // json faktycznie zawiera - NIE zakodowane "1" (poprzedni blad: panel
+    // fetchowal tylko L1.1 demo i zakladal max 1 lekcje z definicji, wiec
+    // L1.2 (re-run konfirmacyjny, 6371 runow) nigdzie sie nie pojawiala).
+    var lessonsCount = population ? POPULATION_LESSONS.filter(function (l) {
+      return population.lessons && population.lessons[l.lessonKey] && population.lessons[l.lessonKey][l.envKey];
+    }).length : 0;
 
     var tiles = [
       { l: "Status", val: "Research Grade Infrastructure", sub: "deklaracja repo, nie liczba", c: "var(--chA)", wide: true },
@@ -361,7 +382,7 @@
         sub: status ? "per-commit, po walidatorach" : "reports/status.json niedostępny",
         c: status && status.ci && status.ci.conclusion === "success" ? "var(--ok)" : "var(--crit)" },
       { l: "Core", val: "frozen", sub: "zasada sprintu (clos_brain/, clos_kernel/, genome/, birth/)", c: "var(--chA)" },
-      { l: "Lekcje", val: lessonsCount ? String(lessonsCount) : "—", sub: lessonsCount ? "wczytanych raportów Academy" : "brak danych", c: "var(--txt)" },
+      { l: "Lekcje", val: lessonsCount ? String(lessonsCount) : "—", sub: lessonsCount ? "re-run konfirmacyjny v0.11 (population)" : "brak danych", c: "var(--txt)" },
       { l: "Kompetencje", val: comp ? validCount + "/" + total : "—",
         sub: comp ? "ważne CI95 · " + measured + "/" + total + " zmierzone" : "publications/competency_profile.json niedostępny", c: "var(--warn)" },
     ];
@@ -392,11 +413,75 @@
     setSectionHTML("overview", '<div class="tiles" style="grid-column:1/-1">' + tilesHtml + "</div>" + timelineCard + statusNotice);
   }
 
-  function renderLessons(report, prereg, reportErr, preregErr) {
-    var notices = "";
-    if (!report) notices += missingArtifactHtml(ARTIFACTS.report, reportErr);
-    if (!prereg) notices += missingArtifactHtml(ARTIFACTS.prereg, preregErr);
-    if (!report && !prereg) { setSectionHTML("lessons", notices); return; }
+  // Wiersz jednej metryki jednej lekcji - czyta WYLACZNIE gotowe pola z
+  // population_validation_v0_11_0.json (status/classification/valid_rate/
+  // pairwise_comparisons/omnibus_anova_raw) - zero progow/porownan liczonych
+  // tutaj (to zablokowalby validate_panel.py, punkt A - i slusznie: Python
+  // jest jedynym zrodlem klasyfikacji, patrz classifyConcepts() wyzej).
+  // Uwaga (znalezione przy weryfikacji, 2026-07-21): n_genomes_total oraz n
+  // per-genom RÓŻNIĄ SIĘ metryka-po-metryce w tej samej lekcji (np.
+  // Homeostatic Resilience: n_genomes_total=14 zamiast 23, n per genom
+  // 2-185 przez cenzurowanie - Working Memory/Stability maja jednolite
+  // n=185/23 genomy). Dlatego liczby genomów/n sa pokazywane TUTAJ, per
+  // wiersz metryki (jednoznaczne), NIE jako jeden zbiorczy naglowek karty
+  // lekcji (bylby myslacy dla lekcji z cenzurowana metryka).
+  function renderPopulationMetricRow(name, entry) {
+    if (!entry) {
+      return '<div class="leg-row"><code>' + escapeHtml(name) + "</code>" +
+        '<span class="pill" style="color:var(--mut);border-color:#78879A55">brak w pliku</span></div>';
+    }
+    var pc = entry.pairwise_comparisons;
+    var pairsText = pc ? pc.n_fdr_significant_q_0_05 + "/" + pc.n_pairs + " par (FDR q=0.05)" : "—";
+    var anova = entry.omnibus_anova_raw;
+    var fText = anova ? (anova.computable ? "f=" + fmtNum(anova.f, 4) : "nieobliczalne") : "—";
+    var pgKeys = entry.per_genome ? Object.keys(entry.per_genome) : [];
+    var nValues = pgKeys.map(function (g) { return entry.per_genome[g].n; });
+    var nMin = nValues.length ? Math.min.apply(null, nValues) : null;
+    var nMax = nValues.length ? Math.max.apply(null, nValues) : null;
+    var nText = nMin === null ? "—" : nMin === nMax ? "n=" + nMin : "n=" + nMin + "–" + nMax + " (cenzurowane)";
+    return '<div class="leg-row"><code>' + escapeHtml(name) + "</code>" +
+      '<span class="pill">' + escapeHtml(entry.classification || "—") + "</span>" +
+      '<span class="leg-note">' + (entry.n_genomes_valid != null ? entry.n_genomes_valid : "—") + "/" +
+      (entry.n_genomes_total != null ? entry.n_genomes_total : "—") + " genomów, " + nText + "</span>" +
+      '<span class="leg-note">valid_rate=' + fmtNum(entry.valid_rate, 2) + "</span>" +
+      '<span class="leg-note">' + pairsText + "</span>" +
+      '<span class="leg-note">ANOVA surowe ' + fText + "</span></div>";
+  }
+
+  function renderLessons(population, populationErr) {
+    if (!population) { setSectionHTML("lessons", missingArtifactHtml(ARTIFACTS.population, populationErr)); return; }
+
+    var statusNote = population.dataset_status
+      ? '<p class="prose" style="grid-column:1/-1">' + escapeHtml(population.dataset_status) + "</p>" : "";
+
+    var cards = POPULATION_LESSONS.map(function (l) {
+      var envData = population.lessons && population.lessons[l.lessonKey] && population.lessons[l.lessonKey][l.envKey];
+      if (!envData) {
+        return '<section class="card span"><header class="card-h"><span class="card-t">' + escapeHtml(l.title) +
+          '</span></header><div class="card-b"><p class="prose">Brak danych dla ' +
+          escapeHtml(l.lessonKey) + "/" + escapeHtml(l.envKey) + " w pliku populacyjnym.</p></div></section>";
+      }
+      var rows = l.metrics.map(function (m) { return renderPopulationMetricRow(m, envData[m]); }).join("");
+      return '<section class="card span"><header class="card-h">' +
+        '<span class="card-t">' + escapeHtml(l.title) + "</span>" +
+        '<span class="card-s">środowisko: ' + escapeHtml(l.envKey) + " · re-run konfirmacyjny</span></header>" +
+        '<div class="card-b"><div class="legacy">' + rows + "</div>" +
+        '<p class="note">Liczby parowe (Welch+FDR) i omnibusowe (ANOVA, surowe) wprost z ' +
+        "<code>" + escapeHtml(ARTIFACTS.population) + "</code>. Interpretacja " +
+        "(VALIDATED/EXPERIMENTAL, test Kruskal-Wallis niezależny od ANOVA) jest w " +
+        "<code>docs/METRIC_STATUS_TABLE.md</code> — panel pokazuje surowe dane, nie ocenę.</p>" +
+        "</div></section>";
+    }).join("");
+
+    setSectionHTML("lessons", statusNote + cards);
+  }
+
+  // Audytor 2026-07-21: demo-raport 2-genomowy (v0.8/v0.9, n=10) NIE jest
+  // kasowany - byl tu wczesniej pod bledna etykieta "wynik lekcji"
+  // (mylony z populacyjnym re-runem). Przeniesiony do Prowenancji z jawnym
+  // banerem archiwalnym - slad audytowy zostaje widoczny, nie znika.
+  function renderLegacyDemoCard(report, prereg, reportErr, preregErr) {
+    if (!report && !prereg) return missingArtifactHtml(ARTIFACTS.report, reportErr);
 
     var design = prereg ? prereg.experiment_design : null;
     var passCond = prereg ? prereg.pass_conditions : null;
@@ -411,12 +496,17 @@
       if (primaryRuns.length) allPassed = primaryRuns.every(function (r) { return r.passed === true; });
     }
 
+    var archivedBanner = '<div class="datastate datastate-archived">' +
+      "<b>Archiwalne demo (v0.8/v0.9, 2 genomy, n=10)</b> — NIE wynik konfirmacyjny. " +
+      "Populacyjny re-run (23 genomy, n=185) jest w zakładce „Lekcje i wyniki”, " +
+      "źródło <code>" + escapeHtml(ARTIFACTS.population) + "</code>.</div>";
+
     var head =
       '<section class="card span"><header class="card-h"><span class="card-t">' +
       escapeHtml((prereg && prereg.lesson_id) || (report && report.lesson) || "L1.1") + " — " +
-      escapeHtml((report && report.title) || (prereg && prereg.title) || "") + "</span>" +
+      escapeHtml((report && report.title) || (prereg && prereg.title) || "") + " (demo)</span>" +
       '<span class="card-s">' + escapeHtml(scenario) + " · kontrola: " + escapeHtml(control) + "</span></header>" +
-      '<div class="card-b">' +
+      '<div class="card-b">' + archivedBanner +
       (prereg ? '<p class="prose"><b>Hipoteza.</b> ' + escapeHtml(prereg.hypothesis) + "</p>" : "") +
       '<div class="kv">' +
       '<div><span>Primary endpoint</span><b>' + escapeHtml((prereg && prereg.primary_endpoint && prereg.primary_endpoint.metric) || "—") +
@@ -436,14 +526,14 @@
         return { name: g, mean: s.mean, lo: s.ci95_low, hi: s.ci95_high, valid: s.ci95_valid, color: colors[i % colors.length] };
       });
       chartHtml =
-        '<section class="card span"><header class="card-h"><span class="card-t">MAE @ 50 · średnia ± CI95</span>' +
+        '<section class="card span"><header class="card-h"><span class="card-t">MAE @ 50 · średnia ± CI95 (demo)</span>' +
         '<span class="card-s">scenariusz: ' + escapeHtml(scenario) + "</span></header>" +
         '<div class="card-b">' + maeChartSvg(rows) +
         '<p class="note">Kontrola <code>' + escapeHtml(control) + "</code> jest deterministyczna (n_effective=1, " +
         "CI95 nie dotyczy) — punkt odniesienia, nie źródło wariancji.</p></div></section>";
     }
 
-    setSectionHTML("lessons", notices + head + chartHtml);
+    return head + chartHtml;
   }
 
   function renderConceptRow(c, state) {
@@ -593,7 +683,7 @@
     setSectionHTML("genomes", datasetStateBannersHtml(comp) + html);
   }
 
-  function renderProvenance(metadata, legacy, legacyError, metadataError) {
+  function renderProvenance(metadata, legacy, legacyError, metadataError, demoReport, demoPrereg, demoReportError, demoPreregError) {
     var bundleCard = "";
     if (metadata) {
       // SPRINT_v0.11.0.md Zadanie 3 (NAJWAZNIEJSZE z trzech stanow): bundle
@@ -647,7 +737,9 @@
         apiErrorHtml("lista bundli legacy", legacyError) + "</div></section>";
     }
 
-    setSectionHTML("provenance", bundleCard + legacyCard);
+    var demoCard = renderLegacyDemoCard(demoReport, demoPrereg, demoReportError, demoPreregError);
+
+    setSectionHTML("provenance", bundleCard + legacyCard + demoCard);
   }
 
   function renderTests(status, statusErr) {
@@ -870,6 +962,7 @@
       prereg: fetchJSON(ARTIFACTS.prereg),
       status: fetchJSON(ARTIFACTS.status),
       chronicle: fetchJSON(ARTIFACTS.chronicle),
+      population: fetchJSON(ARTIFACTS.population),
       legacy: fetchLegacyBundles(),
       commits: fetchCommits(10),
     };
@@ -880,6 +973,7 @@
     loads.prereg.then(function (v) { results.prereg = v; }).catch(function (e) { results.preregError = e; });
     loads.metadata.then(function (v) { results.metadata = v; }).catch(function (e) { results.metadataError = e; });
     loads.status.then(function (v) { results.status = v; }).catch(function (e) { results.statusError = e; });
+    loads.population.then(function (v) { results.population = v; }).catch(function (e) { results.populationError = e; });
     loads.competency.then(function (v) { results.competency = v; }).catch(function (e) {
       sectionError("competency", ARTIFACTS.competency, e);
       sectionError("genomes", ARTIFACTS.competency, e);
@@ -887,11 +981,10 @@
     loads.legacy.then(function (v) { results.legacy = v; }).catch(function (e) { results.legacyError = e; });
     loads.commits.then(function (v) { results.commits = v; }).catch(function (e) { results.commitsError = e; });
 
-    Promise.all([
-      loads.report.catch(function () { return null; }),
-      loads.prereg.catch(function () { return null; }),
-    ]).then(function (vals) {
-      renderLessons(vals[0], vals[1], results.reportError, results.preregError);
+    // Lekcje i wyniki: WYLACZNIE population (re-run konfirmacyjny) - demo
+    // report/prereg NIE trafiaja tu juz w ogole, patrz renderProvenance.
+    loads.population.catch(function () { return null; }).then(function (population) {
+      renderLessons(population, results.populationError);
     });
 
     loads.competency.then(function (comp) {
@@ -902,8 +995,11 @@
     Promise.all([
       loads.metadata.catch(function () { return null; }),
       loads.legacy.catch(function () { return null; }),
+      loads.report.catch(function () { return null; }),
+      loads.prereg.catch(function () { return null; }),
     ]).then(function (vals) {
-      renderProvenance(vals[0], vals[1], results.legacyError, results.metadataError);
+      renderProvenance(vals[0], vals[1], results.legacyError, results.metadataError,
+        vals[2], vals[3], results.reportError, results.preregError);
     });
 
     loads.status.then(function (s) { lastStatus = s; renderTests(s, null); updatePulse(s); })
@@ -923,12 +1019,12 @@
 
     Promise.all([
       loads.competency.catch(function () { return null; }),
-      loads.report.catch(function () { return null; }),
+      loads.population.catch(function () { return null; }),
       loads.commits.catch(function () { return null; }),
       loads.status.catch(function () { return null; }),
     ]).then(function (vals) {
       renderOverview({
-        competency: vals[0], report: vals[1], commits: vals[2], status: vals[3],
+        competency: vals[0], population: vals[1], commits: vals[2], status: vals[3],
         commitsError: results.commitsError, statusError: results.statusError,
       });
       updateTopPills(results.metadata, vals[2], vals[3]);

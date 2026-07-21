@@ -141,6 +141,8 @@ code{font-family:'IBM Plex Mono',monospace}
 .datastate-exploratory b{color:var(--warn)}
 .datastate-frozen{border-left-color:var(--chA)}
 .datastate-frozen b{color:var(--chA)}
+.datastate-archived{border-left-color:var(--mut)}
+.datastate-archived b{color:var(--mut)}
 
 .tbl{width:100%; border-collapse:collapse; font-size:13px}
 .tbl th{text-align:left; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); padding:8px 10px; border-bottom:1px solid var(--line); font-weight:500}
