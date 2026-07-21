@@ -9,6 +9,20 @@
 > "nie wykryto" != "nie ma"). Status **Power/Confirmatory validity: PENDING**
 > do czasu re-run zatwierdzonego przez CTO (Wariant A/B/C — decyzja w toku).
 
+> **AKTUALIZACJA 2026-07-21 — re-run konfirmacyjny (n=185) zamknięty
+> 2026-07-20: zakaz §3 dla Working Memory i Pattern Recognition jest
+> UNIEWAŻNIONY (nie tylko częściowo — patrz KOREKTA w §3, poprzednia wersja
+> tej adnotacji była błędna).** Working Memory (p=8.1e-17, 69/253 par po
+> FDR) i Pattern Recognition (p=4.5e-14, 77/253 par po FDR) mają status
+> **VALIDATED** (`docs/METRIC_STATUS_TABLE.md` §4b, footnote¹⁰ + ¹⁵) —
+> potwierdzone DWOMA niezależnymi testami (parowy i omnibusowy), nie tylko
+> omnibusowo. Pattern Retention **EXPERIMENTAL** (p=0.0254, Red Team,
+> 0/253 parowo — jedyna z trzech, gdzie sygnał jest wyłącznie omnibusowy).
+> Ten dokument NIE jest edytowany w miejscu (§3 poniżej zostaje jako zapis
+> historyczny etapu n=10) — pełne rozróżnienie co dokładnie zostało
+> unieważnione, a co nie, jest w §3 poniżej i w `docs/VALIDITY_REPORT.md`
+> (sekcja "AKTUALIZACJA 2026-07-21").
+
 **Status: SPRINT_v0.10.1.md P7, Zadanie 6 CTO.** Ten dokument jest
 lustrzanym odbiciem `docs/VALIDITY_REPORT.md` (który mówi: kiedy ufać
 liczbie) i `docs/ROBUSTNESS_MATRIX.md` (który mówi: kiedy metryka
@@ -71,6 +85,7 @@ genomów (v0.10.1 P3):
   zdefiniował niezależnie od tego pudełka).
 
 ## 3. KLUCZOWE: flagowy endpoint NIE dyskryminuje genomów po korekcie
+### [ZAPIS HISTORYCZNY — etap n=10; status UNIEWAŻNIONY dla WM/Pattern Recognition re-runem 2026-07-20, patrz adnotacja na końcu sekcji]
 
 **Working Memory** — primary endpoint całej lekcji L1.1, jedyna oś
 opisana w `README.md` jako reprezentatywny wynik — jest **100%
@@ -94,6 +109,45 @@ Mylenie tych dwóch jest dokładnie błędem, który ten sprint miał wykryć.
 **To samo ograniczenie dotyczy Pattern Recognition i Pattern Retention**
 (też 100% mierzalne, 0/253 par po FDR w obu środowiskach) — trzy z
 siedmiu zmierzonych osi w ogóle nie różnicują genomów w tej próbce.
+
+---
+
+**ADNOTACJA 2026-07-21 (re-run konfirmacyjny n=185, zamknięty 2026-07-20
+— dopisana, sekcja powyżej NIE jest edytowana w miejscu):**
+
+**KOREKTA (audytor złapał błąd w pierwszej wersji tej adnotacji, znaleziony
+bezpośrednio na surowym pliku):** pierwotnie napisałem tu, że 0/253
+"pozostaje prawdziwe i aktualne również na n=185 (test parowy)" dla
+Working Memory i Pattern Recognition — **to jest fałszywe.** Sprawdziłem
+`population_validation_v0_11_0.json` (pole
+`pairwise_comparisons.n_fdr_significant_q_0_05`) i niezależnie przeliczyłem
+Benjamini-Hochberg z surowych p-wartości — oba zgodne: **Working Memory =
+69/253 (27%), Pattern Recognition = 77/253 (30%)**. Zakaz "Nie wolno
+twierdzić" powyżej jest więc dla tych dwóch osi **UNIEWAŻNIONY W PEŁNI**,
+nie tylko omnibusowo — oba niezależne testy (Welch-pary+FDR ORAZ
+Kruskal-Wallis) zgadzają się co do istnienia różnicy międzygenomowej:
+Working Memory p=8.1e-17 (**VALIDATED**), Pattern Recognition p=4.5e-14
+(**VALIDATED**) — `docs/METRIC_STATUS_TABLE.md` §4b, footnotes¹⁰ ¹⁵.
+
+**Pattern Retention jest JEDYNĄ z trzech osi, dla której 0/253 parowo
+pozostaje prawdziwe na n=185** — tam faktycznie sygnał jest wyłącznie
+omnibusowy: Kruskal-Wallis p=0.0254 (**EXPERIMENTAL**, Red Team,
+`docs/METRIC_STATUS_TABLE.md` §7.1), test parowy przegapił słaby,
+niemonotoniczny efekt.
+
+**Nadal zabronione** (WM/Pattern Recognition): twierdzenie o KONKRETNEJ,
+niesprawdzonej parze bez odczytania `pairwise_comparisons.details` dla tej
+konkretnej pary — 184/253 (WM) i 176/253 (Pattern Recognition) par NADAL
+nie przeżyło FDR, więc "genom X ma lepszą Working Memory niż genom Y" jest
+fałszywe dla WIĘKSZOŚCI par, prawdziwe tylko dla wskazanych w pliku.
+**Teraz dozwolone** (od 2026-07-20, WM/Pattern Recognition): "populacja 23
+genomów jako całość różni się w Working Memory/Pattern Recognition —
+zarówno parowo (69/253, 77/253 par) jak i omnibusowo — z zastrzeżeniem
+winner's curse: wielkość efektu w eksploracji n=10 była zawyżona dla WM (f
+0.2652→0.1537) i nietypowo wzrosła dla Pattern Recognition (f
+0.130→0.1638)". Dla Pattern Retention dozwolone jest wyłącznie
+twierdzenie omnibusowe (jak w §3 tabeli powyżej dla WM przed korektą).
+Pełny mechanizm: `docs/METRIC_STATUS_TABLE.md` §7 (Red Team) i footnote¹⁵.
 
 ## 4. Zakres to 2 lekcje, 23 genomy, 3/9 środowisk — nie wszechświat
 

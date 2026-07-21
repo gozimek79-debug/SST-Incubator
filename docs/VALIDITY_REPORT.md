@@ -13,6 +13,45 @@
 > przez CTO (Wariant A/B/C — decyzja w toku). Nie cytować klasyfikacji z tego
 > dokumentu jako ostatecznych bez sprawdzenia statusu re-run.
 
+> **AKTUALIZACJA 2026-07-21 — re-run konfirmacyjny (n=185) zamknięty
+> 2026-07-20, status Power/Confirmatory z bloku powyżej PRZESTAJE być
+> PENDING dla Working Memory, Pattern Recognition, Pattern Retention.**
+> Pełne dane: `reports/population/population_validation_v0_11_0.json`,
+> `docs/METRIC_STATUS_TABLE.md` §4b + §7 (Red Team) + footnote¹⁵. Streszczenie
+> — skorygowane 2026-07-21 po tym, jak audytor złapał błąd w PIERWSZEJ
+> wersji tej adnotacji (patrz niżej "KOREKTA"):
+>
+> - **Working Memory (p=8.1e-17), Pattern Recognition (p=4.5e-14) →
+>   VALIDATED** (footnote¹⁰): potwierdzone NIEZALEŻNIE dwoma testami —
+>   Kruskal-Wallis (omnibusowy) ORAZ Welch-pary+BH-FDR (parowy). Liczba par
+>   genomów przeżywających FDR na n=185: **Working Memory 69/253 (27%),
+>   Pattern Recognition 77/253 (30%)** — zweryfikowane bezpośrednio na
+>   `pairwise_comparisons.n_fdr_significant_q_0_05` w surowym pliku +
+>   niezależny przelicz BH-FDR z `pairwise_comparisons.details`, oba zgodne.
+>   Zastrzeżenie winner's curse obowiązkowe: wielkość efektu z eksploracji
+>   (n=10) była zawyżona dla WM (f 0.2652→0.1537) i nietypowo WZROSŁA dla
+>   Pattern Recognition (f 0.130→0.1638) — patrz footnote¹⁰.
+> - **Pattern Retention (p=0.0254) → EXPERIMENTAL** (footnote¹¹): Red Team
+>   wykrył, że pierwotna klasyfikacja MEASURED_BUT_NULL była BŁĘDNA — test
+>   parowy dał fałszywe zero (**0/253, potwierdzone — to jest jedyna z
+>   trzech osi, dla której 0/253 jest poprawne również na n=185**),
+>   Kruskal-Wallis wykrył słaby, NIEMONOTONICZNY efekt, którego test parowy
+>   strukturalnie nie widzi.
+> - **KOREKTA 2026-07-21 (znaleziona przez audytora na surowym pliku,
+>   PIERWSZA wersja tej adnotacji była błędna):** wcześniej napisałem tu, że
+>   "0/253 pozostaje prawdziwe również na n=185" dla WSZYSTKICH trzech osi —
+>   to jest fałszywe dla Working Memory i Pattern Recognition (prawdziwe
+>   tylko dla Pattern Retention). Skopiowałem liczbę z etapu eksploracyjnego
+>   (n=10) zamiast odczytać ją z `population_validation_v0_11_0.json`
+>   (n=185). Poprawka: 69/253 i 77/253 — patrz wyżej. **Dla Working
+>   Memory/Pattern Recognition NIE ma rozdźwięku "omnibus wykrywa, parowy
+>   nie"** — oba testy się zgadzają, to silniejszy wynik niż wcześniej
+>   zapisany, nie dwuznaczny. Zabronione pozostaje wyłącznie twierdzenie o
+>   KONKRETNEJ, niewskazanej parze bez sprawdzenia, czy akurat ta para jest
+>   jedną z tych 69 (WM) / 77 (Pattern Recognition) istotnych — sprawdź
+>   `pairwise_comparisons.details` dla konkretnych genomów przed
+>   twierdzeniem "genom X różni się od genomu Y".
+
 **Status: SPRINT_v0.10.1.md P4 (Zadanie 3 CTO).** Ten dokument NIE poprawia
 żadnej metryki — dyrektywa CTO: "poznaj granice", nie "napraw". Konsoliduje
 ograniczenia znane z v0.9/v0.10 i rozszerza je o dane z walidacji populacyjnej
@@ -64,10 +103,15 @@ samego przypadku przy 253 porównaniach i α=0.05 (253×0.05≈12.65 — 3 to
 niewystarczający dowód.
 
 **To samo dotyczy Pattern Recognition i Pattern Retention** — również 100%
-ROBUST w obu środowiskach, również 0/253 par przeżywa FDR w każdym z nich.
-Trzy z siedmiu zmierzonych osi są więc wiarygodnie mierzalne, ale w tej
-próbce 23 genomów **nie różnicują genomów w żaden sposób, który przetrwałby
-korektę na wielokrotne porównania.**
+ROBUST w obu środowiskach, również 0/253 par przeżywa FDR w każdym z nich
+**na tym etapie (n=10, Exploratory Dataset — liczby w tym akapicie NIE są
+poprawiane, zapis historyczny).** Trzy z siedmiu zmierzonych osi są więc
+wiarygodnie mierzalne, ale w tej próbce 23 genomów na n=10 **nie różnicują
+genomów w żaden sposób, który przetrwałby korektę na wielokrotne
+porównania.** **Patrz AKTUALIZACJA 2026-07-21 powyżej: na n=185
+konfirmacyjnym to się zmieniło ODMIENNIE dla każdej osi** — Working Memory
+i Pattern Recognition dyskryminują teraz TAKŻE parowo (69/253 i 77/253),
+Pattern Retention nadal 0/253 parowo, tylko omnibusowo (Kruskal-Wallis).
 
 **Retroaktywna kontekstualizacja wyniku v0.9/v0.10:** `competency_profile.md`
 raportuje Cohen's d=0.327 dla Working Memory między `default` i
@@ -163,9 +207,16 @@ jednego runu.
 `drift_world` (23/23). Zdegenerowana (0%) w `stable_world` — oczekiwane,
 środowisko deterministyczne, `n_effective=1` dla każdego genomu z definicji.
 
-**Kiedy myląca (P3, patrz "Kluczowe odkrycie"):** mimo 100% ROBUST, **0/253
-par genomów przeżywa FDR w obu stosowanych środowiskach.** Metryka jest
-wiarygodnie mierzalna, ale w tej próbce populacji nie różnicuje genomów.
+**Kiedy myląca (P3, na etapie n=10 — zapis historyczny):** mimo 100%
+ROBUST, **0/253 par genomów przeżywało FDR w obu środowiskach na n=10.**
+**AKTUALIZACJA 2026-07-21 (KOREKTA — pierwsza wersja tej adnotacji błędnie
+twierdziła, że 0/253 utrzymuje się też na n=185; audytor zweryfikował
+surowy plik i to nieprawda):** na n=185 konfirmacyjnym metryka
+dyskryminuje TAKŻE parowo — **77/253 par (30%) przeżywa FDR**
+(`pairwise_comparisons.n_fdr_significant_q_0_05` w
+`population_validation_v0_11_0.json`, zweryfikowane niezależnym przeliczem
+BH-FDR) — plus test omnibusowy (Kruskal-Wallis, p=4.5e-14). Oba testy się
+zgadzają — status VALIDATED, `docs/METRIC_STATUS_TABLE.md` footnote¹⁰ i ¹⁵.
 
 **Kiedy wymaga innej interpretacji:** wysoki `valid_rate` w raporcie
 populacyjnym NIE jest dowodem, że genomy różnią się w Pattern Recognition —
@@ -208,9 +259,19 @@ początku.
 GENOME-ROBUST 100% w `noise_world`/`drift_world`, zdegenerowana w
 `stable_world` (oczekiwane).
 
-**Kiedy myląca (P3):** **0/253 par przeżywa FDR w obu środowiskach** —
-trzecia oś z tym samym profilem "mierzalna, ale niedyskryminująca" co
-Pattern Recognition i Working Memory.
+**Kiedy myląca (P3):** **0/253 par przeżywa FDR w obu środowiskach (na
+teście PAROWYM — jedyna z trzech osi, dla której liczba ta POZOSTAJE
+0/253 również na n=185 konfirmacyjny; potwierdzone niezależnie —
+`pairwise_comparisons.n_fdr_significant_q_0_05`=0 w
+`population_validation_v0_11_0.json` + przelicz BH-FDR, patrz AKTUALIZACJA
+2026-07-21 na początku dokumentu).** W odróżnieniu od Pattern Recognition
+(77/253) i Working Memory (69/253), które na n=185 zaczęły dyskryminować
+TAKŻE parowo, Pattern Retention pozostaje 0/253 parowo — sygnał widoczny
+wyłącznie w teście omnibusowym (Kruskal-Wallis, n=185, p=0.0254,
+niemonotoniczny efekt, Red Team) — status EXPERIMENTAL,
+`docs/METRIC_STATUS_TABLE.md` footnote¹¹, NIE VALIDATED (efekt słabszy i
+wykrywalny tylko jednym z dwóch testów, w odróżnieniu od WM/Pattern
+Recognition gdzie zgadzają się oba).
 
 **Kiedy wymaga innej interpretacji:** jak wyżej — `GENOME-ROBUST` czytać
 jako "infrastruktura działa", nie jako "genomy się różnią".
@@ -701,15 +762,35 @@ błąd).
 > w polu `minimal_profile.cognitive_axes` vs
 > `minimal_profile.physiological_state_variables`.
 
-| Oś | Kategoria | ROBUST wszędzie poza kontrolą? | Dyskryminuje po FDR? | Główny mechanizm ograniczenia |
+| Oś | Kategoria | ROBUST wszędzie poza kontrolą? | Dyskryminuje po FDR (test parowy, n=10)? | Główny mechanizm ograniczenia |
 |---|---|---|---|---|
-| Pattern Recognition | poznawcza | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — (metryka czysta, ale bez sygnału w tej populacji) |
-| Pattern Retention | poznawcza | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — |
-| Working Memory | poznawcza | Tak (2/2 środ.) | **Nie** (0/253 w obu) | — (patrz "Kluczowe odkrycie") |
+| Pattern Recognition | poznawcza | Tak (2/2 środ.) | **Nie, na n=10** (0/253 w obu)¹ | — (na n=10; na n=185 dyskryminuje, patrz¹) |
+| Pattern Retention | poznawcza | Tak (2/2 środ.) | **Nie** (0/253 w obu)¹ | — (0/253 parowo pozostaje prawdziwe też na n=185, patrz¹) |
+| Working Memory | poznawcza | Tak (2/2 środ.) | **Nie, na n=10** (0/253 w obu)¹ | — (na n=10; na n=185 dyskryminuje, patrz "Kluczowe odkrycie" i¹) |
 | Stability | poznawcza | Tak (4/4 środ. nie-kontrolnych) | **Tak, silnie** (82-92%) | mała wariancja resztowa → duże Cohen's d, ostrożna interpretacja |
 | Adaptation | poznawcza | **Nie** (35-43% w L1.1, 0% w L1.2) | Tak, gdy mierzalna | *hipoteza post-hoc, niepotwierdzona:* wysoki `decay_rate` → przedwczesna detekcja końca chaosu |
 | Final Energy Level | **stan fizjologiczny** | **Częściowo** (39-100% zależnie od kontekstu) | Tak, gdy mierzalna | *hipoteza post-hoc, niepotwierdzona:* wysoki `decay_rate` → spłaszczenie energii między seedami |
 | Homeostatic Resilience | poznawcza | **Nie** (22% w shock_world, n/a gdzie indziej) | Tak, w małej próbce | cenzurowanie (większość populacji); name-gate NAPRAWIONY i granica t_shock skorygowana/egzekwowana (SPRINT_v0.11.0.md P2), populacja P3 nieprzeliczona |
+
+¹ **Kolumna powyżej opisuje etap n=10 (Exploratory Dataset), niezmieniona
+z wersji sprzed re-runu.** Na n=185 konfirmacyjnym (re-run zamknięty
+2026-07-20, `population_validation_v0_11_0.json`,
+`pairwise_comparisons.n_fdr_significant_q_0_05`, zweryfikowane niezależnym
+przeliczem BH-FDR) **wynik jest RÓŻNY dla każdej z trzech osi — nie
+jednolity, jak błędnie zapisano we wcześniejszej wersji tej adnotacji
+(korekta 2026-07-21, znaleziona przez audytora):**
+- **Working Memory: 69/253 (27%)** — teraz dyskryminuje TAKŻE parowo.
+- **Pattern Recognition: 77/253 (30%)** — teraz dyskryminuje TAKŻE parowo.
+- **Pattern Retention: 0/253** — NIE zmieniło się, jedyna z trzech, gdzie
+  parowy test nadal nic nie wykrywa.
+
+Test OMNIBUSOWY (Kruskal-Wallis, niezależny od testu parowego) wykrył
+istotny efekt dla wszystkich trzech osi niezależnie od powyższego: Working
+Memory p=8.1e-17 → **VALIDATED**, Pattern Recognition p=4.5e-14 →
+**VALIDATED**, Pattern Retention p=0.0254 → **EXPERIMENTAL** (Red Team,
+sygnał widoczny tylko omnibusowo — mechanizm opisany przy tej osi
+powyżej). Patrz AKTUALIZACJA 2026-07-21 na początku dokumentu i
+`docs/METRIC_STATUS_TABLE.md` §4b/§7/footnote¹⁵.
 
 ---
 

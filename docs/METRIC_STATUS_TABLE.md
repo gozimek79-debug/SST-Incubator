@@ -198,10 +198,10 @@ endpoint (zasada uczciwości `cognitive_ontology.md`). `NOT_MEASURED` ≠
 
 | Lekcja | Środ. | Metryka | Definicja (skrót) | Interpretacja biologiczna | Measurement | Construct | Power | Confirm. | Test | Rekomendacja |
 |---|---|---|---|---|---|---|---|---|---|---|
-| L1.1 | noise_world | Working Memory | `mean(mae@t≥stim+50)` | błąd predykcji utrzymany 50 ticków po ustaniu bodźca | ✔ (ROBUST, 100%, n=185) | ◐¹ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (0/253) + Kruskal-Wallis (p=8.1e-17) | **VALIDATED**¹⁰ (winner's curse: f 0.265→0.154, efekt UMIARKOWANY nie duży) |
+| L1.1 | noise_world | Working Memory | `mean(mae@t≥stim+50)` | błąd predykcji utrzymany 50 ticków po ustaniu bodźca | ✔ (ROBUST, 100%, n=185) | ◐¹ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (69/253, 27%)¹⁵ + Kruskal-Wallis (p=8.1e-17) | **VALIDATED**¹⁰ (winner's curse: f 0.265→0.154, efekt UMIARKOWANY nie duży) |
 | L1.1 | drift_world | Working Memory | jw. | jw. | ✔ | ◐¹ | PENDING | PENDING | Welch-pary (0/253) | **INSUFFICIENT_POWER** (poza zakresem re-runu — patrz aneks) |
 | L1.1 | stable_world | Working Memory | jw. | jw. | ✘⁷ | ◐¹ | PENDING | PENDING | — | — (kontrola, nie klasyfikowana) |
-| L1.1 | noise_world | Pattern Recognition | `mean(mae) w fazie bodźca` | błąd predykcji PODCZAS bodźca | ✔ (ROBUST, 100%, n=185) | ◐⁴ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (0/253) + Kruskal-Wallis (p=4.5e-14) | **VALIDATED**¹⁰ (f_obs WZROSŁO 0.130→0.164 — odwrotnie niż typowy winner's curse, patrz §7) |
+| L1.1 | noise_world | Pattern Recognition | `mean(mae) w fazie bodźca` | błąd predykcji PODCZAS bodźca | ✔ (ROBUST, 100%, n=185) | ◐⁴ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (77/253, 30%)¹⁵ + Kruskal-Wallis (p=4.5e-14) | **VALIDATED**¹⁰ (f_obs WZROSŁO 0.130→0.164 — odwrotnie niż typowy winner's curse, patrz §7) |
 | L1.1 | drift_world | Pattern Recognition | jw. | jw. | ✔ | ◐⁴ | PENDING | PENDING | Welch-pary (0/253) | **INSUFFICIENT_POWER** (poza zakresem re-runu) |
 | L1.1 | stable_world | Pattern Recognition | jw. | jw. | ✘⁷ | ◐⁴ | PENDING | PENDING | — | — (kontrola) |
 | L1.1 | noise_world | Pattern Retention | `(mae_silence-mae_stim)/silence_ticks` | tempo zaniku błędu po ustaniu bodźca | ✔ (ROBUST, 100%, n=185) | ◐⁵ | **CONFIRMED**¹¹ | **CONFIRMED**¹¹ | Welch-pary (0/253) + **Kruskal-Wallis (p=0.0254, ISTOTNE)** | **EXPERIMENTAL**¹¹ (było MEASURED_BUT_NULL — Red Team: zły TYP testu dał fałszywe zero, §7) |
@@ -297,6 +297,26 @@ jako dowodu "ustanowienia, nie powrotu"; Architekt uznał to za
 niewystarczające do klasyfikacji Construct=✘. Obie argumentacje pozostają
 w historii repo (git log), czytelnik może ocenić samodzielnie który poziom
 szczegółowości preferuje przy interpretacji tej osi.
+
+¹⁵ **KOREKTA 2026-07-21 (znaleziona przez audytora, weryfikacja bezpośrednio
+na surowym pliku):** wcześniejsza wersja tego wiersza podawała błędnie
+"Welch-pary (0/253)" dla Working Memory i Pattern Recognition — to była
+liczba przeniesiona myślowo z etapu eksploracyjnego (n=10), NIE odczytana z
+`population_validation_v0_11_0.json` (n=185). Rzeczywiste pole
+`pairwise_comparisons.n_fdr_significant_q_0_05` (zweryfikowane niezależnie —
+odczyt pola + ręczny przelicz Benjamini-Hochberg z surowych p-wartości w
+`pairwise_comparisons.details`, oba zgodne): **Working Memory = 69/253
+(27%), Pattern Recognition = 77/253 (30%)**. Oznacza to, że obie te osie są
+istotne PAROWO, nie tylko omnibusowo — silniejszy wynik niż wcześniej
+zapisany, nie słabszy. **Jedyna oś z tej trójki, dla której 0/253 jest
+poprawne nawet na n=185, to Pattern Retention** (patrz §7.1) — tam
+mechanizm "test parowy przegapił, omnibus wykrył" faktycznie zachodzi.
+Dla Working Memory/Pattern Recognition ten mechanizm NIE ma zastosowania:
+oba testy (parowy i omnibusowy) zgadzają się co do istnienia sygnału.
+Status VALIDATED bez zmian (był poprawny), zmienia się wyłącznie
+uzasadnienie w kolumnie Test. `docs/VALIDITY_REPORT.md` i
+`docs/CURRENT_SCIENTIFIC_LIMITS.md` skorygowane tą samą liczbą tego
+samego dnia — patrz tam sekcje "AKTUALIZACJA 2026-07-21".
 
 ---
 
