@@ -216,6 +216,24 @@
     });
   }
 
+  // fetchJSON() zaklada JSON.parse - dokumenty .md sa tekstem, wiec sekcja
+  // Raporty (#8, auto-discovery) potrzebuje osobnego pobierania surowej
+  // tresci pliku, zeby wyciagnac z niej naglowek H1 jako opis.
+  function fetchText(path) {
+    var url = BASE + path;
+    return fetch(url).then(function (res) {
+      if (!res.ok) {
+        var e = new Error("HTTP " + res.status);
+        e.sourceUrl = url;
+        throw e;
+      }
+      return res.text();
+    }).catch(function (err) {
+      if (!err.sourceUrl) err.sourceUrl = url;
+      throw err;
+    });
+  }
+
   // GitHub API (nie raw.githubusercontent) ma limit 60 zapytan/h na IP bez
   // autoryzacji. Na hostowanym panelu, uzywanym przez wielu userow z tego
   // samego zakresu adresow, to realne ryzyko 403. apiHttpError() oznacza
@@ -251,6 +269,48 @@
           .then(function (meta) { return { name: d.name, meta: meta, ok: true }; })
           .catch(function (err) { return { name: d.name, error: err, ok: false }; });
       }));
+    });
+  }
+
+  // CTO 2026-07-22 (audyt "panel samodzielny", #8): odkrywa pliki .md w
+  // podanym katalogu przez GitHub API listing (ten sam wzorzec co
+  // fetchAllBundles) - opis kazdego wpisu to PIERWSZY NAGLOWEK H1 pliku
+  // (fetchText + regex), NIE reczny string wpisany w panel.js. Wczesniej
+  // caly ten spis (28 pozycji, 4 grupy tematyczne) byl tablica zaszyta
+  // wprost w kodzie JS - identyczny blad co POPULATION_LESSONS (#3) i
+  // ARTIFACTS.metadata (#6): WYKONAWCA decydowal co widac.
+  function fetchMdReportsIn(dirPath) {
+    var listUrl = API_BASE + "/contents" + (dirPath ? "/" + dirPath : "") + "?ref=" + BRANCH;
+    return fetch(listUrl).then(function (res) {
+      if (!res.ok) throw apiHttpError(res, listUrl);
+      return res.json();
+    }).then(function (entries) {
+      var files = entries.filter(function (en) { return en.type === "file" && /\.md$/i.test(en.name); });
+      return Promise.all(files.map(function (f) {
+        var relPath = dirPath ? dirPath + "/" + f.name : f.name;
+        return fetchText(relPath).then(function (text) {
+          var m = text.match(/^#\s+(.+)$/m);
+          return { path: relPath, title: m ? m[1].trim() : relPath, ok: true };
+        }).catch(function (err) {
+          return { path: relPath, title: relPath, ok: false, error: err };
+        });
+      }));
+    });
+  }
+
+  // Zasieg CELOWO ograniczony do 4 katalogow, NIEREKURENCYJNIE (type==="file"
+  // wprost w kazdym z nich, nie w podkatalogach): "" (root: raporty sprintow,
+  // README, ROADMAP), docs/ (dokumentacja/metodologia), publications/
+  // (competency_profile.md - JSON-y i podkatalogi bundli odfiltrowane przez
+  // /\.md$/), clos_academy/ (ontologia). Rekurencyjne przeszukanie
+  // publications//execution_package_v0_11/reports/population zalaloby liste
+  // plikami RUN-LEVEL (np. 40 runs/run_*.json per bundle, 12765 rekordow
+  // JSONL) - to sa DANE, juz pokazywane w Lekcjach/Prowenancji, nie
+  // "dokumenty do przeczytania" ktore ta sekcja ma listowac.
+  function fetchAllReports() {
+    var dirs = ["", "docs", "publications", "clos_academy"];
+    return Promise.all(dirs.map(fetchMdReportsIn)).then(function (lists) {
+      return lists.reduce(function (acc, l) { return acc.concat(l); }, []);
     });
   }
 
@@ -903,59 +963,52 @@
     setSectionHTML("history", chronicleCard + liveCard);
   }
 
-  function renderReports() {
-    var groups = [
-      { t: "Sprint v0.11.0 — walidacja konfirmacyjna", items: [
-        { f: "docs/METRIC_STATUS_TABLE.md", d: "Finalna tabela statusów: 14 osi × konteksty, 4 wymiary walidacji, wynik Red Team" },
-        { f: "reports/population/population_validation_v0_11_0.json", d: "Surowe dane re-runu konfirmacyjnego (12765 przebiegów, n=185)" },
-        { f: "publications/preregistration_v0_11_0_power_reproduction.json", d: "Prerejestracja P0 — analiza mocy, trzy warianty re-runu" },
-        { f: "publications/preregistration_v0_11_0_ANEKS_2026-07-19_run_count_i_fdr.json", d: "Aneks: 12765 przebiegów, korekta FDR, rekoncyliacja AIA v4" },
-        { f: "execution_package_v0_11/experiment_manifest.json", d: "Manifest eksperymentu z bramką arytmetyczną" },
-        { f: "execution_package_v0_11/hashes/baseline_hash.txt", d: "Kanoniczny baseline Hard-Halt (AUD-001, 24 pliki krytyczne)" },
-        { f: "docs/MSE_MAE_NAMING_DECISION.md", d: "Decyzja MSE→MAE — zasięg, warianty, realizacja" },
-        { f: "docs/ENERGY_EFFICIENCY_ONTOLOGY_DECISION.md", d: "Decyzja ontologiczna: Energy Efficiency → Final Energy Level" },
-      ]},
-      { t: "Walidacja naukowa v0.10.1 (Exploratory Dataset v0.10)", items: [
-        { f: "docs/VALIDITY_REPORT.md", d: "Granice interpretacji 14 osi — co mierzy, czego nie, kiedy myli" },
-        { f: "docs/ROBUSTNESS_MATRIX.md", d: "Macierz odporności: mierzalność i dyskryminacja jako osobne osie" },
-        { f: "docs/CURRENT_SCIENTIFIC_LIMITS.md", d: "Jawne granice naukowe projektu" },
-        { f: "RESEARCH_READINESS_REPORT.md", d: "Gotowość publikacyjna: metodologia TAK, zdolności poznawcze JESZCZE NIE" },
-        { f: "docs/REPLICATION.md", d: "Procedura replikacji + wynik ślepego testu (Linux/Python 3.12)" },
-        { f: "reports/population/population_validation_v0_10_1.json", d: "Dane populacyjne 23 genomy × 3 środowiska × 10 seedów (zamrożone)" },
-        { f: "publications/preregistration_v0_10_1_population.json", d: "Prerejestracja walidacji populacyjnej (bramka)" },
-      ]},
-      { t: "Prerejestracje lekcji i aneksy", items: [
-        { f: "publications/preregistration_L1_1.json", d: "Prerejestracja L1.1 Pattern Echo (zamrożona bramka)" },
-        { f: "publications/preregistration_L1_1_ANEKS_2026-07-15_MSE_do_MAE.json", d: "Aneks L1.1: korekta nazwy MSE→MAE (wartości bez zmian)" },
-        { f: "publications/preregistration_L1_2.json", d: "Prerejestracja L1.2 Shock Recovery (zamrożona bramka)" },
-        { f: "publications/competency_profile.md", d: "Profil kompetencji + karty genomów" },
-        { f: "clos_academy/cognitive_ontology.md", d: "Ontologia — 14 pojęć (w tym 1 zmienna stanu fizjologicznego)" },
-      ]},
-      { t: "Raporty sprintów i dokumentacja projektu", items: [
-        { f: "RAPORT_v0.10.md", d: "Raport sprintu v0.10 — Read-Only Observer, realne snapshoty" },
-        { f: "RAPORT_v0.9.md", d: "Raport sprintu v0.9 — L1.2, korekta hipotezy z danych" },
-        { f: "RAPORT_v0.8.5.md", d: "Raport sprintu v0.8.5 — Panel Badacza" },
-        { f: "RAPORT_KONCOWY_v0.8.4.md", d: "Raport końcowy v0.8.4 — uczciwa ocena gotowości" },
-        { f: "docs/architecture.md", d: "Architektura + zasada Execution/Observation" },
-        { f: "docs/spec_snapshot_observer.md", d: "Specyfikacja Read-Only Observer" },
-        { f: "README.md", d: "Status projektu, jak uruchomić testy, struktura modułów" },
-        { f: "ROADMAP.md", d: "Mapa drogowa projektu" },
-      ]},
-    ];
+  // CTO 2026-07-22 (#8): grupowanie WYLACZNIE po katalogu zrodlowym (fakt
+  // strukturalny, wyprowadzalny z r.path) - NIE po temacie/sprincie
+  // (wczesniej: "Sprint v0.11.0", "Walidacja v0.10.1" - to byla EDYTORSKA
+  // kategoryzacja, ktorej nie da sie wyprowadzic automatycznie z pliku).
+  // Etykieta grupy i opis kazdego wpisu (pierwszy H1) pochodza z danych.
+  var REPORT_GROUP_LABELS = {
+    "": "Katalog główny — raporty sprintów, README, ROADMAP",
+    docs: "docs/ — dokumentacja i metodologia",
+    publications: "publications/ — profil kompetencji",
+    clos_academy: "clos_academy/ — ontologia",
+  };
 
-    var html = groups.map(function (grp) {
-      var rowsHtml = grp.items.map(function (r) {
-        var url = "https://github.com/" + OWNER + "/" + REPO + "/blob/" + BRANCH + "/" + r.f;
+  function renderReports(reports, reportsErr) {
+    if (!reports || !reports.length) {
+      setSectionHTML("reports", '<section class="card span"><div class="card-b">' +
+        apiErrorHtml("lista dokumentów (GitHub API)", reportsErr) + "</div></section>");
+      return;
+    }
+    var byDir = {};
+    reports.forEach(function (r) {
+      var dir = r.path.indexOf("/") === -1 ? "" : r.path.slice(0, r.path.indexOf("/"));
+      if (!byDir[dir]) byDir[dir] = [];
+      byDir[dir].push(r);
+    });
+    var dirOrder = ["", "docs", "publications", "clos_academy"];
+    Object.keys(byDir).forEach(function (d) { if (dirOrder.indexOf(d) === -1) dirOrder.push(d); });
+
+    var html = dirOrder.filter(function (d) { return byDir[d] && byDir[d].length; }).map(function (dir) {
+      var items = byDir[dir].sort(function (a, b) { return a.path < b.path ? -1 : 1; });
+      var rowsHtml = items.map(function (r) {
+        var url = "https://github.com/" + OWNER + "/" + REPO + "/blob/" + BRANCH + "/" + r.path;
+        var descr = r.ok ? r.title : "błąd wczytania nagłówka";
         return '<div class="rep-row"><a class="rep-f" href="' + url + '" target="_blank" rel="noopener">' +
-          escapeHtml(r.f) + "</a><span class=\"rep-d\">" + escapeHtml(r.d) + "</span></div>";
+          escapeHtml(r.path) + "</a><span class=\"rep-d\">" + escapeHtml(descr) + "</span></div>";
       }).join("");
-      return '<section class="card span"><header class="card-h"><span class="card-t">' + escapeHtml(grp.t) + "</span>" +
-        '<span class="card-s">' + grp.items.length + " plików · gałąź " + escapeHtml(BRANCH) + "</span></header>" +
+      var label = REPORT_GROUP_LABELS[dir] || (dir + "/");
+      return '<section class="card span"><header class="card-h"><span class="card-t">' + escapeHtml(label) + "</span>" +
+        '<span class="card-s">' + items.length + " plików · gałąź " + escapeHtml(BRANCH) + "</span></header>" +
         '<div class="card-b"><div class="reports">' + rowsHtml + "</div></div></section>";
     }).join("") +
       '<section class="card span"><div class="card-b">' +
-      '<p class="note">Lista utrzymywana ręcznie (jak spis treści) — linki prowadzą wprost do repo na GitHubie. ' +
-      "To ścieżki, nie metryki naukowe.</p></div></section>";
+      '<p class="note">Lista odkrywana automatycznie (GitHub API listing katalogu głównego, docs/, ' +
+      "publications/, clos_academy/) — opis każdego wpisu to pierwszy nagłówek H1 pliku, nie tekst " +
+      "wpisany w panel.js. Nowy plik .md w jednym z tych katalogów pojawia się tu bez zmiany kodu " +
+      "panelu. Świadomie NIE rekurencyjne — pomija podkatalogi z danymi run-level " +
+      "(publications/*/runs/, execution_package_v0_11/), już pokazane w Lekcjach/Prowenancji.</p></div></section>";
     setSectionHTML("reports", html);
   }
 
@@ -1018,6 +1071,7 @@
       chronicle: fetchJSON(ARTIFACTS.chronicle),
       population: fetchJSON(ARTIFACTS.population),
       bundles: fetchAllBundles(),
+      reports: fetchAllReports(),
       commits: fetchCommits(10),
     };
 
@@ -1032,6 +1086,7 @@
       sectionError("genomes", ARTIFACTS.competency, e);
     });
     loads.bundles.then(function (v) { results.bundles = v; }).catch(function (e) { results.bundlesError = e; });
+    loads.reports.then(function (v) { results.reports = v; }).catch(function (e) { results.reportsError = e; });
     loads.commits.then(function (v) { results.commits = v; }).catch(function (e) { results.commitsError = e; });
 
     // Lekcje i wyniki: WYLACZNIE population (re-run konfirmacyjny) - demo
@@ -1068,7 +1123,9 @@
       renderHistory(vals[0], vals[1], chronState.chronErr, chronState.commitsErr);
     });
 
-    renderReports();
+    loads.reports.catch(function () { return null; }).then(function (reports) {
+      renderReports(reports, results.reportsError);
+    });
 
     Promise.all([
       loads.competency.catch(function () { return null; }),
