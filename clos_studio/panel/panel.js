@@ -28,7 +28,6 @@
   var ARTIFACTS = {
     report: "reports/academy/L1_1_pattern_echo.json",
     competency: "publications/competency_profile.json",
-    metadata: "publications/L1_1_pattern_echo/metadata.json",
     prereg: "publications/preregistration_L1_1.json",
     status: "reports/status.json",
     chronicle: "reports/history.json",
@@ -233,15 +232,20 @@
     return e;
   }
 
-  function fetchLegacyBundles() {
+  // CTO 2026-07-22 (audyt "panel samodzielny", #6): odkrywa WSZYSTKIE
+  // katalogi w publications/ i probuje pobrac metadata.json z kazdego -
+  // zero filtra po prefiksie nazwy (wczesniej: tylko "EXP-*", wiec
+  // L1_1_pattern_echo/L1_2_shock_recovery mialy OSOBNY, recznie zaszyty
+  // fetch ARTIFACTS.metadata ograniczony do L1.1, a L1.2 (istniejacy bundle)
+  // nigdzie sie nie pojawial). Dodanie L1_3_.../metadata.json do repo
+  // pojawia sie w Prowenancji bez zadnej zmiany w tym pliku.
+  function fetchAllBundles() {
     var listUrl = API_BASE + "/contents/publications?ref=" + BRANCH;
     return fetch(listUrl).then(function (res) {
       if (!res.ok) throw apiHttpError(res, listUrl);
       return res.json();
     }).then(function (entries) {
-      var dirs = entries.filter(function (en) {
-        return en.type === "dir" && en.name.indexOf("EXP-") === 0;
-      });
+      var dirs = entries.filter(function (en) { return en.type === "dir"; });
       return Promise.all(dirs.map(function (d) {
         return fetchJSON("publications/" + d.name + "/metadata.json")
           .then(function (meta) { return { name: d.name, meta: meta, ok: true }; })
@@ -690,63 +694,107 @@
     setSectionHTML("genomes", datasetStateBannersHtml(comp) + html);
   }
 
-  function renderProvenance(metadata, legacy, legacyError, metadataError, demoReport, demoPrereg, demoReportError, demoPreregError) {
-    var bundleCard = "";
-    if (metadata) {
-      // SPRINT_v0.11.0.md Zadanie 3 (NAJWAZNIEJSZE z trzech stanow): bundle
-      // frozen=true NIGDY sie nie zaktualizuje (decyzja CTO, egzekwowana
-      // przez scripts/validate_bundle_freshness.py) - bez tej etykiety panel
-      // wygladalby na ZEPSUTY (dane "stare"), a jest POPRAWNY. Zamrozenie
-      // ma byc widoczne jako DECYZJA, nie awaria. Czyta WYLACZNIE pola juz
-      // obecne w metadata.json (frozen, frozen_reason, timestamp, clos_version).
-      var frozenBanner = metadata.frozen
-        ? '<div class="datastate datastate-frozen">' +
-          "<b>❄ Frozen Historical Artifact</b> — celowo niezmieniany od " +
-          escapeHtml(String(metadata.timestamp || "—").replace("T", " ")) +
-          (metadata.clos_version ? " (clos_version " + escapeHtml(metadata.clos_version) + ")" : "") +
-          ".<br>" + escapeHtml(metadata.frozen_reason || "") + "</div>"
-        : "";
-      bundleCard =
-        '<section class="card span"><header class="card-h"><span class="card-t">Bundle L1.1 — prowenancja</span>' +
-        '<span class="card-s">odtwarzalność eksperymentu</span></header><div class="card-b">' + frozenBanner +
-        '<dl class="prov">' +
-        ["experiment_id", "git_commit", "config_hash", "manifest_hash", "timestamp", "total_runs", "clos_version", "reproducible"]
-          .map(function (k) {
-            var v = metadata[k];
-            var shown = (k === "git_commit" || k === "config_hash" || k === "manifest_hash") ? truncHash(v) :
-              (k === "timestamp" ? String(v).replace("T", " ") :
-              (k === "reproducible" ? (v ? "✓ true" : "✗ false") : String(v)));
-            return "<div><dt>" + k + "</dt><dd>" + escapeHtml(shown) + "</dd></div>";
-          }).join("") +
-        "</dl></div></section>";
-    } else {
-      bundleCard = missingArtifactHtml(ARTIFACTS.metadata, metadataError);
-    }
+  // CTO 2026-07-22 (#6): jedna karta na kazdy bundle z pelnym ksztaltem
+  // metadata.json (eksperyment_id/git_commit/hashe/timestamp/frozen) -
+  // dziala dla L1.1, L1.2 i kazdego przyszlego L1_x_.../metadata.json bez
+  // zmiany tej funkcji. Legacy (pre-0.7.2, pole "provenance") ma inny,
+  // rzadszy ksztalt - rozroznione PO OBECNOSCI POLA w danych, nie po nazwie
+  // katalogu (wczesniej: "EXP-*" prefix hardkodowany w fetchAllBundles).
+  var BUNDLE_FIELDS = ["experiment_id", "git_commit", "config_hash", "manifest_hash", "timestamp", "total_runs", "clos_version", "reproducible"];
 
-    var legacyCard;
-    if (legacy && legacy.length) {
-      legacyCard =
-        '<section class="card span"><header class="card-h"><span class="card-t">Bundle legacy (pre-0.7.2)</span>' +
-        '<span class="card-s">oznaczone, prowenancja nie fabrykowana · GitHub API</span></header>' +
-        '<div class="card-b"><div class="legacy">' + legacy.map(function (item) {
-          if (!item.ok) {
-            return '<div class="leg-row"><code>' + escapeHtml(item.name) + '</code>' +
-              '<span class="leg-note" style="color:var(--crit)">nie wczytano metadata.json</span></div>';
-          }
-          var m = item.meta;
-          var tag = m.provenance || "brak flagi provenance";
-          return '<div class="leg-row"><code>' + escapeHtml(m.experiment_id || item.name) + "</code>" +
-            '<span class="pill" style="color:var(--mut);border-color:#78879A55">' + escapeHtml(tag) + "</span>" +
-            '<span class="leg-note">git_commit: ' + (m.git_commit ? escapeHtml(truncHash(m.git_commit)) : "pusty (nie zgadywany)") + "</span></div>";
-        }).join("") + "</div></div></section>";
+  function renderBundleCard(item) {
+    if (!item.ok) {
+      return '<div class="leg-row"><code>' + escapeHtml(item.name) + "</code>" +
+        '<span class="leg-note" style="color:var(--crit)">nie wczytano metadata.json</span></div>';
+    }
+    // Dwa ROZNE ksztalty, celowo NIE pod jedna nazwa zmiennej: bundle legacy
+    // (pole "provenance", brak frozen/frozen_reason) uzywa "legacy" - poza
+    // zasiegiem scripts/validate_panel.py (CHAIN_ROOTS), bo to inny, uboszy
+    // ksztalt niz L1_1_pattern_echo/metadata.json (referencyjny plik
+    // walidatora). Bundle "bogaty" (L1.1/L1.2/przyszle) uzywa "metadata" -
+    // TA nazwa jest scisle sprawdzana przez validate_panel.py punkt B
+    // (kazdy metadata.x.y w kodzie MUSI istniec w realnym pliku referencyjnym) -
+    // NIE zmieniac nazwy bez zmiany walidatora, inaczej test_missing_frozen_reason_key_fails
+    // przestaje wykrywac usuniety klucz.
+    if (item.meta.provenance) {
+      var legacy = item.meta;
+      return '<div class="leg-row"><code>' + escapeHtml(legacy.experiment_id || item.name) + "</code>" +
+        '<span class="pill" style="color:var(--mut);border-color:#78879A55">' + escapeHtml(legacy.provenance) + "</span>" +
+        '<span class="leg-note">git_commit: ' + (legacy.git_commit ? escapeHtml(truncHash(legacy.git_commit)) : "pusty (nie zgadywany)") + "</span></div>";
+    }
+    var metadata = item.meta;
+    // SPRINT_v0.11.0.md Zadanie 3 (NAJWAZNIEJSZE z trzech stanow): bundle
+    // frozen=true NIGDY sie nie zaktualizuje (decyzja CTO, egzekwowana przez
+    // scripts/validate_bundle_freshness.py) - bez tej etykiety panel
+    // wygladalby na ZEPSUTY (dane "stare"), a jest POPRAWNY.
+    var frozenBanner = metadata.frozen
+      ? '<div class="datastate datastate-frozen">' +
+        "<b>❄ Frozen Historical Artifact</b> — celowo niezmieniany od " +
+        escapeHtml(String(metadata.timestamp || "—").replace("T", " ")) +
+        (metadata.clos_version ? " (clos_version " + escapeHtml(metadata.clos_version) + ")" : "") +
+        ".<br>" + escapeHtml(metadata.frozen_reason || "") + "</div>"
+      : "";
+    var fieldsHtml = BUNDLE_FIELDS.filter(function (k) { return metadata[k] !== undefined; }).map(function (k) {
+      var v = metadata[k];
+      var shown = (k === "git_commit" || k === "config_hash" || k === "manifest_hash") ? truncHash(v) :
+        (k === "timestamp" ? String(v).replace("T", " ") :
+        (k === "reproducible" ? (v ? "✓ true" : "✗ false") : String(v)));
+      return "<div><dt>" + k + "</dt><dd>" + escapeHtml(shown) + "</dd></div>";
+    }).join("");
+    return '<section class="card span"><header class="card-h"><span class="card-t">Bundle ' +
+      escapeHtml(metadata.experiment_id || item.name) + " — prowenancja</span>" +
+      '<span class="card-s">odtwarzalność eksperymentu</span></header><div class="card-b">' + frozenBanner +
+      '<dl class="prov">' + fieldsHtml + "</dl></div></section>";
+  }
+
+  // CTO 2026-07-22 (#6): "slad NAJWAZNIEJSZEGO zestawu danych" - baseline
+  // AUD-001/Hard-Halt dla re-runu konfirmacyjnego v0.11. Zrodlo: pola JUZ
+  // OBECNE w population_validation_v0_11_0.json (hard_halt_baseline,
+  // git_commit, manifest, n_raw_records) - ten plik jest JUZ pobrany dla
+  // sekcji Lekcje (ARTIFACTS.population), wiec ZERO dodatkowego fetchu.
+  // Swiadomie NIE parsuje execution_package_v0_11/hashes/baseline_hash.txt
+  // (plik tekstowy z komentarzami, nie JSON - parsowanie go w JS byloby
+  // kruche) - population json niesie TE SAME fakty (ten sam baseline, ten
+  // sam commit) w formie juz strukturalnej, bez duplikowania zrodla prawdy.
+  function renderHardHaltCard(population) {
+    if (!population) return "";
+    var fdr = population.fdr_correction_omnibus;
+    return '<section class="card span"><header class="card-h">' +
+      '<span class="card-t">Re-run konfirmacyjny — Hard-Halt / prowenancja</span>' +
+      '<span class="card-s">' + escapeHtml(population.study_id || "—") + "</span></header>" +
+      '<div class="card-b"><dl class="prov">' +
+      "<div><dt>hard_halt_baseline (AUD-001)</dt><dd>" + escapeHtml(truncHash(population.hard_halt_baseline)) + "</dd></div>" +
+      "<div><dt>git_commit</dt><dd>" + escapeHtml(truncHash(population.git_commit)) + "</dd></div>" +
+      "<div><dt>manifest</dt><dd>" + escapeHtml(population.manifest || "—") + "</dd></div>" +
+      "<div><dt>n_raw_records</dt><dd>" + escapeHtml(String(population.n_raw_records != null ? population.n_raw_records : "—")) + "</dd></div>" +
+      (fdr ? "<div><dt>fdr_correction.n_real_testable_cells</dt><dd>" + escapeHtml(String(fdr.n_real_testable_cells)) + "</dd></div>" : "") +
+      '</dl><p class="note">Pola wprost z <code>' + escapeHtml(ARTIFACTS.population) +
+      "</code> (już pobrany dla sekcji Lekcje) — kanoniczny ślad Hard-Halt dla aktualnego, " +
+      "konfirmacyjnego zestawu danych.</p></div></section>";
+  }
+
+  function renderProvenance(bundles, bundlesError, population, demoReport, demoPrereg, demoReportError, demoPreregError) {
+    var hardHaltCard = renderHardHaltCard(population);
+
+    var bundlesHtml;
+    if (bundles && bundles.length) {
+      var rich = bundles.filter(function (b) { return b.ok && !b.meta.provenance; });
+      var sparse = bundles.filter(function (b) { return !b.ok || b.meta.provenance; });
+      var richCards = rich.map(renderBundleCard).join("");
+      var sparseCard = sparse.length
+        ? '<section class="card span"><header class="card-h"><span class="card-t">Bundle legacy / niekompletne</span>' +
+          '<span class="card-s">oznaczone, prowenancja nie fabrykowana · GitHub API</span></header>' +
+          '<div class="card-b"><div class="legacy">' + sparse.map(renderBundleCard).join("") + "</div></div></section>"
+        : "";
+      bundlesHtml = richCards + sparseCard;
     } else {
-      legacyCard = '<section class="card span"><div class="card-b">' +
-        apiErrorHtml("lista bundli legacy", legacyError) + "</div></section>";
+      bundlesHtml = '<section class="card span"><div class="card-b">' +
+        apiErrorHtml("lista bundli publikacji", bundlesError) + "</div></section>";
     }
 
     var demoCard = renderLegacyDemoCard(demoReport, demoPrereg, demoReportError, demoPreregError);
 
-    setSectionHTML("provenance", bundleCard + legacyCard + demoCard);
+    setSectionHTML("provenance", hardHaltCard + bundlesHtml + demoCard);
   }
 
   function renderTests(status, statusErr) {
@@ -911,7 +959,7 @@
     setSectionHTML("reports", html);
   }
 
-  function updateTopPills(metadata, commits, status) {
+  function updateTopPills(commits, status) {
     var container = document.getElementById("top-pills");
     if (!container) return;
     var head = commits && commits.length ? commits[0].sha.slice(0, 7) : null;
@@ -965,12 +1013,11 @@
     var loads = {
       report: fetchJSON(ARTIFACTS.report),
       competency: fetchJSON(ARTIFACTS.competency),
-      metadata: fetchJSON(ARTIFACTS.metadata),
       prereg: fetchJSON(ARTIFACTS.prereg),
       status: fetchJSON(ARTIFACTS.status),
       chronicle: fetchJSON(ARTIFACTS.chronicle),
       population: fetchJSON(ARTIFACTS.population),
-      legacy: fetchLegacyBundles(),
+      bundles: fetchAllBundles(),
       commits: fetchCommits(10),
     };
 
@@ -978,14 +1025,13 @@
 
     loads.report.then(function (v) { results.report = v; }).catch(function (e) { results.reportError = e; });
     loads.prereg.then(function (v) { results.prereg = v; }).catch(function (e) { results.preregError = e; });
-    loads.metadata.then(function (v) { results.metadata = v; }).catch(function (e) { results.metadataError = e; });
     loads.status.then(function (v) { results.status = v; }).catch(function (e) { results.statusError = e; });
     loads.population.then(function (v) { results.population = v; }).catch(function (e) { results.populationError = e; });
     loads.competency.then(function (v) { results.competency = v; }).catch(function (e) {
       sectionError("competency", ARTIFACTS.competency, e);
       sectionError("genomes", ARTIFACTS.competency, e);
     });
-    loads.legacy.then(function (v) { results.legacy = v; }).catch(function (e) { results.legacyError = e; });
+    loads.bundles.then(function (v) { results.bundles = v; }).catch(function (e) { results.bundlesError = e; });
     loads.commits.then(function (v) { results.commits = v; }).catch(function (e) { results.commitsError = e; });
 
     // Lekcje i wyniki: WYLACZNIE population (re-run konfirmacyjny) - demo
@@ -1000,12 +1046,12 @@
     }).catch(function () {});
 
     Promise.all([
-      loads.metadata.catch(function () { return null; }),
-      loads.legacy.catch(function () { return null; }),
+      loads.bundles.catch(function () { return null; }),
+      loads.population.catch(function () { return null; }),
       loads.report.catch(function () { return null; }),
       loads.prereg.catch(function () { return null; }),
     ]).then(function (vals) {
-      renderProvenance(vals[0], vals[1], results.legacyError, results.metadataError,
+      renderProvenance(vals[0], results.bundlesError, vals[1],
         vals[2], vals[3], results.reportError, results.preregError);
     });
 
@@ -1034,10 +1080,16 @@
         competency: vals[0], population: vals[1], commits: vals[2], status: vals[3],
         commitsError: results.commitsError, statusError: results.statusError,
       });
-      updateTopPills(results.metadata, vals[2], vals[3]);
+      updateTopPills(vals[2], vals[3]);
     });
 
-    loads.metadata.then(function (m) { updateFooter(m); }).catch(function () { updateFooter(null); });
+    // Stopka pokazuje date wygenerowania bundla L1.1 - wczesniej osobny
+    // fetch ARTIFACTS.metadata, teraz L1.1 jest jednym z odkrytych bundli
+    // (loads.bundles), wiec zero dodatkowego zapytania.
+    loads.bundles.then(function (list) {
+      var l11 = (list || []).filter(function (b) { return b.ok && b.name === "L1_1_pattern_echo"; })[0];
+      updateFooter(l11 ? l11.meta : null);
+    }).catch(function () { updateFooter(null); });
   }
 
   document.addEventListener("DOMContentLoaded", function () {
