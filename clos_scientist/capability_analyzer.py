@@ -155,6 +155,136 @@ def _prereg_path_for_lesson(lesson_id: str) -> Path:
     return PUBLICATIONS_DIR / f"preregistration_{lesson_id.replace('.', '_')}.json"
 
 
+# ============================================================================
+# SPRINT v0.11.0 P0 (CTO 2026-07-22): profil kompetencji z RE-RUNU
+# KONFIRMACYJNEGO (23 genomy, n=185/93/92), nie z demo-raportow Academy (2
+# genomy, n=10) uzywanych powyzej. CONCEPT_METRIC_MAP/GENOMES/
+# build_capability_profile() ZOSTAJA NIETKNIETE - uzywane WYLACZNIE do
+# regeneracji archiwalnego profilu v0.10 (patrz competency_profile.py). Ten
+# blok to OSOBNA, ROWNOLEGLA sciezka dla zywego profilu.
+# ============================================================================
+
+POPULATION_PATH = Path("reports/population/population_validation_v0_11_0.json")
+
+# Ktora (lekcja, srodowisko, metryka) w population_validation_v0_11_0.json
+# reprezentuje kazde pojecie - wybor idzie za docs/METRIC_STATUS_TABLE.md:
+# noise_world dla L1.1 (nie drift_world - poza zakresem re-runu; nie
+# stable_world - kontrola), shock_world dla L1.2. Dokladnie ten sam rodzaj
+# mapowania co CONCEPT_METRIC_MAP powyzej, ale wskazujacy na juz-policzone
+# pola w danych populacyjnych zamiast na surowe reports/academy/*.json.
+POPULATION_METRIC_MAP: Dict[str, Optional[Dict[str, str]]] = {
+    "Perception": None,
+    "Attention": None,
+    "Pattern Recognition": {"lesson": "L1.1", "environment": "noise_world", "metric": "Pattern Recognition"},
+    "Pattern Retention": {"lesson": "L1.1", "environment": "noise_world", "metric": "Pattern Retention"},
+    "Working Memory": {"lesson": "L1.1", "environment": "noise_world", "metric": "Working Memory (MAE@50)"},
+    "Long-term Memory": None,
+    "Prediction": None,
+    "Adaptation": {"lesson": "L1.1", "environment": "noise_world", "metric": "Adaptation"},
+    "Exploration": None,
+    "Generalization": None,
+    "Planning": None,
+    "Stability": {"lesson": "L1.1", "environment": "noise_world", "metric": "Stability"},
+    "Final Energy Level": {"lesson": "L1.2", "environment": "shock_world", "metric": "Final Energy Level"},
+    "Homeostatic Resilience": {
+        "lesson": "L1.2", "environment": "shock_world", "metric": "Homeostatic Resilience (recovery_time)",
+    },
+}
+
+# Statusy konfirmacyjne SA WYNIKIEM analizy w docs/METRIC_STATUS_TABLE.md
+# (Kruskal-Wallis, leave-one-out, Red Team, decyzje Architekta) - NIE sa
+# mechanicznie wyprowadzalne z samych liczb w population_validation_v0_11_0.json
+# (surowe Welch-pary/ANOVA, bez KW/Red-Team). Ten slownik WIERNIE odzwierciedla
+# finalna tabele (SS4b/SS5/SS7 tego dokumentu) - zmiana statusu w tabeli (np. po
+# kolejnym Red Team) wymaga rownoleglej zmiany tutaj, zaden automat tego nie
+# zsynchronizuje.
+CONFIRMATORY_STATUS: Dict[str, str] = {
+    "Working Memory": "VALIDATED",
+    "Pattern Recognition": "VALIDATED",
+    "Stability": "VALIDATED",
+    "Pattern Retention": "EXPERIMENTAL",
+    "Adaptation": "EXPERIMENTAL",
+    "Homeostatic Resilience": "EXPERIMENTAL",
+    "Final Energy Level": "EXPERIMENTAL",
+}
+
+
+def _population_genome_stats(entry: Dict[str, Any]) -> Dict[str, Any]:
+    """Reformatuje per_genome pole population.json (juz policzone: mean/std/
+    ci95/n/n_effective/ci95_valid/deterministic) do ksztaltu zgodnego z
+    _genome_stats() ponizej (value=mean) - ZERO nowych obliczen, tylko
+    zmiana nazwy klucza mean->value dla spojnosci z reszta profilu."""
+    out: Dict[str, Any] = {}
+    for genome, stats in entry.get("per_genome", {}).items():
+        out[genome] = {
+            "value": stats["mean"],
+            "std": stats["std"],
+            "ci95_low": stats["ci95_low"],
+            "ci95_high": stats["ci95_high"],
+            "n": stats["n"],
+            "n_effective": stats["n_effective"],
+            "ci95_valid": stats["ci95_valid"],
+            "deterministic": stats["deterministic"],
+        }
+    return out
+
+
+def analyze_concept_from_population(
+    concept: str,
+    mapping: Optional[Dict[str, str]],
+    population: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Odpowiednik analyze_concept() powyzej, ale zrodlem jest JUZ POLICZONY
+    wpis w population_validation_v0_11_0.json (23 genomy, n=185) zamiast
+    surowych runow z reports/academy/*.json (2 genomy, n=10). Zero nowych
+    obliczen statystycznych - wylacznie reformatowanie."""
+    if not mapping or not population:
+        return _insufficient(concept, [mapping["lesson"]] if mapping else [])
+
+    lesson, env, metric = mapping["lesson"], mapping["environment"], mapping["metric"]
+    entry = population.get("lessons", {}).get(lesson, {}).get(env, {}).get(metric)
+    if entry is None:
+        return _insufficient(concept, [lesson])
+
+    pc = entry.get("pairwise_comparisons") or {}
+    anova = entry.get("omnibus_anova_raw") or {}
+
+    return {
+        "concept": concept,
+        "status": "measured",
+        "kind": CONCEPT_KIND.get(concept, "cognitive"),
+        "source_lesson": f"{lesson}/{env}",
+        "source_lessons": [lesson],
+        "genomes": _population_genome_stats(entry),
+        "genome_comparison": {
+            "n_fdr_significant_q_0_05": pc.get("n_fdr_significant_q_0_05"),
+            "n_pairs": pc.get("n_pairs"),
+            "n_pairs_computable": pc.get("n_pairs_computable"),
+            "anova_f": anova.get("f"),
+            "anova_computable": anova.get("computable"),
+        },
+        "secondary_observations": [],
+        "confirmatory_status": CONFIRMATORY_STATUS.get(concept),
+        "classification": entry.get("classification"),
+        "valid_rate": entry.get("valid_rate"),
+        "n_genomes_total": entry.get("n_genomes_total"),
+        "n_genomes_valid": entry.get("n_genomes_valid"),
+    }
+
+
+def build_capability_profile_from_population(
+    population_path: Path = POPULATION_PATH,
+) -> List[Dict[str, Any]]:
+    """Zrodlo dla ZYWEGO competency_profile.json (re-run konfirmacyjny).
+    build_capability_profile() powyzej (demo Academy, 2 genomy) zostaje
+    nietknieta - uzywana wylacznie do regeneracji archiwalnego profilu v0.10."""
+    population = _load_json(population_path)
+    return [
+        analyze_concept_from_population(concept, mapping, population)
+        for concept, mapping in POPULATION_METRIC_MAP.items()
+    ]
+
+
 def load_academy_reports(reports_dir: Path = REPORTS_DIR) -> Dict[str, Dict[str, Any]]:
     """Wczytuje reports/academy/*.json, indeksowane po polu 'lesson'."""
     reports: Dict[str, Dict[str, Any]] = {}

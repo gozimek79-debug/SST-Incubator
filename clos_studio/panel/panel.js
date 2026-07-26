@@ -624,8 +624,19 @@
           '<code class="gbar-val">' + fmtNum(gd.value, 6) + "</code>" +
           '<code class="gbar-ci">n_eff=' + gd.n_effective + " · ci95_valid=" + fmtBool(gd.ci95_valid) + "</code></div>";
       }).join("");
-      var dHtml = (c.genome_comparison && c.genome_comparison.computable)
-        ? '<div class="crow-d">Cohen&apos;s d (genom vs genom): <code>' + fmtNum(c.genome_comparison.cohens_d, 3) + "</code></div>"
+      // CTO 2026-07-22 (P0 + panel): genome_comparison od re-runu
+      // konfirmacyjnego (23 genomy) niesie pary FDR (Welch+BH q=0.05) +
+      // ANOVA surowe - NIE pojedynczy Cohen's d miedzy dwoma genomami
+      // (ten koncept nie ma sensu przy 23 genomach: KTORA para?). Ten sam
+      // wzorzec co sekcja Lekcje (#3) - pary FDR, nie fabrykowany efekt
+      // dla dowolnie wybranej pary. Pola czytane BEZPOSREDNIO jako
+      // c.genome_comparison.X (bez aliasu do lokalnej zmiennej) - inaczej
+      // scripts/validate_panel.py (CHAIN_RE) nie widzi ich i przestaje
+      // pilnowac, ze te pola istnieja w competency_profile.json.
+      var dHtml = (c.genome_comparison && c.genome_comparison.n_pairs)
+        ? '<div class="crow-d">Pary FDR (Welch+BH, q=0.05): <code>' + c.genome_comparison.n_fdr_significant_q_0_05 +
+          "/" + c.genome_comparison.n_pairs + "</code>" +
+          (c.genome_comparison.anova_computable ? " · ANOVA surowe f=" + fmtNum(c.genome_comparison.anova_f, 4) : "") + "</div>"
         : "";
       body = '<div class="crow-body">' + gRows + dHtml + "</div>";
       if (state === "degenerate") {
@@ -634,19 +645,6 @@
       }
     } else {
       body = '<div class="crow-gap">brak lekcji mierzącej to pojęcie (status: <code>insufficient_data</code>)</div>';
-    }
-
-    if (c.secondary_observations && c.secondary_observations.length) {
-      var secHtml = c.secondary_observations.map(function (obs) {
-        var gHtml = Object.keys(obs.genomes || {}).map(function (g) {
-          var gs = obs.genomes[g];
-          return '<code class="gbar-ci">' + escapeHtml(g) + "=" + fmtNum(gs.value, 4) +
-            " · deterministic=" + fmtBool(gs.deterministic) + " · ci95_valid=" + fmtBool(gs.ci95_valid) + "</code>";
-        }).join(" ");
-        return '<div class="crow-warn">⊘ nie wliczone do puli CI95 (' + escapeHtml(obs.lesson) + "): " + gHtml +
-          '<br><span style="opacity:.8">' + escapeHtml(obs.note || "") + "</span></div>";
-      }).join("");
-      body += secHtml;
     }
 
     return '<div class="crow ' + state + '"><div class="crow-head"><span class="crow-k">' + escapeHtml(c.concept) + "</span>" +
@@ -658,8 +656,13 @@
   // czytaja competency_profile.json - CZYTA pola juz obecne
   // (comp.generated_at, comp.dataset_status), nie liczy/nie zgaduje niczego.
   // Dwa banery moga wystapic razem: dane SA zywe (maja generated_at) I
-  // JEDNOCZESNIE oznaczone Exploratory (jeszcze nie potwierdzajace) - to nie
-  // sprzecznosc, to dwa rozne pytania (swiezosc artefaktu vs. status naukowy).
+  // JEDNOCZESNIE oznaczone Exploratory/Confirmatory - to nie sprzecznosc,
+  // to dwa rozne pytania (swiezosc artefaktu vs. status naukowy).
+  // CTO 2026-07-22 (P0): etykieta drugiego banera WARUNKOWA - profil
+  // przeszedl z Exploratory (n=10) na CONFIRMATORY (re-run 23 genomy), wiec
+  // baner musi za nim, inaczej pokazywalby sprzeczne "Exploratory Dataset:
+  // CONFIRMATORY (NIE Exploratory)". Prefiks czytany z tresci dataset_status
+  // (pierwsze slowo), nie zgadywany.
   function datasetStateBannersHtml(comp) {
     var html = "";
     if (comp.generated_at) {
@@ -670,8 +673,15 @@
         "</div>";
     }
     if (comp.dataset_status) {
-      html += '<div class="datastate datastate-exploratory">' +
-        "<b>Exploratory Dataset:</b> " + escapeHtml(comp.dataset_status) + "</div>";
+      // CONFIRMATORY uzywa bazowej klasy .datastate (neutralny akcent) - NIE
+      // "-exploratory" (pomaranczowy = ostrzezenie "jeszcze nie potwierdzone",
+      // falszywe dla danych konfirmacyjnych) i NIE "-live" (zielony,
+      // zarezerwowany dla banera swiezosci wyzej). Zero nowej klasy CSS.
+      var isConfirmatory = /^\s*CONFIRMATORY/i.test(comp.dataset_status);
+      var label = isConfirmatory ? "Confirmatory Dataset:" : "Exploratory Dataset:";
+      var cls = isConfirmatory ? "" : " datastate-exploratory";
+      html += '<div class="datastate' + cls + '">' +
+        "<b>" + label + "</b> " + escapeHtml(comp.dataset_status) + "</div>";
     }
     return html;
   }
@@ -725,32 +735,46 @@
     setSectionHTML("competency", datasetStateBannersHtml(comp) + minimalCard + fullCard);
   }
 
+  // CTO 2026-07-22 (P0 + panel, ten sam wzorzec co Lekcje #3): sekcja
+  // Genomow POKAZYWALA pojedyncza pare (default vs highly_plastic) +
+  // Cohen's d - nie ma to sensu przy 23 genomach (ktora para z 253?).
+  // Teraz: jedna linia na koncept, z JUZ POLICZONYCH pol competency_profile.json
+  // (classification/valid_rate/n_genomes_valid/n_genomes_total/genome_comparison
+  // z pairs FDR + ANOVA surowe) - zero fabrykowanego effect size dla
+  // dowolnie wybranej pary genomow.
+  // Pola genome_comparison czytane BEZPOSREDNIO jako c.genome_comparison.X
+  // (bez aliasu) - patrz komentarz w renderConceptRow: alias ukrylby je
+  // przed validate_panel.py (CHAIN_RE sledzi tylko dosl. lancuchy z rootow).
+  function renderGenomeComparisonRow(c) {
+    var pairsText = (c.genome_comparison && c.genome_comparison.n_pairs)
+      ? c.genome_comparison.n_fdr_significant_q_0_05 + "/" + c.genome_comparison.n_pairs + " par (FDR q=0.05)"
+      : "—";
+    var anovaText = (c.genome_comparison && c.genome_comparison.anova_computable) ? "f=" + fmtNum(c.genome_comparison.anova_f, 4) : "—";
+    var nTotal = c.n_genomes_total != null ? c.n_genomes_total : Object.keys(c.genomes || {}).length;
+    return "<tr><td>" + escapeHtml(c.concept) + "</td>" +
+      "<td>" + escapeHtml(c.classification || "—") + "</td>" +
+      "<td>" + fmtNum(c.valid_rate, 2) + "</td>" +
+      "<td>" + (c.n_genomes_valid != null ? c.n_genomes_valid : "—") + "/" + nTotal + "</td>" +
+      "<td>" + escapeHtml(pairsText) + "</td>" +
+      "<td>" + escapeHtml(anovaText) + "</td></tr>";
+  }
+
   function renderGenomes(comp) {
     if (!comp) return;
     var rows = classifyConcepts(comp).valid;
-    var genomeKeys = rows.length ? Object.keys(rows[0].genomes) : [];
+    var genomeCount = rows.length ? Object.keys(rows[0].genomes).length : 0;
 
-    var trHtml = rows.map(function (c) {
-      var g0 = genomeKeys[0], g1 = genomeKeys[1];
-      var v0 = c.genomes[g0].value, v1 = c.genomes[g1] ? c.genomes[g1].value : null;
-      var diff = v1 !== null ? v1 - v0 : null;
-      var d = c.genome_comparison && c.genome_comparison.computable ? c.genome_comparison.cohens_d : null;
-      return "<tr><td>" + escapeHtml(c.concept) + '</td><td><code style="color:' + C.chA + '">' + fmtNum(v0, 4) + "</code></td>" +
-        '<td><code style="color:' + C.chB + '">' + (v1 !== null ? fmtNum(v1, 4) : "—") + "</code></td>" +
-        "<td><code>" + (diff !== null ? fmtNum(diff, 4) : "—") + "</code></td>" +
-        '<td><code style="color:' + (d !== null && Math.abs(d) > 0.8 ? "var(--warn)" : "var(--txt)") + '">' +
-        (d !== null ? fmtNum(d, 3) : "n/d") + "</code></td></tr>";
-    }).join("");
+    var trHtml = rows.map(renderGenomeComparisonRow).join("");
 
     var html =
-      '<section class="card span"><header class="card-h"><span class="card-t">' +
-      (genomeKeys.length ? escapeHtml(genomeKeys.join(" vs ")) : "Porównanie genomów") + "</span>" +
-      '<span class="card-s">tylko pojęcia z ważnym CI95 · effect size między genomami</span></header>' +
-      '<div class="card-b"><table class="tbl"><thead><tr><th>Pojęcie</th><th>' + escapeHtml(genomeKeys[0] || "genom A") +
-      "</th><th>" + escapeHtml(genomeKeys[1] || "genom B") + "</th><th>Δ śr.</th><th>Cohen&apos;s d</th></tr></thead>" +
-      "<tbody>" + (trHtml || '<tr><td colspan="5">Brak pojęć z ważnym CI95.</td></tr>') + "</tbody></table>" +
-      '<p class="note">Porównanie opiera się wyłącznie na pojęciach, dla których <code>competency_profile.json</code> ' +
-      "podaje <code>ci95_valid=true</code> dla obu genomów.</p></div></section>";
+      '<section class="card span"><header class="card-h"><span class="card-t">Porównanie genomów</span>' +
+      '<span class="card-s">' + genomeCount + " genomów · pary FDR (Welch+BH, q=0.05) i ANOVA surowe · re-run konfirmacyjny</span></header>" +
+      '<div class="card-b"><table class="tbl"><thead><tr><th>Pojęcie</th><th>Classification</th>' +
+      "<th>valid_rate</th><th>n_valid/n_total</th><th>Pary FDR</th><th>ANOVA f (surowe)</th></tr></thead>" +
+      "<tbody>" + (trHtml || '<tr><td colspan="6">Brak pojęć z ważnym CI95.</td></tr>') + "</tbody></table>" +
+      '<p class="note">Liczby wprost z <code>publications/competency_profile.json</code> (' + genomeCount +
+      " genomów, re-run konfirmacyjny) — zero fabrykowanego Cohen's d dla dowolnie wybranej pary. " +
+      "Interpretacja (VALIDATED/EXPERIMENTAL) jest w <code>docs/METRIC_STATUS_TABLE.md</code>.</p></div></section>";
     setSectionHTML("genomes", datasetStateBannersHtml(comp) + html);
   }
 

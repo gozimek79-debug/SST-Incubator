@@ -17,19 +17,28 @@ CTO 2026-07-18), pod katem dwoch dodatkowych sposobow, w jakie panel moze
       wzorce typu ".every(...ci95_valid...)" lub "ci95_valid ===" lub
       "n_effective >=/<=/>/<" sa FAILEM.
   (B) CZYTANIE KLUCZA, KTOREGO NIE MA W ODPOWIEDNIM PLIKU ZRODLOWYM. Panel
-      czyta trzy pliki przez zmienne o ustalonych, jednoznacznych nazwach:
+      czyta pliki przez zmienne o ustalonych, jednoznacznych nazwach:
       publications/competency_profile.json (comp = caly profil, c =
-      pojedynczy koncept, gd = per-genom staty koncepta, obs = pojedyncza
-      secondary_observation, gs = per-genom staty wewnatrz niej),
-      reports/status.json (status - sprint/timestamp/commit, Zadanie 3:
-      globalny puls), publications/L1_1_pattern_echo/metadata.json
-      (metadata - frozen/frozen_reason, baner FROZEN). Kazda sciezka
+      pojedynczy koncept, gd = per-genom staty koncepta), reports/status.json
+      (status - sprint/timestamp/commit, Zadanie 3: globalny puls),
+      metadata.json dowolnego bundla (metadata - frozen/frozen_reason,
+      baner FROZEN, patrz renderBundleCard() w panel.js). Kazda sciezka
       comp.a.b.c / status.x.y / metadata.x.y / itd. znaleziona w kodzie
       MUSI istniec w odpowiednim REALNYM pliku (sprawdzane wzgledem
       reprezentatywnego ksztaltu, bo concepts/genomes to listy/slowniki o
       zmiennych kluczach) - inaczej FAIL. To lapie DOKLADNIE ten rodzaj
       bledu: panel czyta pole, ktorego Python przestal produkowac (lub
       nigdy nie produkowal), bez zadnego ostrzezenia w CI.
+
+      SPRINT v0.11.0 P0 (CTO 2026-07-22): "obs"/"gs" (secondary_observations
+      per-koncept) USUNIETE z CHAIN_ROOTS - profil konfirmacyjny
+      (population_validation_v0_11_0.json) nie ma odpowiednika mechanizmu
+      "pool: False" z demo Academy, wiec secondary_observations jest ZAWSZE
+      [] w zywych danych, a panel.js juz nie czyta obs./gs. w ogole
+      (usuniete razem z tym przejsciem - byl to kod dla pola, ktore Python
+      przestal produkowac, dokladnie ten rodzaj bledu ktory punkt B ma
+      lapac). Gdyby ktos przywrocil ten mechanizm w POPULATION_METRIC_MAP,
+      trzeba go dopisac z powrotem tutaj I do panel.js razem.
 
 Uzycie:
     python scripts/validate_panel.py
@@ -65,7 +74,7 @@ CLASSIFICATION_ITERATION_RE = re.compile(r'\.(every|some|filter)\([^;]{0,300}?ci
 # SPRINT_v0.11.0.md Zadanie 3: "status"/"metadata" dodane - panel czyta teraz
 # reports/status.json (sprint/timestamp/commit, globalny puls) i
 # publications/L1_1_pattern_echo/metadata.json (frozen/frozen_reason, baner FROZEN).
-CHAIN_ROOTS = ["comp", "c", "gd", "obs", "gs", "status", "metadata"]
+CHAIN_ROOTS = ["comp", "c", "gd", "status", "metadata"]
 # (?<!\.) wyklucza przypadki typu "loads.status.then" - tam "status" jest
 # WLASCIWOSCIA obiektu loads (Promise), nie samym rootem status.json;
 # ".then"/".catch" to metody Promise, nie klucze JSON, i nie powinny byc
@@ -308,13 +317,21 @@ def _representative_shapes(
 ) -> Dict[str, Any]:
     concepts = profile.get("concepts", [])
     # "c" (koncept) MUSI reprezentowac przypadek z jak najwiecej WYPELNIONYCH
-    # pol zagniezdzonych (genome_comparison/genomes/secondary_observations
-    # niepuste) - inaczej sciezki typu c.genome_comparison.cohens_d falszywie
-    # "nie istnieja" tylko dlatego, ze concepts[0] akurat jest
-    # insufficient_data (genome_comparison=None tam, a nie w ogole brak pola).
+    # pol zagniezdzonych (genome_comparison/genomes niepuste) - inaczej
+    # sciezki typu c.genome_comparison.anova_f falszywie "nie istnieja"
+    # tylko dlatego, ze concepts[0] akurat jest insufficient_data
+    # (genome_comparison=None tam, a nie w ogole brak pola).
+    # SPRINT v0.11.0 P0 (CTO 2026-07-22): "secondary_observations niepuste"
+    # USUNIETE z tego warunku - profil konfirmacyjny (population_validation_v0_11_0.json)
+    # nie ma zadnego mappingu "pool: False", wiec to pole jest ZAWSZE []
+    # (panel.js juz go nie czyta, patrz usuniete CHAIN_ROOTS "obs"/"gs" i
+    # docstring modulu, punkt B) - wymaganie tego pola tutaj oznaczaloby, ze
+    # ZADEN koncept nigdy nie pasuje, i c_shape spadalby zawsze do
+    # concepts[0] (insufficient_data, genome_comparison=None) - dokladnie
+    # blad zlapany przy tym przejsciu.
     c_shape = concepts[0] if concepts else {}
     for concept in concepts:
-        if concept.get("genome_comparison") and concept.get("genomes") and concept.get("secondary_observations"):
+        if concept.get("genome_comparison") and concept.get("genomes"):
             c_shape = concept
             break
 
@@ -325,19 +342,8 @@ def _representative_shapes(
             gd_shape = next(iter(genomes.values()))
             break
 
-    obs_shape: Dict[str, Any] = {}
-    gs_shape: Dict[str, Any] = {}
-    for concept in concepts:
-        secondary = concept.get("secondary_observations") or []
-        if secondary:
-            obs_shape = secondary[0]
-            genomes = obs_shape.get("genomes") or {}
-            if genomes:
-                gs_shape = next(iter(genomes.values()))
-            break
-
     return {
-        "comp": profile, "c": c_shape, "gd": gd_shape, "obs": obs_shape, "gs": gs_shape,
+        "comp": profile, "c": c_shape, "gd": gd_shape,
         "status": status or {}, "metadata": metadata or {},
     }
 

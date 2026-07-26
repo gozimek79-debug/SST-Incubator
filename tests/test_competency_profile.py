@@ -1,13 +1,19 @@
 """Testy Competency Profile (SPRINT_v0.8.4.md P4.3; profil minimalny:
-SPRINT_v0.9.md P6, Kroki 4-5).
+SPRINT_v0.9.md P6, Kroki 4-5; re-run konfirmacyjny: SPRINT v0.11.0 P0,
+CTO 2026-07-22).
 
 Sprawdzaja, ze profil zawiera wszystkie 14 pojec z cognitive_ontology.md,
-ze pojecia insufficient_data nie przeciekaja zadna wartoscia liczbowa, oraz
-ze profil minimalny (WYLACZNIE ci95_valid=True) i profil pelny (wszystko,
-w tym zdegenerowane/insufficient_data jako osobne kategorie) sa spojne.
+ze pojecia insufficient_data nie przeciekaja zadna wartoscia liczbowa, ze
+profil minimalny (WYLACZNIE confirmatory_status=VALIDATED od SPRINT v0.11.0
+P0) i profil pelny (wszystko, w tym zdegenerowane/insufficient_data jako
+osobne kategorie) sa spojne, oraz ze dane pochodza z 23-genomowej populacji
+konfirmacyjnej (population_validation_v0_11_0.json), nie z 2-genomowego demo.
 """
 
 from clos_scientist.competency_profile import (
+    ARCHIVE_JSON_NAME,
+    ARCHIVE_MD_NAME,
+    archive_exploratory_profile,
     build_competency_profile,
     render_markdown,
     write_competency_profile,
@@ -69,42 +75,96 @@ class TestMarkdownRendering:
 
 
 class TestMinimalProfile:
-    """SPRINT_v0.9.md P6 Kroki 4-5: profil minimalny = wylacznie ci95_valid=True.
+    """SPRINT v0.11.0 P0 (CTO 2026-07-22): profil zrodlem jest RE-RUN
+    KONFIRMACYJNY (population_validation_v0_11_0.json, 23 genomy, n=185),
+    nie demo Academy (2 genomy, n=10, SPRINT_v0.9.md P6). To zmienilo
+    DEFINICJE, ktore ten test sprawdzal - 4 testy ponizej zaktualizowane z
+    jawnym uzasadnieniem (nie tylko zeby "przeszly"):
 
-    SPRINT_v0.10.md P4: liczba/skladnik osi NIE jest juz wpisana na sztywno
-    tutaj - re-liczona niezaleznie od surowych c["genomes"][g]["ci95_valid"],
-    zeby test rzeczywiscie sprawdzal profil, a nie powtarzal go (i zeby nie
-    trzeba bylo edytowac testu za kazdym razem, gdy realne dane sie zmienia,
-    tak jak sie zmienily miedzy P2 a P3 przez Read-Only Observer)."""
+    - full_profile.valid/degenerate to teraz odczyt pola JUZ POLICZONEGO w
+      danych ("classification": GENOME-ROBUST/GENOME-FRAGILE, prog
+      ci95_valid ORAZ n_effective>=5 - patrz docs/VALIDITY_REPORT.md), NIE
+      rekonstrukcja z surowego ci95_valid per genom. Odkryte przy budowie:
+      Adaptation ma ci95_valid=True dla WSZYSTKICH 23 genomow, ale
+      classification=GENOME-FRAGILE (n_genomes_valid=13/23) - stary test
+      zakladal "degenerate <=> co najmniej jeden ci95_valid=False", co jest
+      FALSZYWE dla tych danych (prog jest n_effective, nie ci95_valid).
+    - minimal_profile jest teraz na statusie KONFIRMACYJNYM (VALIDATED z
+      docs/METRIC_STATUS_TABLE.md po Red Teamie), nie na ci95_valid/
+      classification. "ROBUST" (pomiar wiarygodny) i "VALIDATED"
+      (dyskryminuje genomy, przetrwalo Kruskal-Wallis+Red Team) to DWA
+      ROZNE pytania (docs/VALIDITY_REPORT.md "Kluczowe odkrycie") - Pattern
+      Retention i Final Energy Level sa ROBUST (w full_profile.valid) ale
+      tylko EXPERIMENTAL, wiec minimal jest teraz WLASCIWY PODZBIOR
+      full_profile.valid, nie rowny mu."""
 
-    def _expected_valid_concepts(self, profile):
-        expected = set()
-        for c in profile["concepts"]:
-            if c["status"] != "measured":
-                continue
-            genome_keys = list(c["genomes"].keys())
-            if genome_keys and all(c["genomes"][g]["ci95_valid"] is True for g in genome_keys):
-                expected.add(c["concept"])
-        return expected
+    def _expected_robust_concepts(self, profile):
+        """GENOME-ROBUST wg pola 'classification' juz policzonego w
+        population_validation_v0_11_0.json - NIE rekonstruowane z surowego
+        ci95_valid (patrz docstring klasy, blad zlapany 2026-07-22)."""
+        return {
+            c["concept"] for c in profile["concepts"]
+            if c["status"] == "measured" and c.get("classification") == "GENOME-ROBUST"
+        }
 
-    def test_minimal_profile_axes_match_concepts_with_valid_ci95_for_every_present_genome(self):
+    def _expected_validated_concepts(self, profile):
+        return {
+            c["concept"] for c in profile["concepts"]
+            if c.get("confirmatory_status") == "VALIDATED"
+        }
+
+    def test_full_profile_valid_matches_genome_robust_classification(self):
         profile = build_competency_profile()
-        expected = self._expected_valid_concepts(profile)
-        assert set(profile["minimal_profile"]["axes"]) == expected
+        expected = self._expected_robust_concepts(profile)
+        actual = {c["concept"] for c in profile["full_profile"]["valid"]}
+        assert actual == expected
         assert profile["summary"]["valid_ci95"] == len(expected)
+
+    def test_minimal_profile_axes_match_concepts_with_validated_confirmatory_status(self):
+        profile = build_competency_profile()
+        expected = self._expected_validated_concepts(profile)
+        assert set(profile["minimal_profile"]["axes"]) == expected
+        assert profile["summary"]["validated"] == len(expected)
         assert len(profile["minimal_profile"]["axes"]) == len(expected)
 
-    def test_adaptation_and_stability_are_no_longer_degenerate(self):
-        """SPRINT_v0.10.md P3/P4: Read-Only Observer da realne snapshoty ->
-        Adaptation/Stability (zasilane z L1.1) maja teraz ci95_valid=True dla
-        obu genomow i NIE MOGA zostac w koszyku degenerate (byly tam do P2,
-        gdy snapshoty byly zawsze puste - patrz RAPORT_v0.9.md)."""
+    def test_working_memory_pattern_recognition_stability_are_validated(self):
+        """docs/METRIC_STATUS_TABLE.md po Red Teamie (2026-07-20): dokladnie
+        te trzy osie (L1.1/noise_world) sa VALIDATED - potwierdzone
+        niezaleznie Welch-pary+FDR ORAZ Kruskal-Wallis, leave-one-out
+        odporny. Zastepuje dawny test_adaptation_and_stability_are_no_longer_degenerate
+        (ktory sprawdzal INNE, juz nieaktualne pytanie - patrz nizej)."""
         profile = build_competency_profile()
+        validated_names = set(profile["minimal_profile"]["axes"])
+        assert {"Working Memory", "Pattern Recognition", "Stability"} == validated_names
+
+    def test_adaptation_is_genome_fragile_not_a_regression(self):
+        """SPRINT v0.11.0 P0: Adaptation ma classification=GENOME-FRAGILE
+        na 23-genomowej populacji konfirmacyjnej (valid_rate~56.5%,
+        n_genomes_valid=13/23) - TO NIE jest regresja naprawy Read-Only
+        Observer z SPRINT_v0.10.md P3/P4 (snapshoty nadal SA realne,
+        niepuste - to zupelnie inne pytanie). To jest legalne, nowe
+        odkrycie NA POZIOMIE POPULACJI: przy n=10/2 genomy oba dostepne
+        genomy akurat mialy ci95_valid=True; przy 23 genomach czesc ma za
+        niskie n_effective, wiec Adaptation jest FRAGILE, nie ROBUST.
+        Status konfirmacyjny (EXPERIMENTAL, przez Kruskal-Wallis, patrz
+        docs/METRIC_STATUS_TABLE.md footnote 12) jest niezalezny od tego i
+        NIE degraduje przez klasyfikacje FRAGILE."""
+        profile = build_competency_profile()
+        by_concept = {c["concept"]: c for c in profile["concepts"]}
+        assert by_concept["Adaptation"]["classification"] == "GENOME-FRAGILE"
+        assert by_concept["Adaptation"]["confirmatory_status"] == "EXPERIMENTAL"
         degenerate_names = {c["concept"] for c in profile["full_profile"]["degenerate"]}
+        assert "Adaptation" in degenerate_names
+
+    def test_stability_remains_genome_robust_and_validated(self):
+        """Stability, w odroznieniu od Adaptation, pozostaje ROBUST (100%
+        valid_rate na 23 genomach) I VALIDATED - SPRINT_v0.10.md P3/P4 nadal
+        obowiazuje dla tej konkretnej osi."""
+        profile = build_competency_profile()
+        by_concept = {c["concept"]: c for c in profile["concepts"]}
+        assert by_concept["Stability"]["classification"] == "GENOME-ROBUST"
+        assert by_concept["Stability"]["confirmatory_status"] == "VALIDATED"
         valid_names = {c["concept"] for c in profile["full_profile"]["valid"]}
-        assert "Adaptation" not in degenerate_names
-        assert "Stability" not in degenerate_names
-        assert "Adaptation" in valid_names
         assert "Stability" in valid_names
 
     def test_minimal_profile_concepts_all_have_valid_ci95_for_every_present_genome(self):
@@ -128,22 +188,104 @@ class TestMinimalProfile:
             == len(profile["concepts"])
         ), "kategorie musza byc rozlaczne i wyczerpujace (partycja)"
 
-    def test_degenerate_concepts_have_at_least_one_invalid_genome(self):
-        """Niezmiennik definicyjny stanu 'degenerate': zmierzone, ale co
-        najmniej jeden OBECNY genom ma ci95_valid=False. Nie zaklada KTORE
-        pojecia tam sa (to wynika z danych, patrz docstring klasy) -
-        pozwala kolekcji byc pusta, jesli aktualnie nic nie jest zdegenerowane."""
+    def test_degenerate_concepts_are_genome_fragile(self):
+        """Niezmiennik definicyjny stanu 'degenerate' PO PRZEJSCIU NA DANE
+        POPULACYJNE (SPRINT v0.11.0 P0): classification=GENOME-FRAGILE, NIE
+        "co najmniej jeden genom ci95_valid=False" (stary niezmiennik z
+        SPRINT_v0.9.md - falszywy na tych danych, patrz docstring klasy:
+        Adaptation ma ci95_valid=True wszedzie, a mimo to jest FRAGILE
+        przez n_effective<5 dla wielu genomow)."""
         profile = build_competency_profile()
         for c in profile["full_profile"]["degenerate"]:
-            genome_keys = list(c["genomes"].keys())
-            assert genome_keys, c["concept"]
-            assert any(c["genomes"][g]["ci95_valid"] is False for g in genome_keys), c["concept"]
+            assert c.get("classification") == "GENOME-FRAGILE", c["concept"]
 
     def test_minimal_profile_axes_subset_of_full_profile_valid(self):
+        """VALIDATED implikuje ROBUST (musi byc wiarygodnie mierzalne, zeby
+        w ogole moc dyskryminowac genomy) - ale NIE odwrotnie: Pattern
+        Retention i Final Energy Level sa ROBUST (w full_profile.valid) a
+        tylko EXPERIMENTAL, wiec minimal jest teraz WLASCIWYM podzbiorem,
+        nie rownym mu (przed SPRINT v0.11.0 P0 byly rowne, bo minimal byl
+        definiowany WPROST jako ci95_valid, czyli to samo co full_profile.valid)."""
         profile = build_competency_profile()
         minimal_names = set(profile["minimal_profile"]["axes"])
         full_valid_names = {c["concept"] for c in profile["full_profile"]["valid"]}
-        assert minimal_names == full_valid_names
+        assert minimal_names <= full_valid_names
+        assert minimal_names < full_valid_names, (
+            "oczekiwano WLASCIWEGO podzbioru na tych danych - Pattern Retention "
+            "i Final Energy Level sa ROBUST ale nie VALIDATED"
+        )
+
+
+class TestPopulationSourceOfTruth:
+    """SPRINT v0.11.0 P0: profil czyta re-run konfirmacyjny (23 genomy),
+    nie demo Academy (2 genomy) - to jest architektoniczna roznica warta
+    wlasnego testu, nie tylko efekt uboczny innych asercji."""
+
+    def test_dataset_status_is_confirmatory_not_exploratory(self):
+        profile = build_competency_profile()
+        assert profile["dataset_status"].startswith("CONFIRMATORY")
+
+    def test_genome_cards_have_23_genomes(self):
+        profile = build_competency_profile()
+        assert len(profile["genome_cards"]) == 23
+        assert {"default", "highly_plastic", "minimal"} <= set(profile["genome_cards"].keys())
+
+    def test_measured_concepts_have_confirmatory_status(self):
+        profile = build_competency_profile()
+        for c in profile["concepts"]:
+            if c["status"] == "measured":
+                assert c.get("confirmatory_status") in ("VALIDATED", "EXPERIMENTAL"), c["concept"]
+            else:
+                assert c.get("confirmatory_status") is None, c["concept"]
+
+
+class TestExploratoryArchive:
+    """SPRINT v0.11.0 P0: profil eksploracyjny v0.10.1 (n=10) NIE jest
+    kasowany/nadpisywany w miejscu - archive_exploratory_profile() go
+    zachowuje pod osobna sciezka, dokladnie raz (idempotentnie)."""
+
+    def _write_exploratory_fixture(self, output_dir):
+        import json
+        output_dir.mkdir(parents=True, exist_ok=True)
+        (output_dir / "competency_profile.json").write_text(
+            json.dumps({"dataset_status": "Exploratory Dataset v0.10 (test fixture)", "marker": "old"}),
+            encoding="utf-8",
+        )
+        (output_dir / "competency_profile.md").write_text("# old exploratory md", encoding="utf-8")
+
+    def test_archives_exploratory_profile_once(self, tmp_path):
+        self._write_exploratory_fixture(tmp_path)
+        result = archive_exploratory_profile(output_dir=tmp_path)
+        assert result is not None
+        assert (tmp_path / ARCHIVE_JSON_NAME).exists()
+        assert (tmp_path / ARCHIVE_MD_NAME).exists()
+
+    def test_does_not_rearchive_if_archive_already_exists(self, tmp_path):
+        self._write_exploratory_fixture(tmp_path)
+        archive_exploratory_profile(output_dir=tmp_path)
+        # Nadpisz zywy plik czyms innym (symuluje kolejne uruchomienie
+        # generatora po pierwszym przejsciu na dane konfirmacyjne) -
+        # ponowne wywolanie NIE powinno nadpisac juz zrobionego archiwum.
+        import json
+        (tmp_path / "competency_profile.json").write_text(
+            json.dumps({"dataset_status": "CONFIRMATORY - powinno zostac nietkniete w archiwum"}),
+            encoding="utf-8",
+        )
+        result = archive_exploratory_profile(output_dir=tmp_path)
+        assert result is None
+        archived = json.loads((tmp_path / ARCHIVE_JSON_NAME).read_text(encoding="utf-8"))
+        assert archived["marker"] == "old"
+
+    def test_does_not_archive_when_live_file_already_confirmatory(self, tmp_path):
+        import json
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        (tmp_path / "competency_profile.json").write_text(
+            json.dumps({"dataset_status": "CONFIRMATORY - juz po przejsciu"}),
+            encoding="utf-8",
+        )
+        result = archive_exploratory_profile(output_dir=tmp_path)
+        assert result is None
+        assert not (tmp_path / ARCHIVE_JSON_NAME).exists()
 
 
 class TestWriteArtifacts:
