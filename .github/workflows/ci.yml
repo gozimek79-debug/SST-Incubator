@@ -40,6 +40,21 @@ jobs:
       - name: Validate observability (snapshot telemetry integrity)
         run: python scripts/validate_observability.py
 
+      # GAP-VALIDATOR-CI (audyt P2, SPRINT v0.11.0, CTO 2026-07-27): istnial
+      # od SPRINT_v0.11.0.md P1 (frozen bundles), ale nigdy nie byl wpiety do
+      # CI - luka od poczatku tego mechanizmu.
+      - name: Validate bundle freshness (frozen artifacts)
+        run: python scripts/validate_bundle_freshness.py
+
+      # GAP-STALENESS (P2 KROK 3, CTO 2026-07-27): docs/METRIC_STATUS_TABLE.md
+      # (reczna proza+liczby, jedyny z trzech bez generatora),
+      # competency_profile.json i rerun_full_report_v0_11_0.md musza sie
+      # zgadzac z reports/population/population_validation_v0_11_0.json -
+      # zamyka dokladnie ten rodzaj bledu, ktory kiedys spowodowal "Welch-pary
+      # (0/253)" zamiast prawdziwych 69/253 dla Working Memory w tabeli.
+      - name: Validate artifact freshness (staleness vs population_validation)
+        run: python scripts/validate_artifact_freshness.py
+
       # Zrodlo statusu testow/CI dla Panelu Badacza (SPRINT_v0.8.5.md, P3,
       # opcja a). Dochodzi do tego kroku WYLACZNIE gdy pytest i wszystkie
       # cztery walidatory powyzej juz przeszly (kazdy krok bez

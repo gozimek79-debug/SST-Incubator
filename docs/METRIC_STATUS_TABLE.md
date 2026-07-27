@@ -213,7 +213,7 @@ endpoint (zasada uczciwości `cognitive_ontology.md`). `NOT_MEASURED` ≠
 | L1.1 | noise_world | Stability | `1/(std(entropy)+std(\|1-energy\|)+ε)` | stałość dynamiki wewnętrznej w czasie | ✔ (ROBUST, 100%, n=185) | ◐³ | **CONFIRMED**¹⁰ | **CONFIRMED**¹⁰ | Welch-pary (244/253, 96%) + Kruskal-Wallis (p≈0, log₁₀p=-686.8) | **VALIDATED**¹⁰ (leave-one-out 69→45 odporny; f 2.25→2.06, spadek umiarkowany) |
 | L1.1 | drift_world | Stability | jw. | jw. | ✔ | ◐³ | PENDING | PENDING | Welch-pary (168/253) | **EXPERIMENTAL** (poza zakresem re-runu) |
 | L1.1 | stable_world | Stability | jw. | jw. | ✘⁷ | ◐³ | PENDING | PENDING | — | — (kontrola) |
-| L1.1 | noise_world | Final Energy Level | `energy` w ostatnim ticku | poziom rezerwy energetycznej na koniec | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (31/36) | **INSUFFICIENT_POWER** (Red Team NIE adresował tej osi — bez zmian) |
+| L1.1 | noise_world | Final Energy Level | `energy` w ostatnim ticku | poziom rezerwy energetycznej na koniec | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (243/253)¹⁶ | **INSUFFICIENT_POWER** (Red Team NIE adresował tej osi — bez zmian) |
 | L1.1 | drift_world | Final Energy Level | jw. | jw. | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (110/153) | **INSUFFICIENT_POWER** (poza zakresem re-runu) |
 | L1.1 | stable_world | Final Energy Level | jw. | jw. | ✘⁷ | ✘⁶ⁱⁱ | PENDING | PENDING | — | — (kontrola) |
 | L1.2 | shock_world | Homeostatic Resilience | `t*-t_shock`, pierwsze trwałe okno w paśmie | czas powrotu do pasma homeostazy po perturbacji | ✘ (FRAGILE, 78.6%, n=185 — było 21.7% przy n=10) | ◐¹⁴ | **CONFIRMED**¹³ | **CONFIRMED**¹³ | Welch-pary (48/55) + **Kruskal-Wallis (p=4.1e-192)** | **EXPERIMENTAL**¹³ (było INVALID_CONSTRUCT — Construct skorygowany na ◐, patrz ¹⁴) |
@@ -222,10 +222,10 @@ endpoint (zasada uczciwości `cognitive_ontology.md`). `NOT_MEASURED` ≠
 | L1.2 | shock_world | Adaptation | tick stabilizacji entropii w oknie PRZED szokiem | (deklarowane: adaptacja do szoku — FAKTYCZNIE: nic związanego z szokiem) | ✘ | **✘** | PENDING | PENDING | Welch-pary (0 obliczalnych — stała) | **INVALID_CONSTRUCT** (stała=10 dla 100% genomów/seedów, §3 — Red Team NIE adresował, konstrukt nadal zepsuty niezależnie od testu) |
 | L1.2 | stable_world | Adaptation | jw. | jw. | ✘⁷ | ✘ | PENDING | PENDING | — | — (kontrola) |
 | L1.2 | drift_world | Adaptation | tick stabilizacji entropii od startu | jak L1.1 — cold start, NIE pre-shock window (brak szoku w tym środ.) | ✘ | ◐ⁱ | PENDING | PENDING | Welch-pary | **INSUFFICIENT_POWER** (poza zakresem re-runu — inny konstrukt niż shock_world!) |
-| L1.2 | shock_world | Stability | jw. jak L1.1 | jw. | ✔ | ◐³ | PENDING | PENDING | Welch-pary (22/253, 9%) | **EXPERIMENTAL** (Red Team NIE adresował tej konkretnej komórki — moja własna kontrola KW dała p=1.3e-131, ale BEZ autoryzacji nie podnoszę statusu, patrz §7) |
+| L1.2 | shock_world | Stability | jw. jak L1.1 | jw. | ✔ | ◐³ | PENDING | PENDING | Welch-pary (87/253, 34%)¹⁶ | **EXPERIMENTAL** (Red Team NIE adresował tej konkretnej komórki — moja własna kontrola KW dała p=1.3e-131, ale BEZ autoryzacji nie podnoszę statusu, patrz §7) |
 | L1.2 | stable_world | Stability | jw. | jw. | ✘⁷ | ◐³ | PENDING | PENDING | — | — (kontrola) |
 | L1.2 | drift_world | Stability | jw. | jw. | ✔ | ◐³ | PENDING | PENDING | Welch-pary (192/253) | **EXPERIMENTAL** (poza zakresem re-runu) |
-| L1.2 | shock_world | Final Energy Level | jw. jak L1.1 | jw. | ✔ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (113/253, 45%) | **EXPERIMENTAL** (Red Team NIE adresował — bez zmian) |
+| L1.2 | shock_world | Final Energy Level | jw. jak L1.1 | jw. | ✔ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (204/253, 81%)¹⁶ | **EXPERIMENTAL** (Red Team NIE adresował — bez zmian) |
 | L1.2 | stable_world | Final Energy Level | jw. | jw. | ✘⁷ | ✘⁶ⁱⁱ | PENDING | PENDING | — | — (kontrola) |
 | L1.2 | drift_world | Final Energy Level | jw. | jw. | ✘ | ✘⁶ⁱⁱ | PENDING | PENDING | Welch-pary (108/136) | **INSUFFICIENT_POWER** (poza zakresem re-runu) |
 
@@ -317,6 +317,27 @@ Status VALIDATED bez zmian (był poprawny), zmienia się wyłącznie
 uzasadnienie w kolumnie Test. `docs/VALIDITY_REPORT.md` i
 `docs/CURRENT_SCIENTIFIC_LIMITS.md` skorygowane tą samą liczbą tego
 samego dnia — patrz tam sekcje "AKTUALIZACJA 2026-07-21".
+
+¹⁶ **KOREKTA 2026-07-27 (ustalenie audytora, trzeci raz ten sam wzorzec po
+"0/253 vs 69" i profilu "PENDING" — patrz `scripts/validate_artifact_freshness.py`,
+KROK 3):** trzy liczby par Welch w tym dokumencie były wartościami z ERY
+EKSPLORACYJNEJ (sprzed re-runu konfirmacyjnego), stojącymi w tabeli, która
+opisuje re-run konfirmacyjny. Zweryfikowane: L1.2/shock_world/Stability
+"22/253, 9%" to dokładnie wartość z `population_validation_v0_10_1.json`
+(Exploratory); L1.1/noise_world/Final Energy Level "31/36" ma mianownik 36
+= 9 genomów, nie 23 (niemożliwe dla populacji konfirmacyjnej). Liczby
+zaktualizowane z `population_validation_v0_11_0.json`:
+- L1.1/noise_world/Final Energy Level: **było 31/36 → 243/253**
+- L1.2/shock_world/Stability: **było 22/253, 9% → 87/253, 34%**
+- L1.2/shock_world/Final Energy Level: **było 113/253, 45% → 204/253, 81%**
+
+**STATUS NIEZMIENIONY dla wszystkich trzech** (INSUFFICIENT_POWER /
+EXPERIMENTAL / EXPERIMENTAL) — status był przypisany na podstawie liczby
+eksploracyjnej i wymaga OSOBNEJ oceny w procesie certyfikacji (red
+team/autoryzacja), nie transkrypcji nowej liczby. Poprawiona jest wyłącznie
+liczba (fakt z danych), nie interpretacja. Stare wartości zostają widoczne
+tutaj (ślad audytowy), nie skasowane z historii — patrz też §7 "Wynik
+walidatora staleness".
 
 ---
 
@@ -491,3 +512,24 @@ ustalenie (VALIDITY_REPORT.md footnote 8), nie cichą zmianą.
 - `tests/test_kruskal_wallis.py` — 9 testów, w tym walidacja przeciwko
   zamkniętej formie analitycznej (df=2: CDF=1-exp(-x/2)), nie tylko
   przykład z podręcznika.
+
+### 7.5 Wynik walidatora staleness (SPRINT v0.11.0 P2 KROK 3, 2026-07-27)
+
+`scripts/validate_artifact_freshness.py` (nowy w tym kroku — porównuje
+`docs/METRIC_STATUS_TABLE.md` / `publications/competency_profile.json` /
+`reports/rerun_full_report_v0_11_0.md` wprost z
+`population_validation_v0_11_0.json`) wykrył **3 komórki** w tym
+dokumencie, gdzie liczba par Welch była wartością z ERY EKSPLORACYJNEJ
+(sprzed re-runu konfirmacyjnego), nie z danych, które ta tabela ma opisywać
+— trzeci raz ten sam wzorzec błędu w tym sprincie (po "0/253 vs 69" dla
+Working Memory/Pattern Recognition, i "PENDING" w profilu kompetencji).
+Liczby poprawione na wartości ze źródła (patrz footnote¹⁶ przy każdym
+wierszu): L1.1/noise_world/Final Energy Level, L1.2/shock_world/Stability,
+L1.2/shock_world/Final Energy Level. **Statusy rekomendacji NIE zostały
+zmienione** — każdy z nich był przypisany na podstawie liczby
+eksploracyjnej i wymaga osobnej oceny w procesie certyfikacji (red
+team/autoryzacja), nie automatycznej transkrypcji nowej liczby. Walidator
+wpięty do CI (`validate_artifact_freshness.py`, obok
+`validate_bundle_freshness.py` — GAP-VALIDATOR-CI z tego samego audytu) —
+kolejny rozjazd tej klasy zostanie złapany per-commit, nie odkryty
+przypadkiem miesiące później.
