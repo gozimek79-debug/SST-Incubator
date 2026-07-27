@@ -194,12 +194,117 @@ def run_pipeline(specs: List[Tuple[str, str, str, int]], results_path: Path, log
 
 PRODUCTION_RESULTS_PATH_NAME = "full_rerun_results.jsonl"
 
+DEFAULT_POPULATION_OUT_PATH = REPO_ROOT / "reports" / "population" / "population_validation_v0_11_0.json"
+DEFAULT_COMPETENCY_OUTPUT_DIR = REPO_ROOT / "publications"
+DEFAULT_ANALYSIS_REPORT_OUT_PATH = REPO_ROOT / "reports" / "rerun_full_report_v0_11_0.md"
+
+
+class PostRunStageError(RuntimeError):
+    """SPRINT v0.11.0 P2 KROK 2 (CTO 2026-07-27): jeden etap post-run
+    (aggregate_results/competency_profile/report_composer) padl - JAWNY
+    wyjatek, nie ciche pominiecie. Komunikat zawsze nazywa KTORY etap i
+    dlaczego, zeby bylo widac natychmiast, ze kolejne etapy NIE odpalily
+    sie na starych/niekompletnych danych (patrz run_post_run_artifacts)."""
+
+
+def run_post_run_artifacts(
+    results_path: Optional[Path] = None,
+    population_out_path: Optional[Path] = None,
+    competency_output_dir: Optional[Path] = None,
+    report_out_path: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """POST-RUN (SPRINT v0.11.0 P2 KROK 2, CTO 2026-07-27): po zakonczeniu
+    re-runu woła PO KOLEI trzy JUZ ISTNIEJACE generatory - domyka
+    GAP-AGGREGATE (execution_package_v0_11/runners/aggregate_results.py) i
+    luke P0 (clos_scientist/competency_profile.py), oraz odswieza raport z
+    KROKU 1 (scripts/report_composer.py). ZERO duplikacji logiki - wolane
+    SA istniejace funkcje (importy, nie subprocess), kazda z nich pozostaje
+    rowniez samodzielnie uruchamialna z CLI (`python -m ...`) dokladnie jak
+    dotychczas - to jest DODATKOWY wyzwalacz, nie zastapienie.
+
+    KOLEJNOSC WYMUSZONA (profil zalezy od population, raport od obu):
+    kazdy etap odpala sie TYLKO gdy poprzedni sie powiodl. Blad ETAPU
+    podnosi PostRunStageError natychmiast - etapy 2/3 NIE probuja dzialac
+    na starym/nieistniejacym population_validation, bo lepiej brak
+    artefaktu niz cichy artefakt ze starego zrodla.
+
+    IDEMPOTENTNOSC: aggregate_results.build_report() nie niesie zadnego
+    pola czasowego (tylko git_commit/n_raw_records/lessons - dwa wywolania
+    na tych samych results_path daja BAJTOWO identyczny plik, o ile
+    git_commit sie nie zmienil). competency_profile i report_composer maja
+    pojedyncze pole "generated_at"/naglowek z data - te dwa pliki sa wiec
+    identyczne "poza timestampem", zgodnie z wymogiem.
+
+    Parametry pozwalaja przekierowac WSZYSTKIE trzy wyjscia (np. do
+    tmp_path w testach) - domyslnie wskazuja na prawdziwe artefakty repo,
+    wiec run_full_experiment() (prawdziwy re-run) wywoluje to bez argumentow
+    i nadpisuje prawdziwe pliki; testy na malych/fixture danych NIGDY nie
+    dotykaja tych samych sciezek co prawdziwy re-run."""
+    from execution_package_v0_11.runners import aggregate_results
+    from clos_scientist.competency_profile import write_competency_profile
+    from scripts import report_composer
+
+    results_path = results_path or (PACKAGE_ROOT / "results" / PRODUCTION_RESULTS_PATH_NAME)
+    population_out_path = population_out_path or DEFAULT_POPULATION_OUT_PATH
+    competency_output_dir = competency_output_dir or DEFAULT_COMPETENCY_OUTPUT_DIR
+    report_out_path = report_out_path or DEFAULT_ANALYSIS_REPORT_OUT_PATH
+
+    summary: Dict[str, Any] = {"stages": []}
+
+    # ETAP 1/3: GAP-AGGREGATE - surowe wyniki -> population_validation.
+    try:
+        population_path = aggregate_results.write_report(
+            results_path=results_path, out_path=population_out_path,
+        )
+    except Exception as e:
+        raise PostRunStageError(
+            f"ETAP 1/3 (aggregate_results.write_report) nie powiodl sie: {e}"
+        ) from e
+    summary["stages"].append({"stage": "aggregate_results", "path": str(population_path)})
+
+    # ETAP 2/3: luka P0 - population_validation -> competency_profile.
+    # Guardy Exploratory/archiwum sa WEWNATRZ write_competency_profile
+    # (archive_exploratory_profile) - dzialaja identycznie w tym trybie,
+    # bo to ta sama funkcja co przy recznym wywolaniu.
+    try:
+        profile_paths = write_competency_profile(
+            output_dir=competency_output_dir, population_path=population_path,
+        )
+    except Exception as e:
+        raise PostRunStageError(
+            f"ETAP 2/3 (write_competency_profile) nie powiodl sie: {e}"
+        ) from e
+    summary["stages"].append({
+        "stage": "competency_profile",
+        "json": str(profile_paths["json"]),
+        "md": str(profile_paths["md"]),
+    })
+
+    # ETAP 3/3: population + profil -> raport analityczny (KROK 1).
+    try:
+        report_path = report_composer.write_report(
+            population_path=population_path,
+            profile_path=profile_paths["json"],
+            out_path=report_out_path,
+        )
+    except Exception as e:
+        raise PostRunStageError(
+            f"ETAP 3/3 (report_composer.write_report) nie powiodl sie: {e}"
+        ) from e
+    summary["stages"].append({"stage": "report_composer", "path": str(report_path)})
+
+    return summary
+
 
 def run_full_experiment() -> Dict[str, Any]:
     """PELNY re-run konfirmacyjny (12765 runow) - START AUTORYZOWANY przez
     Final Audit Gate (audytor, klon 5098e1f, 2026-07-19). Zapisuje do NOWEGO
     pliku (results/full_rerun_results.jsonl), NIE dotyka Exploratory Dataset
-    v0.10 (reports/population/population_validation_v0_10_1.json)."""
+    v0.10 (reports/population/population_validation_v0_10_1.json).
+
+    SPRINT v0.11.0 P2 KROK 2: po zakonczeniu biegu woła run_post_run_artifacts()
+    (domyslne sciezki = prawdziwe artefakty repo) - re-run konczy sie i
+    laboratorium ma komplet pochodnych SAMO, bez recznej komendy."""
     specs = build_run_specs(n_seeds_per_group=None)
     assert len(specs) == 12765, f"Pelny re-run oczekuje 12765 specow, otrzymano {len(specs)}"
     results_path = PACKAGE_ROOT / "results" / PRODUCTION_RESULTS_PATH_NAME
@@ -210,6 +315,7 @@ def run_full_experiment() -> Dict[str, Any]:
         enforce_core_hash=True, baseline=AUD_001_BASELINE,
         resume=True,
     )
+    summary["post_run_artifacts"] = run_post_run_artifacts(results_path=results_path)
     return summary
 
 

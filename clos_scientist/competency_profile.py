@@ -114,8 +114,19 @@ def _genome_card(genome: str, concepts: List[Dict[str, Any]]) -> List[Dict[str, 
     return card
 
 
-def build_competency_profile() -> Dict[str, Any]:
-    concepts = build_capability_profile_from_population()
+def build_competency_profile(population_path: Optional[Path] = None) -> Dict[str, Any]:
+    """population_path (SPRINT v0.11.0 P2 KROK 2, CTO 2026-07-27): domyslnie
+    None -> build_capability_profile_from_population() czyta swoj wlasny
+    domyslny POPULATION_PATH (prawdziwy artefakt repo, bez zmiany
+    zachowania). Jawny override istnieje, zeby run_post_run_artifacts()
+    (execution_package_v0_11/runners/pipeline.py) i testy mogly wskazac
+    DOKLADNIE ten plik population_validation, ktory wlasnie zapisal etap 1
+    - inaczej profil czytalby cicho z INNEGO (domyslnego) pliku niz ten,
+    ktory faktycznie przekazano na wejsciu, co jest dokladnie tym rodzajem
+    rozjazdu, ktory caly ten sprint (P2) ma wyeliminowac."""
+    concepts = build_capability_profile_from_population(
+        population_path=population_path or POPULATION_PATH
+    )
     states = {c["concept"]: _concept_validity_state(c) for c in concepts}
 
     valid_concepts = [c for c in concepts if states[c["concept"]] == "valid"]
@@ -370,11 +381,13 @@ def archive_exploratory_profile(output_dir: Path = OUTPUT_DIR) -> Optional[Dict[
     return {"json": archive_json, "md": archive_md}
 
 
-def write_competency_profile(output_dir: Path = OUTPUT_DIR) -> Dict[str, Path]:
+def write_competency_profile(
+    output_dir: Path = OUTPUT_DIR, population_path: Optional[Path] = None
+) -> Dict[str, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     archive_exploratory_profile(output_dir)
 
-    profile = build_competency_profile()
+    profile = build_competency_profile(population_path=population_path)
 
     json_path = output_dir / "competency_profile.json"
     with open(json_path, "w", encoding="utf-8") as f:
