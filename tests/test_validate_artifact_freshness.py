@@ -38,15 +38,33 @@ REAL_REPORT_TEXT = ANALYSIS_REPORT_PATH.read_text(encoding="utf-8")
 # wielokrotnie w tym sprincie (P0, panel #6/#8) - bezpieczna kotwica do
 # testu negatywnego (wiemy na pewno, ze prawdziwa wartosc to NIE 0/253).
 WM_REAL_TOKEN = "Welch-pary (69/253, 27%)"
-WM_BROKEN_TOKEN = "Welch-pary (0/253, 27%)"
+WM_BROKEN_TOKEN = "Welch-pary (0/253, 0%)"  # procent spojny z ulamkiem - test izolowany do samej pary FDR
 
 
 class TestBuildSourceLookup:
-    def test_known_cells_present_with_correct_values(self):
-        assert REAL_SOURCE[("L1.1", "noise_world", "Working Memory (MAE@50)")] == (69, 253)
-        assert REAL_SOURCE[("L1.1", "noise_world", "Pattern Recognition")] == (77, 253)
-        assert REAL_SOURCE[("L1.1", "noise_world", "Pattern Retention")] == (0, 253)
-        assert REAL_SOURCE[("L1.1", "noise_world", "Stability")] == (244, 253)
+    def test_known_cells_present_with_correct_fdr_pair_values(self):
+        """KROK 4: build_source_lookup() zwraca teraz slownik WSZYSTKICH pol
+        (nie krotke n_fdr/n_pairs jak w KROKU 3) - ten test sprawdza podzbior
+        FDR par, ktory byl juz zweryfikowany wielokrotnie w tym sprincie."""
+        wm = REAL_SOURCE[("L1.1", "noise_world", "Working Memory (MAE@50)")]
+        assert (wm["n_fdr"], wm["n_pairs"]) == (69, 253)
+        pr = REAL_SOURCE[("L1.1", "noise_world", "Pattern Recognition")]
+        assert (pr["n_fdr"], pr["n_pairs"]) == (77, 253)
+        pt = REAL_SOURCE[("L1.1", "noise_world", "Pattern Retention")]
+        assert (pt["n_fdr"], pt["n_pairs"]) == (0, 253)
+        st = REAL_SOURCE[("L1.1", "noise_world", "Stability")]
+        assert (st["n_fdr"], st["n_pairs"]) == (244, 253)
+
+    def test_known_cell_carries_all_krok4_fields(self):
+        wm = REAL_SOURCE[("L1.1", "noise_world", "Working Memory (MAE@50)")]
+        assert wm["classification"] == "GENOME-ROBUST"
+        assert wm["valid_rate"] == 1.0
+        assert wm["n_genomes_valid"] == 23
+        assert wm["n_genomes_total"] == 23
+        assert wm["n_pairs_computable"] == 253
+        assert wm["n_raw_significant"] == 95
+        assert round(wm["anova_f"], 4) == 0.1537
+        assert wm["n_min"] == 185 and wm["n_max"] == 185
 
     def test_drift_world_absent_from_source(self):
         """Architekt potwierdzil: drift_world NIE ISTNIEJE w danych v0.11 -
@@ -128,6 +146,75 @@ class TestCompetencyProfileCheckPositiveAndNegative:
         assert "0/253" in wm_violations[0] and "69/253" in wm_violations[0]
 
 
+def _wm_concept(profile):
+    for c in profile["concepts"]:
+        if c["concept"] == "Working Memory" and c.get("source_lesson") == "L1.1/noise_world":
+            return c
+    raise AssertionError("Working Memory / L1.1/noise_world concept not found in profile")
+
+
+class TestCompetencyProfileKrok4Fields:
+    """SPRINT v0.11.0 P2 KROK 4 (CTO 2026-07-27): 'TEST NEGATYWNY PER NOWE
+    POLE. Nie jeden zbiorczy - osobny na kazde.' Kazdy test tutaj zepsuwa
+    DOKLADNIE jedno pole na kopii prawdziwego profilu (koncept Working
+    Memory / L1.1/noise_world) i sprawdza, ze walidator zglasza DOKLADNIE
+    jedno naruszenie nazywajace to pole."""
+
+    def _broken(self, mutate):
+        broken = json.loads(json.dumps(REAL_PROFILE))
+        mutate(_wm_concept(broken))
+        return broken
+
+    def test_NEGATIVE_classification_mismatch_is_caught(self):
+        broken = self._broken(lambda c: c.__setitem__("classification", "GENOME-FRAGILE"))
+        violations, _ = check_competency_profile(broken, REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "classification" in x]
+        assert len(v) == 1
+        assert "GENOME-FRAGILE" in v[0] and "GENOME-ROBUST" in v[0]
+
+    def test_NEGATIVE_valid_rate_mismatch_is_caught(self):
+        broken = self._broken(lambda c: c.__setitem__("valid_rate", 0.5))
+        violations, _ = check_competency_profile(broken, REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "valid_rate" in x]
+        assert len(v) == 1
+        assert "0.5" in v[0] and "1.0" in v[0]
+
+    def test_NEGATIVE_n_genomes_valid_mismatch_is_caught(self):
+        broken = self._broken(lambda c: c.__setitem__("n_genomes_valid", 20))
+        violations, _ = check_competency_profile(broken, REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "n_genomes_valid" in x]
+        assert len(v) == 1
+        assert "20" in v[0] and "23" in v[0]
+
+    def test_NEGATIVE_n_genomes_total_mismatch_is_caught(self):
+        broken = self._broken(lambda c: c.__setitem__("n_genomes_total", 22))
+        violations, _ = check_competency_profile(broken, REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "n_genomes_total" in x]
+        assert len(v) == 1
+        assert "22" in v[0] and "23" in v[0]
+
+    def test_NEGATIVE_n_pairs_computable_mismatch_is_caught(self):
+        broken = self._broken(lambda c: c["genome_comparison"].__setitem__("n_pairs_computable", 100))
+        violations, _ = check_competency_profile(broken, REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "n_pairs_computable" in x]
+        assert len(v) == 1
+        assert "100" in v[0] and "253" in v[0]
+
+    def test_NEGATIVE_anova_f_mismatch_is_caught(self):
+        broken = self._broken(lambda c: c["genome_comparison"].__setitem__("anova_f", 9.9999))
+        violations, _ = check_competency_profile(broken, REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "anova_f" in x]
+        assert len(v) == 1
+        assert "9.9999" in v[0] and "0.1537" in v[0]
+
+    def test_all_six_fields_pass_on_real_unmodified_profile(self):
+        """Pozytywna kontrola parowa dla wszystkich testow negatywnych powyzej -
+        prawdziwy profil (nietkniety) nie generuje ZADNEGO z tych naruszen."""
+        violations, _ = check_competency_profile(REAL_PROFILE, REAL_SOURCE)
+        wm_violations = [v for v in violations if "Working Memory" in v]
+        assert wm_violations == []
+
+
 class TestAnalysisReportParsingAndCheck:
     def test_parses_lesson_env_sections(self):
         rows = parse_analysis_report_rows(REAL_REPORT_TEXT)
@@ -149,6 +236,98 @@ class TestAnalysisReportParsingAndCheck:
         wm_violations = [v for v in violations if "Working Memory" in v]
         assert len(wm_violations) == 1
         assert "0/253" in wm_violations[0] and "69/253" in wm_violations[0]
+
+
+WM_REAL_ROW = "| Working Memory (MAE@50) | GENOME-ROBUST | 1.0000 | 23/23 | n=185 | 69/253 | 95 | f=0.1537 |"
+
+
+class TestAnalysisReportKrok4Fields:
+    """SPRINT v0.11.0 P2 KROK 4: test negatywny osobny per pole (nie
+    zbiorczy) dla wszystkich 7 kolumn raportu poza juz istniejacym FDR."""
+
+    def setup_method(self):
+        assert WM_REAL_ROW in REAL_REPORT_TEXT, "kotwica testu zniknela z raportu - zaktualizuj wiersz"
+
+    def _broken(self, broken_row):
+        text = REAL_REPORT_TEXT.replace(WM_REAL_ROW, broken_row)
+        assert text != REAL_REPORT_TEXT
+        return text
+
+    def test_NEGATIVE_classification_mismatch_is_caught(self):
+        broken_row = WM_REAL_ROW.replace("GENOME-ROBUST", "GENOME-FRAGILE")
+        violations, _ = check_analysis_report(self._broken(broken_row), REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "classification" in x]
+        assert len(v) == 1
+        assert "GENOME-FRAGILE" in v[0] and "GENOME-ROBUST" in v[0]
+
+    def test_NEGATIVE_valid_rate_mismatch_is_caught(self):
+        broken_row = WM_REAL_ROW.replace("| 1.0000 |", "| 0.5000 |")
+        violations, _ = check_analysis_report(self._broken(broken_row), REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "valid_rate" in x]
+        assert len(v) == 1
+        assert "0.5" in v[0] and "1.0" in v[0]
+
+    def test_NEGATIVE_n_genomes_valid_mismatch_is_caught(self):
+        broken_row = WM_REAL_ROW.replace("| 23/23 |", "| 20/23 |")
+        violations, _ = check_analysis_report(self._broken(broken_row), REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "n_valid/n_total" in x]
+        assert len(v) == 1
+        assert "(20, 23)" in v[0] and "(23, 23)" in v[0]
+
+    def test_NEGATIVE_n_genomes_total_mismatch_is_caught(self):
+        broken_row = WM_REAL_ROW.replace("| 23/23 |", "| 23/20 |")
+        violations, _ = check_analysis_report(self._broken(broken_row), REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "n_valid/n_total" in x]
+        assert len(v) == 1
+        assert "(23, 20)" in v[0] and "(23, 23)" in v[0]
+
+    def test_NEGATIVE_n_seedy_mismatch_is_caught(self):
+        broken_row = WM_REAL_ROW.replace("n=185", "n=99")
+        violations, _ = check_analysis_report(self._broken(broken_row), REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "n (seedy)" in x]
+        assert len(v) == 1
+        assert "99" in v[0] and "185" in v[0]
+
+    def test_NEGATIVE_raw_p_mismatch_is_caught(self):
+        broken_row = WM_REAL_ROW.replace("| 95 |", "| 10 |")
+        violations, _ = check_analysis_report(self._broken(broken_row), REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "raw p<0.05" in x]
+        assert len(v) == 1
+        assert "10" in v[0] and "95" in v[0]
+
+    def test_NEGATIVE_anova_f_mismatch_is_caught(self):
+        broken_row = WM_REAL_ROW.replace("f=0.1537", "f=9.9999")
+        violations, _ = check_analysis_report(self._broken(broken_row), REAL_SOURCE)
+        v = [x for x in violations if "Working Memory" in x and "ANOVA f" in x]
+        assert len(v) == 1
+        assert "9.9999" in v[0] and "0.1537" in v[0]
+
+    def test_all_seven_fields_pass_on_real_unmodified_report(self):
+        violations, _ = check_analysis_report(REAL_REPORT_TEXT, REAL_SOURCE)
+        wm_violations = [v for v in violations if "Working Memory" in v]
+        assert wm_violations == []
+
+
+class TestTablePercentageConsistency:
+    """SPRINT v0.11.0 P2 KROK 4: spojnosc 'X/Y, Z%' - lapie polowiczna
+    poprawke (ulamek zmieniony, procent zapomniany)."""
+
+    def test_real_table_percentages_are_internally_consistent(self):
+        violations, _ = check_metric_status_table(REAL_TABLE_TEXT, REAL_SOURCE)
+        assert not any("procent niespojny" in v for v in violations)
+
+    def test_NEGATIVE_stale_percent_after_fraction_edit_is_caught(self):
+        """Symuluje DOKLADNIE scenariusz z zadania: ktos poprawia ulamek
+        (243/253), zapomina przeliczyc procent (zostaje stary '12%' zamiast
+        poprawnego 96%)."""
+        broken_text = REAL_TABLE_TEXT.replace(
+            "Welch-pary (243/253)¹⁶", "Welch-pary (243/253, 12%)¹⁶"
+        )
+        assert broken_text != REAL_TABLE_TEXT, "wzorzec nie znaleziony w tabeli - zaktualizuj test"
+        violations, _ = check_metric_status_table(broken_text, REAL_SOURCE)
+        pct_violations = [v for v in violations if "procent niespojny" in v]
+        assert len(pct_violations) == 1
+        assert "12%" in pct_violations[0] and "96%" in pct_violations[0]
 
 
 class TestSyntheticFixtureFullMechanics:
