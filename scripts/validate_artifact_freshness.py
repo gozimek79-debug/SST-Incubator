@@ -21,10 +21,46 @@ pokrycie na CALA powierzchnie liczbowa, ktora artefakty faktycznie niosa:
   - RAPORT (8 kolumn, 7 poza juz istniejacym FDR): classification,
     valid_rate, n_genomes_valid/total, n (seedy, zakres per_genome.n),
     raw p<0.05, ANOVA f.
-  - PROFIL (analogicznie, tylko pola ktore faktycznie niesie): classification,
-    valid_rate, n_genomes_valid/total, ANOVA f, n_pairs_computable.
+  - PROFIL — WYLACZNIE `profile["concepts"]` (14 pozycji, wszystkie osie
+    ontologii): classification, valid_rate, n_genomes_valid/total, ANOVA f,
+    n_pairs_computable, porownywane wprost z population_validation.
   - TABELA: spojnosc PROCENTU w "(X/Y, Z%)" - Z MUSI == round(100*X/Y) -
     lapie polowiczna poprawke (zmieniony ulamek, zapomniany procent).
+
+KROK 4b (2026-07-27, domkniecie ogona): powyzsze NIE pokrywalo
+`minimal_profile.concepts` (3 VALIDATED osie) ani `full_profile.valid`/
+`full_profile.degenerate` (5+2 osie) - a to WLASNIE te sekcje czyta panel.js
+(10 odwolan), nie `profile["concepts"]` bezposrednio. Zweryfikowane: zepsucie
+`minimal_profile.concepts[0]["valid_rate"]` przechodzilo przez walidator bez
+FAIL. Rozwiazanie: SPOJNOSC WEWNETRZNA
+(`check_competency_profile_section_consistency`), NIE druga runda porownania
+z population_validation.
+
+UZASADNIENIE WYBORU (sprostowane 2026-07-27 przez audytora - pierwsza
+wersja tego akapitu byla nieprecyzyjna): NIE chodzi o to, ze porownanie ze
+zrodlem "nie zlapaloby" dryfu liczbowego - zlapaloby GO PRZECHODNIO (jesli
+minimal_profile.concepts odjezdza od concepts, a concepts nadal zgadza sie
+z population_validation, to minimal_profile.concepts TEZ przestaje sie
+zgadzac ze zrodlem, wiec druga runda porownania rowniez by to wykryla).
+PRAWDZIWA, mocniejsza przewaga spojnosci wewnetrznej: minimal_profile/
+full_profile niosa pola (status, kind, confirmatory_status), KTORYCH
+population_validation_v0_11_0.json W OGOLE NIE MA - status/kind to
+kategoryzacja z clos_scientist/capability_analyzer.py (ontologia,
+cognitive vs physiological_state), confirmatory_status to przypisanie z
+docs/METRIC_STATUS_TABLE.md (VALIDATED/EXPERIMENTAL, decyzja audytora/Red
+Teamu) - ZADNE z nich nie istnieje jako pole w danych re-runu. Porownanie
+ze zrodlem MOGLOBY wiec sprawdzic wylacznie liczby pochodzace z
+population_validation (valid_rate, n_genomes_*, genome_comparison.*) -
+NIE moglo by w ogole zweryfikowac tych trzech pol, bo zrodlo nie ma z
+czym ich porownac. Spojnosc wewnetrzna sprawdza WSZYSTKIE pola naraz
+(w tym te bez odpowiednika w zrodle) w jednym, prostszym przebiegu - to
+jest realny powod wyboru, nie odpornosc na dryf liczbowy (ta bylaby
+zapewniona przez oba podejscia rownowaznie, przechodnio).
+
+Dodatkowo (nadal prawdziwe, ale drugorzedne wobec powyzszego): lapie TAKZE
+przyszly refaktor generatora, w ktorym te sekcje zaczna byc budowane z
+innego zrodla niz `concepts` i zaczna cicho dryfowac WZGLEDEM SIEBIE
+bezposrednio (nie tylko przez wspolna zaleznosc od population_validation).
 
 Komorki, ktorych (lekcja, srodowisko, metryka) NIE ISTNIEJE w zrodle (np.
 drift_world - poza zakresem re-runu, Architekt potwierdzil ze ten scenariusz
@@ -337,6 +373,68 @@ def check_competency_profile(
     return violations, info
 
 
+# KROK 4b (2026-07-27): pola do porownania miedzy minimal_profile.concepts/
+# full_profile.valid/degenerate a odpowiadajacym wpisem w profile["concepts"] -
+# TE SAME nazwy pol co reszta tego pliku uzywa dla profilu (nie cale slowniki -
+# "source_lessons"/"secondary_observations" to listy, rownosc list jest OK,
+# ale trzymamy sie jawnej listy pol zeby komunikat naruszenia byl czytelny).
+_PROFILE_CONSISTENCY_FIELDS = [
+    "status", "kind", "confirmatory_status", "classification", "valid_rate",
+    "n_genomes_total", "n_genomes_valid",
+]
+_PROFILE_CONSISTENCY_COMPARISON_FIELDS = [
+    "n_fdr_significant_q_0_05", "n_pairs", "n_pairs_computable", "anova_f", "anova_computable",
+]
+
+
+def check_competency_profile_section_consistency(
+    profile: Dict[str, Any]
+) -> Tuple[List[str], List[str]]:
+    """minimal_profile.concepts (osie VALIDATED) i full_profile.valid/
+    degenerate (osie ROBUST/FRAGILE) SA, przez konstrukcje w
+    clos_scientist/competency_profile.py (list comprehension filtrujaca
+    `concepts`), TYMI SAMYMI obiektami co wpisy w profile['concepts'] -
+    panel.js czyta WLASNIE te sekcje (nie 'concepts' bezposrednio), wiec
+    musza pozostac spojne z nim. Porownanie WEWNETRZNE (nie druga runda
+    przeciw population_validation) - patrz uzasadnienie w docstringu modulu."""
+    violations: List[str] = []
+    info: List[str] = []
+    concepts_by_name = {c["concept"]: c for c in profile.get("concepts", [])}
+
+    def _flag(section_name: str, name: str, field: str, actual: Any, expected: Any) -> None:
+        if actual != expected:
+            violations.append(
+                f"competency_profile.json: {section_name}/{name}/{field} — "
+                f"sekcja mowi {_fmt_val(actual)}, profile['concepts'] mowi {_fmt_val(expected)}"
+            )
+
+    def _check_section(section_name: str, entries: List[Dict[str, Any]]) -> None:
+        for entry in entries:
+            name = entry.get("concept")
+            reference = concepts_by_name.get(name)
+            if reference is None:
+                violations.append(
+                    f"competency_profile.json: {section_name}/{name} — brak odpowiadajacego "
+                    "wpisu w profile['concepts'] (sekcja niespojna wewnetrznie)"
+                )
+                continue
+            for field in _PROFILE_CONSISTENCY_FIELDS:
+                _flag(section_name, name, field, entry.get(field), reference.get(field))
+            entry_gc = entry.get("genome_comparison") or {}
+            reference_gc = reference.get("genome_comparison") or {}
+            for field in _PROFILE_CONSISTENCY_COMPARISON_FIELDS:
+                _flag(section_name, name, f"genome_comparison.{field}",
+                      entry_gc.get(field), reference_gc.get(field))
+
+    _check_section("minimal_profile.concepts",
+                    (profile.get("minimal_profile") or {}).get("concepts") or [])
+    _check_section("full_profile.valid",
+                    (profile.get("full_profile") or {}).get("valid") or [])
+    _check_section("full_profile.degenerate",
+                    (profile.get("full_profile") or {}).get("degenerate") or [])
+    return violations, info
+
+
 # ============================================================================
 # reports/rerun_full_report_v0_11_0.md
 # ============================================================================
@@ -452,6 +550,7 @@ def run_all_checks(
     for check in (
         lambda: check_metric_status_table(table_text, source),
         lambda: check_competency_profile(profile, source),
+        lambda: check_competency_profile_section_consistency(profile),
         lambda: check_analysis_report(report_text, source),
     ):
         v, i = check()

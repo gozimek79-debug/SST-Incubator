@@ -17,6 +17,7 @@ from scripts.validate_artifact_freshness import (
     build_source_lookup,
     check_analysis_report,
     check_competency_profile,
+    check_competency_profile_section_consistency,
     check_metric_status_table,
     parse_analysis_report_rows,
     parse_metric_status_table_rows,
@@ -379,3 +380,61 @@ class TestSyntheticFixtureFullMechanics:
         violations, info = check_metric_status_table(table, source)
         assert violations == []
         assert len(info) == 1
+
+
+class TestCompetencyProfileSectionConsistency:
+    """SPRINT v0.11.0 P2 KROK 4b (CTO 2026-07-27, domkniecie ogona):
+    minimal_profile.concepts / full_profile.valid / full_profile.degenerate
+    to sekcje, ktore panel.js FAKTYCZNIE czyta (10 odwolan) - wczesniejsza
+    wersja walidatora sprawdzala WYLACZNIE profile['concepts'], wiec zepsucie
+    minimal_profile.concepts[0]['valid_rate'] przechodzilo bez FAIL (dowod:
+    zweryfikowane przed napisaniem tej poprawki). Sprawdzenie jest SPOJNOSCIA
+    WEWNETRZNA wzgledem profile['concepts'] (nie druga runda przeciw
+    population_validation) - patrz uzasadnienie w docstringu modulu."""
+
+    def test_real_profile_all_three_sections_consistent(self):
+        violations, _ = check_competency_profile_section_consistency(REAL_PROFILE)
+        assert violations == []
+
+    def test_NEGATIVE_minimal_profile_valid_rate_mismatch_is_caught(self):
+        """DOKLADNIE scenariusz zglosony przez audytora."""
+        broken = json.loads(json.dumps(REAL_PROFILE))
+        broken["minimal_profile"]["concepts"][0]["valid_rate"] = 0.0001
+        violations, _ = check_competency_profile_section_consistency(broken)
+        v = [x for x in violations if "minimal_profile.concepts" in x and "valid_rate" in x]
+        assert len(v) == 1
+        assert "0.0001" in v[0]
+
+    def test_NEGATIVE_full_profile_valid_classification_mismatch_is_caught(self):
+        """DOKLADNIE scenariusz zglosony przez audytora."""
+        broken = json.loads(json.dumps(REAL_PROFILE))
+        broken["full_profile"]["valid"][0]["classification"] = "GENOME-FRAGILE"
+        violations, _ = check_competency_profile_section_consistency(broken)
+        v = [x for x in violations if "full_profile.valid" in x and "classification" in x]
+        assert len(v) == 1
+        assert "GENOME-FRAGILE" in v[0] and "GENOME-ROBUST" in v[0]
+
+    def test_NEGATIVE_full_profile_degenerate_anova_f_mismatch_is_caught(self):
+        broken = json.loads(json.dumps(REAL_PROFILE))
+        broken["full_profile"]["degenerate"][0]["genome_comparison"]["anova_f"] = 999.0
+        violations, _ = check_competency_profile_section_consistency(broken)
+        v = [x for x in violations if "full_profile.degenerate" in x and "anova_f" in x]
+        assert len(v) == 1
+
+    def test_NEGATIVE_entry_missing_from_concepts_is_flagged(self):
+        broken = json.loads(json.dumps(REAL_PROFILE))
+        broken["minimal_profile"]["concepts"][0]["concept"] = "Nonexistent Made-Up Axis"
+        violations, _ = check_competency_profile_section_consistency(broken)
+        v = [x for x in violations if "Nonexistent Made-Up Axis" in x]
+        assert len(v) == 1
+        assert "brak odpowiadajacego wpisu" in v[0]
+
+    def test_this_check_is_wired_into_run_all_checks(self):
+        """Regresja specyficzna dla zgloszonej luki: caly przebieg walidatora
+        (nie tylko wywolanie funkcji w izolacji) musi zlapac ten sam blad."""
+        from scripts.validate_artifact_freshness import run_all_checks
+
+        broken = json.loads(json.dumps(REAL_PROFILE))
+        broken["minimal_profile"]["concepts"][0]["valid_rate"] = 0.0001
+        violations, _ = run_all_checks(REAL_POPULATION, REAL_TABLE_TEXT, broken, REAL_REPORT_TEXT)
+        assert any("minimal_profile.concepts" in v and "valid_rate" in v for v in violations)
