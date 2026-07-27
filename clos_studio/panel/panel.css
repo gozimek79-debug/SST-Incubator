@@ -41,6 +41,18 @@ code{font-family:'IBM Plex Mono',monospace}
 .pulse code{color:var(--chA)}
 .pulse .age-stale{color:var(--warn); font-weight:600}
 
+/* SPRINT v0.11.0 KROK 1 P2 (CTO 2026-07-26): przycisk pobiera GOTOWY raport
+ * .md wygenerowany przez scripts/report_composer.py - zero skladania w JS. */
+.report-bar{padding:8px 20px; border-bottom:1px solid var(--line); background:var(--bg);
+  display:flex; align-items:center; justify-content:flex-end; gap:12px}
+.report-btn{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 14px;
+  border-radius:7px; border:1px solid var(--chA); background:transparent; color:var(--chA); cursor:pointer}
+.report-btn:hover{background:var(--raised)}
+.report-btn:disabled{opacity:.5; cursor:default}
+.report-msg{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mut)}
+.report-msg.err{color:var(--crit)}
+.report-msg.ok{color:var(--ok)}
+
 .pill{
   font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:3px 9px;
   border:1px solid; border-radius:20px; display:inline-flex; align-items:center; gap:6px;

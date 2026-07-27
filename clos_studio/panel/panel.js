@@ -32,6 +32,11 @@
     status: "reports/status.json",
     chronicle: "reports/history.json",
     population: "reports/population/population_validation_v0_11_0.json",
+    // SPRINT v0.11.0 KROK 1 P2 (CTO 2026-07-26): gotowy raport .md
+    // wygenerowany przez scripts/report_composer.py z danych re-runu.
+    // Przycisk "Generuj raport do analizy" tylko go FETCHUJE i pobiera -
+    // ZERO skladania raportu w JS (jedno zrodlo prawdy = generator Python).
+    report_md: "reports/rerun_full_report_v0_11_0.md",
   };
 
   // CTO 2026-07-22 (audyt "panel samodzielny"): sekcja "Lekcje i wyniki"
@@ -1084,6 +1089,43 @@
       " · commit <code>" + commit + "</code>";
   }
 
+  // SPRINT v0.11.0 KROK 1 P2 (CTO 2026-07-26): przycisk "Generuj raport do
+  // analizy". FETCHUJE gotowy plik reports/rerun_full_report_v0_11_0.md
+  // (wygenerowany przez scripts/report_composer.py z danych re-runu) i
+  // pobiera go jako Blob - ZERO skladania raportu w JS, zero liczb tutaj.
+  // Jedno zrodlo prawdy raportu = generator Python; ten sam plik pozniej
+  // (P2 KROK 2) wygeneruje pipeline po re-runie. Wpiete RAZ w
+  // DOMContentLoaded (nie w loadAll - przycisk jest statyczny w index.html,
+  // nie renderowany co 10 min).
+  function downloadAnalysisReport() {
+    var btn = document.getElementById("report-btn");
+    var msg = document.getElementById("report-msg");
+    var setMsg = function (text, cls) {
+      if (!msg) return;
+      msg.textContent = text;
+      msg.className = "report-msg" + (cls ? " " + cls : "");
+    };
+    if (btn) btn.disabled = true;
+    setMsg("Pobieranie…", "");
+    fetchText(ARTIFACTS.report_md).then(function (text) {
+      var blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "rerun_full_report_v0_11_0.md";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setMsg("Pobrano rerun_full_report_v0_11_0.md", "ok");
+    }).catch(function (err) {
+      setMsg("Nie udało się pobrać raportu: " + ((err && err.message) || "błąd") +
+        " (plik pojawia się po pushu — generuje go scripts/report_composer.py).", "err");
+    }).then(function () {
+      if (btn) btn.disabled = false;
+    });
+  }
+
   /* ================= orkiestracja ================= */
   function loadAll() {
     lastRefreshAt = new Date();
@@ -1175,6 +1217,8 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     initNav();
+    var reportBtn = document.getElementById("report-btn");
+    if (reportBtn) reportBtn.addEventListener("click", downloadAnalysisReport);
     loadAll();
     // Pelne odswiezenie wszystkich danych co 10 minut...
     setInterval(loadAll, REFRESH_MS);
