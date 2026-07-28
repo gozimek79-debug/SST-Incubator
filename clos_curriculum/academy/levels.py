@@ -1,4 +1,4 @@
-﻿"""Level Definitions – ontogeneza sztucznego mózgu.
+﻿"""Level Definitions – warstwa curriculum (Curriculum Layer / Lesson Path).
 
 Każdy poziom to zestaw lekcji i egzamin.
 Poziom zaliczony tylko po zdaniu egzaminu.

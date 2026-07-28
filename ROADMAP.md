@@ -126,7 +126,10 @@ result byte-identical. Permanently documented in
   ([tests/test_observer_removability.py](tests/test_observer_removability.py)).
   See [docs/spec_snapshot_observer.md](docs/spec_snapshot_observer.md).
 - **Real Adaptation/Stability**: minimal Competency Profile grew from
-  5/14 to **7/14**, purely data-driven (no hardcoded axis count/list —
+  5/14 to **7/14** (w slowniku sprzed P0 — dzis minimalny profil to statusy
+  konfirmacyjne VALIDATED, nie `ci95_valid`, patrz
+  [docs/METRIC_STATUS_TABLE.md](docs/METRIC_STATUS_TABLE.md)),
+  purely data-driven (no hardcoded axis count/list —
   computed from `ci95_valid` in every test). New N:M rule
   (`CONCEPT_METRIC_MAP[...]["pool"]`, default `True`): a lesson feeding a
   concept whose value is structurally constant for reasons unrelated to
@@ -147,9 +150,14 @@ result byte-identical. Permanently documented in
 ## v0.11 — Predictive Coding, Latent Space
 
 Not started. Depends on:
-- New lessons beyond L1.1/L1.2, to raise the minimal Competency Profile's
-  count past 7/14 and give Predictive Coding / Latent Space work something
-  to be measured against.
+- New lessons beyond L1.1/L1.2, to reach **>=3 osi ze statusem VALIDATED**
+  (slownik statusow po P0 — `docs/METRIC_STATUS_TABLE.md`; **KOREKTA
+  2026-07-28 wg D-003**, poprzedni prog "past 7/14" liczyl `ci95_valid`, nie
+  status konfirmacyjny) and give Predictive Coding / Latent Space work
+  something to be measured against. **Doprecyzowanie CTO:** to jest warunek
+  MINIMALNY rozpoczecia kolejnej fazy architektonicznej, NIE uniwersalny
+  prog jakosci badan — spelnienie go nie oznacza samo w sobie gotowosci
+  publikacyjnej ani wystarczajacej mocy statystycznej dla nowych osi.
 - Possibly new `PipelineStep` entries in `partial_step()` if this work
   needs to skip/reorder more than `PERCEIVE` — architecturally unblocked
   (see [docs/idio_morph_hypothesis.md](docs/idio_morph_hypothesis.md) §2),

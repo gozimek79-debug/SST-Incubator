@@ -13,8 +13,10 @@ not a claim of "Artificial Mind" — CLOS studies measurable *ontogenesis*
 (how a Brain's internal state develops under a genome and an environment),
 not general intelligence. Two lessons exist (L1.1 "Pattern Echo", L1.2
 "Shock Recovery"), measuring 14 cognitive concepts total — the **minimal
-competency profile** (concepts with `ci95_valid=True` for every genome
-present) is currently **7 of 14**; see
+competency profile** (concepts with confirmatory status **VALIDATED**) is
+currently **3 of 14** (`ci95_valid=True` for every present genome is a
+*separate*, weaker quantity, currently 5/14 — see
+[docs/METRIC_STATUS_TABLE.md](docs/METRIC_STATUS_TABLE.md)); see
 [Cognitive Academy](#cognitive-academy) below for exactly which, and which
 of the rest are explicitly `insufficient_data` vs measured-but-degenerate.
 
@@ -92,14 +94,24 @@ for its "Testy i CI" section, instead of the GitHub API.
   the single authoritative definition of every cognitive concept used
   anywhere in Academy reports (Perception, Attention, Pattern Recognition,
   Pattern Retention, Working Memory, Long-term Memory, Prediction,
-  Adaptation, Exploration, Generalization, Planning, Stability, Energy
-  Efficiency, Homeostatic Resilience — 14 total). Every future lesson and
+  Adaptation, Exploration, Generalization, Planning, Stability, Final
+  Energy Level, Homeostatic Resilience — 14 total). Every future lesson and
   metric refers back to this document.
 - [publications/competency_profile.md](publications/competency_profile.md) —
-  two profiles, generated purely from `reports/academy/*.json` by
+  **KOREKTA 2026-07-28 wg D-003: opis ponizej dotyczyl definicji sprzed P0.**
+  Two profiles, generated purely from
+  `reports/population/population_validation_v0_11_0.json` (23 genomes,
+  confirmatory re-run) by
   [clos_scientist/competency_profile.py](clos_scientist/competency_profile.py)
-  (no hand-editing): the **minimal profile** (official — only concepts
-  where every present genome has `ci95_valid=True`, currently 7/14), and
+  (no hand-editing; `reports/academy/*.json` is the archived 2-genome
+  v0.8/v0.9 demo, kept only for provenance, not the live source): the
+  **minimal profile** (official — concepts with confirmatory status
+  **VALIDATED**, currently **3/14**: Working Memory, Pattern Recognition,
+  Stability — `ci95_valid=True` for every present genome is a *separate*,
+  weaker quantity, currently 5/14; see
+  [docs/METRIC_STATUS_TABLE.md](docs/METRIC_STATUS_TABLE.md) and
+  [docs/VALIDITY_REPORT.md](docs/VALIDITY_REPORT.md) "Kluczowe odkrycie" for
+  why the two numbers differ), and
   the **full profile** (all 14, with `measured`-but-degenerate and
   `insufficient_data` kept as separate, explicit categories — nothing
   hidden). A concept may be fed by more than one lesson (N:M); a source

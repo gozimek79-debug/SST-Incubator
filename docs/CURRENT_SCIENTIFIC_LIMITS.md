@@ -37,7 +37,11 @@ muszą być znane PRZED sformułowaniem jakiegokolwiek twierdzenia.
 
 CLOS bada **mierzalną ontogenezę** — rozwój stanu wewnętrznego jednego,
 konkretnego modelu (`BrainTissue`, ~10 pól liczbowych) pod wpływem genomu i
-środowiska. To NIE jest:
+środowiska. **Doprecyzowanie:** ten rozwój zachodzi WYŁĄCZNIE w obrębie
+pojedynczego przebiegu lekcji (Wariant 1 — Brain rodzi się od zera na
+początku każdej lekcji; nie ma transferu stanu między lekcjami ani między
+poziomami curriculum, patrz `clos_curriculum/academy/levels.py`). To NIE
+jest:
 
 - **Nie AGI.** Zero planowania wieloetapowego, zero reprezentacji celów,
   zero transferu między zadaniami (`Planning`/`Generalization`/`Exploration`
