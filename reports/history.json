@@ -1,8 +1,99 @@
 {
   "title": "Historia laboratorium CLOS",
   "note": "Recznie utrzymywana kronika (jak spis tresci w sekcji Raporty) - daty i fakty pochodza z git log oraz artefaktow repo, nie sa generowane automatycznie. Wpisy najnowsze na gorze. Panel dodatkowo pokazuje zywy strumien commitow z GitHub API obok tej kroniki.",
-  "updated": "2026-07-21",
+  "updated": "2026-07-27",
   "entries": [
+    {
+      "date": "2026-07-27",
+      "sprint": "v0.11.0",
+      "title": "P2 KROK 4b: domkniecie pokrycia profilu (minimal_profile/full_profile)",
+      "body": "Walidator staleness sprawdzal wylacznie profile['concepts'] (14 osi), ale panel.js czyta minimal_profile.concepts (3 VALIDATED) i full_profile.valid/degenerate (5+2) - te sekcje byly niechronione. Wykryte testem negatywnym audytora: zepsucie minimal_profile.concepts[0]['valid_rate'] przechodzilo przez walidator bez FAIL. Dodany check spojnosci WEWNETRZNEJ (nie druga runda przeciw zrodlu): kazdy wpis w tych sekcjach musi miec identyczne pola jak odpowiadajacy wpis w concepts. Wybor uzasadniony precyzyjnie po sprostowaniu audytora: prawdziwa przewaga to NIE odpornosc na dryf liczbowy (ta jest przechodnia przez oba podejscia), tylko pokrycie pol bez odpowiednika w population_validation (status/kind/confirmatory_status). 6 testow negatywnych, w tym regresja przez caly run_all_checks. 518 passed.",
+      "commit": "85c40e2"
+    },
+    {
+      "date": "2026-07-27",
+      "sprint": "v0.11.0",
+      "title": "P2 KROK 4: walidator staleness na PELNEJ powierzchni liczbowej - GAP-DOCS domkniety",
+      "body": "Rozszerzenie walidatora z samej pary FDR na wszystkie liczby, ktore raport/profil/tabela faktycznie niosa: raport dostal 7 nowych chronionych kolumn (classification, valid_rate, n_valid/n_total, n seedy, raw p<0.05, ANOVA f) parsowanych z prozy z tolerancja do tylu miejsc, ile raport wyswietla; profil dostal 5 nowych pol prosto z JSON; tabela dostala check spojnosci procentu ('X/Y, Z%' - Z musi == round(100*X/Y)), ktory od razu zlapal niespojnosc we WLASNYM fixture z KROKU 3 - najlepszy mozliwy dowod, ze dziala. Pola niesparsowalne z prozy sa jawnie oznaczane 'niesprawdzalne', nigdy ciche OK. 13 izolowanych testow negatywnych, po jednym na kazde nowe pole (konwencja: walidator bez testu negatywnego to dekoracja - sprawdzila sie czwarty raz w tym sprincie). Decyzja audytora: GAP-DOCS domykany OCHRONA liczb, nie generowaniem tabeli - proza i przypisy zostaja ludzkie. 512 passed.",
+      "commit": "c521cd1"
+    },
+    {
+      "date": "2026-07-27",
+      "sprint": "v0.11.0",
+      "title": "P2 KROK 3: walidator staleness + wpiecie do CI - zlapal 3 realne rozjazdy w tabeli",
+      "body": "Nowy scripts/validate_artifact_freshness.py porownuje docs/METRIC_STATUS_TABLE.md, competency_profile.json i rerun_full_report_v0_11_0.md z population_validation_v0_11_0.json (zrodlo prawdy). Uruchomiony na prawdziwych danych, wykryl 3 realne rozjazdy: trzy liczby par Welch w tabeli byly wartosciami z ery EKSPLORACYJNEJ (sprzed re-runu), stojacymi w tabeli opisujacej re-run konfirmacyjny - trzeci raz ten sam wzorzec bledu w tym sprincie (po '0/253 vs 69' i profilu 'PENDING'). Ustalenie audytora: L1.2/shock/Stability '22/253' to dokladna wartosc z population_validation_v0_10_1 (Exploratory), L1.1/noise/Final Energy '31/36' ma mianownik 36 = 9 genomow, niemozliwy dla populacji 23-genomowej. Liczby poprawione na 243/253, 87/253, 204/253 (fakty ze zrodla), statusy rekomendacji NIEZMIENIONE (osad wymaga osobnej certyfikacji, nie transkrypcji), stare wartosci zachowane w footnote 16 - slad audytowy jak zawsze. Przy budowie walidatora wlasny test negatywny zlapal bug w parserze (zla kolumna raportu -> cicho pomijany mimo 'OK'), naprawiony. Wpiety do CI wraz z validate_bundle_freshness (GAP-VALIDATOR-CI, istnial od dawna, nigdy nie byl w CI). 494 passed.",
+      "commit": "8d80212"
+    },
+    {
+      "date": "2026-07-27",
+      "sprint": "v0.11.0",
+      "title": "P2 KROK 2: faza post-run - lancuch re-run -> artefakty pochodne domkniety",
+      "body": "pipeline.run_full_experiment() dostal faze post-run, ktora po zakonczeniu biegu woła po kolei trzy juz istniejace generatory (aggregate_results -> write_competency_profile -> report_composer) przez import, zero subprocess, zero duplikacji logiki. Kolejnosc wymuszona: blad etapu 1 blokuje 2 i 3 (lepiej brak artefaktu niz cichy artefakt ze starego zrodla) - jawny PostRunStageError zamiast cichego pominiecia. Kazdy etap pozostaje wywolywalny osobno z CLI. Zlapana po drodze luka: write_competency_profile czytalo na sztywno domyslny POPULATION_PATH, ignorujac ktory plik faktycznie zapisal etap 1 - dodany opcjonalny population_path (domyslne zachowanie bez zmian), pipeline przekazuje jawnie sciezke ktora wlasnie napisal. Test end-to-end na PRAWDZIWYM pliku dry-run (207 mechanicznych runow z BUILD-007, nie wymyslony fixture): wszystkie 3 artefakty powstaja bez ani jednej recznej komendy - falsyfikowalny dowod (n<=3 w profilu potwierdza, ze czyta swiezo zapisany plik, nie prawdziwy re-run n=185). 477 passed.",
+      "commit": "c274008"
+    },
+    {
+      "date": "2026-07-27",
+      "sprint": "v0.11.0",
+      "title": "P2 KROK 1: report_composer.py - jeden generator raportu do analizy + przycisk w panelu",
+      "body": "Decyzja architektoniczna audytora: zamiast dwoch implementacji (Python + JS z bramka zgodnosci, ryzyko transkrypcji jak przy GAP-DOCS), jeden generator Python (scripts/report_composer.py) + przycisk w panelu, ktory tylko FETCHUJE gotowy plik .md i pobiera go (Blob/download) - zero skladania raportu w JS. Generator echuje pola juz policzone w population_validation.json + competency_profile.json, zero przeliczania, auto-discovery lekcji/srodowisk/metryk (ten sam wzorzec co panel #3: nowa lekcja pojawia sie bez zmiany kodu). Srodowiska kontrolne (stable_world) oznaczone jawnie '[kontrola-zdegenerowane]'. Test per-komorka wiaze kazda liczbe w raporcie ze zrodlem - gwarancja 'liczby w pliku == liczby na ekranie'. Ten sam generator ma pozniej (KROK 2) obsluzyc automatyczne odswiezanie po re-runie - jedno zrodlo prawdy raportu. 8 testow, validate_panel PASS.",
+      "commit": "7dcbae1"
+    },
+    {
+      "date": "2026-07-26",
+      "sprint": "v0.11.0",
+      "title": "P0: competency_profile przeliczony na re-runie (23 genomy) + sekcja Genomow panelu",
+      "body": "Profil kompetencji przeliczony z demo Academy (2 genomy, n=10, PENDING) na dane confirmatory z re-runu (23 genomy, n=185, CONFIRMATORY). Profil minimalny przeszedl z surowego 'zmierzone' na STATUSY konfirmacyjne z METRIC_STATUS_TABLE.md: VALIDATED = wylacznie Working Memory/Pattern Recognition/Stability (Pattern Retention i Final Energy Level sa ROBUST/mierzalne, ale tylko EXPERIMENTAL - 'ROBUST' i 'VALIDATED' to dwa rozne pytania). Zlapany po drodze wlasny blad: pierwsza wersja klasyfikowala valid/degenerate z surowego ci95_valid, ktore dla Adaptation bylo True dla wszystkich 23 genomow mimo classification=GENOME-FRAGILE (prog GENOME-ROBUST to ci95_valid ORAZ n_effective>=5, nie sam ci95_valid) - naprawione czytaniem gotowego pola classification. Sekcja Porownanie genomow w panelu przeszla z fabrykowanego Cohen's d dla pary default-vs-highly_plastic na pary FDR + ANOVA z 23 genomow (ten sam wzorzec co Lekcje). Baner 'Exploratory Dataset: CONFIRMATORY' (sprzecznosc sama w sobie) poprawiony na warunkowa etykiete. Exploratory Dataset v0.10 zachowany jako osobny plik archiwalny. 458 passed.",
+      "commit": "73eb8a4"
+    },
+    {
+      "date": "2026-07-22",
+      "sprint": "v0.11.0",
+      "title": "AIvision READ v0.3.1 dodana do repo (biblioteka zewnetrzna, NIE wpieta w panel)",
+      "body": "Zewnetrzna biblioteka do parsowania struktury DOM (clos_studio/panel/vendor/) zweryfikowana przez sha256 (829b6ff2...869d7, zgodny z hashem audytora) i przejrzana reczne pod katem fetch/eval/mutacji DOM (brak) przed commitem. Plik lezy na polce - index.html/panel.js celowo nietkniete, decyzja o faktycznym wpiecu do panelu odlozona na pozniej, po odmrozeniu prac nad panelem.",
+      "commit": "01bd5df"
+    },
+    {
+      "date": "2026-07-22",
+      "sprint": "v0.11.0",
+      "title": "Panel samodzielny #8: Raporty auto-discovery (28 recznych wpisow usuniete)",
+      "body": "Ostatnia z trzech sekcji zidentyfikowanych w audycie 'panel samodzielny' - sekcja Raporty mial 28 recznie wpisanych linkow w kodzie JS (najbardziej manualna sekcja panelu). fetchAllReports() listuje teraz katalogi root/docs/publications/clos_academy przez GitHub API, nierekurencyjnie (swiadomie - rekurencja wciagnelaby dane run-level, np. 40 plikow runs/run_*.json per bundle). Opis kazdego wpisu to pierwszy naglowek H1 pliku, wyciagniety automatycznie z tresci, nie tekst zaszyty w panel.js. Grupowanie po katalogu zrodlowym (fakt strukturalny), nie po temacie sprintu (to byla edytorska kategoryzacja niewyprowadzalna automatycznie). Test: wstrzykniety docs/ZZZ_test.md pojawia sie z wlasnym H1 bez edycji JS.",
+      "commit": "4e33f6c"
+    },
+    {
+      "date": "2026-07-22",
+      "sprint": "v0.11.0",
+      "title": "Panel samodzielny #6: Prowenancja auto-discovery - L1.2 bundle w koncu widoczny",
+      "body": "fetchAllBundles() listuje teraz CALE publications/ (nie tylko katalogi z prefiksem 'EXP-'), rozrozniajac bundle 'bogaty' (L1.1/L1.2, pole frozen) od 'legacy' (pole provenance) po obecnosci pola w danych, nie po nazwie katalogu. Efekt: L1_2_shock_recovery/metadata.json - istniejacy od dawna, ale nigdy niepokazywany w panelu - jest teraz widoczny. Dodana karta Hard-Halt czytajaca hard_halt_baseline/git_commit/manifest wprost z juz-pobranego population_validation_v0_11_0.json (zero dodatkowego fetchu, zero parsowania baseline_hash.txt - plik tekstowy z komentarzami, kruchy do parsowania). Test: wstrzykniety L1_3_test_bundle renderuje sie bez edycji JS. Przy okazji naprawiona regresja we walidatorze (nazwa zmiennej 'metadata' musiala zostac zachowana dla CHAIN_ROOTS w validate_panel.py, inaczej test negatywny na frozen_reason przestawal wykrywac usuniety klucz).",
+      "commit": "c2018dc"
+    },
+    {
+      "date": "2026-07-22",
+      "sprint": "v0.11.0",
+      "title": "Panel samodzielny #3: Lekcje auto-discovery (Object.keys zamiast recznej listy)",
+      "body": "Audyt 'laboratorium samodzielne' (CTO): zeby dodanie nowej lekcji/srodowiska/genomu do danych pojawilo sie w panelu bez dotykania panel.js. Reczna lista POPULATION_LESSONS (ktore lekcje/srodowiska/metryki pokazac) usunieta - renderLessons() teraz odkrywa wszystko przez Object.keys() na kazdym poziomie zagniezdzenia, wlaczajac srodowiska kontrolne (stable_world), ktore wczesniej w ogole nie byly pokazywane. Kafelek Przegladu 'Lekcje' liczy sie z danych, nie z zakodowanej listy. Nazwa lekcji swiadomie NIE wymyslana w JS (surowy klucz 'L1.1') - dopisywanie czegokolwiek do przegłosowanego przez Final Audit Gate artefaktu wykraczaloby poza ten audyt. Test docelowy: wstrzykniety L1.3 w kopii danych renderuje sie w pelni bez zadnej zmiany w panel.js.",
+      "commit": "f6c457a"
+    },
+    {
+      "date": "2026-07-22",
+      "sprint": "v0.11.0",
+      "title": "Panel: sekcja Lekcje przelaczona na population_validation_v0_11_0 (byla demo)",
+      "body": "Diagnoza: panel.js rekonstruowal klasyfikacje po stronie klienta z ARCHIWALNEGO demo-raportu (2 genomy, n=10) zamiast czytac gotowy re-run konfirmacyjny (23 genomy, n=185) - dane z pelnego re-runu istnialy, ale panel ich nie uzywal. Sekcja Lekcje przelaczona na population_validation_v0_11_0.json, obie lekcje L1.1+L1.2, liczby 69/77/0/244 czytane wprost z gotowych pol (zero reimplementacji klasyfikacji w JS). Demo-raport nie skasowany - przeniesiony do zakladki Prowenancja z jawna etykieta archiwalna, slad audytowy zostaje widoczny.",
+      "commit": "d26ffcd"
+    },
+    {
+      "date": "2026-07-21",
+      "sprint": "v0.11.0",
+      "title": "Panel: nowa zakladka Historia (ta kronika) + Raporty rozbudowane 7->28 linkow",
+      "body": "Panel dostal zakladke 'Historia' pokazujaca ta wlasnie kronike (reports/history.json) obok zywego strumienia commitow z GitHub API, oraz auto-odswiezanie danych co 10 minut. Sekcja Raporty rozbudowana z 7 plaskich linkow do 28, pogrupowanych tematycznie, wskazujacych POPRAWIONE dokumenty (po korekcie liczb par - patrz wpis obok).",
+      "commit": "db82edf"
+    },
+    {
+      "date": "2026-07-21",
+      "sprint": "v0.11.0",
+      "title": "KOREKTA liczb parowych w tabeli: 'Welch-pary 0/253' dla WM/PatRec bylo bledne",
+      "body": "Audytor zauwazyl rozbieznosc miedzy tabela a surowym plikiem: METRIC_STATUS_TABLE.md twierdzila 'Welch-pary (0/253)' dla Working Memory i Pattern Recognition, podczas gdy surowe pole n_fdr_significant_q_0_05 w population_validation_v0_11_0.json mowilo WM=69, PatRec=77 (Pattern Retention i Stability byly poprawne: 0 i 244). Zweryfikowane niezaleznie (odczyt pola + reczny przelicz Benjamini-Hochberg z surowych p-wartosci, oba zgodne). Odkrycie zmienia narracje: WM/PatRec sa istotne PAROWO, nie tylko omnibusowo - silniejszy wynik niz wczesniej zapisany. Slad audytowy: bledna teza oznaczona jako KOREKTA z data, nie skasowana w miejscu.",
+      "commit": "8746e08"
+    },
     {
       "date": "2026-07-21",
       "sprint": "v0.11.0",
