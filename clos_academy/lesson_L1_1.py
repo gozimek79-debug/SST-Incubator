@@ -96,6 +96,10 @@ def run_pattern_echo(genome_preset="default", seed=42, stimulus_ticks=100, silen
                 entropy=tissue.entropy, energy=tissue.energy,
                 age=tick, step_counter=tick,
                 prediction_error=pred_err,
+                # PC-001 B2: surowe dane, bez przeliczania - prediction_error
+                # (wyzej) juz liczy roznice; tu tylko kopia zrodlowych wartosci.
+                prediction=tissue.last_prediction,
+                input=tissue.last_input,
             )
 
         mae_vs_pattern = abs(tissue.last_prediction - pattern_signal) if tissue.last_prediction is not None else 0

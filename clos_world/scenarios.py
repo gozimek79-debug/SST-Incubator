@@ -106,6 +106,20 @@ def unpredictable_world(tick: int, seed: int = 0) -> float:
     stable_world (calkowicie deterministyczny, okresowy)."""
     return random.Random(seed * 104729 + tick).uniform(0.0, 1.0)
 
+def pure_noise_world(tick: int, seed: int = 0) -> float:
+    """PC-001 Aneks 1, K4 (kontrola separacji): sam szum gaussowski wokol
+    stalego srodka 0.5, ZERO sygnalu i ZERO struktury do nauczenia - w
+    odroznieniu od unpredictable_world (rownomierny szum, tez brak struktury,
+    ale inny generator/uzasadnienie) i od noise_world/high_noise_world (szum
+    NALOZONY na sine_wave - tam struktura periodyczna ISTNIEJE, tylko zaszumiona).
+    Uzywa dokladnie generators.gaussian_noise() - ten sam mechanizm co reszta
+    scenariuszy w tym pliku (deterministyczny z (seed, tick), zero stanu miedzy
+    wywolaniami). Cel: jesli mechanizm PC redukuje prediction_error TAKZE tutaj
+    (gdzie nie ma niczego do przewidzenia), spadek jest artefaktem metryki
+    (T2), nie dowodem modelu generatywnego - K4 wymaga zeby efekt w
+    shock_world byl statystycznie WIEKSZY niz tutaj (Mann-Whitney U)."""
+    return gaussian_noise(tick, mean=0.5, variance=0.1, seed=seed)
+
 SCENARIOS = {
     "stable_world": stable_world, "noise_world": noise_world,
     "drift_world": drift_world, "shock_world": shock_world,
@@ -114,6 +128,7 @@ SCENARIOS = {
     "weak_shock_world": weak_shock_world,
     "long_stable_shock_world": long_stable_shock_world,
     "unpredictable_world": unpredictable_world,
+    "pure_noise_world": pure_noise_world,
 }
 def get_scenario(name: str):
     if name not in SCENARIOS: raise ValueError(f"Unknown: {name}")

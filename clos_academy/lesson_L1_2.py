@@ -178,6 +178,10 @@ def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
                 entropy=tissue.entropy, energy=tissue.energy,
                 age=tick, step_counter=tick,
                 prediction_error=pred_err,
+                # PC-001 B2: surowe dane, bez przeliczania - prediction_error
+                # (wyzej) juz liczy roznice; tu tylko kopia zrodlowych wartosci.
+                prediction=tissue.last_prediction,
+                input=tissue.last_input,
             )
 
         entropy_by_tick[tick] = tissue.entropy

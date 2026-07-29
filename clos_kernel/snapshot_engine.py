@@ -30,6 +30,16 @@ class Snapshot:
     # precision.py:27). Dzieki temu snapshoty niosa pelna trajektorie przez
     # caly przebieg, nie tylko ostatnie 100 tickow.
     prediction_error: Optional[float] = None
+    # PC-001 B2 (D-005 pkt 5, zasada O-001): WYLACZNIE surowe dane
+    # obserwacyjne - tissue.last_prediction/last_input przekazane BEZ
+    # przeliczania (zero confidence/uncertainty/hidden state/embedding).
+    # Wymagane dla K5 (ablacja surogatowa - podmiana prediction na stala 0.5)
+    # i K6 (korelacja Spearmana prediction/input) z ANEKSU 1 - bez tych
+    # dwoch pol surowych obie kontrole sa niewykonalne (nie da sie ich
+    # odtworzyc z samego prediction_error, bo |a-b| gubi znak i wartosci
+    # zrodlowe).
+    prediction: Optional[float] = None
+    input: Optional[float] = None
 
 
 class SnapshotEngine:
@@ -54,7 +64,9 @@ class SnapshotEngine:
         energy: float,
         age: int,
         step_counter: int,
-        prediction_error: Optional[float] = None
+        prediction_error: Optional[float] = None,
+        prediction: Optional[float] = None,
+        input: Optional[float] = None
     ) -> Snapshot:
         """Utwórz nowy snapshot.
 
@@ -72,7 +84,9 @@ class SnapshotEngine:
             energy=energy,
             age=age,
             step_counter=step_counter,
-            prediction_error=prediction_error
+            prediction_error=prediction_error,
+            prediction=prediction,
+            input=input
         )
         self._snapshots.append(snapshot)
         return snapshot

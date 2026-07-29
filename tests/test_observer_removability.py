@@ -239,3 +239,112 @@ class TestPredictionErrorSnapshotCoverage:
         assert early_ticks_with_data, (
             "brak niepustych prediction_error we wczesnych tickach (<50) w L1.2"
         )
+
+
+def _capture_raw_snapshot_fields(monkeypatch):
+    """Jak _capture_snapshot_calls, ale zapisuje (tick, prediction, input) -
+    PC-001 B2. Osobny helper (nie rozszerzam _capture_snapshot_calls), zeby
+    nie ruszac istniejacych, juz zielonych testow PC KROK 2 powyzej."""
+    calls = []
+    original = SnapshotEngine.create_snapshot
+
+    def spy(self, *args, **kwargs):
+        snapshot = original(self, *args, **kwargs)
+        calls.append((kwargs.get("tick"), kwargs.get("prediction"), kwargs.get("input")))
+        return snapshot
+
+    monkeypatch.setattr(SnapshotEngine, "create_snapshot", spy)
+    return calls
+
+
+class TestRawPredictionInputSnapshotCoverage:
+    """PC-001 B2: Snapshot.prediction / Snapshot.input - surowe dane
+    obserwacyjne (D-005 pkt 5, zasada O-001), wymagane dla K5 (ablacja
+    surogatowa) i K6 (korelacja Spearmana prediction/input) z Aneksu 1.
+
+    Test usuwalnosci (twardy warunek): observe=False -> zero wywolan
+    create_snapshot (execution fields juz pokryte przez
+    TestL11/L12ObserverRemovability - te testy tylko dowodza, ze NOWE pola
+    tez nie przeciekaja gdy obserwator wylaczony). observe=True -> prediction
+    i input obecne przez cale mierzalne okno (nie tylko L1.2, gdzie PERCEIVE
+    nigdy nie jest pomijane - to jest silniejszy przypadek niz L1.1's faza
+    ciszy, patrz TestPredictionErrorSnapshotCoverage powyzej)."""
+
+    def test_l1_1_observe_false_no_raw_fields_leak(self, monkeypatch):
+        calls = _capture_raw_snapshot_fields(monkeypatch)
+        run_pattern_echo(genome_preset="default", seed=1, scenario="noise_world", observe=False)
+        assert calls == [], (
+            "STOP: create_snapshot wywolane mimo observe=False - "
+            "prediction/input nie sa usuwalne"
+        )
+
+    def test_l1_1_observe_true_prediction_and_input_present_in_stimulus_phase(self, monkeypatch):
+        calls = _capture_raw_snapshot_fields(monkeypatch)
+        run_pattern_echo(
+            genome_preset="default", seed=1, scenario="noise_world",
+            stimulus_ticks=100, silence_ticks=100, observe=True,
+        )
+        by_tick = {tick: (pred, inp) for tick, pred, inp in calls}
+
+        for t in [1, 50, 99]:
+            pred, inp = by_tick[t]
+            assert pred is not None, f"tick {t}: Snapshot.prediction jest None w fazie bodzca"
+            assert inp is not None, f"tick {t}: Snapshot.input jest None w fazie bodzca"
+
+        # Faza ciszy (last_input=None przez partial_step(skip=PERCEIVE), patrz
+        # CURRENT_SCIENTIFIC_LIMITS §8) - input MUSI byc None, spojnie z tym,
+        # ze prediction_error tez jest None tam (juz udowodnione wyzej).
+        pred_silence, inp_silence = by_tick[150]
+        assert inp_silence is None, (
+            "tick 150 (faza ciszy L1.1): Snapshot.input != None - "
+            "niespodziewane, last_input powinien byc zerowany"
+        )
+
+    def test_l1_2_observe_true_prediction_and_input_present_full_window(self, monkeypatch):
+        """L1.2 nigdy nie pomija PERCEIVE - silniejszy dowod niz L1.1: brak
+        wyjatkow, prediction/input obecne na KAZDYM ticku calego przebiegu."""
+        calls = _capture_raw_snapshot_fields(monkeypatch)
+        run_shock_recovery(genome_preset="default", seed=1, scenario="shock_world", observe=True)
+        assert len(calls) > 100
+        missing_pred = [t for t, pred, inp in calls if pred is None]
+        missing_input = [t for t, pred, inp in calls if inp is None]
+        assert not missing_pred, f"prediction=None na tickach {missing_pred[:5]}... w L1.2"
+        assert not missing_input, f"input=None na tickach {missing_input[:5]}... w L1.2"
+
+    def test_prediction_error_consistent_with_raw_prediction_and_input(self, monkeypatch):
+        """Zero przeliczania: Snapshot.prediction/input MUSZA byc dokladnie
+        tissue.last_prediction/last_input (nie zaokraglone, nie pochodna
+        wielkosc) - dowod posredni: |prediction-input| == prediction_error
+        (juz liczone niezaleznie w call-site) na tym samym ticku, wszedzie
+        gdzie oba sa nie-None. Jeden spy, oba zestawy pol naraz - z tego
+        samego przebiegu, zeby porownanie mialo sens."""
+        """Wlasciwy test spojnosci (jeden spy, oba zestawy pol naraz)."""
+        calls = []
+        original = SnapshotEngine.create_snapshot
+
+        def spy(self, *args, **kwargs):
+            snapshot = original(self, *args, **kwargs)
+            calls.append((
+                kwargs.get("tick"),
+                kwargs.get("prediction_error"),
+                kwargs.get("prediction"),
+                kwargs.get("input"),
+            ))
+            return snapshot
+
+        monkeypatch.setattr(SnapshotEngine, "create_snapshot", spy)
+        run_shock_recovery(genome_preset="default", seed=3, scenario="shock_world", observe=True)
+
+        checked = 0
+        for tick, pred_err, pred, inp in calls:
+            if pred_err is None:
+                continue
+            assert pred is not None and inp is not None, (
+                f"tick {tick}: prediction_error obecny, ale prediction/input None"
+            )
+            assert abs(abs(pred - inp) - pred_err) < 1e-9, (
+                f"tick {tick}: |prediction-input|={abs(pred - inp)} != "
+                f"prediction_error={pred_err} - niespojnosc miedzy polami"
+            )
+            checked += 1
+        assert checked > 100, "za malo tickow ze skompletowanymi polami do sensownej weryfikacji"
