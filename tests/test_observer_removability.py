@@ -16,6 +16,7 @@ import pytest
 
 from clos_academy.lesson_L1_1 import run_pattern_echo
 from clos_academy.lesson_L1_2 import run_shock_recovery
+from clos_kernel.snapshot_engine import SnapshotEngine
 
 L1_1_EXECUTION_FIELDS = [
     "run_id", "lesson", "genome", "seed", "scenario",
@@ -146,4 +147,95 @@ class TestL12ObserverRemovability:
                 unchanged.append(a["run_id"])
         assert not unchanged, (
             f"obserwator nie zmienil observation fields w runach {unchanged} w L1.2"
+        )
+
+
+def _capture_snapshot_calls(monkeypatch):
+    """Podmienia SnapshotEngine.create_snapshot na spy, ktory woLA prawdziwa
+    implementacje (zachowanie bez zmian) i dodatkowo zapisuje (tick,
+    prediction_error) z kazdego wywolania - do inspekcji pelnej trajektorii."""
+    calls = []
+    original = SnapshotEngine.create_snapshot
+
+    def spy(self, *args, **kwargs):
+        snapshot = original(self, *args, **kwargs)
+        calls.append((kwargs.get("tick"), kwargs.get("prediction_error")))
+        return snapshot
+
+    monkeypatch.setattr(SnapshotEngine, "create_snapshot", spy)
+    return calls
+
+
+class TestPredictionErrorSnapshotCoverage:
+    """PC KROK 2: Snapshot.prediction_error - pole obserwacyjne (Opcja B).
+
+    Dowod usuwalnosci (twardy warunek CTO): observe=False nie moze wywolac
+    create_snapshot ani razu (wiec prediction_error nigdzie sie nie pojawia -
+    execution fields juz pokryte przez TestL11/L12ObserverRemovability
+    powyzej). observe=True musi dac trajektorie PRZEZ CALY przebieg (wszystkie
+    ticki, obie fazy), nie tylko ostatnie 100 - to jest dokladnie problem,
+    ktory PC KROK 1 zidentyfikowal w prediction_error_buffer (precision.py:27
+    obcina do 100 wpisow).
+    """
+
+    def test_l1_1_observe_false_creates_zero_snapshots(self, monkeypatch):
+        calls = _capture_snapshot_calls(monkeypatch)
+        run_pattern_echo(genome_preset="default", seed=1, scenario="noise_world", observe=False)
+        assert calls == [], (
+            "STOP: create_snapshot wywolane mimo observe=False - obserwator nie jest usuwalny"
+        )
+
+    def test_l1_1_observe_true_covers_full_trajectory_both_phases(self, monkeypatch):
+        calls = _capture_snapshot_calls(monkeypatch)
+        result = run_pattern_echo(
+            genome_preset="default", seed=1, scenario="noise_world",
+            stimulus_ticks=100, silence_ticks=100, observe=True,
+        )
+        total_ticks = 200
+        assert len(calls) == total_ticks, (
+            f"oczekiwano snapshotu na kazdy z {total_ticks} tickow, dostano {len(calls)}"
+        )
+        by_tick = {tick: pe for tick, pe in calls}
+
+        # Gdyby dane pochodzily z prediction_error_buffer (Core, obciety do
+        # 100), po 200 tickach przetrwalyby TYLKO ticki 100-199. Tick 50 (w
+        # fazie bodzca, dawno "wypchniety" z takiego bufora) MUSI miec
+        # niepusta wartosc, zeby udowodnic, ze snapshot NIE czyta bufora.
+        assert by_tick.get(50) is not None, (
+            "tick 50 ma prediction_error=None - trajektoria nie siega poza "
+            "ostatnie 100 tickow, dokladnie problem z PC KROK 1"
+        )
+        assert by_tick.get(99) is not None, "ostatni tick fazy bodzca (99) bez prediction_error"
+
+        # ZNALEZISKO (koryguje wlasna korekte do PC KROK 1): w L1.1 faza
+        # ciszy idzie przez silent_step() -> partial_step(skip={PERCEIVE}),
+        # ktory jawnie ustawia brain.last_input = None
+        # (clos_brain/brain_runtime.py:140) - last_input NIE jest "zamrozony
+        # z ostatniego widzianego bodzca", tylko wyzerowany. compute_error()
+        # (precision.py:18-19) przy last_input=None robi wczesny return bez
+        # zmiany brain - PE Core NAPRAWDE nie jest liczony w fazie ciszy L1.1
+        # (to fakt o dzisiejszym Core, nie blad tego obserwatora). Obserwator
+        # wiernie to odzwierciedla: prediction_error=None w tej fazie.
+        assert by_tick.get(150) is None, (
+            "tick 150 (faza ciszy L1.1) ma prediction_error != None - "
+            "niespodziewane, skoro last_input jest zerowany przez partial_step(skip=PERCEIVE); "
+            "sprawdz, czy zachowanie Core sie nie zmienilo"
+        )
+        # Sanity: |a-b| >= 0 zawsze; i nie jest to staly placeholder (dowod,
+        # ze to prawdziwa trajektoria, nie no-op zwracajacy jedna wartosc).
+        non_none = [pe for pe in by_tick.values() if pe is not None]
+        assert non_none, "brak jakiejkolwiek niepustej wartosci prediction_error w calym przebiegu"
+        assert all(pe >= 0 for pe in non_none)
+        assert len(set(non_none)) > 1, (
+            "prediction_error jest stala dla wszystkich tickow - podejrzenie stub/no-op"
+        )
+
+    def test_l1_2_observe_true_covers_full_trajectory(self, monkeypatch):
+        calls = _capture_snapshot_calls(monkeypatch)
+        run_shock_recovery(genome_preset="default", seed=1, scenario="shock_world", observe=True)
+        assert len(calls) > 100, "L1.2: oczekiwano trajektorii dluzszej niz obciety bufor Core (100)"
+        by_tick = {tick: pe for tick, pe in calls}
+        early_ticks_with_data = [t for t in by_tick if t < 50 and by_tick[t] is not None]
+        assert early_ticks_with_data, (
+            "brak niepustych prediction_error we wczesnych tickach (<50) w L1.2"
         )

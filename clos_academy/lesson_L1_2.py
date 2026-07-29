@@ -164,11 +164,20 @@ def run_shock_recovery(genome_preset="default", seed=42, scenario="shock_world",
         # Read-Only Observer (SPRINT_v0.10.md P1/P2) - patrz docs/spec_snapshot_observer.md.
         # Addytywne: czyta tissue juz obliczone powyzej, nie wplywa na entropy_by_tick/telemetry.
         if observe:
+            # PC KROK 2: prediction_error licza TA SAMA formula co Core
+            # (precision.py compute_error), z aktualnego last_prediction/
+            # last_input - nie z obcietego prediction_error_buffer.
+            pred_err = (
+                abs(tissue.last_prediction - tissue.last_input)
+                if tissue.last_prediction is not None and tissue.last_input is not None
+                else None
+            )
             kernel.snapshot_engine.create_snapshot(
                 brain_id=tissue.brain_id, tick=tick, seed=seed,
                 lifecycle_state="OBSERVED", brain_status="RUNNING",
                 entropy=tissue.entropy, energy=tissue.energy,
                 age=tick, step_counter=tick,
+                prediction_error=pred_err,
             )
 
         entropy_by_tick[tick] = tissue.entropy

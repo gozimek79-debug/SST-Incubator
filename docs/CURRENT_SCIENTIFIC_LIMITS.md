@@ -224,3 +224,18 @@ czymś więcej niż obserwacją na tych konkretnych 23 punktach.
 - Procedura replikacji została zweryfikowana niezależnie, na innej
   platformie (`docs/REPLICATION.md` §4bis pkt 5) — to jest fakt, nie
   deklaracja.
+
+## 8. Błąd predykcji (`prediction_error`) jest mierzalny WYŁĄCZNIE przy dopływie bodźca
+
+Błąd predykcji (`prediction_error`) jest mierzalny **wyłącznie przy dopływie
+bodźca**. W fazie ciszy (L1.1, tick≥100) `PERCEIVE` jest pomijany,
+`last_input=None` (`clos_brain/brain_runtime.py:140`), więc `compute_error()`
+robi early-return (`clos_brain/runtime/precision.py:18`) i błąd **nie
+powstaje**. To nie jest brak danych ani defekt — to poprawna granica
+pojęciowa: nie ma błędu predykcji wobec braku inputu.
+
+**Konsekwencja:** Predictive Coding w obecnym CLOS jest badalny tylko w
+fazach z bodźcem — L1.2 w całości (300/300 ticków), L1.1 w fazie bodźca
+(0-99). Miara alternatywna (`mae_vs_pattern` z telemetrii lekcji) mierzy
+trafność wobec prawdy zewnętrznej, nie błąd predykcji systemu — to inne
+pytanie.

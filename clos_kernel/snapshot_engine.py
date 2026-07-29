@@ -23,6 +23,13 @@ class Snapshot:
     energy: float
     age: int
     step_counter: int
+    # PC KROK 2: ta sama formula co Core (clos_brain/runtime/precision.py
+    # compute_error: abs(last_prediction - last_input)), przeliczona przez
+    # obserwatora z aktualnego stanu tissue - NIE czytana z
+    # prediction_error_buffer (Core obcina go do 100 wpisow, patrz
+    # precision.py:27). Dzieki temu snapshoty niosa pelna trajektorie przez
+    # caly przebieg, nie tylko ostatnie 100 tickow.
+    prediction_error: Optional[float] = None
 
 
 class SnapshotEngine:
@@ -46,7 +53,8 @@ class SnapshotEngine:
         entropy: float,
         energy: float,
         age: int,
-        step_counter: int
+        step_counter: int,
+        prediction_error: Optional[float] = None
     ) -> Snapshot:
         """Utwórz nowy snapshot.
 
@@ -63,7 +71,8 @@ class SnapshotEngine:
             entropy=entropy,
             energy=energy,
             age=age,
-            step_counter=step_counter
+            step_counter=step_counter,
+            prediction_error=prediction_error
         )
         self._snapshots.append(snapshot)
         return snapshot
