@@ -1,0 +1,88 @@
+# PC-001 - PC_001_BASELINE
+#
+# STATUS: TBD - CELOWO NIEPOLICZONY JESZCZE (decyzja CTO/audytora, 2026-07-28,
+# zmiana kolejnosci KROK B).
+#
+# POWOD: CRITICAL_FILES_PC_001 (lista ponizej) jest ZATWIERDZONA co do
+# CZLONKOSTWA i UZASADNIENIA per pozycja, ale "znana luka" wciaz otwarta w
+# momencie zatwierdzenia listy: kod liczacy testy statystyczne reguly
+# decyzyjnej (Wilcoxon par, Kendall tau, Spearman, Mann-Whitney, BH-FDR) NIE
+# ISTNIEJE jeszcze w repo. Ten kod TEZ wejdzie do CRITICAL_FILES_PC_001 (KROK
+# B3), zanim eksperyment ruszy. Gdyby baseline zostal policzony TERAZ (przed
+# B2/B3/B4), zostalby natychmiast uniewazniony przez dopisanie pliku analizy -
+# czyli i tak trzeba by go policzyc DRUGI raz, a pierwsza wartosc nigdy nie
+# zostalaby do niczego uzyta. Zamiast tego: NAJPIERW caly pipeline (Snapshot
+# prediction/input + pure_noise_world w B2, kod analizy zwalidowany przeciw
+# scipy w B3, analiza mocy w B4), POTEM jeden, ostateczny PC_001_BASELINE
+# (B5) pokrywajacy RAZEM generowanie danych I analize - nie tylko dane.
+#
+# Do czasu B5: enforce_hard_halt_v2() NIE MA wartosci domyslnej dla baseline
+# (funkcja wymaga jawnego przekazania - patrz hard_halt.py) - wiec nic nie
+# moze przypadkiem polegac na tej niepolieczonej jeszcze wartosci.
+#
+# GDY B5 policzy finalna wartosc, ten plik zostanie zaktualizowany (NIE
+# cichym nadpisaniem - z data i odnotowaniem, ze to jest wartosc POKRYWAJACA
+# caly pipeline, nie tylko dane wykonawcze) i wartosc trafi tutaj, w formacie
+# identycznym jak w baseline_hash.txt (AUD-001).
+#
+# ALGORYTM (juz przypiety i potwierdzony, nie zmieni sie do B5): v2
+# (execution_package_v0_11/validators/hard_halt.py::compute_files_hash_v2),
+# przypiety w PC-001 KROK 0, potwierdzony niezaleznie przez audytora na
+# malym, recznie sprawdzalnym przykladzie (patrz
+# tests/test_hard_halt_hash_algorithm.py). Rozni sie od algorytmu v1 uzytego
+# przez AUD_001_BASELINE (jawny separator NUL miedzy polami/rekordami) - NIE
+# porownywac tych dwoch wartosci 1:1. Powod, dla ktorego wartosc baseline
+# NIGDY nie bedzie literalem wewnatrz hard_halt.py (nawet po B5): ten plik
+# jest CZLONEM WLASNEJ listy CRITICAL_FILES_PC_001 (patrz uzasadnienie
+# nizej) - zapisanie wartosci jako stalej W NIM zmienialoby jego wlasny hash
+# przy kazdym wpisaniu (zaobserwowane empirycznie przy pierwszej probie tego
+# baseline'u - pierwsza wpisana wartosc uniewazniala sama siebie). Wartosc
+# zyje WYLACZNIE tutaj, w pliku, ktory NIE jest czlonem CRITICAL_FILES_PC_001.
+#
+# 26 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
+# kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmienic liczby,
+# ktore wyprodukuje eksperyment PC-001" - uzasadnienie per pozycja w
+# execution_package_v0_11/validators/hard_halt.py, komentarz nad
+# CRITICAL_FILES_PC_001:
+birth/brain.py
+birth/engine.py
+clos_academy/lesson_L1_1.py
+clos_academy/lesson_L1_2.py
+clos_brain/brain_runtime.py
+clos_brain/runtime/__init__.py
+clos_brain/runtime/perception.py
+clos_brain/runtime/plasticity.py
+clos_brain/runtime/precision.py
+clos_brain/runtime/prediction.py
+clos_brain/tissue.py
+clos_curriculum/laboratory/population.py
+clos_kernel/snapshot_engine.py
+clos_world/scenarios.py
+clos_world/world_runtime.py
+execution_package_v0_11/runners/aggregate_results.py
+execution_package_v0_11/runners/pipeline.py
+execution_package_v0_11/validators/hard_halt.py
+genome/engine.py
+genome/gene.py
+genome/genome.py
+genome/presets.py
+publications/preregistration_PC_001.json
+publications/preregistration_PC_001.md
+publications/preregistration_PC_001_ANEKS_1_2026-07-28.json
+publications/preregistration_PC_001_ANEKS_1_2026-07-28.md
+#
+# Obliczenie WARTOSCI INTERIM (nie do porownania z niczym - baseline jest
+# TBD, to tylko podglad, ile 26-plikowy zestaw daje DZIS, do wewnetrznego
+# sledzenia postepu B2/B3/B4, NIE do zamrozenia):
+#   python -c "
+#   import sys; sys.path.insert(0, 'execution_package_v0_11')
+#   from pathlib import Path
+#   from validators.hard_halt import compute_files_hash_v2, CRITICAL_FILES_PC_001
+#   print(compute_files_hash_v2(Path('.'), CRITICAL_FILES_PC_001))
+#   "
+#
+# LISTA PLIKOW BEDZIE ROSLA: B2 (Snapshot prediction/input + pure_noise_world)
+# dotyka juz obecnych na liscie plikow (snapshot_engine.py, scenarios.py) -
+# bez nowych pozycji. B3 (kod analizy statystycznej) DODA co najmniej jeden
+# nowy plik, jeszcze nienazwany - lista i ta uwaga zostana zaktualizowane w
+# tym samym kroku.
