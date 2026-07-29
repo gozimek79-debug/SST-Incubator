@@ -13,7 +13,7 @@
     "conclusion": "success",
     "workflow": "ci.yml"
   },
-  "commit": "4ad629c4c3a47ea5c7757d30e7f7d1c553ab8a8d",
+  "commit": "822605aa5473c96139a4d4b64b30d5f4b0302f0d",
   "branch": "v0.7.2-scientific-integrity",
-  "timestamp": "2026-07-29T05:22:47.358115+00:00"
+  "timestamp": "2026-07-29T20:23:01.102562+00:00"
 }
