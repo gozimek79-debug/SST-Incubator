@@ -1,0 +1,141 @@
+{
+  "document_type": "aneks",
+  "amends": "publications/preregistration_PC_001.json",
+  "aneks_id": "PC-001-ANEKS-1",
+  "date": "2026-07-28",
+  "status": "ZATWIERDZONY - decyzja CTO D-007, doprecyzowania D-007 pkt 1-2 naniesione",
+  "basis": [
+    "recenzja niezaleznego neurocybernetyka (8.0/10)",
+    "D-007",
+    "PC-001 §12 (mechanizm aneksow)"
+  ],
+  "author": "audytor niezależny",
+
+  "admissibility": {
+    "rule": "D-006 pkt 3 zakazuje zmian w kryteriach po rozpoczęciu zbierania danych.",
+    "justification": "Żadne dane PC-001 nie istnieją - eksperyment nie został uruchomiony (baseline PC_001_BASELINE nie jest jeszcze ustalony, Snapshot nie niesie jeszcze prediction/input, analiza mocy nie została wykonana). Aneks jest więc dopuszczalny DZIŚ i NIEDOPUSZCZALNY po pierwszym przebiegu. To ostatni moment, w którym wzmocnienie kryteriów nie jest dostosowywaniem ich do wyniku."
+  },
+
+  "reason_for_amendment": "Recenzja zewnętrzna wskazała, że kontrola K3 w pierwotnym brzmieniu przepuściłaby habituację jako Predictive Coding. Zarzut jest trafny: kryterium 'PE rośnie po wstrząsie, potem maleje' opisuje równie dobrze wygaszanie reakcji na nowy bodziec, które nie jest przewidywaniem. Aneks wzmacnia cztery punkty. Każda zmiana ZAWĘŻA, żadna nie rozszerza przestrzeni wyników uznawanych za wsparcie hipotezy.",
+
+  "changes": {
+
+    "change_1_K3_strengthened": {
+      "title": "K3 wzmocnione (habituacja vs model generatywny)",
+      "original_wording_stays_necessary": "Pierwotne brzmienie (shock_world, dwa warunki: wzrost PE po wstrząsie, ponowny spadek) pozostaje w mocy jako warunek konieczny.",
+      "added_third_condition": {
+        "environment": "recurring_shock_world (wstrząsy co interval=40 ticków, offset deterministyczny z seeda; przy 300 tickach ≈7 powtórzeń)",
+        "requirement": "Czas ponownej adaptacji musi maleć przy kolejnych wstrząsach - kierunkowo I w wielkości.",
+        "operationalization": "Dla każdego wstrząsu i zdefiniuj recovery_i = liczba ticków od wstrząsu do momentu, w którym PE wraca poniżej średniej z okna [shock_i-20, shock_i-1].",
+        "condition_K3b_1_direction": {
+          "name": "warunek K3b-1 (kierunek)",
+          "requirement": "Kendalla tau < 0, istotne (p < 0.05).",
+          "rationale": "Tau wybrane zamiast beta regresji: jest nieparametryczne (spójnie z całym protokołem) i samo jest miarą wielkości efektu, nie tylko kierunku."
+        },
+        "condition_K3b_2_magnitude": {
+          "name": "warunek K3b-2 (wielkość)",
+          "requirement": "Mediana recovery_i w drugiej połowie wstrząsów musi być co najmniej 20% krótsza niż w pierwszej połowie.",
+          "note": "Przy interval=40 i 300 tickach daje to ≈7 wstrząsów -> porównanie 1-3 vs 5-7 (środkowy pomijany przy nieparzystej liczbie).",
+          "threshold_note": "Próg 20% w K3b-2 jest tą samą konwencją projektu co w Primary Endpoint (patrz change_4) - nie jest wyprowadzony z literatury. Użyty dla spójności wewnętrznej protokołu."
+        },
+        "both_conditions_required": "Struktura jest celowo identyczna z Primary Endpoint (kierunek + wielkość), bo adresuje ten sam problem: sam trend przepuszcza szereg typu '5 4 5 4 3 4', gdzie beta<0 przy praktycznie zerowym efekcie."
+      },
+      "discriminant_rationale_table": [
+        { "mechanism": "Habituacja / sensytyzacja", "prediction_for_recovery_i": "wzorzec podobny przy każdym wstrząsie; recovery NIE maleje systematycznie" },
+        { "mechanism": "Uczenie sekwencji (T5)", "prediction_for_recovery_i": "brak modelu okresowości -> recovery stabilne" },
+        { "mechanism": "Model generatywny (PC)", "prediction_for_recovery_i": "system uczy się okresowości wstrząsów -> recovery maleje, skok PE się kurczy" }
+      ],
+      "falsification": "Brak malejącego trendu recovery_i -> nie da się odróżnić od habituacji. Hipoteza nie została wsparta.",
+      "rejected_alternative": "Recenzent proponował 'powrót do pierwotnych reguł -> PE musi znów wzrosnąć'. Odrzucone, bo test jest niediagnostyczny: system z zachowanym modelem regime'u A powinien po powrocie być MNIEJ zaskoczony, nie bardziej. Kryterium wskazywałoby w złą stronę."
+    },
+
+    "change_2_K6_new_control": {
+      "title": "K6 (nowa kontrola): responsywność na świat",
+      "addresses": "T1 (system redukuje PE, bo przestał reagować na świat) - dotąd zapisany jako problem otwarty, niemierzony.",
+      "character": "kontrola analityczna post-hoc, zero dodatkowych przebiegów. Możliwa dzięki zapisowi prediction i input osobno (D-004 pkt 3, zasada O-001).",
+      "procedure": "Dla każdego przebiegu policzyć korelację prediction(t) z input(t) (Spearman, nieparametrycznie) po całym mierzalnym oknie.",
+      "pc_criterion": "Korelacja musi być istotnie różna od zera. Predykcja MUSI współzmieniać się z wejściem.",
+      "falsification": "Predykcja stała lub nieskorelowana z wejściem -> system nie modeluje świata, tylko zbiegł do wartości minimalizującej metrykę. T1 potwierdzone, hipoteza nie została wsparta - niezależnie od spełnienia Primary Endpoint.",
+      "interpretive_note_required_by_D007_pkt1": "K6 wyklucza brak reakcji na świat, lecz NIE stanowi samodzielnego dowodu istnienia modelu generatywnego. Wysoka korelacja prediction≈input(t) jest osiągalna przez zwykły filtr lub opóźnione powtórzenie wejścia - bez jakiegokolwiek przewidywania. K6 jest warunkiem KONIECZNYM, NIE WYSTARCZAJĄCYM.",
+      "reporting_rule": "K6 nie zastępuje pełnego testu funkcji (roadmapa, §10 PC-001) - wyklucza jedynie najgrubszy przypadek: system całkowicie odklejony od wejścia. W raporcie końcowym K3 (adaptacja) i K6 (sprzężenie ze światem) MUSZĄ być raportowane w OSOBNYCH sekcjach - mierzą różne własności i nie wolno ich przedstawiać jako jednego wyniku (uwaga CTO, D-007)."
+    },
+
+    "change_3_K4_reformulated": {
+      "title": "K4 przeformułowane: separacja zamiast dwóch progów",
+      "original_wording": "w pure_noise_world nie wolno uzyskać spełnienia A ani B.",
+      "problem": "Przy 22% w środowisku realnym i 19% w czystym szumie kryterium formalnie przechodzi, choć nie różnicuje niczego (wskazane przez recenzenta).",
+      "new_wording": "Efekt w środowisku inferencyjnym (shock_world) musi istotnie przewyższać efekt w pure_noise_world - porównanie rozkładów redukcja między środowiskami (Mann-Whitney U, p<0.05 po FDR), OPRÓCZ pierwotnego wymogu, że pure_noise_world nie spełnia A ani B.",
+      "rejected_alternative": "Recenzent proponował próg absolutny 'mediana w szumie < 10%'. Odrzucone - to kolejna arbitralna liczba obok arbitralnego 20%. Separacja statystyczna jest mocniejsza i nie wymaga zgadywania progu."
+    },
+
+    "change_4_20_percent_threshold_provenance": {
+      "title": "Jawne oznaczenie pochodzenia progu 20%",
+      "issue": "Recenzent słusznie wskazał brak uzasadnienia.",
+      "honest_answer": "Próg 20% jest konwencją projektu, przyjętą w AIA v4. Nie jest wyprowadzony z literatury przedmiotu ani z analizy oczekiwanej wielkości efektu w tej architekturze. Jest arbitralną, ale zapisaną z góry poprzeczką - jego wartością jest niezmienność, nie trafność.",
+      "rule": "Zmiana progu po obejrzeniu danych jest niedopuszczalna i unieważnia prerejestrację. Jeśli wynik wypadnie blisko progu (np. 18% lub 22%), raportuje się liczbę i decyzję progową OSOBNO - bez przeformułowywania kryterium."
+    },
+
+    "change_5_power_analysis_artifact_path": {
+      "title": "Artefakt analizy mocy: wskazana ścieżka",
+      "issue": "Analiza mocy była już wymagana (§2.3, §11 pkt 4, D-005 pkt 3), ale bez wskazania miejsca zapisu.",
+      "rule": "Wynik analizy mocy zapisywany jako publications/power_analysis_PC_001.json, PRZED uruchomieniem eksperymentu, jako datowany artefakt podlegający audytowi."
+    }
+  },
+
+  "updated_decision_rule": {
+    "statement": "Hipotezę o obecności mechanizmu zgodnego z Predictive Coding uznaje się za wspartą wyłącznie gdy WSZYSTKIE warunki zachodzą dla L1.2:",
+    "conditions": [
+      { "n": 1, "condition": "A - beta < 0 istotne (trend malejący)", "source": "PC-001 §2.1" },
+      { "n": 2, "condition": "B - mediana redukcji >= 20% (konwencja, patrz change_4)", "source": "PC-001 §2.1" },
+      { "n": 3, "condition": "p < 0.05 po FDR", "source": "PC-001 §2.2" },
+      { "n": 4, "condition": "K1 - efekt nie występuje w danych przetasowanych", "source": "PC-001 §5" },
+      { "n": 5, "condition": "K3a - PE rośnie po wstrząsie i ponownie maleje", "source": "PC-001 §5" },
+      { "n": 6, "condition": "K3b - czas ponownej adaptacji maleje przy kolejnych wstrząsach", "source": "Aneks, change_1" },
+      { "n": 7, "condition": "K4 - brak efektu w czystym szumie ORAZ istotna separacja od środowiska realnego", "source": "Aneks, change_3" },
+      { "n": 8, "condition": "K5 - efekt znika po ablacji surogatowej", "source": "PC-001 §5" },
+      { "n": 9, "condition": "K6 - predykcja istotnie skorelowana z wejściem", "source": "Aneks, change_2" }
+    ],
+    "K2_role": "K2 (stable_world) pozostaje przesłanką opisową, poza inferencją statystyczną (D-005 pkt 4)."
+  },
+
+  "updated_threats_table": [
+    { "id": "T1", "threat": "system przestaje reagować na świat", "resolving_control": "K6 (było: brak testu)" },
+    { "id": "T2", "threat": "predykcja zbiega do średniej", "resolving_control": "K4 z separacją (było: K4 z progiem absolutnym)" },
+    { "id": "T3", "threat": "amplituda sygnału maleje", "resolving_control": "K2 (opisowo)" },
+    { "id": "T4", "threat": "efekt podłogi", "resolving_control": "Warunek A + inspekcja trajektorii; PC-002" },
+    { "id": "T5", "threat": "uczenie sekwencji, nie przewidywanie", "resolving_control": "K3a" },
+    { "id": "T6", "threat": "habituacja / sensytyzacja", "resolving_control": "K3b (nowe zagrożenie, wcześniej nieadresowane)" }
+  ],
+
+  "new_technical_requirements_supplementing_pc001_section11": [
+    { "n": 6, "requirement": "Przebiegi w recurring_shock_world (K3b) - środowisko ISTNIEJE, nie wymaga budowy.", "basis": "Aneks, change_1" },
+    { "n": 7, "requirement": "Snapshot musi nieść prediction I input osobno - bez tego K6 i K5 są NIEWYKONALNE.", "basis": "D-004 pkt 3, Aneks change_2" },
+    { "n": 8, "requirement": "Analiza mocy obejmuje także testy K3b (trend recovery_i) i K4 (separacja).", "basis": "Aneks, changes 1 i 3" }
+  ],
+
+  "governance_pending_cto_decision_out_of_amendment_scope": {
+    "reviewer_proposal": "Jeśli PC-001 pozytywny, PC-002 musi zostać uruchomiony w ciągu X miesięcy, inaczej PC-001 nie może być publikowany jako dowód uczenia się.",
+    "note": "Termin jest decyzją CEO/CTO, nie audytora.",
+    "methodological_part_recommended_regardless_of_deadline": "PC-001 sam w sobie NIE MOŻE być publikowany jako dowód uczenia się. Dopuszczalne jest wyłącznie twierdzenie o danych zgodnych z redukcją błędu predykcji w warunkach wykluczających kontrole K1, K3-K6. Twierdzenie o uczeniu wymaga PC-002 (kształt trajektorii) i testu generalizacji. To wzmocnienie klauzuli językowej z §6 PC-001 (D-006 pkt 2)."
+  },
+
+  "conservative_interpretation_principle_D007_pkt2": {
+    "rule": "Wynik eksperymentu klasyfikuje się TRÓJWARTOŚCIOWO, nie binarnie:",
+    "categories": [
+      { "category": "WSPARTA", "condition": "Primary Endpoint (warunki 1-3) oraz WSZYSTKIE kontrole (4-9) spełnione", "interpretation": "dane zgodne z hipotezą PC" },
+      { "category": "INCONCLUSIVE", "condition": "Primary Endpoint spełniony, ale >=1 kontrola mechanistyczna (K1-K6) nie przechodzi", "interpretation": "ani wsparcie, ani obalenie; podstawa do PC-002" },
+      { "category": "NIE WSPARTA", "condition": "Primary Endpoint niespełniony", "interpretation": "hipoteza nie została wsparta w tym układzie" }
+    ],
+    "inconclusive_rule": "Wynik INCONCLUSIVE nie wspiera ani nie obala hipotezy Predictive Coding. Oznacza, że błąd predykcji spada, ale nie udało się wykluczyć alternatywnych wyjaśnień. Taki wynik stanowi podstawę do opracowania kolejnej prerejestracji (PC-002) i NIE MOŻE być prezentowany jako wsparcie hipotezy - także w streszczeniach, prezentacjach i komunikacji zewnętrznej.",
+    "category_rationale": "W praktyce naukowej znaczna część wyników jest niejednoznaczna. Wymuszanie klasyfikacji PASS/FAIL prowadzi do dwóch błędów: nadinterpretacji wyniku częściowego jako sukcesu albo odrzucenia obiecującego kierunku jako porażki. Kategoria INCONCLUSIVE chroni przed obydwoma.",
+    "power_note": "Wynik NIE WSPARTA musi być raportowany łącznie z osiągniętą mocą statystyczną (§7 PC-001). Bez tej liczby nie wolno go zapisać jako MEASURED_BUT_NULL - to bezpośrednia lekcja P0."
+  },
+
+  "freezing": {
+    "statement": "Po zatwierdzeniu aneks zostaje zamrożony razem z PC-001 jako publications/preregistration_PC_001_ANEKS_1_2026-07-28.json, z hashem w rejestrze. Od momentu pierwszego przebiegu żadne dalsze zmiany kryteriów nie są dopuszczalne - wyłącznie nowa prerejestracja (PC-002)."
+  },
+
+  "feasibility_verified_in_code": "recurring_shock_world istnieje (clos_world/scenarios.py:54, interval=40, offset deterministyczny z seeda - zweryfikowane: rng=random.Random(seed), position=(tick-offset)%interval). K6 i K5 wymagają zapisu prediction/input osobno - zatwierdzonego w D-004, jeszcze niezaimplementowanego (PC-001 KROK C).",
+
+  "integral_part_of_preregistration": "Aneks jest INTEGRALNĄ częścią prerejestracji (D-007 pkt 1) - nie jest odrębnym, opcjonalnym dokumentem."
+}

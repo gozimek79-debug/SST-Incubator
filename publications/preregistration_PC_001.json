@@ -1,0 +1,253 @@
+{
+  "experiment_id": "PC-001",
+  "title": "Predictive Coding - Primary Endpoint (L1.2 konfirmacyjny, L1.1 wspierający)",
+  "revision": 2,
+  "status": "ZAMROŻONA - decyzja CTO D-006 (2026-07-28)",
+  "basis_decisions": [
+    "D-004 (kontrole K1-K5, zasada O-001)",
+    "D-005 (poprawki redakcyjne)",
+    "D-006 (zamrożenie)",
+    "AIA v4 (próg 20%)"
+  ],
+  "author": "audytor niezależny",
+  "date": "2026-07-28",
+  "source_commit": "4ad629c",
+  "source_document": "PREREJESTRACJA_PC-001_rev2.md",
+  "branch": "v0.7.2-scientific-integrity",
+
+  "relation_to_rev1": "rev1 zachowana jako ślad. Rewizja 2 wprowadza: Primary Endpoint oparty wyłącznie na L1.2 (D-005 pkt 2), stable_world jako środowisko referencyjne poza inferencją statystyczną (pkt 4), sekcję Threats to Interpretation (pkt 6) oraz - poza numerowanymi punktami D-005, na podstawie argumentu CTO z dyskusji - dwuwarunkowy Primary Endpoint (nachylenie regresji + próg 20%) zamiast samych okien brzegowych. Ta ostatnia zmiana podlegała wetu CTO przed zamrożeniem (zaakceptowana).",
+
+  "commitment_clause": "Po zamrożeniu żadne kryterium nie może zostać zmienione w reakcji na obejrzany wynik. Zmiana wyłącznie przez datowany aneks, PRZED obejrzeniem danych, których dotyczy.",
+
+  "scope": {
+    "tests": "Czy w obrębie pojedynczego przebiegu lekcji błąd predykcji maleje w sposób trendowy, i czy ten spadek pochodzi z mechanizmu predykcyjnego, a nie z alternatywnych wyjaśnień.",
+    "does_not_test": "Uczenia między lekcjami (Wariant 2 - BLOCKED wg D-002), generalizacji na nowe środowiska (patrz roadmap_out_of_scope), ani powstania inteligencji czy ontogenezy. Nawet wynik pozytywny oznacza potwierdzenie konkretnego mechanizmu w architekturze CLOS - nic więcej."
+  },
+
+  "primary_endpoint": {
+    "basis": "Podstawą głównego wniosku konfirmacyjnego jest wyłącznie lekcja L1.2 (D-005 pkt 2).",
+    "l1_1_role": "wspierający (patrz l1_1_supporting_result) - L1.1 jest za krótka (100 mierzalnych ticków, okna po 20) i nie powstała do badania PC.",
+    "analysis_unit": "pojedynczy przebieg = (środowisko, genom, seed)",
+
+    "condition_a_trend": {
+      "name": "Warunek A - trend malejący",
+      "definition": "Regresja liniowa prediction_error(t) po całym mierzalnym oknie przebiegu (L1.2: ticki 0-299). Wymagane beta < 0, istotne statystycznie."
+    },
+
+    "condition_b_reduction": {
+      "name": "Warunek B - wielkość redukcji >= 20%",
+      "note": "próg z AIA v4, użyty jako próg interpretacyjny",
+      "windows": {
+        "W_early": "średnia prediction_error, ticki 0-59 (pierwsze 20% okna)",
+        "W_late": "średnia prediction_error, ticki 240-299 (ostatnie 20% okna)",
+        "redukcja": "(W_early - W_late) / W_early"
+      }
+    },
+
+    "two_condition_rationale": "Same okna brzegowe nie odróżniają monotonicznego spadku od oscylacji. Szereg '40 30 20 10 5 15 5 15 5 15 5' daje podobne okna brzegowe co szereg malejący, mimo zupełnie innej trajektorii. Warunek A eliminuje tę klasę fałszywych pozytywów.",
+
+    "missing_data_handling": "Ticki z prediction_error = None są WYKLUCZONE, nie zastępowane zerem. Przebieg z < 5 wartościami nie-None w którymkolwiek oknie -> INSUFFICIENT_DATA, wyłączony z komórki i RAPORTOWANY, nie ukrywany.",
+
+    "statistical_test": {
+      "condition_a_test": "Rozkład współczynników beta ze wszystkich przebiegów w komórce; test znaków / Wilcoxona przeciw beta = 0.",
+      "condition_b_test": "Test Wilcoxona dla par na (W_early, W_late) w komórce.",
+      "correction": "Benjamini-Hochberg FDR q = 0.05, na liczbie realnie testowalnych komórek (precedens fdr_correction_omnibus z v0.11), nie nominalnych.",
+      "nonparametric_justification": "v0.11 wykazało złamaną homoskedastyczność w części osi, przez co ANOVA była nieważna, a rozstrzygał Kruskal-Wallis. Wybór nieparametryczny jest celowy.",
+      "effect_size": "mediana redukcja w komórce."
+    },
+
+    "pass_condition": "Primary Endpoint spełniony, gdy: beta < 0 istotne (A) ORAZ mediana redukcja >= 20% przy p < 0.05 po FDR (B).",
+
+    "execution_scope": {
+      "main_lesson": "L1.2 (300 ticków, PERCEIVE nigdy pomijany -> pełne okno mierzalne).",
+      "genomes": [
+        "default", "highly_plastic", "minimal",
+        "pop_000", "pop_001", "pop_002", "pop_003", "pop_004",
+        "pop_005", "pop_006", "pop_007", "pop_008", "pop_009",
+        "pop_010", "pop_011", "pop_012", "pop_013", "pop_014",
+        "pop_015", "pop_016", "pop_017", "pop_018", "pop_019"
+      ],
+      "genomes_note": "23 genomy - zestaw z v0.11.",
+      "inferential_environments": ["shock_world", "pure_noise_world (K4)"],
+      "reference_environment_out_of_inference": "stable_world - patrz K2",
+      "seed_count": "WYNIKA Z ANALIZY MOCY, wykonanej i zatwierdzonej PRZED uruchomieniem (D-005 pkt 3). Prerejestracja CELOWO nie podaje jej z góry."
+    }
+  },
+
+  "threats_to_interpretation": {
+    "basis": "D-005 pkt 6",
+    "preamble": "Spadek błędu predykcji nie jest sam w sobie dowodem działania mechanizmu predykcyjnego. Poniższe mechanizmy trywialne dają ten sam spadek i muszą być odróżnione:",
+    "threats": [
+      {
+        "id": "T1",
+        "mechanism": "System przestaje reagować na świat",
+        "why_causes_pe_drop": "predykcja zamiera w stałej wartości; jeśli input też jest blisko niej, PE maleje mimo zerowej adaptacji",
+        "distinguishing_control": "K5 (ablacja - stała predykcja daje ten sam spadek)"
+      },
+      {
+        "id": "T2",
+        "mechanism": "Predykcja zbiega do średniej sygnału",
+        "why_causes_pe_drop": "statystycznie optymalne bez żadnego modelu świata",
+        "distinguishing_control": "K4 (w czystym szumie średnia też minimalizuje błąd)"
+      },
+      {
+        "id": "T3",
+        "mechanism": "Amplituda sygnału maleje",
+        "why_causes_pe_drop": "|predykcja - input| kurczy się bez poprawy predykcji",
+        "distinguishing_control": "K2 (świat referencyjny o stałej amplitudzie)"
+      },
+      {
+        "id": "T4",
+        "mechanism": "Efekt podłogi (floor effect)",
+        "why_causes_pe_drop": "PE osiąga minimum metryki i nie może spaść dalej - pozorna 'stabilizacja'",
+        "distinguishing_control": "Warunek A (beta) + inspekcja trajektorii"
+      },
+      {
+        "id": "T5",
+        "mechanism": "Uczenie sekwencji, nie przewidywanie",
+        "why_causes_pe_drop": "zapamiętanie konkretnego przebiegu bez modelu generatywnego",
+        "distinguishing_control": "K3 (zmiana reguł musi wywołać wzrost PE)"
+      }
+    ],
+    "open_problem_not_measured_in_pc_001": "Redukcja PE może współwystępować z utratą jakości zachowania - organizm 'wygrywa' z metryką, ignorując świat. PC-001 NIE MIERZY jakości zachowania. Zapisujemy to jako znane ograniczenie: nawet pełne spełnienie reguły decyzyjnej nie wyklucza, że redukcja PE zachodzi kosztem funkcji. Weryfikacja tego wymaga osobnego eksperymentu (patrz roadmap_out_of_scope) i nie jest warunkiem pierwszego potwierdzenia mechanizmu."
+  },
+
+  "l1_1_supporting_result": {
+    "role": "wspierający (nie konfirmacyjny)",
+    "scope": "L1.1 wnosi wyłącznie fazę bodźca (ticki 0-99) - w fazie ciszy prediction_error nie powstaje (CURRENT_SCIENTIFIC_LIMITS §8).",
+    "windows": {
+      "W_early": "ticki 0-19",
+      "W_late": "ticki 80-99"
+    },
+    "procedure": "Analiza L1.1 jest wykonywana identyczną procedurą i RAPORTOWANA, ale:",
+    "constraints": [
+      "nie wchodzi do reguły decyzyjnej (§decision_rule)",
+      "zgodność jej kierunku z L1.2 jest wsparciem interpretacyjnym, nie dowodem",
+      "rozbieżność między L1.1 a L1.2 jest FAKTEM do zaraportowania, nie powodem do odrzucenia L1.2"
+    ]
+  },
+
+  "confirmatory_controls": {
+    "K1_baseline_shuffle": {
+      "character": "kontrola analityczna surogatowa, post-hoc. Nie jest ingerencją w system.",
+      "procedure": "Przetasować prediction między tickami w obrębie przebiegu (zachowując rozkład, niszcząc związek czasowy), przeliczyć PE_shuffled = |prediction_shuffled - input|, przepuścić przez identyczny pipeline analityczny (warunki A i B).",
+      "pc_criterion": "W danych przetasowanych NIE WOLNO uzyskać spełnienia A ani B.",
+      "falsification": "Spełnienie -> spadek jest artefaktem procedury. PC ODRZUCONE."
+    },
+    "K2_static_world_reference": {
+      "formal_status": "D-005 pkt 4: stable_world NIE JEST częścią inferencji statystycznej. Jest środowiskiem referencyjnym, opisowym. Wyniki z niego NIE MOGĄ stanowić samodzielnego dowodu statystycznego - jest deterministycznie zdegenerowane (ignoruje seed, n_effective=1).",
+      "application": "Porównanie opisowe. Jeśli trajektoria PE w stable_world jest nieodróżnialna od shock_world, jest to przesłanka interpretacyjna przeciw PC - nie test."
+    },
+    "K3_world_shift": {
+      "environment": "shock_world (stała 0.2 -> wstrząs w ticku 20-80 -> nowy reżim; shock_tick deterministyczny z seeda, więc znany dla każdego przebiegu).",
+      "pc_criteria_both_required": [
+        "Wzrost: średnia PE w [shock_tick, shock_tick+20] > średnia w [shock_tick-20, shock_tick-1].",
+        "Ponowna adaptacja: średnia PE w [shock_tick+40, shock_tick+60] < średnia w [shock_tick, shock_tick+20]."
+      ],
+      "falsification": "Brak wzrostu po zmianie reguł -> system nie reaguje na niespodziankę, tylko odtwarza wyuczoną sekwencję (T5). PC ODRZUCONE."
+    },
+    "K4_noise_control": {
+      "environment": "pure_noise_world - nowy scenariusz (D-004 pkt 2): sam szum gaussowski, zero sygnału, brak struktury do nauczenia. Dodawany do clos_world/scenarios.py (poza Core).",
+      "pc_criterion": "NIE WOLNO uzyskać spełnienia A ani B.",
+      "falsification": "Spełnienie -> system uczy się artefaktu metryki (T2), nie struktury świata. PC ODRZUCONE."
+    },
+    "K5_ablation": {
+      "character": "kontrola analityczna kontrfaktyczna, post-hoc. NIE jest ingerencją w działanie systemu - Core nietknięty (D-004 pkt 1). Odpowiada na pytanie 'czy ten spadek mógłby powstać bez mechanizmu', NIE 'co się stanie, gdy mechanizm wyłączymy'. To rozróżnienie musi być zachowane w każdym raporcie i publikacji.",
+      "procedure": "Zastąpić prediction stałą 0.5 (wartość neutralnej predykcji Core, clos_brain/runtime/prediction.py:20), przeliczyć PE_ablated = |0.5 - input|, przepuścić przez identyczny pipeline analityczny.",
+      "pc_criterion": "Spełnienie A i B MUSI ZNIKNĄĆ.",
+      "falsification": "Utrzymanie się przy martwej predykcji -> spadek nie pochodzi z predykcji (T1). PC ODRZUCONE."
+    }
+  },
+
+  "decision_rule": {
+    "statement": "Hipotezę o obecności mechanizmu zgodnego z Predictive Coding uznaje się za wspartą wyłącznie gdy WSZYSTKIE warunki zachodzą dla lekcji L1.2:",
+    "conditions": [
+      { "n": 1, "condition": "Warunek A - beta < 0 istotne (trend malejący)" },
+      { "n": 2, "condition": "Warunek B - mediana redukcji >= 20%" },
+      { "n": 3, "condition": "p < 0.05 po korekcie FDR" },
+      { "n": 4, "condition": "K1 - efekt NIE występuje w danych przetasowanych" },
+      { "n": 5, "condition": "K3 - PE rośnie po zmianie reguł i ponownie maleje po adaptacji" },
+      { "n": 6, "condition": "K4 - efekt NIE występuje w pure_noise_world" },
+      { "n": 7, "condition": "K5 - efekt znika po ablacji surogatowej" }
+    ],
+    "k2_role": "K2 wchodzi jako przesłanka opisowa, nie warunek formalny (D-005 pkt 4).",
+    "partial_failure_handling": "Niespełnienie któregokolwiek warunku 1-7 oznacza, że hipoteza NIE została wsparta. Wynik częściowy raportuje się jako częściowy - nie przeformułowuje kryteriów, by go objąć.",
+    "language_constraint": {
+      "basis": "D-006 pkt 5",
+      "allowed": "dane zgodne z hipotezą Predictive Coding",
+      "forbidden": "CLOS posiada mechanizm Predictive Coding",
+      "applies_even_if": "wynik w pełni pozytywny - zakaz obowiązuje BEZ WYJĄTKU."
+    }
+  },
+
+  "negative_result_definition": {
+    "statement": "Niespełnienie reguły decyzyjnej NIE OZNACZA, że mechanizmu nie ma - oznacza, że hipoteza nie została wsparta w tym układzie.",
+    "precedent": "Rozróżnienie jest wiążące, wprost z lekcji P0: przy 2,8% mocy ogłoszono 'Working Memory nie dyskryminuje', co okazało się fałszywym negatywem przetrwałym kilka sprintów.",
+    "mandatory_power_reporting": "Wynik negatywny musi być raportowany łącznie z osiągniętą mocą statystyczną. Bez tej liczby jest nieinterpretowalny i NIE WOLNO go zapisać jako MEASURED_BUT_NULL."
+  },
+
+  "known_limitations": [
+    "Faza ciszy L1.1 niemierzalna - PERCEIVE pomijany -> last_input=None -> compute_error() early-return. Granica pojęciowa, nie brak danych (CURRENT_SCIENTIFIC_LIMITS §8).",
+    "stable_world zdegenerowane - poza inferencją statystyczną (D-005 pkt 4).",
+    "K1 i K5 to surogaty analityczne, nie ingerencje w system (patrz confirmatory_controls).",
+    "Jakość zachowania nie jest mierzona - patrz threats_to_interpretation.open_problem_not_measured_in_pc_001.",
+    "Brak testu generalizacji - patrz roadmap_out_of_scope."
+  ],
+
+  "post_hoc_analysis_rule": "Każda hipoteza niewynikająca wprost z tego dokumentu, sformułowana po obejrzeniu danych, jest EKSPLORACYJNA i musi być tak oznaczona. Nie może wchodzić do reguły decyzyjnej ani być prezentowana jako potwierdzenie mechanizmu.",
+
+  "roadmap_out_of_scope": {
+    "PC_002_trajectory_shape": "warunek beta < 0 przepuszcza przebieg typu 'gwałtowny spadek -> plateau' (100 90 80 70 60 5 5 5 5 5), który spełnia oba warunki Primary, nie wyglądając jak uczenie. To znane ograniczenie pierwszego eksperymentu, zapisane jako T4. PC-002 ma badać kształt trajektorii, nie tylko kierunek i wielkość (D-006).",
+    "generalization_test": "czy wzorzec występuje w środowiskach wcześniej niewidzianych (drift_world, high_noise_world, recurring_shock_world). Mocny argument w publikacji, nieobowiązkowy do pierwszego potwierdzenia (D-004). Wymaga własnej prerejestracji.",
+    "pe_reduction_vs_behavioral_quality": "czy spadek PE współwystępuje z utrzymaniem funkcji, czy zachodzi jej kosztem (patrz threats_to_interpretation.open_problem_not_measured_in_pc_001)."
+  },
+
+  "technical_requirements_pre_execution": [
+    {
+      "n": 1,
+      "requirement": "Snapshot rozszerzony o prediction i input - wyłącznie surowe dane obserwacyjne; żadnych danych pochodnych, interpretacyjnych ani wewnętrznych stanów modelu.",
+      "basis": "D-005 pkt 5, O-001"
+    },
+    {
+      "n": 2,
+      "requirement": "Rozszerzenie przechodzi test usuwalności (observe=False -> zero wpływu na Execution Pipeline).",
+      "basis": "AIA v4"
+    },
+    {
+      "n": 3,
+      "requirement": "pure_noise_world dodany do clos_world/scenarios.py.",
+      "basis": "D-004 pkt 2"
+    },
+    {
+      "n": 4,
+      "requirement": "Analiza mocy wykonana i zatwierdzona w aneksie - eksperyment NIE MOŻE ruszyć bez niej.",
+      "basis": "D-005 pkt 3"
+    },
+    {
+      "n": 5,
+      "requirement": "Hard-Halt / baseline hash dla przebiegu PC, jak w v0.11.",
+      "basis": "precedens v0.11"
+    }
+  ],
+
+  "freezing": {
+    "procedure": "Po zatwierdzeniu przez CTO dokument zostaje zamrożony i zacommitowany jako publications/preregistration_PC_001.json (+ hash w rejestrze).",
+    "target_file": "publications/preregistration_PC_001.json",
+    "hash_registry": "Dodany do CRITICAL_FILES_AUD_001 / execution_package_v0_11/hashes/baseline_hash.txt (execution_package_v0_11/validators/hard_halt.py) - ta sama procedura co dla poprzednich prerejestracji (L1.1, L1.2, v0.10.1_population, v0.11.0 ANEKS/power_reproduction).",
+    "amendment_rule": "Zmiany wyłącznie przez datowany aneks, PRZED obejrzeniem danych, których dotyczą."
+  },
+
+  "verified_facts_on_clone": {
+    "commit": "4ad629c",
+    "facts": [
+      "L1.2 ticks_total = 300",
+      "L1.1 ticks_total = 200, faza bodźca 0-99",
+      "dostępność środowisk (shock_world, stable_world, noise_world; pure_noise_world do dodania w KROK B)",
+      "mechanizm PERCEIVE/compute_error (clos_brain/brain_runtime.py, clos_brain/runtime/precision.py)",
+      "wartość neutralnej predykcji = 0.5 (clos_brain/runtime/prediction.py:20)",
+      "status _CERTIFIED_SKIPPABLE = {PERCEIVE} (clos_brain/brain_runtime.py)"
+    ]
+  },
+
+  "version": "rev2"
+}
