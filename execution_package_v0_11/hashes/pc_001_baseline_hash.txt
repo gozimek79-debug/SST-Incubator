@@ -39,11 +39,11 @@
 # baseline'u - pierwsza wpisana wartosc uniewazniala sama siebie). Wartosc
 # zyje WYLACZNIE tutaj, w pliku, ktory NIE jest czlonem CRITICAL_FILES_PC_001.
 #
-# 26 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
+# 28 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
 # kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmienic liczby,
 # ktore wyprodukuje eksperyment PC-001" - uzasadnienie per pozycja w
 # execution_package_v0_11/validators/hard_halt.py, komentarz nad
-# CRITICAL_FILES_PC_001:
+# CRITICAL_FILES_PC_001. Rozszerzone 2026-07-28 o Aneks 2 (T7/K7):
 birth/brain.py
 birth/engine.py
 clos_academy/lesson_L1_1.py
@@ -70,9 +70,11 @@ publications/preregistration_PC_001.json
 publications/preregistration_PC_001.md
 publications/preregistration_PC_001_ANEKS_1_2026-07-28.json
 publications/preregistration_PC_001_ANEKS_1_2026-07-28.md
+publications/preregistration_PC_001_ANEKS_2_2026-07-28.json
+publications/preregistration_PC_001_ANEKS_2_2026-07-28.md
 #
 # Obliczenie WARTOSCI INTERIM (nie do porownania z niczym - baseline jest
-# TBD, to tylko podglad, ile 26-plikowy zestaw daje DZIS, do wewnetrznego
+# TBD, to tylko podglad, ile 28-plikowy zestaw daje DZIS, do wewnetrznego
 # sledzenia postepu B2/B3/B4, NIE do zamrozenia):
 #   python -c "
 #   import sys; sys.path.insert(0, 'execution_package_v0_11')

@@ -1,0 +1,102 @@
+{
+  "document_type": "aneks",
+  "amends": "publications/preregistration_PC_001.json",
+  "aneks_id": "PC-001-ANEKS-2",
+  "date": "2026-07-28",
+  "status": "PROJEKT do zatwierdzenia i zamrozenia przez CTO - ZATWIERDZONY",
+  "basis": [
+    "znalezisko audytora podczas audytu B2",
+    "decyzja CTO (opcja B)",
+    "PC-001 §12 (mechanizm aneksow)"
+  ],
+  "author": "audytor niezależny",
+
+  "admissibility": {
+    "rule": "D-006 pkt 3.",
+    "justification": "Żadne dane PC-001 nie istnieją (baseline TBD, kod analizy nie powstał, analiza mocy nie wykonana). Aneks jest dopuszczalny dziś i NIEDOPUSZCZALNY po pierwszym przebiegu."
+  },
+
+  "scope": "Aneks NIE ZMIENIA reguły decyzyjnej. Dodaje jedno zagrożenie do tabeli interpretacyjnej i jeden pomiar raportowany. Regula pozostaje 9-warunkowa (PC-001 §6 + Aneks 1).",
+
+  "reason_for_amendment": "Podczas audytu B2 audytor zauważył w dowodzie działania, że na ticku 0 prediction == input dokładnie. Inspekcja kodu wykazała, że clos_brain/runtime/prediction.py ma gałąź awaryjną: gdy w pamięci nie ma rekordów pasujących do bieżącego bodźca, predykcja staje się średnią kroczącą ostatnich prediction_depth wejść. Konsekwencja dla K6: jeśli genom spędza w tej gałęzi znaczną część przebiegu, prediction jest filtrem wejścia, nie modelem świata - a korelacja Spearmana z K6 będzie wysoka trywialnie. K6 formalnie przeszłoby, nie mierząc tego, co ma mierzyć. To nie jest defekt kodu - to cecha architektury. Ale jest luką interpretacyjną, którą trzeba raportować.",
+
+  "changes": {
+
+    "change_6_T7_threat": {
+      "title": "T7 w tabeli Threats to Interpretation (§3 PC-001)",
+      "id": "T7",
+      "mechanism": "Predykcja z gałęzi awaryjnej (średnia krocząca wejścia)",
+      "why_causes_pe_drop": "predict() przy braku pasujących rekordów zwraca średnią z ostatnich prediction_depth wejść -> predykcja silnie skorelowana z inputem, bez modelu generatywnego",
+      "distinguishing_controls": "K4 (separacja - średnia krocząca zredukuje PE także w czystym szumie), K5 (ablacja - spadek powinien zniknąć), K7 (pomiar raportowany)"
+    },
+
+    "change_7_K7_reported_measurement": {
+      "title": "K7: pomiar raportowany (NIE warunek decyzyjny)",
+      "character": "pomiar diagnostyczny, poza regułą decyzyjną §6. Nie może spowodować ani wsparcia, ani odrzucenia hipotezy. Służy wyłącznie interpretacji K6.",
+      "procedure": "Dla każdego przebiegu oszacować odsetek ticków, w których predict() użył gałęzi awaryjnej, przez porównanie zapisanej prediction(t) ze średnią z ostatnich prediction_depth zapisanych wartości input.",
+      "method_limitations_stated_before_execution": {
+        "preamble": "Wcześniejsza ocena audytora ('policzalny post-hoc, zero kosztu') była zbyt pewna. Metoda ma trzy realne ograniczenia:",
+        "limitations": [
+          {
+            "n": 1,
+            "limitation": "Wymaga prediction_depth per genom - parametru, którego Snapshot NIE NIESIE. Musi być dołączony z danych genomowych (clos_curriculum/laboratory/population.py, genome/presets.py). Jeśli dołączenie okaże się niemożliwe dla części genomów, K7 jest dla nich NIEOBLICZALNY i musi być tak raportowany, nie pomijany."
+          },
+          {
+            "n": 2,
+            "limitation": "Wymaga tolerancji zmiennoprzecinkowej - dopasowanie nie jest dokładną równością. Przyjęta tolerancja: 1e-9 względna. Wartość arbitralna, zapisana z góry."
+          },
+          {
+            "n": 3,
+            "limitation": "Jest heurystyką, nie pewnością - gałąź pamięciowa może przypadkowo wyprodukować wartość równą średniej kroczącej. Prawdopodobieństwo małe, ale NIEZEROWE. K7 daje OSZACOWANIE DOLNE odsetka gałęzi awaryjnej, nie liczbę dokładną."
+          }
+        ],
+        "consequence": "K7 jest raportowany jako 'szacowany odsetek (metoda heurystyczna, oszacowanie dolne)', nigdy jako wartość dokładna. To rozróżnienie musi zostać w raporcie i publikacji."
+      },
+      "reporting": {
+        "location": "W raporcie końcowym, w OSOBNEJ sekcji (nie łącznie z K6):",
+        "items": [
+          "mediana szacowanego odsetka ticków w gałęzi awaryjnej - przez genomy i przez środowiska",
+          "rozkład: min, Q1, Q3, max",
+          "liczba genomów, dla których K7 był nieobliczalny (jeśli dotyczy)"
+        ]
+      },
+      "interpretation_thresholds_from_cto_decision": [
+        { "estimated_fraction": "< 20%", "interpretation": "K6 wiarygodny - predykcja pochodzi głównie z modelu pamięciowego" },
+        { "estimated_fraction": "20-50%", "interpretation": "strefa niejednoznaczna - wymaga jawnego omówienia w interpretacji" },
+        { "estimated_fraction": "> 50%", "interpretation": "K6 potencjalnie mylący - predykcja może być w znacznej części średnią kroczącą. MUSI być jawnie zaznaczone w interpretacji, także gdy K6 formalnie przechodzi" }
+      ],
+      "threshold_provenance": "Progi 20% / 50% są konwencją przyjętą z góry, nie wartościami z literatury - analogicznie do progu 20% w Primary Endpoint (Aneks 1, Zmiana 4). Ich wartością jest niezmienność.",
+      "why_not_a_decision_condition": [
+        "K4 i K5 częściowo pokrywają T7 - jeśli spadek PE wynika ze średniej kroczącej, to w pure_noise_world redukcja będzie podobna (separacja z K4 nie wyjdzie), a ablacja do stałej 0.5 powinna spadek usunąć (K5).",
+        "Dodanie dziesiątego warunku byłoby zawężeniem bez proporcjonalnego zysku - ryzykowałoby odrzucenie hipotezy z powodu cechy architektury, nie błędu metodologicznego.",
+        "Raportowanie daje transparentność bez zaostrzania reguły - czytelnik dostaje liczbę i może sam ocenić wiarygodność K6."
+      ]
+    }
+  },
+
+  "decision_rule_unchanged": {
+    "statement": "Reguła pozostaje 9-warunkowa (PC-001 §6 + Aneks 1). K7 NIE WCHODZI do niej. Kategoria INCONCLUSIVE (D-007 pkt 2) obowiązuje bez zmian."
+  },
+
+  "new_technical_requirements_supplementing_pc001_section11": [
+    { "n": 9, "requirement": "Kod analizy (B3) musi obliczać K7 z zapisanych trajektorii prediction/input ORAZ dołączonego prediction_depth per genom.", "basis": "Aneks 2, Zmiana 7" },
+    { "n": 10, "requirement": "Jeśli prediction_depth niedostępny dla części genomów - K7 raportowany jako NIEOBLICZALNY dla nich, nie pomijany milczeniem.", "basis": "Aneks 2, ograniczenie 1" }
+  ],
+
+  "protocol_design_phase_closure": {
+    "statement": "Po zamrożeniu tego aneksu faza projektowania PC-001 jest ZAMKNIĘTA. Dalsze etapy to wyłącznie implementacja i wykonanie:",
+    "stages": [
+      { "stage": "B3", "content": "kod analizy (testy dla 9 warunków + K7), walidowany przeciw scipy (zgodność do 1e-6)" },
+      { "stage": "B4", "content": "analiza mocy -> publications/power_analysis_PC_001.json" },
+      { "stage": "B5", "content": "PC_001_BASELINE policzony jako OSTATNI krok, gdy cały pipeline istnieje" },
+      { "stage": "B6", "content": "bramka audytora -> start eksperymentu" }
+    ],
+    "no_further_methodological_changes": "Żadne dalsze zmiany metodologiczne nie są dopuszczalne - wyłącznie przez nową prerejestrację (PC-002), zgodnie z D-007 pkt 3."
+  },
+
+  "freezing": {
+    "statement": "Po zatwierdzeniu aneks zostaje zamrożony jako publications/preregistration_PC_001_ANEKS_2_2026-07-28.{md,json} (oba formaty; markdown kanoniczny) i DODANY do CRITICAL_FILES_PC_001 - tak jak PC-001 i Aneks 1."
+  },
+
+  "feasibility_verified_in_code": "Znalezisko zweryfikowane w kodzie na klonie df436b2: clos_brain/runtime/prediction.py, gałąź else przy braku pasujących rekordów - 'Użyj średniej z ostatnich wejść jako prostej heurystyki'. Ograniczenia metody K7 ustalone przez inspekcję Snapshot (brak prediction_depth)."
+}

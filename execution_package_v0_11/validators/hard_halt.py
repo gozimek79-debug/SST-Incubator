@@ -222,8 +222,14 @@ CRITICAL_FILES_PC_001 = [
     "publications/preregistration_PC_001.md",
     "publications/preregistration_PC_001_ANEKS_1_2026-07-28.json",
     "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md",
+    # Aneks 2 (2026-07-28): T7 (galaz awaryjna predict() - srednia kroczaca
+    # wejscia) + K7 (pomiar raportowany, POZA regula decyzyjna - regula
+    # zostaje 9-warunkowa). Wlaczone tym samym uzasadnieniem co PC-001/Aneks 1:
+    # kryteria/definicje nie moga sie zmienic bez zlamania hasha.
+    "publications/preregistration_PC_001_ANEKS_2_2026-07-28.json",
+    "publications/preregistration_PC_001_ANEKS_2_2026-07-28.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 26, f"oczekiwano 26 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 28, f"oczekiwano 28 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):
