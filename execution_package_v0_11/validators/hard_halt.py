@@ -189,12 +189,16 @@ AUD_001_BASELINE = "cca6f8f933a73c1ff9ca9a3e482b966fef4c430ee50f3ed6c35137d3ab8e
 #     tu zyje fdr_correction_omnibus, jawny precedens cytowany w PC-001 §2.2.
 #     Jesli PC-001 uzyje tej samej funkcji, plik nalezy do lancucha decyzji.
 #
-# ZNANA LUKA, NIE DO ZAMKNIECIA DZIS: kod liczacy test Wilcoxona (warunek A/B),
-# tau Kendalla (K3b), korelacje Spearmana (K6) i Mann-Whitney (K4) NIE ISTNIEJE
-# jeszcze nigdzie w repo (zweryfikowane grepem: zero uzyc scipy.stats w calym
-# repo). Ten plik, gdy powstanie (KROK C/D), MUSI zostac dopisany do
-# CRITICAL_FILES_PC_001 z przeliczeniem baseline'u PRZED analiza jakichkolwiek
-# prawdziwych danych PC-001 - inaczej regula decyzyjna sama zostaje niechroniona.
+# B3 (2026-07-28): LUKA ZAMKNIETA. wilcoxon_signed_rank/kendall_tau/
+# spearman_rho/mann_whitney_u dopisane do clos_curriculum/laboratory/
+# statistics.py (ZERO scipy w kodzie produkcyjnym - decyzja CTO: scipy zyje
+# POZA repo, wiec nie wchodzi do hasha, podbicie jego wersji nie moze cicho
+# zmienic wynikow analizy; scipy jest zaleznoscia TESTOWA wylacznie, patrz
+# tests/test_pc_001_statistics.py, walidacja do 1e-6). K7 (heurystyka galezi
+# awaryjnej, Aneks 2) - osobny modul, clos_scientist/
+# fallback_branch_diagnostic.py (to NIE jest test statystyczny). Oba pliki
+# ponizej - kryteria/definicje reguly decyzyjnej nie moga sie zmienic bez
+# zlamania hasha, dokladnie jak same dokumenty prerejestracji.
 CRITICAL_FILES_PC_001 = [
     "birth/brain.py",
     "birth/engine.py",
@@ -208,7 +212,9 @@ CRITICAL_FILES_PC_001 = [
     "clos_brain/runtime/prediction.py",
     "clos_brain/tissue.py",
     "clos_curriculum/laboratory/population.py",
+    "clos_curriculum/laboratory/statistics.py",
     "clos_kernel/snapshot_engine.py",
+    "clos_scientist/fallback_branch_diagnostic.py",
     "clos_world/scenarios.py",
     "clos_world/world_runtime.py",
     "execution_package_v0_11/runners/aggregate_results.py",
@@ -229,7 +235,7 @@ CRITICAL_FILES_PC_001 = [
     "publications/preregistration_PC_001_ANEKS_2_2026-07-28.json",
     "publications/preregistration_PC_001_ANEKS_2_2026-07-28.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 28, f"oczekiwano 28 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 30, f"oczekiwano 30 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

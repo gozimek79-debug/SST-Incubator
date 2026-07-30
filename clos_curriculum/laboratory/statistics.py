@@ -8,7 +8,7 @@ v0.7.2 – Scientific integrity:
 """
 
 import math
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 
 def _n_effective(values: List[float]) -> int:
@@ -692,3 +692,325 @@ def kruskal_wallis(groups: List[List[float]]) -> Dict[str, Any]:
         # cichy zera (zasada nadrzedna 1).
         result["p_value_log10"] = round(chi2_survival_log10(h_corrected, df), 2)
     return result
+
+
+# --- PC-001 B3 (2026-07-28): testy dla 9-warunkowej reguly decyzyjnej ---
+# Dodane ADDYTYWNIE. DECYZJA CTO: scipy NIE wchodzi do kodu produkcyjnego -
+# zyje POZA repo (nie jest czescia CRITICAL_FILES_PC_001), wiec podbicie
+# jego wersji zmienialoby wyniki BEZ zmiany PC_001_BASELINE, unicestwiajac
+# gwarancje "te liczby powstaly z tego kodu analizy" (powod, dla ktorego
+# PC_001_BASELINE liczony jest jako OSTATNI krok, po B3/B4). scipy jest
+# ZALEZNOSCIA TESTOWA WYLACZNIE (patrz tests/test_pc_001_statistics.py) -
+# requirements.txt bez zmian, ten sam wzorzec co reszta tego pliku
+# (welch_t_test/kruskal_wallis/power_*: zero zaleznosci zewnetrznych).
+#
+# WZORZEC exact-vs-approx (spojny w calym bloku): male n bez remisow -> ROZKLAD
+# DOKLADNY (DP po permutacjach/podzbiorach) - przyblizenie normalne jest zbyt
+# niedokladne dla malych n (K3b ma ~7 wstrzasow na przebieg). Remisy obecne
+# lub n zbyt duze -> przyblizenie normalne z korekta na remisy i korekta
+# ciaglosci (ten sam poziom rygoru co juz istniejace w tym pliku funkcje
+# oparte na _noncentral_t_cdf/_chi2_cdf).
+
+def _rank_with_ties(values: List[float]) -> Tuple[List[float], List[int]]:
+    """Rangi (srednia dla remisow) + rozmiary grup remisowych.
+
+    NIEZALEZNA kopia logiki rankingu z kruskal_wallis() powyzej - CELOWO nie
+    refaktoryzowana do wspolnego helpera uzywanego przez obie funkcje: kruskal_
+    wallis jest juz przetestowana i uzywana w produkcji (v0.11), a wydzielenie
+    wspolnego helpera wymagaloby zmiany JEJ kodu, ryzykujac regresje dla
+    korzysci ograniczonej do ~15 linii duplikacji. Ten sam wzorzec ostroznosci
+    co "nie ruszamy Core" w innych czesciach tego projektu."""
+    n = len(values)
+    order = sorted(range(n), key=lambda i: values[i])
+    ranks = [0.0] * n
+    tie_group_sizes: List[int] = []
+    i = 0
+    while i < n:
+        j = i
+        while j + 1 < n and values[order[j + 1]] == values[order[i]]:
+            j += 1
+        avg_rank = (i + 1 + j + 1) / 2
+        for k in range(i, j + 1):
+            ranks[order[k]] = avg_rank
+        if j > i:
+            tie_group_sizes.append(j - i + 1)
+        i = j + 1
+    return ranks, tie_group_sizes
+
+
+# --- Wilcoxon signed-rank (warunek B: W_early vs W_late per seed/genom) ---
+
+def _wilcoxon_exact_p(w_plus: float, n: int) -> float:
+    """Rozklad zerowy W+ (suma rang ze znakiem dodatnim) przy BRAKU remisow -
+    kazda z 2^n kombinacji znakow rownie prawdopodobna pod H0. DP: counts[s] =
+    liczba kombinacji znakow dajacych sume rang dodatnich = s. Bez remisow
+    rangi to dokladnie calkowite 1..n, wiec DP jest po sumach calkowitych."""
+    max_sum = n * (n + 1) // 2
+    counts = [0] * (max_sum + 1)
+    counts[0] = 1
+    running_total = 0
+    for r in range(1, n + 1):
+        running_total += r
+        for s in range(min(running_total, max_sum), r - 1, -1):
+            counts[s] += counts[s - r]
+    total_perms = 2 ** n
+    w_plus_int = int(round(w_plus))
+    p_le = sum(counts[:w_plus_int + 1]) / total_perms
+    p_ge = sum(counts[w_plus_int:]) / total_perms
+    return min(1.0, 2 * min(p_le, p_ge))
+
+
+def wilcoxon_signed_rank(pairs: List[Tuple[float, float]], exact_max_n: int = 25) -> Dict[str, Any]:
+    """Test Wilcoxona dla par (warunek B, Aneks 1: W_early vs W_late per
+    seed/genom). Rozniece zerowe (pary identyczne) ODRZUCANE przed rankingiem
+    - konwencja 'wilcox' (standardowa, domyslna w scipy.stats.wilcoxon).
+
+    Rozklad DOKLADNY (DP) gdy n<=exact_max_n i brak remisow; inaczej
+    przyblizenie normalne z korekta na remisy i korekta ciaglosci.
+
+    Zwraca statistic=min(W+,W-) (konwencja scipy), p_value dwustronne.
+    """
+    diffs = [a - b for a, b in pairs]
+    nonzero = [d for d in diffs if d != 0]
+    n_zero = len(diffs) - len(nonzero)
+    n = len(nonzero)
+    if n == 0:
+        return {"statistic": None, "p_value": None, "computable": False,
+                "reason": "wszystkie roznice sa zerowe (lub brak par)",
+                "n_zero_dropped": n_zero, "n": 0}
+
+    abs_d = [abs(d) for d in nonzero]
+    ranks, tie_group_sizes = _rank_with_ties(abs_d)
+    w_plus = sum(r for r, d in zip(ranks, nonzero) if d > 0)
+    w_minus = sum(r for r, d in zip(ranks, nonzero) if d < 0)
+    statistic = min(w_plus, w_minus)
+    has_ties = len(tie_group_sizes) > 0
+
+    if n <= exact_max_n and not has_ties:
+        p_value = _wilcoxon_exact_p(w_plus, n)
+        method = "exact"
+    else:
+        mean = n * (n + 1) / 4
+        var = n * (n + 1) * (2 * n + 1) / 24 - sum(t ** 3 - t for t in tie_group_sizes) / 48
+        if var <= 0:
+            return {"statistic": round(statistic, 6), "p_value": None, "computable": False,
+                    "reason": "wariancja <=0 (zbyt duzo remisow wzgledem n)",
+                    "n_zero_dropped": n_zero, "n": n}
+        # BEZ korekty ciaglosci - zweryfikowane wprost przeciwko
+        # scipy.stats.wilcoxon(mode='approx'): domyslny tryb scipy NIE
+        # stosuje korekty ciaglosci (correction=False domyslnie), w
+        # odroznieniu od Manna-Whitneya ponizej (scipy uzywa correction
+        # domyslnie TAM). Zgodnosc do 1e-6 wymaga podazania za scipy per
+        # test, nie jednolitej wlasnej konwencji - patrz
+        # tests/test_pc_001_statistics.py.
+        z = (w_plus - mean) / math.sqrt(var)
+        p_value = max(0.0, min(1.0, 2 * (1 - _std_normal_cdf(abs(z)))))
+        method = "normal_approx"
+
+    return {"statistic": round(statistic, 6), "w_plus": round(w_plus, 6),
+            "w_minus": round(w_minus, 6), "p_value": round(p_value, 8),
+            "computable": True, "n": n, "n_zero_dropped": n_zero,
+            "method": method, "has_ties": has_ties}
+
+
+# --- Kendall tau-b (K3b-1: trend recovery_i przez kolejne wstrzasy) ---
+
+def _inversions_distribution(n: int) -> List[int]:
+    """counts[k] = liczba permutacji n elementow z DOKLADNIE k inwersjami
+    (liczby Mahoniana), przez mnozenie wielomianow
+    prod_{i=1}^{n} (1+x+...+x^{i-1}) - standardowa funkcja tworzaca."""
+    counts = [1]
+    for i in range(2, n + 1):
+        new_counts = [0] * (len(counts) + i - 1)
+        for k in range(i):
+            for s, c in enumerate(counts):
+                new_counts[s + k] += c
+        counts = new_counts
+    return counts
+
+
+def _kendall_exact_p(n_discordant: int, n: int) -> float:
+    total_perms = math.factorial(n)
+    dist = _inversions_distribution(n)
+    p_le = sum(dist[:n_discordant + 1]) / total_perms
+    p_ge = sum(dist[n_discordant:]) / total_perms
+    return min(1.0, 2 * min(p_le, p_ge))
+
+
+def kendall_tau(x: List[float], y: List[float], exact_max_n: int = 30) -> Dict[str, Any]:
+    """Kendall's tau-b (korekta na remisy w OBU zmiennych) - K3b-1: trend
+    recovery_i przez kolejne wstrzasy w recurring_shock_world (~7/przebieg).
+
+    Rozklad DOKLADNY (liczby Mahoniana - DP wielomianowe) gdy n<=exact_max_n
+    i brak remisow w x ORAZ y; inaczej przyblizenie normalne z pelna korekta
+    na remisy (formula Kendall & Gibbons, standardowa - ta sama, ktorej uzywa
+    R cor.test(method='kendall')).
+    """
+    n = len(x)
+    if n != len(y):
+        raise ValueError("x i y musza miec te sama dlugosc")
+    if n < 2:
+        return {"tau": None, "p_value": None, "computable": False,
+                "reason": "n<2", "n": n}
+
+    n_c = n_d = 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            dx = x[i] - x[j]
+            dy = y[i] - y[j]
+            if dx == 0 or dy == 0:
+                continue
+            if (dx > 0) == (dy > 0):
+                n_c += 1
+            else:
+                n_d += 1
+
+    _, tie_sizes_x = _rank_with_ties(x)
+    _, tie_sizes_y = _rank_with_ties(y)
+    n0 = n * (n - 1) / 2
+    n1 = sum(t * (t - 1) / 2 for t in tie_sizes_x)
+    n2 = sum(t * (t - 1) / 2 for t in tie_sizes_y)
+    denom = math.sqrt((n0 - n1) * (n0 - n2))
+    if denom < 1e-12:
+        return {"tau": None, "p_value": None, "computable": False,
+                "reason": "mianownik zerowy (wszystkie wartosci remisowe w x lub y)", "n": n}
+    tau = (n_c - n_d) / denom
+
+    has_ties = bool(tie_sizes_x or tie_sizes_y)
+    if n <= exact_max_n and not has_ties:
+        p_value = _kendall_exact_p(n_d, n)
+        method = "exact"
+    else:
+        v0 = n * (n - 1) * (2 * n + 5)
+        vt = sum(t * (t - 1) * (2 * t + 5) for t in tie_sizes_x)
+        vu = sum(t * (t - 1) * (2 * t + 5) for t in tie_sizes_y)
+        v1_x = sum(t * (t - 1) * (t - 2) for t in tie_sizes_x)
+        v1_y = sum(t * (t - 1) * (t - 2) for t in tie_sizes_y)
+        v2_x = sum(t * (t - 1) for t in tie_sizes_x)
+        v2_y = sum(t * (t - 1) for t in tie_sizes_y)
+        var_s = (v0 - vt - vu) / 18.0
+        if n > 2:
+            var_s += (v1_x * v1_y) / (9.0 * n * (n - 1) * (n - 2))
+        var_s += (v2_x * v2_y) / (2.0 * n * (n - 1))
+        if var_s <= 0:
+            return {"tau": round(tau, 6), "p_value": None, "computable": False,
+                    "reason": "wariancja <=0 (zbyt duzo remisow wzgledem n)", "n": n}
+        s_stat = n_c - n_d
+        z = s_stat / math.sqrt(var_s)
+        p_value = max(0.0, min(1.0, 2 * (1 - _std_normal_cdf(abs(z)))))
+        method = "normal_approx"
+
+    return {"tau": round(tau, 6), "p_value": round(p_value, 8), "computable": True,
+            "n": n, "n_concordant": n_c, "n_discordant": n_d,
+            "method": method, "has_ties": has_ties}
+
+
+# --- Spearman rho (K6: korelacja prediction/input) ---
+
+def spearman_rho(x: List[float], y: List[float]) -> Dict[str, Any]:
+    """Korelacja Spearmana (Pearson na rangach, srednia ranga dla remisow -
+    obsluguje remisy natywnie, bez osobnej formuly). p-value przez
+    przyblizenie t-rozkladem (t=rho*sqrt((n-2)/(1-rho^2)), df=n-2) - TA SAMA
+    metoda, ktorej scipy.stats.spearmanr uzywa domyslnie (nie tylko dla
+    duzych n) - reuzywa juz zwalidowana _student_t_two_tailed_p z tego pliku."""
+    n = len(x)
+    if n != len(y):
+        raise ValueError("x i y musza miec te sama dlugosc")
+    if n < 3:
+        return {"rho": None, "p_value": None, "computable": False,
+                "reason": "n<3 (df=n-2 wymaga n>=3)", "n": n}
+
+    rx, _ = _rank_with_ties(x)
+    ry, _ = _rank_with_ties(y)
+    mean_rx = sum(rx) / n
+    mean_ry = sum(ry) / n
+    cov = sum((a - mean_rx) * (b - mean_ry) for a, b in zip(rx, ry))
+    var_rx = sum((a - mean_rx) ** 2 for a in rx)
+    var_ry = sum((b - mean_ry) ** 2 for b in ry)
+    denom = math.sqrt(var_rx * var_ry)
+    if denom < 1e-12:
+        return {"rho": None, "p_value": None, "computable": False,
+                "reason": "brak wariancji w rangach x lub y (wszystkie remisy)", "n": n}
+    rho = cov / denom
+    rho = max(-1.0, min(1.0, rho))
+
+    if abs(rho) >= 1.0 - 1e-12:
+        p_value = 0.0
+    else:
+        t = rho * math.sqrt((n - 2) / (1 - rho ** 2))
+        p_value = _student_t_two_tailed_p(t, n - 2)
+
+    return {"rho": round(rho, 6), "p_value": round(p_value, 8), "computable": True, "n": n}
+
+
+# --- Mann-Whitney U (K4: separacja shock_world vs pure_noise_world) ---
+
+def _subset_sum_with_count_distribution(n_total: int, subset_size: int) -> Dict[int, int]:
+    """{suma: liczba podzbiorow} rozmiaru subset_size z {1,...,n_total} -
+    DP 0/1 (jak w Wilcoxonie, z dodatkowym wymiarem 'ile elementow wybrano').
+    Uzywane do dokladnego rozkladu zerowego Mann-Whitney U (subset_size=n_a,
+    n_total=n_a+n_b) - suma rang losowego podzbioru rozmiaru n_a z {1..N}."""
+    dp: List[Dict[int, int]] = [dict() for _ in range(subset_size + 1)]
+    dp[0][0] = 1
+    for r in range(1, n_total + 1):
+        for k in range(min(subset_size, r), 0, -1):
+            prev = dp[k - 1]
+            if not prev:
+                continue
+            cur = dp[k]
+            for s, c in prev.items():
+                ns = s + r
+                cur[ns] = cur.get(ns, 0) + c
+    return dp[subset_size]
+
+
+def mann_whitney_u(a: List[float], b: List[float], exact_max_product: int = 1000) -> Dict[str, Any]:
+    """Test Manna-Whitneya (rank-sum, dwie proby niezalezne) - K4: separacja
+    shock_world vs pure_noise_world.
+
+    Rozklad DOKLADNY (DP na sumach podzbiorow rang) gdy n_a*n_b<=
+    exact_max_product i brak remisow; inaczej przyblizenie normalne z korekta
+    na remisy i korekta ciaglosci.
+    """
+    n_a, n_b = len(a), len(b)
+    if n_a == 0 or n_b == 0:
+        return {"statistic": None, "p_value": None, "computable": False,
+                "reason": "co najmniej jedna grupa pusta", "n_a": n_a, "n_b": n_b}
+
+    combined = a + b
+    ranks, tie_group_sizes = _rank_with_ties(combined)
+    r_a = sum(ranks[:n_a])
+    u_a = r_a - n_a * (n_a + 1) / 2
+    u_b = n_a * n_b - u_a
+    # KONWENCJA: statistic = u_a (dla PIERWSZEJ probki, "a") - dokladnie tak,
+    # jak scipy.stats.mannwhitneyu zwraca .statistic (U dla pierwszej tablicy
+    # argumentu, NIE min(U_a,U_b)) - zweryfikowane wprost w
+    # tests/test_pc_001_statistics.py.
+    statistic = u_a
+    has_ties = len(tie_group_sizes) > 0
+    n_total = n_a + n_b
+
+    if n_a * n_b <= exact_max_product and not has_ties:
+        dist = _subset_sum_with_count_distribution(n_total, n_a)
+        total_subsets = sum(dist.values())
+        r_a_int = int(round(r_a))
+        p_le = sum(c for s, c in dist.items() if s <= r_a_int) / total_subsets
+        p_ge = sum(c for s, c in dist.items() if s >= r_a_int) / total_subsets
+        p_value = min(1.0, 2 * min(p_le, p_ge))
+        method = "exact"
+    else:
+        mean_u = n_a * n_b / 2
+        tie_term = sum(t ** 3 - t for t in tie_group_sizes)
+        var_u = (n_a * n_b / 12.0) * ((n_total + 1) - tie_term / (n_total * (n_total - 1)))
+        if var_u <= 0:
+            return {"statistic": round(statistic, 6), "p_value": None, "computable": False,
+                    "reason": "wariancja <=0 (zbyt duzo remisow wzgledem n)",
+                    "n_a": n_a, "n_b": n_b}
+        cont_corr = 0.5 if u_a > mean_u else (-0.5 if u_a < mean_u else 0.0)
+        z = (u_a - mean_u - cont_corr) / math.sqrt(var_u)
+        p_value = max(0.0, min(1.0, 2 * (1 - _std_normal_cdf(abs(z)))))
+        method = "normal_approx"
+
+    return {"statistic": round(statistic, 6), "u_a": round(u_a, 6), "u_b": round(u_b, 6),
+            "p_value": round(p_value, 8), "computable": True, "n_a": n_a, "n_b": n_b,
+            "method": method, "has_ties": has_ties}
