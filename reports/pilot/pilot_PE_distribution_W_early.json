@@ -1,0 +1,1851 @@
+{
+  "purpose": "power_analysis_only",
+  "NEVER_FOR_INFERENCE": true,
+  "recorded_quantity": "W_early_only",
+  "seeds_used": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "confirmatory_seeds_start": 1001,
+  "lesson": "L1.2",
+  "environments": [
+    "shock_world",
+    "pure_noise_world"
+  ],
+  "w_early_tick_window": [
+    0,
+    60
+  ],
+  "generated_at": "2026-07-30T19:09:11.368051+00:00",
+  "n_genomes": 23,
+  "n_runs_total": 230,
+  "n_insufficient_data": 0,
+  "insufficient_data_runs": [],
+  "overall_distribution": {
+    "median": 0.141931,
+    "min": 0.0,
+    "max": 0.303804,
+    "n": 230,
+    "q1": 0.038993,
+    "q3": 0.273864
+  },
+  "by_environment": {
+    "shock_world": {
+      "median": 0.038993,
+      "min": 0.0,
+      "max": 0.064749,
+      "n": 115,
+      "q1": 0.004221,
+      "q3": 0.048366
+    },
+    "pure_noise_world": {
+      "median": 0.273845,
+      "min": 0.219114,
+      "max": 0.303804,
+      "n": 115,
+      "q1": 0.259313,
+      "q3": 0.289835
+    }
+  },
+  "by_genome": {
+    "default": {
+      "median": 0.141933,
+      "min": 0.0,
+      "max": 0.290291,
+      "n": 10,
+      "q1": 0.030308,
+      "q3": 0.27511
+    },
+    "highly_plastic": {
+      "median": 0.14187,
+      "min": 0.0,
+      "max": 0.290015,
+      "n": 10,
+      "q1": 0.0303,
+      "q3": 0.275835
+    },
+    "minimal": {
+      "median": 0.141906,
+      "min": 0.0,
+      "max": 0.290321,
+      "n": 10,
+      "q1": 0.030308,
+      "q3": 0.2745
+    },
+    "pop_000": {
+      "median": 0.141663,
+      "min": 0.0,
+      "max": 0.290025,
+      "n": 10,
+      "q1": 0.030296,
+      "q3": 0.274155
+    },
+    "pop_001": {
+      "median": 0.141678,
+      "min": 0.0,
+      "max": 0.2899,
+      "n": 10,
+      "q1": 0.030293,
+      "q3": 0.275774
+    },
+    "pop_002": {
+      "median": 0.148694,
+      "min": 0.0,
+      "max": 0.303641,
+      "n": 10,
+      "q1": 0.030304,
+      "q3": 0.284293
+    },
+    "pop_003": {
+      "median": 0.148486,
+      "min": 0.0,
+      "max": 0.289835,
+      "n": 10,
+      "q1": 0.030297,
+      "q3": 0.275723
+    },
+    "pop_004": {
+      "median": 0.141774,
+      "min": 0.0,
+      "max": 0.290056,
+      "n": 10,
+      "q1": 0.030298,
+      "q3": 0.274211
+    },
+    "pop_005": {
+      "median": 0.147255,
+      "min": 0.0,
+      "max": 0.302384,
+      "n": 10,
+      "q1": 0.030292,
+      "q3": 0.284651
+    },
+    "pop_006": {
+      "median": 0.148552,
+      "min": 0.0,
+      "max": 0.289848,
+      "n": 10,
+      "q1": 0.0303,
+      "q3": 0.275753
+    },
+    "pop_007": {
+      "median": 0.14203,
+      "min": 0.0,
+      "max": 0.289907,
+      "n": 10,
+      "q1": 0.030302,
+      "q3": 0.275741
+    },
+    "pop_008": {
+      "median": 0.147316,
+      "min": 0.0,
+      "max": 0.302433,
+      "n": 10,
+      "q1": 0.030294,
+      "q3": 0.284686
+    },
+    "pop_009": {
+      "median": 0.141881,
+      "min": 0.0,
+      "max": 0.289964,
+      "n": 10,
+      "q1": 0.030299,
+      "q3": 0.27585
+    },
+    "pop_010": {
+      "median": 0.142067,
+      "min": 0.0,
+      "max": 0.290043,
+      "n": 10,
+      "q1": 0.030305,
+      "q3": 0.276531
+    },
+    "pop_011": {
+      "median": 0.147112,
+      "min": 0.0,
+      "max": 0.302338,
+      "n": 10,
+      "q1": 0.030292,
+      "q3": 0.284596
+    },
+    "pop_012": {
+      "median": 0.148793,
+      "min": 0.0,
+      "max": 0.303804,
+      "n": 10,
+      "q1": 0.030309,
+      "q3": 0.28432
+    },
+    "pop_013": {
+      "median": 0.148762,
+      "min": 0.0,
+      "max": 0.303735,
+      "n": 10,
+      "q1": 0.030307,
+      "q3": 0.284298
+    },
+    "pop_014": {
+      "median": 0.141852,
+      "min": 0.0,
+      "max": 0.289943,
+      "n": 10,
+      "q1": 0.030298,
+      "q3": 0.275841
+    },
+    "pop_015": {
+      "median": 0.141989,
+      "min": 0.0,
+      "max": 0.290003,
+      "n": 10,
+      "q1": 0.030302,
+      "q3": 0.276675
+    },
+    "pop_016": {
+      "median": 0.147223,
+      "min": 0.0,
+      "max": 0.302419,
+      "n": 10,
+      "q1": 0.030296,
+      "q3": 0.28431
+    },
+    "pop_017": {
+      "median": 0.141891,
+      "min": 0.0,
+      "max": 0.290076,
+      "n": 10,
+      "q1": 0.030302,
+      "q3": 0.276082
+    },
+    "pop_018": {
+      "median": 0.14187,
+      "min": 0.0,
+      "max": 0.290198,
+      "n": 10,
+      "q1": 0.030304,
+      "q3": 0.275042
+    },
+    "pop_019": {
+      "median": 0.141889,
+      "min": 0.0,
+      "max": 0.290317,
+      "n": 10,
+      "q1": 0.030307,
+      "q3": 0.275078
+    }
+  },
+  "runs": [
+    {
+      "genome_id": "pop_000",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048267,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064153,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038987,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290025,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.272644,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.278687,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262817,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219174,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048245,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064051,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038984,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.2899,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273425,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.28282,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262798,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219304,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048359,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064567,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038999,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289871,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.303641,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282433,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.26313,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.232821,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048286,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064236,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038989,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289835,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273506,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282372,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262957,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.232736,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.0483,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064298,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038991,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290056,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.272713,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.278707,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262909,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.21925,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048238,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064022,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038983,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290727,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.302384,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282626,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.254411,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.230489,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048314,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064361,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038993,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289848,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273539,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282396,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.263026,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.232743,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.04833,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064433,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038995,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289907,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273538,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.28235,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.263062,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219626,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048255,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064099,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038985,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290743,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.302433,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282667,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.254456,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.230534,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048306,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064327,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038992,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289964,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273483,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282951,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262969,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219436,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048366,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064598,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.039,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290043,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.274626,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282245,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.263129,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219535,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.04823,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.063986,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038982,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290784,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.302338,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282533,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262837,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.230238,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.0484,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064749,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.039005,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289889,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.303804,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282464,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.254828,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.232837,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048384,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.06468,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.039002,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.2899,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.303735,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282431,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.263187,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.232845,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048295,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064277,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.03899,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289943,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273476,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282938,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262942,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219428,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.04834,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064478,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038996,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290003,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.274561,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.283018,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.263061,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219501,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048273,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064178,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038987,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.289696,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.302419,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282515,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262934,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.230267,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048331,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064441,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038995,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290076,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273808,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282904,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.263003,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219341,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048352,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064532,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038998,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290198,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273845,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.278632,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.259265,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219207,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048381,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064664,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.039002,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290317,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273922,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.278545,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.259301,
+      "status": "OK"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219114,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048386,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064686,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.039003,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290291,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273952,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.278582,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.259327,
+      "status": "OK"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219179,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048386,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064686,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.039003,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290321,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273151,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.278548,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.259313,
+      "status": "OK"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219126,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "shock_world",
+      "seed": 1,
+      "w_early": 0.048314,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "shock_world",
+      "seed": 2,
+      "w_early": 0.0,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "shock_world",
+      "seed": 3,
+      "w_early": 0.064362,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "shock_world",
+      "seed": 4,
+      "w_early": 0.038993,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "shock_world",
+      "seed": 5,
+      "w_early": 0.004221,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early": 0.290015,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early": 0.273474,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early": 0.282917,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early": 0.262972,
+      "status": "OK"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early": 0.219378,
+      "status": "OK"
+    }
+  ]
+}

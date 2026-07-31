@@ -1,0 +1,125 @@
+{
+  "document_type": "specyfikacja",
+  "title": "W2 - Primary Endpoint znormalizowany podłogą nieredukowalną",
+  "date": "2026-07-28",
+  "status": "ZATWIERDZONA decyzją D-018 - procedura V-C (Adaptive Validation) wbudowana",
+  "basis": ["Aneks 3", "D-011", "D-015 (zmieniona przez D-018: wyprowadzenie numeryczne)", "D-012", "D-017", "D-018"],
+  "author": "audytor niezależny",
+
+  "d011_three_requirements_before_baseline": [
+    "formalna specyfikacja matematyczna (dostarczona tu)",
+    "niezależna weryfikacja implementacji (zadanie wykonawcze po zatwierdzeniu)",
+    "jawna procedura dla małego mianownika (dostarczona tu)"
+  ],
+
+  "section_1_blocking_determination": {
+    "cto_question": "czy L1.2 opisuje scenariusz eksperymentalny, czy konkretną dynamikę świata?",
+    "answer_verified_in_code": "L1.2 opisuje PROTOKÓŁ. Docstring modułu (clos_academy/lesson_L1_2.py) stwierdza wprost, że t_shock/pre_shock_in_band są liczone dla WŁAŚCIWOŚCI scenariusza, nie dla nazwy shock_world, oraz że w stable_world liczona jest bazowa stabilność, nie recovery_time. Lekcja obsługuje też weak_shock_world i long_stable_shock_world.",
+    "conclusion": "nowa lekcja nie jest potrzebna - L1.2 uruchomiona w środowisku stacjonarnym jest architektonicznie wspierana i degraduje się poprawnie",
+    "recommendation_per_d012": "konfigurację PC-001 nazwać odrębnie - protokół L1.2, środowisko noise_world, hipoteza PC, endpoint W2 - żeby wynik nie był czytany jako 'shock recovery'"
+  },
+
+  "section_2_formal_definition": {
+    "section_2_1_floor_vc_procedure": {
+      "not_analytical": "podłoga NIE jest wyprowadzana analitycznie - generator obcina do [0,1] (clos_world/generators.py:20), rozkład wyjściowy jest normalnym uciętym, wzór sigma*sqrt(2/pi) opisywałby rozkład, którego środowisko nie produkuje (D-017 krok 3)",
+      "numerical_derivation": "podłoga wyprowadzana numerycznie z faktycznego generatora: dla ticka t, N realizacji s_i(t)=env(t,seed_i), i=1..N; m(t)=mean(s_i(t)) [predykcja optymalna]; floor(t)=mean(|s_i(t)-m(t)|) [oczekiwany błąd predyktora optymalnego]",
+      "N": 100000,
+      "N_derivation": "kryterium precyzji SE(floor)<0.001 (=5% MIN_DENOMINATOR), nie wybrane arbitralnie - patrz analiza_floor_model_2026-07-28 §6"
+    },
+    "section_2_1a_vc_validity_test_mechanical": {
+      "computed_before_experiment_on_generator_only": true,
+      "formulas": {
+        "floor_env": "mean{floor(t) : t in całe mierzalne okno}",
+        "bias_early": "mean{floor(t) : t in W_early} - floor_env",
+        "bias_late": "mean{floor(t) : t in W_late} - floor_env",
+        "bias_roznicowy": "|bias_early - bias_late|"
+      },
+      "decision_rule_automatic": [
+        {"condition": "bias_roznicowy < FLOOR_BIAS_TOLERANCE", "decision": "użyj stałej floor_env", "artifact_record": "floor_model=constant, wartość floor_env, wartość bias_roznicowy"},
+        {"condition": "bias_roznicowy >= FLOOR_BIAS_TOLERANCE", "decision": "automatycznie użyj floor(t) + OSTRZEŻENIE", "artifact_record": "floor_model=per_tick, warning='bias exceeds tolerance', profil floor(t)"}
+      ],
+      "floor_bias_tolerance": 0.002,
+      "floor_bias_tolerance_scope": "parametr prerejestrowany PC-001, NIE globalna stała CLOS (D-018 pkt 3) - przyszłe eksperymenty wymagają własnej prerejestracji dla innej wartości",
+      "justification": "dla środowiska stacjonarnego i okresowego średnia floor(t) po pełnym okresie jest stała; jeśli okna obejmują całkowitą liczbę okresów, obciążenie identyczne w obu i stała wystarcza; jeśli nie, różnica obciążeń wchodzi wprost do licznika W_early_red-W_late_red i udaje efekt albo go maskuje",
+      "mechanical_requirement": "decyzja MUSI być mechaniczna (D-018 pkt 6) - operator nie wybiera modelu podłogi, wybiera go test. Wybór zapisywany w artefaktach eksperymentu wraz z wartością bias_roznicowy",
+      "measurement_model_unchanged": "endpoint pozostaje 'redukcja błędu redukowalnego'; zmienia się wyłącznie precyzja wyznaczenia odjemnika"
+    },
+    "section_2_2_reducible_error": {
+      "formula": "PE_red(t) = max(0, PE(t) - floor_env)",
+      "truncation_reason": "pojedyncza realizacja szumu może dać PE(t)<floor_env, co nie oznacza 'lepiej niż optymalnie', tylko fluktuację"
+    },
+    "section_2_3_endpoint": {
+      "formulas": {
+        "W_early_red": "mean{PE_red(t) : t in okno wczesne}",
+        "W_late_red": "mean{PE_red(t) : t in okno późne}",
+        "redukcja_W2": "(W_early_red - W_late_red) / W_early_red"
+      },
+      "condition_a_direction": "regresja PE_red(t) po całym mierzalnym oknie, beta<0, istotne",
+      "condition_b_magnitude": "redukcja_W2 >= 0.20",
+      "interpretation": "jaką część tego, co dało się nauczyć, system faktycznie nauczył. Szum jest z definicji poza licznikiem, więc miara jest porównywalna między środowiskami - 20% znaczy to samo przy podłodze 0 i przy 0.25"
+    }
+  },
+
+  "section_3_small_denominator_procedure": {
+    "problem": "redukcja_W2 jest niestabilna gdy W_early_red -> 0 - system od początku przewiduje na poziomie bliskim optymalnemu",
+    "section_3_1_min_denominator": {
+      "value": 0.02,
+      "justification": "≈11% najmniejszej niezerowej podłogi (shock_world po wstrząsie, 0.1128) i ≈8% podłogi pure_noise_world. Poniżej tego poziomu W_early_red jest tego samego rzędu co fluktuacja próbkowania w oknie 60 ticków. Konwencja przyjęta z góry, jak próg 20%"
+    },
+    "section_3_2_handling": [
+      {"condition": "W_early_red >= MIN_DENOMINATOR", "classification": "VALID", "treatment": "wchodzi do analizy"},
+      {"condition": "W_early_red < MIN_DENOMINATOR", "classification": "FLOOR_LIMITED", "treatment": "wykluczony z testu Warunku B, ale raportowany"}
+    ],
+    "floor_limited_meaning": "NIE jest brakiem danych - jest wynikiem: system od początku przewidywał na poziomie bliskim optymalnemu, nie było czego redukować",
+    "section_3_3_selection_bias_safeguard": {
+      "rule": "jeśli >30% przebiegów w komórce jest FLOOR_LIMITED, komórka jest klasyfikowana jako INCONCLUSIVE, niezależnie od wyniku pozostałych przebiegów",
+      "reason": "przy dużym odsetku wykluczeń test działałby na podzbiorze wybranym ze względu na wysoki błąd początkowy - próba z regresją do średniej wbudowaną w kryterium doboru, dałoby fałszywy pozytyw",
+      "threshold": 0.30,
+      "threshold_note": "konwencja przyjęta z góry"
+    },
+    "section_3_4_condition_a_vs_floor_limited": "Warunek A (beta<0) jest liczony TAKŻE dla przebiegów FLOOR_LIMITED - nachylenie nie ma mianownika, więc nie jest niestabilne. Raportowane osobno dla obu grup"
+  },
+
+  "section_4_verification_requirements": {
+    "gate": "implementacja nie może wejść do baseline przed spełnieniem wszystkich",
+    "tests": [
+      {"n": 1, "test": "floor_env policzona niezależnie przez audytora z definicji scenariusza, zgodna do 1e-6", "detects": "błąd w wyprowadzeniu podłogi"},
+      {"n": 2, "test": "NEG: podłoga celowo zawyżona -> wszystkie przebiegi FLOOR_LIMITED", "detects": "czy próg działa"},
+      {"n": 3, "test": "NEG: podłoga celowo wyzerowana -> W2 redukuje się do W1 (surowe PE)", "detects": "czy normalizacja jest realnie stosowana", "critical": true, "note": "implementacja pobierająca floor_env, ale jej nie odejmująca, przechodziłaby wszystkie testy pozytywne i dawała wyniki W1 pod nazwą W2 - ten sam wzorzec co alias comparison w P0"},
+      {"n": 4, "test": "SYM: predyktor idealny (zwraca warunkową średnią) -> PE_red≈0, redukcja nieokreślona -> FLOOR_LIMITED", "detects": "czy podłoga jest poprawna"},
+      {"n": 5, "test": "SYM: predyktor stały (0.5) -> brak redukcji", "detects": "czy miara nie generuje efektu z niczego"},
+      {"n": 6, "test": "przypadki brzegowe: W_early_red=0 dokładnie, wszystkie PE(t)<floor_env", "detects": "dzielenie przez zero, obcięcie"},
+      {"n": "W2-T7", "test": "test mechanizmu V-C (D-018 pkt 6): dla środowiska referencyjnego policz floor_env i floor(t), wykonaj test ważności. (a) bias<tolerancja -> wybrana stała; (b) bias sztucznie zawyżony -> automatyczne przejście na floor(t)+ostrzeżenie+zapis decyzji; (c) decyzja NIE jest konfigurowalna przez operatora", "detects": "czy V-C jest mechaniczne, nie deklaratywne", "part_c_note": "jeśli model podłogi da się ustawić parametrem, V-C jest sugestią nie mechanizmem - pierwszy niewygodny wynik zostanie naprawiony przełącznikiem. Test musi wykazać, że nie istnieje ścieżka, w której operator wybiera model podłogi"}
+    ]
+  },
+
+  "section_5_impact_on_controls": {
+    "note": "wszystkie kontrole operują teraz na PE_red, nie na surowym PE",
+    "controls": [
+      {"control": "K1 (przetasowanie)", "change": "bez zmian koncepcyjnych; liczona na PE_red"},
+      {"control": "K3a/K3b (wstrząs)", "change": "bez zmian - shock_world pozostaje środowiskiem K3"},
+      {"control": "K4 (czysty szum)", "change": "wzmocniona - w pure_noise_world PE_red≈0 z definicji (brak struktury) -> wszystkie przebiegi FLOOR_LIMITED -> brak efektu jest strukturalnie gwarantowany, nie tylko empirycznie", "caveat": "przy W2 kontrola staje się częściowo tautologiczna - musi być tak opisane w raporcie"},
+      {"control": "K5 (ablacja)", "change": "bez zmian koncepcyjnych; liczona na PE_red"},
+      {"control": "K6 (korelacja)", "change": "bez zmian - operuje na prediction/input, nie na PE"},
+      {"control": "K7 (gałąź awaryjna)", "change": "bez zmian"}
+    ]
+  },
+
+  "section_6_not_resolved": [
+    "okien pomiarowych - wynikają z wyboru środowiska Primary, nie odwrotnie",
+    "progu 20% - pozostaje konwencją (Aneks 1, Zmiana 4), stosowaną teraz do redukcja_W2",
+    "liczby seedów - wynika z ponownej analizy mocy po zatwierdzeniu W2",
+    "ponownego pilota - konieczny, poprzedni mierzył W_early surowe, nie W_early_red"
+  ],
+
+  "section_7_questions_for_cto": [
+    "MIN_DENOMINATOR=0.02 - akceptujesz wartość i uzasadnienie?",
+    "próg 30% FLOOR_LIMITED->INCONCLUSIVE - akceptujesz?",
+    "środowisko Primary: noise_world (floor=0.1784) - potwierdzasz?",
+    "nazwa konfiguracji zgodna z D-012 - wprowadzamy jawną warstwę 'konfiguracja eksperymentu' jako osobny artefakt w repo?"
+  ],
+
+  "footnote": "Podłogi wyprowadzone z E|N(0,sigma^2)|=sigma*sqrt(2/pi), wartości sigma^2 odczytane z clos_world/scenarios.py. Wymagają niezależnego przeliczenia przed zamrożeniem (wymaganie weryfikacyjne nr 1) - SKORYGOWANE: wyprowadzenie NUMERYCZNE z faktycznego generatora, nie analityczne, patrz section_2_1.",
+
+  "korekta_2026_07_28_D017_D018": "Wymaganie weryfikacyjne nr 1 wykonane. Wartosc analityczna dla noise_world (0.178) byla oszacowaniem dla nieobcietego rozkladu normalnego - zalozenie falszywe. Wyznaczenie numeryczne (procedura V-C) dalo floor_env=0.09589, ~53% wartosci analitycznej. Obowiazuja wylacznie wartosci z clos_world/floor_model.py."
+}

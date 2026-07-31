@@ -234,8 +234,38 @@ CRITICAL_FILES_PC_001 = [
     # kryteria/definicje nie moga sie zmienic bez zlamania hasha.
     "publications/preregistration_PC_001_ANEKS_2_2026-07-28.json",
     "publications/preregistration_PC_001_ANEKS_2_2026-07-28.md",
+    # B4a (D-008, 2026-07-28): projekt analizy mocy jest dokumentem
+    # metodologicznym rownowaznym prerejestracji - jesli prerejestracja jest
+    # w baseline, kryteria doboru n (rozdzielenie efekt-z-gory/wariancja-
+    # -z-pilota, kolejnosc reakcji na K3b niewykonalny) tez musza byc, inaczej
+    # ktos moglby je zmienic PO pilocie bez wykrycia przez hash.
+    "publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md",
+    # W2 + V-C (D-018, 2026-07-28): Aneks 3 (zgodnosc hipotezy z
+    # operacjonalizacja, wybor srodowiska Primary), specyfikacja W2 (formula
+    # PE_red/redukcja_W2, MIN_DENOMINATOR, FLOOR_LIMITED, procedura V-C),
+    # analiza floor_env vs floor(t) (uzasadnienie FLOOR_BIAS_TOLERANCE i N).
+    # Wszystkie trzy definiuja KRYTERIA nowego Primary Endpoint - bez nich w
+    # rejestrze dalo by sie po cichu zmienic definicje podlogi/progow po
+    # ponownym pilocie, dokladnie to, czemu ma zapobiegac ten mechanizm.
+    "publications/preregistration_PC_001_ANEKS_3_2026-07-28.json",
+    "publications/preregistration_PC_001_ANEKS_3_2026-07-28.md",
+    "publications/specyfikacja_W2_2026-07-28.json",
+    "publications/specyfikacja_W2_2026-07-28.md",
+    "publications/analiza_floor_model_2026-07-28.json",
+    "publications/analiza_floor_model_2026-07-28.md",
+    # W2 KOD (2026-07-28): pliki liczace/stosujace endpoint W2, nie tylko go
+    # opisujace. Ten sam wzorzec co B3 (statistics.py/fallback_branch_
+    # diagnostic.py) - "kod analizy wchodzi do CRITICAL_FILES_PC_001".
+    # compute_noise_world_floor.py CELOWO NIE wchodzi (ocena CTO, zatwierdzona):
+    # to jednorazowy runner, ktory WYZNACZYL FLOOR_ENV_NOISE_WORLD ponizej -
+    # analogicznie do pilot_power_analysis.py, ktory tez nie jest czlonkiem
+    # (dostarcza dane WEJSCIOWE do decyzji projektowej, nie jest kodem
+    # STOSOWANYM przy kazdym przebiegu eksperymentu).
+    "clos_world/floor_model.py",
+    "clos_scientist/w2_endpoint.py",
+    "clos_scientist/pc_001_experiment_config.py",
 ]
-assert len(CRITICAL_FILES_PC_001) == 30, f"oczekiwano 30 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 40, f"oczekiwano 40 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

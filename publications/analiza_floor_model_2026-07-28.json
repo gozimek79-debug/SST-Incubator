@@ -1,0 +1,98 @@
+{
+  "document_type": "analiza_metodologiczna",
+  "title": "floor_env (stała) vs floor(t) (funkcja ticka)",
+  "date": "2026-07-28",
+  "status": "PROJEKT - Hard Halt w mocy",
+  "basis": ["D-015 (zmieniona: wyprowadzenie numeryczne dopuszczalne)", "D-017 (walidacja modelu środowiska)"],
+  "author": "audytor niezależny",
+
+  "task": "CTO nie zatwierdził przejścia z floor_env na floor(t), wskazując że to zmiana modelu pomiarowego, nie sposobu obliczania. Wymagana analiza: konsekwencje statystyczne, dodatkowa wariancja, interpretowalność.",
+
+  "section_1_language_correction": {
+    "prior_claim": "E|N(0,sigma^2)|=sigma*sqrt(2/pi) nie obowiązuje",
+    "precise_correction": "wzór jest poprawny dla NIEOBCIĘTEGO rozkładu normalnego. Nie opisuje oczekiwanego błędu generatora CLOS, ponieważ clos_world/generators.py:20 obcina wyjście do [0,1] - rozkład wyjściowy jest normalnym UCIĘTYM, nie normalnym",
+    "classification": "nie błąd wzoru - błąd zastosowania wzoru do niewłaściwego rozkładu (klasa ukrytego założenia, którą D-017 ma wykrywać)"
+  },
+
+  "section_2_nature_of_difference": {
+    "rule": "obcięcie bije tylko gdy sygnał leży blisko krańca zakresu",
+    "table": [
+      {"signal_position": "środek zakresu (≈0.5)", "truncation_effect": "znikomy", "local_floor": "≈ sigma*sqrt(2/pi) (pełna)"},
+      {"signal_position": "blisko 0 lub 1", "truncation_effect": "silny", "local_floor": "istotnie niższa"}
+    ],
+    "conclusion": "floor jest funkcją położenia sygnału, więc w środowisku okresowym - funkcją okresową ticka"
+  },
+
+  "section_3_when_constant_suffices": {
+    "key_observation": "dla środowiska stacjonarnego i okresowego średnia floor(t) po pełnym okresie jest stała",
+    "condition": "jeśli okna W_early i W_late obejmują całkowitą liczbę okresów sygnału: mean{floor(t):t in W_early} = mean{floor(t):t in W_late} = floor_okres - stała wystarcza, bo obciążenie identyczne w obu oknach",
+    "if_windows_misaligned": "powstaje różnica obciążeń między oknami, wchodzi wprost do licznika W_early_red-W_late_red - udaje efekt albo go maskuje",
+    "reframing": "to przekształca decyzję z preferencji w warunek sprawdzalny"
+  },
+
+  "section_4_three_variants": {
+    "V_A_floor_env_constant": {
+      "validity_condition": "środowisko stacjonarne oraz okna obejmujące całkowitą liczbę okresów",
+      "interpretability": "najwyższa - jedna liczba na środowisko, porównywalna, cytowalna",
+      "additional_variance": "minimalna: jedna wartość, błąd MC ≈ sigma/sqrt(N*T)",
+      "validation": "prosta - jedna liczba do niezależnego przeliczenia",
+      "risk": "obciążenie różnicowe przy niedopasowaniu okien do okresu"
+    },
+    "V_B_floor_t_function": {
+      "validity_condition": "zawsze poprawna",
+      "interpretability": "niższa - podłoga przestaje być liczbą do zacytowania",
+      "additional_variance": "błąd MC na tick ≈ sigma/sqrt(N), ale uśredniony po oknie 60 ticków maleje ≈ sqrt(60)≈7.7x - wpływ niewielki",
+      "validation": "trudniejsza - T wartości zamiast jednej, test na profilu podłogi",
+      "risk": "złożoność, więcej miejsc na błąd implementacji"
+    },
+    "V_C_recommended": {
+      "description": "stała floor_env (średnia po okresie), ale prerejestrowane sprawdzenie warunku z §3; jeśli nie spełniony - automatyczne przejście na floor(t)",
+      "prereg_condition": "|mean{floor(t):t in W_early} - mean{floor(t):t in W_late}| < FLOOR_BIAS_TOLERANCE",
+      "floor_bias_tolerance": 0.002,
+      "floor_bias_tolerance_derivation": "10% wartości MIN_DENOMINATOR=0.02",
+      "check_performed_on": "samym generatorze środowiska, przed eksperymentem, bez żadnych danych z mózgu",
+      "interpretability": "jak V-A (jedna liczba), dopóki warunek spełniony",
+      "correctness": "jak V-B (spadek na floor(t) gdy warunek zawiedzie)",
+      "measurement_model": "nie zmienia się - endpoint pozostaje 'redukcja błędu redukowalnego'; zmienia się tylko dokładność wyznaczenia podłogi",
+      "decision_basis": "oparta na dowodzie, nie na preferencji"
+    }
+  },
+
+  "section_5_answers_to_cto_questions": {
+    "statistical_consequences": "przy V-C żadne, dopóki warunek spełniony - model identyczny z V-A. Przy przejściu na floor(t) model pozostaje ten sam, zmienia się precyzja odjemnika",
+    "additional_variance": "błąd MC propaguje do PE_red(t), ale uśrednienie po oknie 60 ticków redukuje go ≈7.7x; przy N wg §6 wpływ o rząd wielkości poniżej MIN_DENOMINATOR - nie jest to źródło istotnej wariancji",
+    "interpretability": "zachowana w V-C - raportujemy floor_env plus wynik sprawdzenia warunku ważności; jeśli zawiedzie, raportujemy jawnie z profilem floor(t)"
+  },
+
+  "section_6_sample_size_N": {
+    "criterion": "błąd Monte Carlo wyznaczenia podłogi poniżej 5% MIN_DENOMINATOR: SE(floor) < 0.05*0.02 = 0.001",
+    "estimator_formula": "SE ≈ sigma_eff/sqrt(N), sigma_eff <= sigma (obcięcie zmniejsza rozrzut, sigma jest oszacowaniem konserwatywnym)",
+    "table": [
+      {"environment": "noise_world", "sigma_upper_bound": 0.224, "required_N": 50000},
+      {"environment": "pure_noise_world", "sigma_upper_bound": 0.316, "required_N": 100000},
+      {"environment": "shock_world (po)", "sigma_upper_bound": 0.141, "required_N": 20000}
+    ],
+    "chosen_N": 100000,
+    "chosen_N_justification": "pokrywa najostrzejszy przypadek z zapasem; wynika z kryterium precyzji, nie z wyboru na oko",
+    "convention_note": "kryterium SE<0.001 i współczynnik 5% są konwencjami przyjętymi z góry, jak próg 20% i MIN_DENOMINATOR - ich wartością jest niezmienność",
+    "korekta_2026_07_28_D017_D018": "sigma_upper_bound w tabeli powyzej jest uzywane WYLACZNIE jako konserwatywne gorne oszacowanie do wzoru na N - NIE jako wartosc podlogi. Wykonanie dla noise_world potwierdzilo poprawnosc tego uzycia: N=100000 dalo floor_env=0.09589 ze stabilnym wynikiem (V-C wybrala model constant, bias_roznicowy ~83x ponizej tolerancji) - sigma=0.224 nigdy nie weszlo do obliczenia wartosci podlogi, tylko do doboru N."
+  },
+
+  "section_7_d017_execution_for_floor": {
+    "steps": [
+      {"step": 1, "description": "weryfikacja matematyczna modelu", "result": "wzór dla normalnego uciętego nie jest wyprowadzany analitycznie - model to 'oczekiwany błąd bezwzględny optymalnego predyktora', wyznaczany numerycznie"},
+      {"step": 2, "description": "weryfikacja implementacji generatora", "result": "wykonana: rng.gauss(mean,sqrt(variance)) -> parametr variance JEST wariancją; max(0,min(1,raw)) -> obcięcie potwierdzone"},
+      {"step": 3, "description": "potwierdzenie że implementacja zachowuje założenia wyprowadzenia", "result": "TO JEST KROK KTÓRY ZAWIÓDŁ. Odtąd: wyprowadzenie korzysta z faktycznego generatora, nie z jego idealizacji - krok 3 spełniony konstrukcyjnie"}
+    ],
+    "conclusion": "wyprowadzanie podłogi przez próbkowanie rzeczywistego generatora eliminuje całą klasę błędu z D-017 - nie ma idealizacji, która mogłaby się rozjechać z implementacją"
+  },
+
+  "section_8_questions_for_cto": [
+    "Czy przyjmujesz V-C (stała + prerejestrowany warunek ważności + automatyczne przejście na floor(t))?",
+    "FLOOR_BIAS_TOLERANCE=0.002 (10% MIN_DENOMINATOR) - akceptujesz?",
+    "N=100000 wyprowadzone z SE<0.001 - akceptujesz kryterium i wartość?",
+    "Czy analiza spełnia wymóg 'osobnego dokumentu metodologicznego' przed zdjęciem blokady z floor(t)?"
+  ],
+
+  "footnote": "Wartości sigma odczytane z clos_world/scenarios.py; obcięcie potwierdzone w clos_world/generators.py:20. Warunek ważności z §3 wymaga sprawdzenia okresu sygnału noise_world względem długości okien - do wykonania przy implementacji."
+}

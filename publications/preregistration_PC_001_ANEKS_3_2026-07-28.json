@@ -1,0 +1,106 @@
+{
+  "document_type": "aneks",
+  "amends": "publications/preregistration_PC_001.json",
+  "aneks_id": "PC-001-ANEKS-3",
+  "title": "zgodność hipotezy z operacjonalizacją",
+  "date": "2026-07-28",
+  "status": "PROJEKT do zatwierdzenia - Hard Halt pozostaje w mocy",
+  "basis": ["DECYZJA CTO D-010", "wynik pilota B4a"],
+  "author": "audytor niezależny",
+
+  "task": "D-010 pkt 4: nie wybór okna pomiarowego, lecz analiza zgodności między hipotezą badawczą a operacyjną definicją Primary Endpoint. Aneks przedstawia warianty i uzasadnia wybór.",
+
+  "section_1_language_correction": {
+    "prior_overclaim": "Primary Endpoint jest niemożliwy dla dowolnego genomu - przecenienie siły dowodu",
+    "formal_argument_shock_world": {
+      "environment_definition": "clos_world/scenarios.py:30 - tick<shock_tick: 0.2 (stała); tick==shock_tick: shock_magnitude (skok); tick>shock_tick: shock_magnitude*0.8 + N(0,0.02) (nowy poziom + szum)",
+      "pre_shock_phase": "świat stały, E[PE_pre] -> 0 niezależnie od genomu (gałąź awaryjna predict() daje dokładnie 0.2)",
+      "post_shock_phase": "najlepszy predyktor zwraca shock_magnitude*0.8; błąd rezydualny E|N(0,0.02)| = sigma*sqrt(2/pi) ≈ 0.141*0.798 ≈ 0.113 - nieredukowalna podłoga szumu",
+      "conclusion": "W_late >= 0.113, W_early -> 0 (gdy okno w całości przedwstrząsowe); redukcja (W_early-W_late)/W_early jest ujemna albo nieokreślona - nigdy >= 20%",
+      "status": "dowiedzione dla klasy predyktorów zwracających wartość ograniczoną zakresem sygnału (cała rodzina w prediction.py), nie dla dowolnego wyobrażalnego predyktora"
+    }
+  },
+
+  "section_2_construct_validity_problem": {
+    "hypothesis": "system uczy się przewidywać strukturę swojego świata",
+    "what_current_operationalization_measures_in_shock_world": "jak bardzo świat stał się trudniejszy w trakcie przebiegu",
+    "diagnosis": "redukcja PE mierzy uczenie TYLKO gdy trudność świata jest stała; w shock_world trudność rośnie z definicji, więc pomiar odzwierciedla zmianę środowiska, nie zmianę systemu",
+    "precedent": "ta sama klasa błędu co adaptation_tick w v0.11 - nie mierzył adaptacji, tylko czas ustabilizowania entropii"
+  },
+
+  "section_3_diagnosis": {
+    "cto_question": "czy problem to shock_world, czy jeden endpoint dla różnych dynamik?",
+    "answer": "to drugie",
+    "reasoning": "redukcja PE ma sens wyłącznie względem tego, co w danym świecie jest do nauczenia",
+    "error_components": [
+      {"component": "redukowalna", "what": "struktura świata (sinus, poziom, okresowość)", "pc_can_reduce": true},
+      {"component": "nieredukowalna", "what": "szum losowy", "pc_can_reduce": false}
+    ],
+    "key_observation": "wszystkie środowiska CLOS są czystymi funkcjami (tick,seed)->float o znanym rozkładzie szumu, więc podłogę nieredukowalną można policzyć analitycznie (KOREKTA w SPECYFIKACJA_W2/ANALIZA: numerycznie, nie analitycznie - D-017 krok 3)",
+    "floor_table_by_environment": [
+      {"environment": "stable_world", "structure": "czysty sinus", "floor_e_abs_noise": 0.0},
+      {"environment": "noise_world", "structure": "sinus + N(0,0.05)", "floor_e_abs_noise": 0.178},
+      {"environment": "shock_world", "structure": "stała -> skok -> poziom", "floor_e_abs_noise": "0 (przed), ~0.113 (po) - niestacjonarna"},
+      {"environment": "pure_noise_world", "structure": "brak", "floor_e_abs_noise": 0.252}
+    ],
+    "conclusion": "jeden uniwersalny próg 'redukcja>=20% surowego PE' jest niespójny między środowiskami, bo 20% znaczy co innego gdy podłoga wynosi 0 a co innego gdy 0.25",
+    "korekta_2026_07_28_D017_D018": "wartości w floor_table_by_environment są oszacowaniem analitycznym przy założeniu nieobciętego rozkładu normalnego - założenie fałszywe, generator obcina do [0,1] (generators.py:20). Wyznaczenie numeryczne z rzeczywistego generatora dało dla noise_world floor_env=0.09589, ~53% wartości analitycznej. Tabela zachowana jako ślad rozumowania, NIE jako źródło wartości. Obowiązują wartości z clos_world/floor_model.py (procedura V-C)."
+  },
+
+  "section_4_endpoint_variants": {
+    "W1_status_quo": {
+      "definition": "redukcja surowego PE >= 20%",
+      "measures": "zmianę błędu bezwzględnego",
+      "flaw": "miesza uczenie ze zmianą trudności świata; niespójne między środowiskami; w shock_world systematycznie nieosiągalne",
+      "verdict": "do wycofania"
+    },
+    "W2_recommended": {
+      "formula": "PE_reducible(t) = max(0, PE(t) - floor_env); redukcja = (W_early_reducible - W_late_reducible) / W_early_reducible",
+      "measures": "ile z tego co dało się nauczyć zostało nauczone",
+      "advantages": ["porównywalne między środowiskami - 20% znaczy to samo wszędzie", "wprost odpowiada hipotezie (uczy się struktury), szum wyłączony z definicji"],
+      "condition": "floor_env liczona ANALITYCZNIE z definicji scenariusza (KOREKTA pózniejszymi dokumentami: NUMERYCZNIE), prerejestrowana przed przebiegiem, nigdy szacowana z danych - inaczej moc retrospektywna",
+      "risk": "przy floor_env bliskiej PE mianownik mały -> niestabilność; wymaga progu minimalnej wielkości mianownika",
+      "verdict": "rekomendowany"
+    },
+    "W3_separate_endpoints_per_environment_class": {
+      "measures": "różne aspekty przewidywania w środowiskach stacjonarnych vs niestacjonarnych",
+      "advantages": "uczciwie przyznaje że shock_world bada co innego niż noise_world",
+      "flaw": "mnoży kryteria decyzyjne; utrudnia korektę FDR; zwiększa ryzyko selekcji wyników",
+      "verdict": "sensowny jako uzupełnienie W2, nie zamiast"
+    },
+    "W4_windows_relative_to_shock_tick": {
+      "verdict": "odrzucony przez CTO (D-010) i audytora - przesuwa pytanie na adaptację po zmianie reguł, pokrywa się z K3"
+    }
+  },
+
+  "section_5_primary_environment_consequence": {
+    "shock_world_property": "niestacjonarne - podłoga zmienia się w trakcie przebiegu (0 przed wstrząsem, 0.113 po)",
+    "recommendation": "Primary w środowisku stacjonarnym (noise_world), gdzie podłoga jest stała i pytanie 'ile z redukowalnego błędu zredukował' ma jednoznaczną odpowiedź",
+    "shock_world_role": "pozostaje środowiskiem kontrolnym dla K3 (adaptacja po zmianie reguł)",
+    "technical_condition_to_verify": "czy lekcja L1.2 (300 ticków, PERCEIVE nigdy pomijany) może działać w noise_world bez utraty sensu - jeśli nie, potrzebna nowa konfiguracja lekcji"
+  },
+
+  "section_6_not_resolved_by_this_annex": [
+    "nie wybiera okien pomiarowych - wynika z wyboru wariantu",
+    "nie zmienia progu 20% - pozostaje konwencją stosowaną do innej wielkości",
+    "nie modyfikuje rozkładu shock_tick ani stratyfikacji",
+    "nie unieważnia K1-K7 - operacjonalizacja wymaga przeliczenia pod W2"
+  ],
+
+  "section_7_questions_for_cto": [
+    "Czy przyjmujemy W2 jako nową definicję Primary Endpoint?",
+    "Czy W3 wchodzi jako uzupełnienie W2, czy odkładamy do PC-002?",
+    "Czy Primary przenosimy do środowiska stacjonarnego (noise_world)?",
+    "Czy floor_env liczona analitycznie z definicji scenariusza jest akceptowalna jako wielkość prerejestrowana?"
+  ],
+
+  "section_8_process_status": {
+    "hard_halt": "pozostaje w mocy",
+    "pilot_b4a_disposition": "kod pilota, testy gwarancyjne i wynik B4a zostają w repo jako udokumentowany negatywny wynik walidacyjny (D-010 pkt 2) - część historii metodologicznej, nie porażka",
+    "next_steps": "po zatwierdzeniu wariantu: aneks operacyjny z nowymi oknami -> ponowny pilot -> B4b"
+  },
+
+  "footnote": "Podłogi nieredukowalne policzone z definicji scenariuszy: E|N(0,sigma^2)|=sigma*sqrt(2/pi). noise_world sigma^2=0.05 -> 0.178; shock_world (po wstrząsie) sigma^2=0.02 -> 0.113; pure_noise_world sigma^2=0.1 -> 0.252. Wartości do niezależnej weryfikacji przed zamrożeniem (SKORYGOWANE w ANALIZA_FLOOR_ENV_vs_FLOOR_T.md i SPECYFIKACJA_W2.md: wyprowadzenie analityczne zastąpione numerycznym, D-017 krok 3).",
+
+  "korekta_2026_07_28_D017_D018": "Powyzsze sa oszacowaniem analitycznym dla nieobcietego rozkladu normalnego - zalozenie falszywe wobec obciecia do [0,1] w generatorze. Zweryfikowane numerycznie (procedura V-C): noise_world floor_env=0.09589 (~53% wartosci analitycznej 0.178). Obowiazuja wylacznie wartosci numeryczne z clos_world/floor_model.py."
+}
