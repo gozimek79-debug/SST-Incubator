@@ -1,0 +1,27 @@
+{
+  "purpose": "power_analysis_only",
+  "NEVER_FOR_INFERENCE": true,
+  "recorded_quantity": "recovery_1_summary_only",
+  "seeds_used": [
+    1,
+    2,
+    3
+  ],
+  "n_genomes": 23,
+  "n_runs_total": 69,
+  "environment": "recurring_shock_world",
+  "interval": 40,
+  "lesson": "L1.2",
+  "n_sustain": 10,
+  "n_censored": 61,
+  "n_non_censored": 8,
+  "censoring_rate": 0.8841,
+  "n_censored_at_ceiling": 51,
+  "n_censored_at_floor": 0,
+  "n_censored_other": 10,
+  "median": 6.5,
+  "q1": 4.5,
+  "q3": 11.5,
+  "max": 13.0,
+  "interpretation": "K3b NIEWYKONALNE w obecnym srodowisku: 61/69 przebiegow (88%) NIE odzyskuje homeostazy w interval=40 w ogole (z czego 51 utkniete przy suficie entropii [0,1] - efekt dynamiczny, nie brakujace dane). Mediana/IQR/max ponizej sa policzone WYLACZNIE z 8 przebiegow, ktore odzyskaly - survivorship bias, NIE dowod wykonalnosci K3b."
+}
