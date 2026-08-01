@@ -264,8 +264,21 @@ CRITICAL_FILES_PC_001 = [
     "clos_world/floor_model.py",
     "clos_scientist/w2_endpoint.py",
     "clos_scientist/pc_001_experiment_config.py",
+    # Zamkniecie fazy projektowania (D-019, 2026-07-28): W2 Completion Report -
+    # dokumentuje zamkniecie calego cyklu przeprojektowania Primary Endpoint
+    # (Hard Halt W2 zdjety), w tym skale bledu podlogi analitycznej (~86%
+    # zawyzenia) - historyczny rekord decyzji, ktory nie moze zostac cicho
+    # przeformulowany po fakcie.
+    "publications/W2_completion_report_2026-07-28.json",
+    "publications/W2_completion_report_2026-07-28.md",
+    # G-001/G-002/O-001/D-017 (2026-07-28): zasady governance WIAZACE dla
+    # klasyfikacji przyszlych poprawek metodologicznych (Typ M vs Typ I) -
+    # kryteria klasyfikacji nie moga sie zmienic po fakcie, zeby ktos nie
+    # mogl przeklasyfikowac niewygodnej poprawki Typu M na Typ I (lub
+    # odwrotnie) bez wykrycia.
+    "docs/GOVERNANCE_RULES.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 40, f"oczekiwano 40 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 43, f"oczekiwano 43 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

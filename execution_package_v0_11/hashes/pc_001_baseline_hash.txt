@@ -39,16 +39,18 @@
 # baseline'u - pierwsza wpisana wartosc uniewazniala sama siebie). Wartosc
 # zyje WYLACZNIE tutaj, w pliku, ktory NIE jest czlonem CRITICAL_FILES_PC_001.
 #
-# 40 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
+# 43 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
 # kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmienic liczby,
 # ktore wyprodukuje eksperyment PC-001" - uzasadnienie per pozycja w
 # execution_package_v0_11/validators/hard_halt.py, komentarz nad
 # CRITICAL_FILES_PC_001. Rozszerzone 2026-07-28 o B3 (kod analizy statystycznej),
 # B4a (NOTATKA_B4_ANALIZA_MOCY), W2/V-C dokumenty (D-018: Aneks 3, specyfikacja
-# W2, analiza floor_env vs floor(t)), i W2 KOD (floor_model.py, w2_endpoint.py,
+# W2, analiza floor_env vs floor(t)), W2 KOD (floor_model.py, w2_endpoint.py,
 # pc_001_experiment_config.py - liczy/stosuje endpoint, nie tylko go opisuje;
 # compute_noise_world_floor.py CELOWO wykluczony - jednorazowy runner
-# wyznaczajacy wartosc, nie kod stosowany w eksperymencie, decyzja CTO):
+# wyznaczajacy wartosc, nie kod stosowany w eksperymencie, decyzja CTO), oraz
+# zamkniecie fazy projektowania (D-019, 2026-07-28): W2 Completion Report i
+# docs/GOVERNANCE_RULES.md (O-001/G-001/G-002/D-017 wiazace):
 birth/brain.py
 birth/engine.py
 clos_academy/lesson_L1_1.py
@@ -69,6 +71,7 @@ clos_scientist/w2_endpoint.py
 clos_world/floor_model.py
 clos_world/scenarios.py
 clos_world/world_runtime.py
+docs/GOVERNANCE_RULES.md
 execution_package_v0_11/runners/aggregate_results.py
 execution_package_v0_11/runners/pipeline.py
 execution_package_v0_11/validators/hard_halt.py
@@ -77,6 +80,8 @@ genome/gene.py
 genome/genome.py
 genome/presets.py
 publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md
+publications/W2_completion_report_2026-07-28.json
+publications/W2_completion_report_2026-07-28.md
 publications/analiza_floor_model_2026-07-28.json
 publications/analiza_floor_model_2026-07-28.md
 publications/preregistration_PC_001.json
@@ -91,7 +96,7 @@ publications/specyfikacja_W2_2026-07-28.json
 publications/specyfikacja_W2_2026-07-28.md
 #
 # Obliczenie WARTOSCI INTERIM (nie do porownania z niczym - baseline jest
-# TBD, to tylko podglad, ile 40-plikowy zestaw daje DZIS, do wewnetrznego
+# TBD, to tylko podglad, ile 43-plikowy zestaw daje DZIS, do wewnetrznego
 # sledzenia postepu B4/W2, NIE do zamrozenia):
 #   python -c "
 #   import sys; sys.path.insert(0, 'execution_package_v0_11')

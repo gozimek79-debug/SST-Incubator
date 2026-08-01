@@ -1,0 +1,123 @@
+{
+  "document_type": "completion_report",
+  "title": "zamknięcie cyklu przeprojektowania Primary Endpoint",
+  "date": "2026-07-28",
+  "branch": "v0.7.2-scientific-integrity",
+  "commit": "15d304e",
+  "basis": "D-019 (W2 zatwierdzony, Hard Halt W2 zdjęty, globalny pozostaje)",
+  "author": "audytor niezależny",
+
+  "blocking_status_after_d019": {
+    "hard_halt_w2": "ZDJĘTY (implementacja i walidacja V-C zakończone)",
+    "hard_halt_experiment": "POZOSTAJE - kolejne bramki obowiązkowe: pilot pod W2 -> Monte Carlo -> baseline -> bramka wejścia -> start"
+  },
+
+  "section_1_problem": {
+    "pilot_b4a_findings": [
+      "W_early=0.0 dokładnie dla wszystkich 23 genomów przy seed=2 w shock_world (20% przebiegów tego środowiska)",
+      "rozkład W_early grupował się w 5 klastrów odpowiadających seedom, nie w 23 wartości genomowe - seed dominował nad genomem niemal całkowicie"
+    ],
+    "executor_action": "zatrzymał proces zgodnie z instrukcją, zamiast przejść do B4b"
+  },
+
+  "section_2_analysis": {
+    "cause": "nie artefakt pilota, tylko struktura środowiska",
+    "shock_world_structure": "tick<shock_tick: 0.2 (stała, trywialnie przewidywalna); tick==shock_tick: shock_magnitude (skok); tick>shock_tick: shock_magnitude*0.8+N(0,0.02) (szum, podłoga nieredukowalna)",
+    "shock_tick_distribution": "Uniform[20,80], okno W_early=[0,60) => P(shock_tick>60)≈33% - całe okno przedwstrząsowe, PE≈0",
+    "conclusion": "w shock_world błąd predykcji strukturalnie rośnie przez przebieg (W_early->0, W_late>=podłoga szumu). Primary Endpoint wymagał spadku o >=20% - niemożliwego dla klasy predyktorów w prediction.py",
+    "proper_diagnosis": "trafność konstrukcyjna: hipoteza mówiła 'system uczy się przewidywać strukturę świata', operacjonalizacja mierzyła 'jak bardzo świat stał się trudniejszy' - ta sama klasa błędu co adaptation_tick w v0.11"
+  },
+
+  "section_3_false_hypotheses": {
+    "H1": {
+      "statement": "redukcja surowego PE mierzy uczenie w każdym środowisku",
+      "status": "fałszywa",
+      "reasoning": "PE ma dwie składowe: redukowalną (struktura świata) i nieredukowalną (szum). PC może zmniejszyć tylko pierwszą. Jeden próg >=20% surowego PE znaczy co innego przy podłodze 0, a co innego przy 0.25 - kryterium niespójne między środowiskami"
+    },
+    "H2": {
+      "statement": "generator szumu jest nieobciętym rozkładem normalnym",
+      "status": "fałszywa - cenniejsze znalezisko",
+      "reasoning": "clos_world/generators.py:20 obcina wyjście do [0,1], rozkład jest normalnym uciętym. Wzór E|N(0,sigma^2)|=sigma*sqrt(2/pi) jest poprawny, ale opisuje rozkład, którego środowisko nie produkuje",
+      "measured_error_scale": {
+        "environment": "noise_world",
+        "analytical_floor": 0.1784,
+        "numerical_floor_from_real_generator": 0.09589,
+        "difference": "~86% zawyżenia (wartość analityczna względem numerycznej)",
+        "cause": "sinus noise_world sam zakresuje sygnał do [0.2,0.8], szum sigma≈0.224 regularnie wypycha sumę poza [0,1] - obcięcie jest systematyczne, nie brzegowe",
+        "consequence_if_undetected": "gdyby wartość analityczna została zamrożona, cały endpoint byłby przesunięty o ~86% przy liczbach wyglądających na tyle sensownie, że nikt by tego nie zauważył"
+      }
+    }
+  },
+
+  "section_4_new_specification": {
+    "W2_reducible_component": {
+      "formula": "PE_red(t)=max(0,PE(t)-floor); redukcja_W2=(W_early_red-W_late_red)/W_early_red",
+      "measures": "ile z tego, co dało się nauczyć, zostało nauczone - szum poza licznikiem z definicji, miara porównywalna między środowiskami"
+    },
+    "VC_adaptive_validation": {
+      "reframed_question": "spór 'stała czy funkcja' był źle postawiony. Właściwe pytanie: czy stała jest wystarczającym przybliżeniem dla tego eksperymentu - sprawdzalne",
+      "formula": "bias_roznicowy=|mean(floor(t) w W_early)-mean(floor(t) w W_late)|; <FLOOR_BIAS_TOLERANCE -> constant; >=FLOOR_BIAS_TOLERANCE -> per_tick automatycznie + ostrzeżenie + zapis decyzji",
+      "justification": "dla środowiska stacjonarnego i okresowego średnia floor(t) po pełnym okresie jest stała. Przy oknach obejmujących całkowitą liczbę okresów obciążenie identyczne w obu. Przy niedopasowaniu różnica obciążeń wchodzi wprost do licznika i udaje efekt albo go maskuje"
+    },
+    "parameters_all_derived_none_eyeballed": [
+      {"parameter": "N (realizacje na tick)", "value": 100000, "source": "kryterium SE(floor)<0.001 = 5% MIN_DENOMINATOR"},
+      {"parameter": "MIN_DENOMINATOR", "value": 0.02, "source": "konwencja projektu (Engineering Constant v1), jawnie deklarowana"},
+      {"parameter": "FLOOR_BIAS_TOLERANCE", "value": 0.002, "source": "parametr prerejestrowany PC-001, nie globalna stała CLOS"},
+      {"parameter": "próg FLOOR_LIMITED->INCONCLUSIVE", "value": 0.30, "source": "bezpiecznik przeciw selekcji przebiegów"}
+    ]
+  },
+
+  "section_5_implementation": {
+    "modules": [
+      {"module": "clos_world/floor_model.py", "role": "wyznaczenie podłogi z rzeczywistego generatora (nie ze wzoru)"},
+      {"module": "clos_scientist/w2_endpoint.py", "role": "endpoint W2 + kontrola odtwarzalności (FrozenFloorMismatchError)"},
+      {"module": "clos_scientist/pc_001_experiment_config.py", "role": "konfiguracja eksperymentu (D-012) + zamrożona floor_env"}
+    ],
+    "noise_world_result": {
+      "N": 100000,
+      "window": "pełne 300 ticków",
+      "floor_model": "constant",
+      "floor_env": 0.09589,
+      "bias_roznicowy": 0.000024,
+      "bias_roznicowy_note": "83x poniżej tolerancji 0.002",
+      "seed_range": "500000-599999",
+      "seed_range_note": "rozłączny z pilotem 1-5 i konfirmacją 1001+"
+    },
+    "critical_files_pc_001_change": "37 -> 40 (wszystkie trzy moduły - są definicją Primary Endpoint w kodzie, endpoint nie może się zmienić bez złamania hasha)"
+  },
+
+  "section_6_validation": {
+    "tests": [
+      {"n": 1, "test": "podłoga przeliczona niezależnie, zgodność 1e-6", "role": "poprawność wyprowadzenia"},
+      {"n": 2, "test": "NEG: podłoga zawyżona -> wszystkie FLOOR_LIMITED", "role": "działanie progu"},
+      {"n": 3, "test": "NEG: floor=0 -> W2≡W1 ORAZ floor>0 -> PE_red<PE", "role": "kluczowy", "critical": true},
+      {"n": 4, "test": "SYM: predyktor idealny -> PE_red≈0 -> FLOOR_LIMITED", "role": "poprawność podłogi"},
+      {"n": 5, "test": "SYM: predyktor stały -> brak redukcji", "role": "miara nie generuje efektu z niczego"},
+      {"n": 6, "test": "brzegowe: W_early_red=0, wszystkie PE<floor", "role": "dzielenie przez zero"},
+      {"n": "W2-T7", "test": "mechanizm V-C: (a) stała przy małym biasie, (b) automatyczne floor(t) przy dużym, (c) dowód braku ścieżki operatorskiej", "role": "V-C jest mechanizmem, nie sugestią"},
+      {"n": "-", "test": "NEG: zmieniona zamrożona floor_env -> FrozenFloorMismatchError z HALT", "role": "odtwarzalność"}
+    ],
+    "test_3_note": "wzmocniony przez wykonawcę: sama część floor=0->W2≡W1 nie złapałaby implementacji pobierającej floor_env bez odejmowania, bo max(0,PE-0)==PE niezależnie od tego, czy odejmowanie zachodzi. Dodanie drugiej części domyka lukę",
+    "total": "627/627 testów PASS",
+    "core_untouched": true,
+    "scipy_in_requirements": false
+  },
+
+  "section_7_closure": {
+    "status": "W2 zatwierdzony (D-019). Hard Halt W2 zdjęty. Hard Halt eksperymentu pozostaje.",
+    "remaining_gates": "W2/V-C [DONE] -> pilot pod W2 -> Monte Carlo (B4b) -> baseline (B5) -> bramka (B6) -> START",
+    "new_pilot_necessity": "konieczny - poprzedni mierzył W_early surowe, W2 wymaga W_early_red",
+    "previous_pilot_disposition": "nie jest stratą: 230 przebiegów wykryło błąd projektu, który uniemożliwiłby cały eksperyment. Artefakty pozostają w repo jako udokumentowany negatywny wynik walidacyjny (Aneks 3 §8, D-010 pkt 2)"
+  },
+
+  "section_8_methodological_lesson": {
+    "errors_detected_this_phase": ["MSE->MAE", "Energy Efficiency", "bramka ROADMAP", "shock_world", "podłoga analityczna", "obcięty gaussian"],
+    "none_found_after_publication": true,
+    "common_cause": "model uproszczony nie był tym samym, co implementacja",
+    "principle_adopted": "Źródłem prawdy jest implementacja, nie jej model matematyczny (D-017/D-018)",
+    "extends": "zasadę, która obowiązywała już dla danych ('liczby z surowego pliku, nie z przepisania') - teraz także dla wielkości wyprowadzanych: liczyć z kodu środowiska, nie ze wzoru opisującego, co ten kod 'powinien' robić",
+    "why_sampling_eliminates_error_class": "wyprowadzanie podłogi przez próbkowanie rzeczywistego generatora eliminuje tę klasę błędu konstrukcyjnie - nie ma idealizacji, która mogłaby się rozjechać z implementacją, bo wyprowadzenie używa implementacji"
+  },
+
+  "footnote": "Wszystkie liczby zweryfikowane niezależnie na świeżym klonie 15d304e. Podłoga 0.09589 porównana z wartością analityczną 0.1784 - różnica potwierdzona jako systematyczna, nie brzegowa."
+}

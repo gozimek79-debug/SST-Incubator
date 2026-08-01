@@ -3,11 +3,12 @@ PC_001_BASELINE - registro chroniacy prerejestracje PC-001 przed dryfem
 PRZED powstaniem jakichkolwiek danych PC.
 
 Ten plik dowodzi:
-1. Wszystkie 40 plikow z CRITICAL_FILES_PC_001 (26 + Aneks 2: T7/K7 + B3: kod
+1. Wszystkie 43 pliki z CRITICAL_FILES_PC_001 (26 + Aneks 2: T7/K7 + B3: kod
    analizy statystycznej + B4a: NOTATKA_B4_ANALIZA_MOCY + W2/V-C (D-018):
    dokumenty (Aneks 3 + specyfikacja W2 + analiza floor_env vs floor(t)) +
-   kod (floor_model.py, w2_endpoint.py, pc_001_experiment_config.py),
-   2026-07-28) istnieja i sa czytelne.
+   kod (floor_model.py, w2_endpoint.py, pc_001_experiment_config.py) +
+   zamkniecie fazy projektowania (D-019): W2 Completion Report +
+   docs/GOVERNANCE_RULES.md, 2026-07-28) istnieja i sa czytelne.
 2. PC_001_BASELINE jest CELOWO TBD (nie policzony jeszcze) - decyzja CTO,
    zmiana kolejnosci KROK B: baseline ma pokryc RAZEM generowanie danych I
    kod analizy statystycznej (ten drugi jeszcze nie istnieje - B3), wiec
@@ -47,8 +48,8 @@ HARD_HALT_PY = REPO_ROOT / "execution_package_v0_11" / "validators" / "hard_halt
 
 class TestCriticalFilesPC001Exist:
 
-    def test_all_40_files_exist(self):
-        assert len(CRITICAL_FILES_PC_001) == 40
+    def test_all_43_files_exist(self):
+        assert len(CRITICAL_FILES_PC_001) == 43
         missing = [f for f in CRITICAL_FILES_PC_001 if not (REPO_ROOT / f).exists()]
         assert not missing, f"pliki z CRITICAL_FILES_PC_001 nie istnieja: {missing}"
 
