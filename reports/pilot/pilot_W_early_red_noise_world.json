@@ -1,0 +1,1008 @@
+{
+  "purpose": "power_analysis_only",
+  "NEVER_FOR_INFERENCE": true,
+  "recorded_quantity": "W_early_red_only",
+  "seeds_used": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "confirmatory_seeds_start": 1001,
+  "floor_used": 0.09589,
+  "floor_model": "constant",
+  "environment": "noise_world",
+  "lesson": "L1.2",
+  "w_early_tick_window": [
+    0,
+    60
+  ],
+  "min_denominator": 0.02,
+  "n_genomes": 23,
+  "n_runs_total": 115,
+  "n_valid": 115,
+  "n_floor_limited": 0,
+  "n_insufficient_data": 0,
+  "floor_limited_runs": [],
+  "insufficient_data_runs": [],
+  "overall_distribution_valid_only": {
+    "median": 0.141873,
+    "q1": 0.135091,
+    "q3": 0.156264,
+    "min": 0.127268,
+    "max": 0.180271
+  },
+  "by_genome": {
+    "default": {
+      "median": 0.141746,
+      "q1": 0.130769,
+      "q3": 0.15924,
+      "min": 0.128862,
+      "max": 0.171255
+    },
+    "highly_plastic": {
+      "median": 0.148808,
+      "q1": 0.137404,
+      "q3": 0.163766,
+      "min": 0.132955,
+      "max": 0.171348
+    },
+    "minimal": {
+      "median": 0.141746,
+      "q1": 0.130769,
+      "q3": 0.156957,
+      "min": 0.128862,
+      "max": 0.16669
+    },
+    "pop_000": {
+      "median": 0.141921,
+      "q1": 0.134111,
+      "q3": 0.1645,
+      "min": 0.133131,
+      "max": 0.172774
+    },
+    "pop_001": {
+      "median": 0.148721,
+      "q1": 0.134476,
+      "q3": 0.16603,
+      "min": 0.131302,
+      "max": 0.171289
+    },
+    "pop_002": {
+      "median": 0.13746,
+      "q1": 0.133949,
+      "q3": 0.165835,
+      "min": 0.13086,
+      "max": 0.168988
+    },
+    "pop_003": {
+      "median": 0.144432,
+      "q1": 0.134238,
+      "q3": 0.161933,
+      "min": 0.130937,
+      "max": 0.169137
+    },
+    "pop_004": {
+      "median": 0.141873,
+      "q1": 0.134055,
+      "q3": 0.164444,
+      "min": 0.133009,
+      "max": 0.172625
+    },
+    "pop_005": {
+      "median": 0.148087,
+      "q1": 0.133767,
+      "q3": 0.155471,
+      "min": 0.127318,
+      "max": 0.158935
+    },
+    "pop_006": {
+      "median": 0.13751,
+      "q1": 0.133961,
+      "q3": 0.158258,
+      "min": 0.130909,
+      "max": 0.169098
+    },
+    "pop_007": {
+      "median": 0.147489,
+      "q1": 0.134192,
+      "q3": 0.158978,
+      "min": 0.130841,
+      "max": 0.16913
+    },
+    "pop_008": {
+      "median": 0.148107,
+      "q1": 0.133792,
+      "q3": 0.155491,
+      "min": 0.127361,
+      "max": 0.158971
+    },
+    "pop_009": {
+      "median": 0.148798,
+      "q1": 0.134423,
+      "q3": 0.162664,
+      "min": 0.131215,
+      "max": 0.169227
+    },
+    "pop_010": {
+      "median": 0.156204,
+      "q1": 0.136082,
+      "q3": 0.163069,
+      "min": 0.132753,
+      "max": 0.169204
+    },
+    "pop_011": {
+      "median": 0.140212,
+      "q1": 0.132345,
+      "q3": 0.155444,
+      "min": 0.127268,
+      "max": 0.158918
+    },
+    "pop_012": {
+      "median": 0.137411,
+      "q1": 0.133936,
+      "q3": 0.164066,
+      "min": 0.130803,
+      "max": 0.165457
+    },
+    "pop_013": {
+      "median": 0.137448,
+      "q1": 0.133937,
+      "q3": 0.161732,
+      "min": 0.130815,
+      "max": 0.168986
+    },
+    "pop_014": {
+      "median": 0.148785,
+      "q1": 0.134433,
+      "q3": 0.162648,
+      "min": 0.13124,
+      "max": 0.169225
+    },
+    "pop_015": {
+      "median": 0.148838,
+      "q1": 0.135238,
+      "q3": 0.162679,
+      "min": 0.132856,
+      "max": 0.169209
+    },
+    "pop_016": {
+      "median": 0.13886,
+      "q1": 0.132374,
+      "q3": 0.15951,
+      "min": 0.127324,
+      "max": 0.16378
+    },
+    "pop_017": {
+      "median": 0.141826,
+      "q1": 0.132342,
+      "q3": 0.163819,
+      "min": 0.131795,
+      "max": 0.171356
+    },
+    "pop_018": {
+      "median": 0.141797,
+      "q1": 0.130858,
+      "q3": 0.163714,
+      "min": 0.128907,
+      "max": 0.180271
+    },
+    "pop_019": {
+      "median": 0.141754,
+      "q1": 0.130782,
+      "q3": 0.156964,
+      "min": 0.128868,
+      "max": 0.166714
+    }
+  },
+  "runs": [
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.135091,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141921,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.172774,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156227,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.133131,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148721,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13765,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171289,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.160772,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.131302,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137039,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13746,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.168988,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.162683,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.13086,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.144432,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137538,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169137,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.154729,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130937,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.135101,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141873,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.172625,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156264,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.133009,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.140216,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.152007,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.148087,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.158935,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127318,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137013,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13751,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169098,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147418,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130909,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148826,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137543,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.16913,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147489,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130841,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.140224,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.152011,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.148107,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.158971,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127361,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148798,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13763,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169227,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156101,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.131215,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.156934,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.139411,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169204,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156204,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132753,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.140212,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137422,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.151969,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.158918,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127268,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137069,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137411,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.165457,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.162674,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130803,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137058,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137448,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.168986,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.154477,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130815,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148785,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137626,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169225,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156072,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.13124,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148838,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13762,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169209,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156148,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132856,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.13886,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137424,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.15524,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.16378,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127324,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.131795,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141826,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171356,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156281,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132888,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128907,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141797,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.180271,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147156,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.13281,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128868,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141754,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.166714,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147214,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132696,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128862,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141746,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171255,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147225,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132677,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128862,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141746,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.16669,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147225,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132677,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148808,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141852,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171348,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156184,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132955,
+      "status": "VALID"
+    }
+  ],
+  "supersedes": "pilot_PE_distribution_W_early.json (B4a, mierzyl PE surowe)",
+  "generated_at": "2026-08-01T03:11:08.136466+00:00"
+}
