@@ -277,8 +277,13 @@ CRITICAL_FILES_PC_001 = [
     # mogl przeklasyfikowac niewygodnej poprawki Typu M na Typ I (lub
     # odwrotnie) bez wykrycia.
     "docs/GOVERNANCE_RULES.md",
+    # Aneks 4 (D-026, 2026-07-28): status K3b ARCHITECTURE-LIMITED + zastrzezenie
+    # 21%(v0.11)/88%(W-01) to rozne wielkosci - nie moze sie zmienic bez zlamania
+    # hasha, inaczej ktos moglby za rok zestawic te liczby jako trend bez wykrycia.
+    "publications/preregistration_PC_001_ANEKS_4_2026-07-28.json",
+    "publications/preregistration_PC_001_ANEKS_4_2026-07-28.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 43, f"oczekiwano 43 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 45, f"oczekiwano 45 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

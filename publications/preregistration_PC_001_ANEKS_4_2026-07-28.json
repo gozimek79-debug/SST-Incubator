@@ -1,0 +1,72 @@
+{
+  "document_type": "aneks",
+  "amends": "publications/preregistration_PC_001.json",
+  "aneks_id": "PC-001-ANEKS-4",
+  "title": "status K3b: ARCHITECTURE-LIMITED",
+  "date": "2026-07-28",
+  "status": "ZATWIERDZONY (D-026)",
+  "basis": ["D-025A (zatwierdzenie W-01)", "D-025E (rozstrzygnięcie ws. v0.11)", "wynik W-01"],
+  "author": "CTO",
+
+  "single_topic": {
+    "status_assigned": "ARCHITECTURE-LIMITED",
+    "control": "K3b (Kendall tau na recovery_i, recurring_shock_world)",
+    "disposition": [
+      "K3b pozostaje ZDEFINIOWANA w metodologii PC-001 - definicja, formuła, miejsce w regule decyzyjnej nie są usuwane z dokumentacji",
+      "K3b NIE jest wykonywana w PC-001",
+      "K3b NIE jest usunięta z programu badawczego",
+      "K3b wraca po nowej wersji Core (CLOS v0.12)"
+    ]
+  },
+
+  "reason": {
+    "language_requirement": "zweryfikowana właściwość badanego modelu CLOS v0.11 w analizowanych scenariuszach - NIE 'odkrycie naukowe' (rozróżnienie językowe jest częścią decyzji D-026 pkt 3)",
+    "finding": "regulator homeostatyczny (regulate()) nie wyprowadza systemu z nasycenia entropii w oknie dostępnym między kolejnymi wstrząsami recurring_shock_world",
+    "measurement": {
+      "source": "W-01, reports/pilot/w01_recovery_1_recurring_shock_world.json",
+      "n_censored_total": "88.4% (61/69)",
+      "n_censored_at_ceiling": "73.9% (51/69) - utyka przy suficie entropii [0,1]=1.0, nie wraca w oknie w ogóle",
+      "interval": 40,
+      "clarification": "nie 'recovery trwa 35-40 ticków' - brak powrotu"
+    }
+  },
+
+  "decision_rule_consequence": {
+    "before": "9 warunków (PC-001 §6 + Aneks 1)",
+    "after": "8 warunków wykonywanych w PC-001",
+    "note": "K3b zawieszona, nie usunięta - nie zmniejsza liczby warunków w definicji metodologii, tylko liczbę faktycznie ocenianych w tym przebiegu badawczym"
+  },
+
+  "twenty_one_vs_eighty_eight_percent_are_different_quantities": {
+    "purpose": "żeby za rok nikt nie zestawił tych dwóch liczb jako trendu pogarszania się tej samej właściwości",
+    "comparison_table": [
+      {
+        "dimension": "Okno obserwacji",
+        "v0_11_homeostatic_resilience": "W_WINDOW=150 ticków",
+        "w01_k3b": "40 ticków (do kolejnego wstrząsu)"
+      },
+      {
+        "dimension": "Środowisko",
+        "v0_11_homeostatic_resilience": "shock_world (jeden wstrząs)",
+        "w01_k3b": "recurring_shock_world (wstrząsy powtarzające się)"
+      },
+      {
+        "dimension": "Warunek sustain",
+        "v0_11_homeostatic_resilience": "N_SUSTAIN=10",
+        "w01_k3b": "nie dotyczy - mierzone: powrót w ogóle w oknie"
+      },
+      {
+        "dimension": "Wynik cenzurowania",
+        "v0_11_homeostatic_resilience": "~21%",
+        "w01_k3b": "88.4%"
+      }
+    ],
+    "structural_difference_d025e": "okno 3.75x krótsze (40 vs 150 ticków) ORAZ kolejny wstrząs następuje, zanim poprzedni zdążył się wyczerpać - to nie jest ta sama miara w gorszych warunkach, to miara innego zjawiska",
+    "conclusion_d025e": "brak podstaw do rewizji statusu Homeostatic Resilience w v0.11. Status ZOSTAJE bez zmian.",
+    "self_correction": "wcześniejsze sformułowanie audytora ('to samo zjawisko w ostrzejszej formie') było pochopne i zostaje tu jawnie skorygowane, nie cicho wycofane"
+  },
+
+  "freezing": {
+    "statement": "Ten dokument wchodzi do CRITICAL_FILES_PC_001 (oba formaty, md kanoniczny) - status K3b i zastrzeżenie o nieporównywalności 21%/88% nie mogą się zmienić bez złamania hasha."
+  }
+}
