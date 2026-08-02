@@ -1,0 +1,82 @@
+{
+  "document_type": "aneks",
+  "amends": "publications/preregistration_PC_001.json",
+  "aneks_id": "PC-001-ANEKS-5",
+  "title": "K3a warunek 2: SUSPENDED PENDING WINDOW REDEFINITION",
+  "date": "2026-07-28",
+  "status": "ZATWIERDZONY",
+  "basis": ["D-025D", "analiza kodu i minimalny pomiar diagnostyczny (16 przebiegów, seedy pilota)"],
+  "author": "CTO (na podstawie analizy wykonawcy, D-025D)",
+
+  "single_topic": "Osobne znalezisko od Aneksu 4 (K3b) - inna przyczyna, inny status. Nie jest to dopisek do Aneksu 4: K3b jest właściwością Core (ARCHITECTURE-LIMITED), K3a warunek 2 jest błędem projektu pomiaru (naprawialny bez dotykania Core).",
+
+  "condition_1_k3a": {
+    "status": "BEZ ZMIAN, SOLIDNY",
+    "definition": "mean PE[shock_tick, shock_tick+20] > mean PE[shock_tick-20, shock_tick-1]",
+    "result": "16/16 przebiegów spełnia",
+    "reasoning": "strukturalnie gwarantowany - przed wstrząsem świat jest stałą 0.2 (PE≈0, trywialnie przewidywalne), po wstrząsie następuje prawdziwy skok"
+  },
+
+  "condition_2_k3a": {
+    "definition": "mean PE[shock_tick+40, shock_tick+60] < mean PE[shock_tick, shock_tick+20]",
+    "definition_unchanged": true,
+    "problem": "adaptacja predykcji do nowego plateau kończy się w ~3-5 ticków, nie 40-60",
+    "mechanism": {
+      "source": "clos_brain/runtime/prediction.py",
+      "description": "gałąź awaryjna predict() to średnia z ostatnich prediction_depth wejść",
+      "prediction_depth": 3,
+      "prediction_depth_note": "dla wszystkich 23 genomów - żaden genom (ani preset, ani LHS z population.py) go nie nadpisuje",
+      "consequence": "przy stałym post-wstrząsowym plateau ta średnia zbiega w kilka ticków, niezależnie od genomu"
+    },
+    "window_consequence": "okno 1 [shock_tick,shock_tick+20] zawiera CAŁY proces adaptacji (skok + zbieżność); okno 2 [shock_tick+40,shock_tick+60] próbkuje czysty, już ustabilizowany szum - to samo pasmo co druga połowa okna 1. Różnica średnich jest funkcją wielkości początkowego skoku (pierwsze ~5 ticków okna 1) względem losowej próbki szumu w oknie 2, NIE sygnałem re-adaptacji.",
+
+    "trajectory_evidence": {
+      "seed": 1,
+      "genome": "default",
+      "shock_tick": 28,
+      "values": [
+        {"tick": 28, "pe": 0.44, "note": "skok w momencie wstrząsu"},
+        {"tick": 29, "pe": 0.13},
+        {"tick": 31, "pe": 0.09},
+        {"tick": 33, "pe": 0.008, "note": "już w paśmie szumu"}
+      ],
+      "subsequent": "ticki 33-48: oscylacja w paśmie ~0.01-0.13 (to samo pasmo co reszta obserwowanego okna, w tym okno 2)"
+    },
+
+    "aggregate_measurement": {
+      "n_runs": 16,
+      "design": "8 genomów x 2 seedy, wyłącznie seedy z zakresu pilota (1-5), rozłączne z konfirmacją (od 1001)",
+      "guarantee": "pomiar diagnostyczny, nic nie zapisane na dysk",
+      "condition_1_satisfied": "16/16",
+      "condition_2_satisfied": "8/16",
+      "correlation": "rozkład warunku 2 koreluje z SEEDEM (a więc shock_tick/shock_magnitude), NIE z genomem",
+      "interpretation": "8/16 jest wynikiem DIAGNOSTYCZNYM ('pomiar to szum'), nie eksperymentalnym - nie mierzy różnicy między genomami, tylko pokazuje, że sam pomiar nie rozróżnia sygnału od szumu przy obecnych oknach"
+    }
+  },
+
+  "classification_g001": {
+    "type": "M",
+    "scope": "warunek 2 K3a",
+    "reasoning": "endpoint (w tej konkretnej operacjonalizacji) nie mierzy hipotezy PC (wynik zależy od losowego skoku, nie od tego czy PC istnieje), i nie ma poprawnej interpretacji obecnego wyniku (8/16 nie mówi nic o systemie, tylko o tym, że dwa okna próbkują tę samą dystrybucję szumu)",
+    "comparison_to_k3b": [
+      {"dimension": "Przyczyna", "k3b": "właściwość Core (regulator nie wyprowadza z nasycenia)", "k3a_condition_2": "błąd definicji okien (za późno wobec dynamiki)"},
+      {"dimension": "Naprawialność", "k3b": "NIE bez zmiany Core (G-004)", "k3a_condition_2": "TAK, bez dotykania Core"},
+      {"dimension": "Status", "k3b": "ARCHITECTURE-LIMITED (wraca po CLOS v0.12)", "k3a_condition_2": "SUSPENDED PENDING WINDOW REDEFINITION"}
+    ]
+  },
+
+  "contamination_assessment": {
+    "finding": "brak",
+    "reasoning": "pomiar wykonany na seedach z zakresu pilota (1-5), rozłącznych z konfirmacją (od 1001). Nic nie zapisane na dysk. Wynik 8/16 jest diagnozą samego narzędzia pomiarowego ('czy okna rozróżniają sygnał od szumu'), nie próbą zmierzenia efektu PC"
+  },
+
+  "status_final": {
+    "condition_2_k3a": "SUSPENDED PENDING WINDOW REDEFINITION",
+    "condition_1_k3a": "aktywny i wiarygodny",
+    "scope_note": "ten aneks NIE proponuje nowych granic okien - to decyzja CTO, osobne zadanie"
+  },
+
+  "freezing": {
+    "statement": "Ten dokument wchodzi do CRITICAL_FILES_PC_001 (oba formaty, md kanoniczny) - klasyfikacja i status warunku 2 K3a nie mogą się zmienić bez złamania hasha."
+  }
+}

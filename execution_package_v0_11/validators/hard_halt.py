@@ -282,8 +282,14 @@ CRITICAL_FILES_PC_001 = [
     # hasha, inaczej ktos moglby za rok zestawic te liczby jako trend bez wykrycia.
     "publications/preregistration_PC_001_ANEKS_4_2026-07-28.json",
     "publications/preregistration_PC_001_ANEKS_4_2026-07-28.md",
+    # Aneks 5 (D-025D, 2026-07-28): K3a warunek 2 SUSPENDED PENDING WINDOW
+    # REDEFINITION - osobne znalezisko od Aneksu 4 (blad projektu pomiaru,
+    # nie wlasciwosc Core), klasyfikacja i status nie moga sie zmienic bez
+    # zlamania hasha.
+    "publications/preregistration_PC_001_ANEKS_5_2026-07-28.json",
+    "publications/preregistration_PC_001_ANEKS_5_2026-07-28.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 45, f"oczekiwano 45 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 47, f"oczekiwano 47 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):
