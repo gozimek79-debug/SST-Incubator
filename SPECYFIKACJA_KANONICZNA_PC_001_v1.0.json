@@ -1,0 +1,1492 @@
+{
+  "document_type": "canonical_specification_mirror",
+  "generator": "scripts/spec_md_to_json.py",
+  "generated_from": "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md",
+  "note": "JSON jest mechanicznym odwzorowaniem markdowna kanonicznego, bez interpretacji tresci. Przy rozbieznosci rozstrzyga markdown, nastepnie adres, na ktory markdown wskazuje (SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §0.3). Ten plik nie jest recznie edytowalny - regenerowac przez `python scripts/spec_md_to_json.py SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md`. Zgodnosc z markdownem sprawdza scripts/validate_canonical_spec.py (test 7) przez regeneracje w pamieci, nie przez porownanie hasha.",
+  "title": "SPECYFIKACJA KANONICZNA PC-001 — v1.0",
+  "meta": {
+    "od": "audytor niezależny",
+    "dla": "CTO",
+    "status": "**PROJEKT do przeglądu.** Nie zamrożona, nie w `CRITICAL_FILES_PC_001`.",
+    "podstawa": "kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny",
+    "weryfikacja": "wszystkie adresy w tym dokumencie sprawdzone na świeżym klonie gałęzi"
+  },
+  "sections": [
+    {
+      "id": "0",
+      "numbered": true,
+      "level": 2,
+      "title": "0. Czym ten dokument jest — i czym celowo nie jest",
+      "start_line": 12,
+      "blocks": []
+    },
+    {
+      "id": "0.1",
+      "numbered": true,
+      "level": 3,
+      "title": "0.1 Rola",
+      "start_line": 14,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "PC-001 jest opisany przez zestaw dokumentów zamrożonych w różnym czasie i różnymi decyzjami. Część z nich **poprawia** wcześniejsze, nie mogąc ich usunąć — bo zamrożone źródła są chronione hashem i muszą pozostać nienaruszone jako ślad. Skutek: czytelnik, który otworzy prerejestrację i przeczyta ją w dobrej wierze, przeczyta **stan nieaktualny**, bez żadnego ostrzeżenia w samym dokumencie."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ten dokument jest **jednym adresem**, pod którym widać:"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**co obowiązuje** i pod jakim adresem to żyje (§2),",
+            "**co zmienił każdy aneks** (§3),",
+            "**co w zamrożonych źródłach jest już nieobowiązujące** — i co obowiązuje zamiast (§4),",
+            "**co jest otwarte** (§5)."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Punkt 3 jest właściwym powodem istnienia tego dokumentu. Punkty 1, 2 i 4 dałoby się złożyć z lektury źródeł; punktu 3 **nie da się** — wymaga porównania dokumentów zamrożonych w różnym czasie, czyli dokładnie tej pracy, która przy braku indeksu jest wykonywana od nowa przez każdego kolejnego czytelnika, za każdym razem z ryzykiem pominięcia."
+        }
+      ]
+    },
+    {
+      "id": "0.2",
+      "numbered": true,
+      "level": 3,
+      "title": "0.2 Zasada C-001 — Specyfikacja Kanoniczna nie przechowuje wartości",
+      "start_line": 34,
+      "blocks": [
+        {
+          "type": "note",
+          "text": "**Specyfikacja Kanoniczna nie zawiera żadnej wartości, którą da się automatycznie wyliczyć lub odczytać z repozytorium.**"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Wolno:** identyfikatory decyzji (`D-XXX`), identyfikatory zasad (`O-001`, `G-001`…), identyfikatory kontroli (`K1`, `K3a`…), adresy plików, numery sekcji, nazwy symboli w kodzie, definicje symboliczne (wzory bez podstawionych liczb), statusy będące **decyzjami** (np. `ARCHITECTURE-LIMITED`), nazwy środowisk i lekcji.",
+          "lead": "Wolno"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Nie wolno:** wartości progów, wartości podłóg, liczby plików krytycznych, liczby warunków, liczby testów, liczby przebiegów, hashy, odsetków, wyników pomiarów, wartości parametrów konfiguracyjnych.",
+          "lead": "Nie wolno"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Dlaczego mechanicznie, a nie deklaratywnie.** Dokument z liczbami wymaga walidatora staleness i dyscypliny aktualizacji; dokument bez liczb **nie może się rozjechać ze źródłem, bo nie ma z czym**. To ten sam wzorzec, który w tym projekcie już zadziałał: runner pilota nie importuje funkcji liczących podłogę, więc przeliczenie było *niemożliwe*, nie tylko niewykonane. C-001 jest tą samą konstrukcją zastosowaną do dokumentacji.",
+          "lead": "Dlaczego mechanicznie, a nie deklaratywnie."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Konsekwencja dla czytelnika:** żeby poznać wartość, trzeba otworzyć adres. To jest koszt zamierzony. Ergonomię zapewnia artefakt towarzyszący (§0.4), nie ten dokument.",
+          "lead": "Konsekwencja dla czytelnika"
+        }
+      ]
+    },
+    {
+      "id": "0.3",
+      "numbered": true,
+      "level": 3,
+      "title": "0.3 Reguła rozstrzygania sporu",
+      "start_line": 57,
+      "blocks": [
+        {
+          "type": "note",
+          "text": "Przy jakiejkolwiek rozbieżności między tym dokumentem a adresem, na który wskazuje, **rozstrzyga adres.** Ten dokument nie jest źródłem żadnego twierdzenia merytorycznego — jest wyłącznie mapą."
+        },
+        {
+          "type": "paragraph",
+          "text": "Rozszerza to D-017 (*źródłem prawdy jest implementacja, nie jej model*) z wielkości wyprowadzanych na dokumentację: **źródłem prawdy jest zamrożony dokument lub kod, nie indeks je opisujący.**"
+        }
+      ]
+    },
+    {
+      "id": "0.4",
+      "numbered": true,
+      "level": 3,
+      "title": "0.4 Artefakt towarzyszący — Canonical Parameters Report",
+      "start_line": 66,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Wartości operacyjne (parametry, podłoga, stan baseline, skład rejestru plików krytycznych, stan bramek) żyją w raporcie **generowanym z repozytorium**, nie w tym dokumencie."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Charakter:** artefakt pochodny, **niekanoniczny**, nieobjęty hashem, nieprzeznaczony do ręcznej edycji.",
+            "**Zasada:** raport jest ważny wyłącznie dla commitu, z którego został wygenerowany, i musi ten commit podawać.",
+            "**Skutek:** ani ten dokument, ani raport nie stanowią drugiego źródła prawdy. Pierwszy nie ma liczb; drugi nie ma trwałości."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "numbered": true,
+      "level": 2,
+      "title": "1. Notacja adresów",
+      "start_line": 80,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Zapis",
+            "Znaczenie"
+          ],
+          "rows": [
+            {
+              "Zapis": "`plik §N`",
+              "Znaczenie": "sekcja N wskazanego dokumentu"
+            },
+            {
+              "Zapis": "`plik → \"fragment\"`",
+              "Znaczenie": "nagłówek albo wytłuszczony akapit wskazany nazwą (gdy dokument nie numeruje sekcji)"
+            },
+            {
+              "Zapis": "`plik::SYMBOL`",
+              "Znaczenie": "nazwana stała, funkcja lub klasa w module"
+            },
+            {
+              "Zapis": "`D-XXX`",
+              "Znaczenie": "decyzja CTO (identyfikator; treść w dokumencie, który się na nią powołuje)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Skróty nazw plików używane dalej — pełne ścieżki względem katalogu głównego repo:"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Skrót",
+            "Ścieżka"
+          ],
+          "rows": [
+            {
+              "Skrót": "**PC-001**",
+              "Ścieżka": "`publications/preregistration_PC_001.md`"
+            },
+            {
+              "Skrót": "**A1 … A5**",
+              "Ścieżka": "`publications/preregistration_PC_001_ANEKS_{1..5}_2026-07-28.md`"
+            },
+            {
+              "Skrót": "**W2-SPEC**",
+              "Ścieżka": "`publications/specyfikacja_W2_2026-07-28.md`"
+            },
+            {
+              "Skrót": "**FLOOR**",
+              "Ścieżka": "`publications/analiza_floor_model_2026-07-28.md`"
+            },
+            {
+              "Skrót": "**B4**",
+              "Ścieżka": "`publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md`"
+            },
+            {
+              "Skrót": "**W2-REPORT**",
+              "Ścieżka": "`publications/W2_completion_report_2026-07-28.md`"
+            },
+            {
+              "Skrót": "**GOV**",
+              "Ścieżka": "`docs/GOVERNANCE_RULES.md`"
+            },
+            {
+              "Skrót": "**CONFIG**",
+              "Ścieżka": "`clos_scientist/pc_001_experiment_config.py`"
+            },
+            {
+              "Skrót": "**ENDPOINT**",
+              "Ścieżka": "`clos_scientist/w2_endpoint.py`"
+            },
+            {
+              "Skrót": "**FLOOR-MOD**",
+              "Ścieżka": "`clos_world/floor_model.py`"
+            },
+            {
+              "Skrót": "**HALT**",
+              "Ścieżka": "`execution_package_v0_11/validators/hard_halt.py`"
+            },
+            {
+              "Skrót": "**K7-MOD**",
+              "Ścieżka": "`clos_scientist/fallback_branch_diagnostic.py`"
+            },
+            {
+              "Skrót": "**STATS**",
+              "Ścieżka": "`clos_curriculum/laboratory/statistics.py`"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Każdy z powyższych dokumentów ma bliźniaczy plik `.json`. **Markdown jest kanoniczny** (A2 → „Zamrożenie\"); JSON jest odwzorowaniem. Adresy w tym indeksie wskazują markdown."
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "numbered": true,
+      "level": 2,
+      "title": "2. Rejestr normatywny",
+      "start_line": 112,
+      "blocks": []
+    },
+    {
+      "id": "2.1",
+      "numbered": true,
+      "level": 3,
+      "title": "2.1 Tożsamość eksperymentu",
+      "start_line": 114,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Element",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Element": "Co eksperyment testuje i czego **nie** testuje",
+              "Adres": "PC-001 §1"
+            },
+            {
+              "Element": "Zakres wykonania (lekcja, genomy, środowiska)",
+              "Adres": "PC-001 §2.3, zmodyfikowany przez A3 §5 — patrz §4"
+            },
+            {
+              "Element": "Deklaratywna konfiguracja eksperymentu (D-012)",
+              "Adres": "CONFIG::EXPERIMENT_CONFIG"
+            },
+            {
+              "Element": "Nazwa konfiguracji rozdzielająca protokół od dynamiki świata",
+              "Adres": "W2-SPEC §1"
+            },
+            {
+              "Element": "Dopuszczalne i niedopuszczalne sformułowania wyniku",
+              "Adres": "PC-001 §6 → „Język raportowania\"; A1 → „Do decyzji CTO\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.2",
+      "numbered": true,
+      "level": 3,
+      "title": "2.2 Protokół",
+      "start_line": 124,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Element",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Element": "Lekcja, długość przebiegu, mierzalne okno",
+              "Adres": "CONFIG::EXPERIMENT_CONFIG, CONFIG::MEASURABLE_WINDOW_TICKS"
+            },
+            {
+              "Element": "Okna `W_early` / `W_late`",
+              "Adres": "CONFIG::W_EARLY_TICKS, CONFIG::W_LATE_TICKS"
+            },
+            {
+              "Element": "Dowód, że lekcja opisuje protokół, nie dynamikę świata",
+              "Adres": "W2-SPEC §1 (weryfikacja w `clos_academy/lesson_L1_2.py`)"
+            },
+            {
+              "Element": "Rola L1.1 (wspierająca, poza regułą decyzyjną)",
+              "Adres": "PC-001 §4"
+            },
+            {
+              "Element": "Środowisko Primary",
+              "Adres": "CONFIG::EXPERIMENT_CONFIG → `environments.primary`; uzasadnienie: A3 §5"
+            },
+            {
+              "Element": "Środowiska kontrolne",
+              "Adres": "CONFIG::EXPERIMENT_CONFIG → `environments.K3`, `environments.K4`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.3",
+      "numbered": true,
+      "level": 3,
+      "title": "2.3 Primary Endpoint (W2)",
+      "start_line": 135,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Element",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Element": "Definicja `PE_red(t) = max(0, PE(t) − floor)`",
+              "Adres": "W2-SPEC §2.2"
+            },
+            {
+              "Element": "Definicja `redukcja_W2 = (W_early_red − W_late_red) / W_early_red`",
+              "Adres": "W2-SPEC §2.3"
+            },
+            {
+              "Element": "Warunek A (kierunek, `β < 0`) i Warunek B (wielkość)",
+              "Adres": "W2-SPEC §2.3; pierwotne brzmienie: PC-001 §2.1"
+            },
+            {
+              "Element": "Testy statystyczne i korekta FDR",
+              "Adres": "PC-001 §2.2; implementacja: STATS"
+            },
+            {
+              "Element": "Uzasadnienie dwuwarunkowości",
+              "Adres": "PC-001 §2.1 → „Uzasadnienie dwuwarunkowości\""
+            },
+            {
+              "Element": "Pochodzenie progu wielkości (konwencja, nie literatura)",
+              "Adres": "A1 → „Zmiana 4\""
+            },
+            {
+              "Element": "Obsługa `INSUFFICIENT_DATA`",
+              "Adres": "PC-001 §2.1; implementacja: ENDPOINT::classify_run"
+            },
+            {
+              "Element": "Implementacja endpointu",
+              "Adres": "ENDPOINT::compute_pe_reducible, ENDPOINT::compute_w2_reduction"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "text": "**Uwaga adresowa:** próg Warunku B **nie ma adresu w kodzie** — jest wyłącznie tekstem w prerejestracji. Patrz znalezisko §6.1."
+        }
+      ]
+    },
+    {
+      "id": "2.4",
+      "numbered": true,
+      "level": 3,
+      "title": "2.4 Podłoga nieredukowalna i procedura V-C",
+      "start_line": 151,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Element",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Element": "Zakaz wyprowadzenia analitycznego, nakaz wyprowadzenia numerycznego",
+              "Adres": "W2-SPEC §2.1; zasada: GOV → D-017"
+            },
+            {
+              "Element": "Procedura wyznaczenia podłogi",
+              "Adres": "FLOOR-MOD::floor_at_tick, FLOOR-MOD::floor_profile"
+            },
+            {
+              "Element": "Wyprowadzenie liczby realizacji z kryterium precyzji",
+              "Adres": "FLOOR §6; wartość domyślna: FLOOR-MOD::DEFAULT_N"
+            },
+            {
+              "Element": "Test ważności V-C (`bias_roznicowy` vs tolerancja)",
+              "Adres": "W2-SPEC §2.1a; implementacja: ENDPOINT::select_floor_model"
+            },
+            {
+              "Element": "Mechaniczność decyzji o modelu podłogi (brak ścieżki operatorskiej)",
+              "Adres": "W2-SPEC §2.1a, §4 (test W2-T7)"
+            },
+            {
+              "Element": "Zamrożona podłoga środowiska Primary",
+              "Adres": "CONFIG::FROZEN_FLOOR_NOISE_WORLD"
+            },
+            {
+              "Element": "Kontrola odtwarzalności i zachowanie przy rozjeździe",
+              "Adres": "ENDPOINT::verify_frozen_floor_env, ENDPOINT::FrozenFloorMismatchError; tolerancja: CONFIG::FLOOR_ENV_VERIFICATION_TOLERANCE"
+            },
+            {
+              "Element": "Rozłączność zakresu seedów użytego do wyznaczenia podłogi",
+              "Adres": "CONFIG::FROZEN_FLOOR_NOISE_WORLD → `seed_range`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.5",
+      "numbered": true,
+      "level": 3,
+      "title": "2.5 Mały mianownik",
+      "start_line": 164,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Element",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Element": "Uzasadnienie progu minimalnego mianownika",
+              "Adres": "W2-SPEC §3.1; wartość: CONFIG::MIN_DENOMINATOR"
+            },
+            {
+              "Element": "Klasyfikacja przebiegu VALID / FLOOR_LIMITED",
+              "Adres": "W2-SPEC §3.2; implementacja: ENDPOINT::classify_run"
+            },
+            {
+              "Element": "FLOOR_LIMITED jako **wynik**, nie brak danych",
+              "Adres": "W2-SPEC §3.2"
+            },
+            {
+              "Element": "Bezpiecznik przeciw skażeniu doborem próby (komórka → INCONCLUSIVE)",
+              "Adres": "W2-SPEC §3.3; wartość: CONFIG::FLOOR_LIMITED_CELL_THRESHOLD; implementacja: ENDPOINT::classify_cell"
+            },
+            {
+              "Element": "Warunek A liczony także dla FLOOR_LIMITED",
+              "Adres": "W2-SPEC §3.4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.6",
+      "numbered": true,
+      "level": 3,
+      "title": "2.6 Reguła decyzyjna",
+      "start_line": 174,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "**Brzmienie obowiązujące:** A1 → „Zaktualizowana reguła decyzyjna\", zmodyfikowane statusami z A4 i A5. Pierwotne, **nieobowiązujące** brzmienie: PC-001 §6 (patrz §4).",
+          "lead": "Brzmienie obowiązujące"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Warunek",
+            "Definicja pod adresem",
+            "Status",
+            "Adres statusu"
+          ],
+          "rows": [
+            {
+              "Warunek": "**A** — kierunek trendu",
+              "Definicja pod adresem": "W2-SPEC §2.3 (na `PE_red`)",
+              "Status": "aktywny",
+              "Adres statusu": "—"
+            },
+            {
+              "Warunek": "**B** — wielkość redukcji",
+              "Definicja pod adresem": "W2-SPEC §2.3 (na `PE_red`)",
+              "Status": "aktywny",
+              "Adres statusu": "—"
+            },
+            {
+              "Warunek": "**FDR** — istotność po korekcie",
+              "Definicja pod adresem": "PC-001 §2.2",
+              "Status": "aktywny",
+              "Adres statusu": "—"
+            },
+            {
+              "Warunek": "**K1** — surogat z przetasowaniem",
+              "Definicja pod adresem": "PC-001 §5 → „K1\"; na `PE_red`: W2-SPEC §5",
+              "Status": "aktywny",
+              "Adres statusu": "—"
+            },
+            {
+              "Warunek": "**K3a** warunek 1 — wzrost PE po wstrząsie",
+              "Definicja pod adresem": "PC-001 §5 → „K3\"",
+              "Status": "**aktywny**",
+              "Adres statusu": "A5 → „Warunek 1 K3a\""
+            },
+            {
+              "Warunek": "**K3a** warunek 2 — ponowna adaptacja",
+              "Definicja pod adresem": "PC-001 §5 → „K3\"",
+              "Status": "**SUSPENDED PENDING WINDOW REDEFINITION**",
+              "Adres statusu": "A5 → „Status\""
+            },
+            {
+              "Warunek": "**K3b** — skracanie czasu readaptacji",
+              "Definicja pod adresem": "A1 → „Zmiana 1\"",
+              "Status": "**ARCHITECTURE-LIMITED** — zdefiniowana, niewykonywana, nieusunięta, wraca po CLOS v0.12",
+              "Adres statusu": "A4 → „Jeden temat\""
+            },
+            {
+              "Warunek": "**K4** — brak efektu w czystym szumie **oraz** separacja",
+              "Definicja pod adresem": "A1 → „Zmiana 3\"; wzmocnienie przez W2: W2-SPEC §5",
+              "Status": "aktywny",
+              "Adres statusu": "—"
+            },
+            {
+              "Warunek": "**K5** — ablacja surogatowa",
+              "Definicja pod adresem": "PC-001 §5 → „K5\"; na `PE_red`: W2-SPEC §5",
+              "Status": "aktywny",
+              "Adres statusu": "—"
+            },
+            {
+              "Warunek": "**K6** — sprzężenie predykcji z wejściem",
+              "Definicja pod adresem": "A1 → „Zmiana 2\"",
+              "Status": "aktywny",
+              "Adres statusu": "—"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "**Zastrzeżenia wiążące, których nie wolno pominąć przy raportowaniu:**",
+          "lead": "Zastrzeżenia wiążące, których nie wolno pominąć przy raportowaniu"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Zastrzeżenie",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Zastrzeżenie": "K6 jest warunkiem **koniecznym, nie wystarczającym**",
+              "Adres": "A1 → „Zmiana 2\", uwaga interpretacyjna (D-007 pkt 1)"
+            },
+            {
+              "Zastrzeżenie": "K3 i K6 muszą być raportowane w **osobnych sekcjach**",
+              "Adres": "A1 → „Zmiana 2\""
+            },
+            {
+              "Zastrzeżenie": "K4 przy W2 jest częściowo tautologiczna i musi być tak opisana",
+              "Adres": "W2-SPEC §5, uwaga do K4"
+            },
+            {
+              "Zastrzeżenie": "K1 i K5 to **surogaty analityczne**, nie ingerencje w system",
+              "Adres": "PC-001 §5 → „K5\"; PC-001 §8 pkt 3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.7",
+      "numbered": true,
+      "level": 3,
+      "title": "2.7 Poza regułą decyzyjną",
+      "start_line": 201,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Element",
+            "Charakter",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Element": "**K2** (`stable_world`)",
+              "Charakter": "przesłanka **opisowa**, poza inferencją statystyczną",
+              "Adres": "PC-001 §5 → „K2\" (D-005 pkt 4)"
+            },
+            {
+              "Element": "**K7** (gałąź awaryjna `predict()`)",
+              "Charakter": "**pomiar raportowany**, nie warunek",
+              "Adres": "A2 → „Zmiana 7\"; implementacja: K7-MOD::k7_fallback_branch_fraction"
+            },
+            {
+              "Element": "Progi interpretacyjne K7 i ich konwencyjne pochodzenie",
+              "Charakter": "—",
+              "Adres": "A2 → „Zmiana 7\", „Interpretacja\"; implementacja: K7-MOD::interpret_k7_fraction"
+            },
+            {
+              "Element": "Ograniczenia metody K7 (oszacowanie **dolne**, heurystyka)",
+              "Charakter": "—",
+              "Adres": "A2 → „Ograniczenia metody\""
+            },
+            {
+              "Element": "Obsługa przypadku „K7 nieobliczalny\"",
+              "Charakter": "—",
+              "Adres": "A2 → „Ograniczenia metody\" pkt 1; K7-MOD::default_prediction_depth"
+            },
+            {
+              "Element": "Zagrożenie T7, które K7 adresuje",
+              "Charakter": "—",
+              "Adres": "A2 → „Zmiana 6\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.8",
+      "numbered": true,
+      "level": 3,
+      "title": "2.8 Klasyfikacja wyniku",
+      "start_line": 212,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Element",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Element": "Trójwartościowa klasyfikacja WSPARTA / INCONCLUSIVE / NIE WSPARTA",
+              "Adres": "A1 → „Zasada konserwatywnej interpretacji\" (D-007 pkt 2)"
+            },
+            {
+              "Element": "Zakaz prezentowania INCONCLUSIVE jako wsparcia — także w streszczeniach",
+              "Adres": "A1 → tamże"
+            },
+            {
+              "Element": "Wynik negatywny musi być raportowany **łącznie z osiągniętą mocą**",
+              "Adres": "PC-001 §7; A1 → „Uwaga o mocy\""
+            },
+            {
+              "Element": "Zakaz zapisu `MEASURED_BUT_NULL` bez mocy",
+              "Adres": "PC-001 §7"
+            },
+            {
+              "Element": "Tabela zagrożeń T1–T7 → kontrola rozstrzygająca",
+              "Adres": "PC-001 §3; zaktualizowana: A1 → „Zaktualizowana tabela Threats\"; T7: A2 → „Zmiana 6\""
+            },
+            {
+              "Element": "Problem otwarty: redukcja PE vs jakość zachowania (niemierzone)",
+              "Adres": "PC-001 §3 → akapit końcowy; PC-001 §8 pkt 4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.9",
+      "numbered": true,
+      "level": 3,
+      "title": "2.9 Parametry prerejestrowane",
+      "start_line": 223,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Wszystkie poniższe są **parametrami PC-001, nie globalnymi stałymi CLOS** (D-018 pkt 3) — przyszły eksperyment może mieć inne, ale wymaga wtedy własnej prerejestracji."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Parametr",
+            "Adres wartości",
+            "Adres uzasadnienia"
+          ],
+          "rows": [
+            {
+              "Parametr": "Tolerancja biasu podłogi",
+              "Adres wartości": "CONFIG::FLOOR_BIAS_TOLERANCE",
+              "Adres uzasadnienia": "W2-SPEC §2.1a; FLOOR §3"
+            },
+            {
+              "Parametr": "Minimalny mianownik",
+              "Adres wartości": "CONFIG::MIN_DENOMINATOR",
+              "Adres uzasadnienia": "W2-SPEC §3.1"
+            },
+            {
+              "Parametr": "Próg FLOOR_LIMITED w komórce",
+              "Adres wartości": "CONFIG::FLOOR_LIMITED_CELL_THRESHOLD",
+              "Adres uzasadnienia": "W2-SPEC §3.3"
+            },
+            {
+              "Parametr": "Okna pomiarowe",
+              "Adres wartości": "CONFIG::W_EARLY_TICKS, CONFIG::W_LATE_TICKS",
+              "Adres uzasadnienia": "PC-001 §2.1"
+            },
+            {
+              "Parametr": "Mierzalne okno",
+              "Adres wartości": "CONFIG::MEASURABLE_WINDOW_TICKS",
+              "Adres uzasadnienia": "CONFIG, komentarz nad symbolem"
+            },
+            {
+              "Parametr": "Zamrożona podłoga środowiska Primary",
+              "Adres wartości": "CONFIG::FROZEN_FLOOR_NOISE_WORLD",
+              "Adres uzasadnienia": "W2-REPORT §5"
+            },
+            {
+              "Parametr": "Tolerancja kontroli odtwarzalności podłogi",
+              "Adres wartości": "CONFIG::FLOOR_ENV_VERIFICATION_TOLERANCE",
+              "Adres uzasadnienia": "FLOOR §6"
+            },
+            {
+              "Parametr": "Liczba realizacji / początek zakresu seedów podłogi",
+              "Adres wartości": "FLOOR-MOD::DEFAULT_N, FLOOR-MOD::DEFAULT_SEED_START",
+              "Adres uzasadnienia": "FLOOR §6"
+            },
+            {
+              "Parametr": "**Próg wielkości redukcji (Warunek B)**",
+              "Adres wartości": "**brak adresu w kodzie**",
+              "Adres uzasadnienia": "A1 → „Zmiana 4\" · **znalezisko §6.1**"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.10",
+      "numbered": true,
+      "level": 3,
+      "title": "2.10 Governance obowiązujące PC-001",
+      "start_line": 240,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Zasada",
+            "Treść pod adresem"
+          ],
+          "rows": [
+            {
+              "Zasada": "**O-001** — Observation First",
+              "Treść pod adresem": "GOV → „O-001\""
+            },
+            {
+              "Zasada": "**G-001** — Typ M vs Typ I (oba warunki jednocześnie)",
+              "Treść pod adresem": "GOV → „G-001\""
+            },
+            {
+              "Zasada": "**G-002** — źródłem decyzji jest wpływ na mierzalność",
+              "Treść pod adresem": "GOV → „G-002\""
+            },
+            {
+              "Zasada": "**G-003** — sześć wymagań dla nowej kontroli, w tym klasyfikacja typu danych",
+              "Treść pod adresem": "GOV → „G-003\""
+            },
+            {
+              "Zasada": "**G-004** — zakaz modyfikacji Core, by kontrola stała się wykonalna",
+              "Treść pod adresem": "GOV → „G-004\""
+            },
+            {
+              "Zasada": "**D-017** — źródłem prawdy jest implementacja, nie jej model",
+              "Treść pod adresem": "GOV → „D-017\""
+            },
+            {
+              "Zasada": "Testy historyczne G-001 i G-003 na rzeczywistych decyzjach",
+              "Treść pod adresem": "GOV §5, §6"
+            },
+            {
+              "Zasada": "**D-020 (wariant B)** — kolejna niespójność idzie do PC-002, chyba że czyni endpoint niemierzalnym",
+              "Treść pod adresem": "brak adresu w repo · **znalezisko §6.3**"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.11",
+      "numbered": true,
+      "level": 3,
+      "title": "2.11 Mechanizmy ochronne",
+      "start_line": 253,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Mechanizm",
+            "Adres"
+          ],
+          "rows": [
+            {
+              "Mechanizm": "Rejestr plików krytycznych + uzasadnienie **per pozycja**",
+              "Adres": "HALT::CRITICAL_FILES_PC_001 (komentarze nad listą i przy pozycjach)"
+            },
+            {
+              "Mechanizm": "Kryterium członkostwa w rejestrze",
+              "Adres": "`execution_package_v0_11/hashes/pc_001_baseline_hash.txt`, nagłówek"
+            },
+            {
+              "Mechanizm": "Algorytm hasha i jego przypięcie",
+              "Adres": "HALT::compute_files_hash_v2; `tests/test_hard_halt_hash_algorithm.py`"
+            },
+            {
+              "Mechanizm": "Powód, dla którego baseline nie jest literałem w HALT",
+              "Adres": "`execution_package_v0_11/hashes/pc_001_baseline_hash.txt`, nagłówek"
+            },
+            {
+              "Mechanizm": "Zakaz domyślnej wartości baseline do czasu B5",
+              "Adres": "HALT::enforce_hard_halt_v2"
+            },
+            {
+              "Mechanizm": "Kontrola odtwarzalności podłogi",
+              "Adres": "ENDPOINT::verify_frozen_floor_env"
+            },
+            {
+              "Mechanizm": "Test usuwalności Observation Layer",
+              "Adres": "`tests/test_observer_removability.py`"
+            },
+            {
+              "Mechanizm": "Istnienie i czytelność dokumentów prerejestracji",
+              "Adres": "`tests/test_pc_001_hash_registry.py`"
+            },
+            {
+              "Mechanizm": "Rozłączność seedów: pilot / podłoga / konfirmacja",
+              "Adres": "B4 → „Rozdzielność seedów\"; CONFIG::FROZEN_FLOOR_NOISE_WORLD; `reports/pilot/*.json` → `seeds_used`, `confirmatory_seeds_start`"
+            },
+            {
+              "Mechanizm": "Gwarancja ślepoty pilota (zapis wyłącznie `W_early_red`)",
+              "Adres": "B4 §2 → „Wzmocnienie\"; `reports/pilot/pilot_W_early_red_noise_world.json` → `recorded_quantity`, `NEVER_FOR_INFERENCE`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2.12",
+      "numbered": true,
+      "level": 3,
+      "title": "2.12 Powierzchnia wykonawcza objęta rejestrem plików krytycznych",
+      "start_line": 268,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Sekcje 2.1–2.11 adresują **kryteria i parametry**. Rejestr plików krytycznych chroni ponadto warstwę, która te kryteria **wykonuje** — jej zmiana zmieniłaby liczby produkowane przez eksperyment, nie zmieniając ani jednego dokumentu prerejestracji. Ta podsekcja istnieje po to, by żadna pozycja rejestru nie była chroniona, a nieopisana (test §9 nr 5)."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Warstwa",
+            "Adres",
+            "Rola"
+          ],
+          "rows": [
+            {
+              "Warstwa": "**Core — ZAMROŻONY od v0.1**",
+              "Adres": "`clos_brain/`, `birth/`, `genome/`",
+              "Rola": "badany system; **nie wolno go modyfikować, by kontrola stała się wykonalna** (GOV → „G-004\")"
+            },
+            {
+              "Warstwa": "Observation Layer",
+              "Adres": "`clos_kernel/snapshot_engine.py`",
+              "Rola": "zapis `prediction`, `input`, `prediction_error`; precedens O-001 (GOV → „O-001\")"
+            },
+            {
+              "Warstwa": "Definicje środowisk",
+              "Adres": "`clos_world/scenarios.py`, `clos_world/world_runtime.py`",
+              "Rola": "generatory `(tick, seed) → wartość`; **źródło podłogi** wyznaczanej numerycznie (GOV → „D-017\")"
+            },
+            {
+              "Warstwa": "Populacja genomów",
+              "Adres": "`clos_curriculum/laboratory/population.py`",
+              "Rola": "zestaw genomów przebiegu; zweryfikowane w A5 jako niezmieniające `prediction_depth`"
+            },
+            {
+              "Warstwa": "Testy statystyczne",
+              "Adres": "STATS",
+              "Rola": "implementacje testów reguły decyzyjnej; walidowane przeciw bibliotece zewnętrznej, która **celowo pozostaje poza repo** (HALT, komentarz nad rejestrem)"
+            },
+            {
+              "Warstwa": "Protokoły lekcji",
+              "Adres": "`clos_academy/lesson_L1_2.py` (Primary), `clos_academy/lesson_L1_1.py` (wspierająca)",
+              "Rola": "scenariuszowo-niezależne protokoły; dowód niezależności: W2-SPEC §1"
+            },
+            {
+              "Warstwa": "Pipeline wykonawczy",
+              "Adres": "`execution_package_v0_11/runners/pipeline.py`, `execution_package_v0_11/runners/aggregate_results.py`",
+              "Rola": "uruchomienie przebiegów i agregacja wyników"
+            },
+            {
+              "Warstwa": "Egzekwowanie Hard Halt",
+              "Adres": "HALT",
+              "Rola": "rejestr, algorytm hasha, bramka wejścia"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "**Poza rejestrem celowo** (decyzja CTO, uzasadnienie: HALT, komentarz przy pozycji): runnery jednorazowe, które **wyznaczyły** wartość, ale nie są kodem stosowanym przy każdym przebiegu — runner wyznaczający podłogę i runner pilota. Ich wyniki są chronione przez zamrożenie **wartości** w CONFIG, nie przez hash kodu.",
+          "lead": "Poza rejestrem celowo"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "numbered": true,
+      "level": 2,
+      "title": "3. Mapa aneksów — co każdy zmienił",
+      "start_line": 293,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Dokument",
+            "Wprowadza",
+            "Nie zmienia"
+          ],
+          "rows": [
+            {
+              "Dokument": "**A1**",
+              "Wprowadza": "K3b (nowa kontrola), K6 (nowa kontrola), K4 przeformułowane na separację, jawne pochodzenie progu wielkości, wskazana ścieżka artefaktu analizy mocy, kategoria INCONCLUSIVE, zagrożenie T6",
+              "Nie zmienia": "Primary Endpoint (nadal na surowym PE w tym momencie)"
+            },
+            {
+              "Dokument": "**A2**",
+              "Wprowadza": "zagrożenie T7, K7 jako pomiar raportowany, wymagania techniczne dla K7",
+              "Nie zmienia": "**regułę decyzyjną** — A2 stwierdza to wprost"
+            },
+            {
+              "Dokument": "**A3**",
+              "Wprowadza": "diagnozę trafności konstrukcyjnej, odrzucenie W1, wybór wariantu W2, rekomendację przeniesienia Primary do środowiska stacjonarnego",
+              "Nie zmienia": "okien pomiarowych, progu wielkości, kontroli K1–K7 co do istnienia"
+            },
+            {
+              "Dokument": "**W2-SPEC**",
+              "Wprowadza": "formalną definicję W2, procedurę V-C, obsługę małego mianownika, wymagania weryfikacyjne, wpływ W2 na każdą kontrolę",
+              "Nie zmienia": "okien pomiarowych (stwierdza to wprost w §6), progu wielkości, liczby seedów"
+            },
+            {
+              "Dokument": "**A4**",
+              "Wprowadza": "status K3b: ARCHITECTURE-LIMITED; zastrzeżenie o nieporównywalności dwóch pomiarów cenzurowania",
+              "Nie zmienia": "definicji K3b; statusu Homeostatic Resilience w v0.11 (D-025E: **bez zmian**)"
+            },
+            {
+              "Dokument": "**A5**",
+              "Wprowadza": "status warunku 2 K3a: SUSPENDED PENDING WINDOW REDEFINITION; klasyfikację Typ M; dowód mechanizmu",
+              "Nie zmienia": "definicji warunku 2 K3a; statusu warunku 1 K3a (pozostaje aktywny); **nie proponuje nowych okien**"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "**Kolejność czytania dla kogoś nowego:** PC-001 §1 → A3 §2 (dlaczego endpoint się zmienił) → W2-SPEC §2 (czym jest endpoint dziś) → A1 „Zaktualizowana reguła decyzyjna\" → A4 i A5 (statusy) → §4 poniżej (co po drodze przestało obowiązywać).",
+          "lead": "Kolejność czytania dla kogoś nowego"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "numbered": true,
+      "level": 2,
+      "title": "4. Mapa treści nieobowiązujących w zamrożonych źródłach",
+      "start_line": 310,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "**To jest sekcja o najwyższym priorytecie przy przeglądzie.** Każda pozycja to fragment, który w zamrożonym dokumencie **wygląda na obowiązujący**, a nie jest. Źródeł nie wolno poprawiać (hash), więc ostrzeżenie musi żyć tutaj.",
+          "lead": "To jest sekcja o najwyższym priorytecie przy przeglądzie."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "#",
+            "Adres",
+            "Co tam stoi",
+            "Dlaczego nie obowiązuje",
+            "Co obowiązuje zamiast"
+          ],
+          "rows": [
+            {
+              "#": "1",
+              "Adres": "PC-001 §2.1",
+              "Co tam stoi": "Primary Endpoint zdefiniowany na **surowym** `PE`",
+              "Dlaczego nie obowiązuje": "zastąpione wariantem W2",
+              "Co obowiązuje zamiast": "W2-SPEC §2.2–2.3"
+            },
+            {
+              "#": "2",
+              "Adres": "PC-001 §2.3",
+              "Co tam stoi": "środowiska inferencyjne bez środowiska stacjonarnego",
+              "Dlaczego nie obowiązuje": "Primary przeniesiony do środowiska stacjonarnego",
+              "Co obowiązuje zamiast": "A3 §5; CONFIG::EXPERIMENT_CONFIG"
+            },
+            {
+              "#": "3",
+              "Adres": "PC-001 §5 → „K3\" warunek 2",
+              "Co tam stoi": "kryterium ponownej adaptacji jako aktywne",
+              "Dlaczego nie obowiązuje": "zawieszone (Typ M, błąd projektu pomiaru)",
+              "Co obowiązuje zamiast": "A5 → „Status\""
+            },
+            {
+              "#": "4",
+              "Adres": "PC-001 §5 → „K4\"",
+              "Co tam stoi": "brak wymogu separacji",
+              "Dlaczego nie obowiązuje": "wzmocnione o separację statystyczną",
+              "Co obowiązuje zamiast": "A1 → „Zmiana 3\""
+            },
+            {
+              "#": "5",
+              "Adres": "PC-001 §6",
+              "Co tam stoi": "reguła decyzyjna w brzmieniu pierwotnym",
+              "Dlaczego nie obowiązuje": "rozszerzona, następnie zmodyfikowana statusami",
+              "Co obowiązuje zamiast": "A1 → „Zaktualizowana reguła decyzyjna\" + A4 + A5"
+            },
+            {
+              "#": "6",
+              "Adres": "PC-001 §3",
+              "Co tam stoi": "tabela zagrożeń bez T6 i T7",
+              "Dlaczego nie obowiązuje": "uzupełniona dwukrotnie",
+              "Co obowiązuje zamiast": "A1 → „Zaktualizowana tabela Threats\"; A2 → „Zmiana 6\""
+            },
+            {
+              "#": "7",
+              "Adres": "A3 §1.1",
+              "Co tam stoi": "podłoga fazy powstrząsowej wyprowadzona **analitycznie**",
+              "Dlaczego nie obowiązuje": "założenie nieobciętego rozkładu fałszywe (D-017)",
+              "Co obowiązuje zamiast": "wyprowadzenie numeryczne: FLOOR-MOD; **uwaga: dla tego środowiska podłoga numeryczna nie została wyznaczona** — §6.2"
+            },
+            {
+              "#": "8",
+              "Adres": "A3 §3, tabela podłóg",
+              "Co tam stoi": "podłogi wszystkich środowisk wyprowadzone analitycznie",
+              "Dlaczego nie obowiązuje": "jw. — **w źródle jest korekta**, ale dopiero **pod** tabelą",
+              "Co obowiązuje zamiast": "FLOOR-MOD; W2-REPORT §3"
+            },
+            {
+              "#": "9",
+              "Adres": "W2-SPEC §3.1",
+              "Co tam stoi": "uzasadnienie minimalnego mianownika **odniesione do podłogi analitycznej**",
+              "Dlaczego nie obowiązuje": "odniesienie oparte na wielkości unieważnionej przez D-017; **korekta na końcu dokumentu tego fragmentu nie obejmuje**",
+              "Co obowiązuje zamiast": "wartość parametru pozostaje w mocy (konwencja); **uzasadnienie wymaga przeliczenia** — §6.2"
+            },
+            {
+              "#": "10",
+              "Adres": "W2-SPEC §7 pkt 3",
+              "Co tam stoi": "pytanie do CTO z podaną wartością podłogi",
+              "Dlaczego nie obowiązuje": "wartość analityczna, pytanie rozstrzygnięte przez D-018/D-019",
+              "Co obowiązuje zamiast": "CONFIG::FROZEN_FLOOR_NOISE_WORLD"
+            },
+            {
+              "#": "11",
+              "Adres": "B4 §3, tabela projektu pilota",
+              "Co tam stoi": "środowiska pilota bez środowiska stacjonarnego; liczba seedów jako **wartość początkowa, nie zamrożona**",
+              "Dlaczego nie obowiązuje": "pilot powtórzony pod W2 w środowisku Primary",
+              "Co obowiązuje zamiast": "`reports/pilot/pilot_W_early_red_noise_world.json` → `supersedes`; W2-REPORT §7"
+            },
+            {
+              "#": "12",
+              "Adres": "B4 §4 pkt 6",
+              "Co tam stoi": "K3b-1 na liście testów do analizy mocy",
+              "Dlaczego nie obowiązuje": "K3b niewykonywana w PC-001",
+              "Co obowiązuje zamiast": "A4"
+            },
+            {
+              "#": "13",
+              "Adres": "B4 §6",
+              "Co tam stoi": "cała procedura reakcji na „K3b niewykonalny mocowo\" (trzy opcje, kolejność wiążąca)",
+              "Dlaczego nie obowiązuje": "wyczerpana — K3b zawieszona decyzją D-026, nie przeprojektowana",
+              "Co obowiązuje zamiast": "A4"
+            },
+            {
+              "#": "14",
+              "Adres": "B4 §7, wiersz B4a",
+              "Co tam stoi": "opis pilota w brzmieniu sprzed W2",
+              "Dlaczego nie obowiązuje": "pilot powtórzony",
+              "Co obowiązuje zamiast": "W2-REPORT §7 → „Ponowny pilot jest konieczny\""
+            },
+            {
+              "#": "15",
+              "Adres": "A1 → „Zmiana 1\"",
+              "Co tam stoi": "K3b jako warunek reguły decyzyjnej",
+              "Dlaczego nie obowiązuje": "zdefiniowana, ale **niewykonywana**",
+              "Co obowiązuje zamiast": "A4"
+            },
+            {
+              "#": "16",
+              "Adres": "A1 → „Zmiana 5\"",
+              "Co tam stoi": "ścieżka artefaktu analizy mocy",
+              "Dlaczego nie obowiązuje": "ścieżka nadal obowiązuje; **artefakt nie istnieje**",
+              "Co obowiązuje zamiast": "§5 pkt 3"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "**Wzorzec wspólny dla pozycji 7–10:** wielkości wyprowadzone analitycznie zostały unieważnione przez D-017, ale **korekty w źródłach są umieszczone lokalnie** — pod tabelą albo na końcu dokumentu — i nie obejmują wszystkich miejsc, w których ta sama wielkość została użyta jako przesłanka. To nie jest zarzut wobec korekt (dokumenty były już zamrożone); to jest powód, dla którego mapa §4 musi istnieć.",
+          "lead": "Wzorzec wspólny dla pozycji 7–10"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "numbered": true,
+      "level": 2,
+      "title": "5. Stan otwarty",
+      "start_line": 343,
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "#",
+            "Pozycja",
+            "Status",
+            "Adres / uwaga"
+          ],
+          "rows": [
+            {
+              "#": "1",
+              "Pozycja": "**Okna K3a**",
+              "Status": "otwarte, **świadomie odłożone** (decyzja CTO). Warunek naprawialny bez dotykania Core",
+              "Adres / uwaga": "A5 → „Status\"; zadanie: **K3a Window Design Study**, artefakt projektowy **poza PC-001**"
+            },
+            {
+              "#": "2",
+              "Pozycja": "**`PC_001_BASELINE`**",
+              "Status": "TBD — liczony jako **ostatni** krok, gdy cały pipeline istnieje",
+              "Adres / uwaga": "`execution_package_v0_11/hashes/pc_001_baseline_hash.txt`"
+            },
+            {
+              "#": "3",
+              "Pozycja": "**Artefakt analizy mocy**",
+              "Status": "ścieżka prerejestrowana, plik **nie istnieje**",
+              "Adres / uwaga": "A1 → „Zmiana 5\""
+            },
+            {
+              "#": "4",
+              "Pozycja": "**Pilot Final**",
+              "Status": "zaplanowany; parametry **nieudokumentowane w repo**",
+              "Adres / uwaga": "znalezisko §6.4"
+            },
+            {
+              "#": "5",
+              "Pozycja": "**Monte Carlo (B4b)**",
+              "Status": "zaprojektowany, niewykonany; walidacja symulatora **obowiązkowa przed użyciem wyników**",
+              "Adres / uwaga": "B4 §4, §4a"
+            },
+            {
+              "#": "6",
+              "Pozycja": "**Bramka wejścia (B6)**",
+              "Status": "niewykonana",
+              "Adres / uwaga": "B4 §7"
+            },
+            {
+              "#": "7",
+              "Pozycja": "**Hard Halt eksperymentu**",
+              "Status": "**POZOSTAJE** (Hard Halt W2 zdjęty decyzją D-019)",
+              "Adres / uwaga": "W2-REPORT → nagłówek, §7"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "**Kolejność wykonania ustalona przez CTO** (ten dokument jest pozycją 1):",
+          "lead": "Kolejność wykonania ustalona przez CTO"
+        },
+        {
+          "type": "code",
+          "text": "1. Specyfikacja Kanoniczna v1.0     ← ten dokument\n2. K3a Window Design Study          ← osobny artefakt projektowy, POZA PC-001\n3. Pilot Final\n4. B4b Monte Carlo\n5. B5 baseline → B6 bramka → START"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Zasada wiążąca dla pozycji 2** (uzasadnienie CTO): **nie projektować okien „na sucho\".** Cztery razy z rzędu przyczyną problemu było to, że projekt pomiaru nie odpowiadał dynamice badanego zjawiska — K3b, podłoga analityczna, nasycenie entropii, okna K3a. Zaprojektowanie nowych okien bez badania powtórzyłoby ten wzorzec.",
+          "lead": "Zasada wiążąca dla pozycji 2"
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "numbered": true,
+      "level": 2,
+      "title": "6. Znaleziska audytora przy konsolidacji",
+      "start_line": 372,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Cztery pozycje wykryte **wyłącznie** dlatego, że konsolidacja wymusiła zestawienie każdego parametru z jego adresem. Żadna nie jest zarzutem wobec wcześniejszej pracy; wszystkie są konsekwencją tego, że dokumenty zamrażano w kolejności, w jakiej powstawały."
+        }
+      ]
+    },
+    {
+      "id": "6.1",
+      "numbered": true,
+      "level": 3,
+      "title": "6.1 Próg Warunku B nie ma adresu w kodzie",
+      "start_line": 378,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "**Stan:** pozostałe parametry prerejestrowane (§2.9) żyją jako nazwane stałe w CONFIG i są importowane przez ENDPOINT. Próg wielkości redukcji — parametr o **największej konsekwencji dla wyniku** — istnieje wyłącznie jako **tekst prozą** w PC-001 i A1.",
+          "lead": "Stan"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Zweryfikowane:** ENDPOINT liczy `redukcja_W2`, ale **nie porównuje jej z progiem** — to porównanie w repo nie istnieje. Powstanie dopiero na etapie kodu ewaluacji reguły decyzyjnej.",
+          "lead": "Zweryfikowane"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Ryzyko:** kod ewaluacji wpisze próg **literałem**, bez mechanicznego związku z prerejestracją. Hash chroni wtedy tekst i kod **osobno**, a nie ich zgodność. Rozjazd między nimi byłby niewykrywalny przez istniejące mechanizmy — dokładnie ta klasa błędu, którą wykrył test negatywny nr 3 w W2-SPEC §4 (implementacja pobierająca podłogę bez odejmowania jej).",
+          "lead": "Ryzyko"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Rekomendacja (decyzja CTO — audytor nie commituje):** wprowadzić próg jako nazwaną stałą prerejestrowaną w CONFIG, obok pozostałych, wraz z odnośnikiem do A1 → „Zmiana 4\" w komentarzu.",
+          "lead": "Rekomendacja (decyzja CTO — audytor nie commituje)"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Okno czasowe jest zamknięte i krótkie.** CONFIG jest członkiem rejestru plików krytycznych, więc zmiana łamie hash — ale `PC_001_BASELINE` **nie jest jeszcze policzony**, więc dziś nie ma czego złamać. Ta sama struktura argumentu co dopuszczalność aneksów: **dopuszczalne dziś, niedopuszczalne po B5.**",
+          "lead": "Okno czasowe jest zamknięte i krótkie."
+        }
+      ]
+    },
+    {
+      "id": "6.2",
+      "numbered": true,
+      "level": 3,
+      "title": "6.2 Uzasadnienie minimalnego mianownika opiera się na wielkości unieważnionej",
+      "start_line": 400,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "**Stan:** W2-SPEC §3.1 uzasadnia wartość minimalnego mianownika, odnosząc ją do najmniejszej niezerowej podłogi w zestawie — wielkości wyprowadzonej **analitycznie**. D-017 unieważnił tę klasę wyprowadzeń. Korekta na końcu W2-SPEC dotyczy wymagania weryfikacyjnego i środowiska Primary; **§3.1 nie jest nią objęty**.",
+          "lead": "Stan"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Zweryfikowane:** podłoga numeryczna została wyznaczona **wyłącznie dla środowiska Primary** (jeden runner, jedna zamrożona wartość). Dla środowiska kontrolnego K3 podłoga numeryczna w repo nie istnieje.",
+          "lead": "Zweryfikowane"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Co z tego wynika — i czego nie wynika:** **wartość** parametru pozostaje w mocy. Jest konwencją przyjętą z góry, a wartością konwencji jest jej niezmienność, nie trafność uzasadnienia (ta sama logika co przy progu wielkości, A1 → „Zmiana 4\"). Zmiana wartości byłaby niedopuszczalna. Nieaktualne jest **uzasadnienie**, nie parametr.",
+          "lead": "Co z tego wynika — i czego nie wynika"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Rekomendacja:** odnotować w §4 (pozycja 9 — zrobione) i **nie zmieniać wartości**. Jeśli CTO uzna, że uzasadnienie ma zostać przeliczone, jest to zadanie na PC-002 albo na osobną notatkę — nie zmiana parametru bieżącego protokołu.",
+          "lead": "Rekomendacja"
+        }
+      ]
+    },
+    {
+      "id": "6.3",
+      "numbered": true,
+      "level": 3,
+      "title": "6.3 D-020 nie ma adresu w repo",
+      "start_line": 420,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "**Stan:** D-020 (wariant B) — *„po zamknięciu fazy projektowania kolejna niespójność idzie do PC-002, chyba że czyni endpoint niemierzalnym\"* — jest regułą **proceduralną o tej samej wadze co G-001**, a jedyny jej ślad to wzmianka w commicie zamykającym fazę projektowania. GOV zawiera O-001 i G-001…G-004, nie zawiera D-020.",
+          "lead": "Stan"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Ryzyko:** GOV jest w rejestrze plików krytycznych właśnie dlatego, że kryteriów klasyfikacji nie wolno zmienić po fakcie. D-020 rozstrzyga, **czy poprawkę w ogóle rozpatrywać w bieżącym protokole** — czyli działa *przed* G-001. Reguła wcześniejsza w kolejności stosowania jest słabiej chroniona niż reguła, którą warunkuje.",
+          "lead": "Ryzyko"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Rekomendacja:** dopisać D-020 do GOV, wzorem pozostałych zasad (treść + test historyczny). To samo okno czasowe co §6.1 — GOV jest w rejestrze, baseline nie jest policzony.",
+          "lead": "Rekomendacja"
+        }
+      ]
+    },
+    {
+      "id": "6.4",
+      "numbered": true,
+      "level": 3,
+      "title": "6.4 Parametry Pilota Final nie mają artefaktu",
+      "start_line": 435,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "**Stan:** kolejność wykonania przewiduje Pilot Final z parametrami różnymi od poprzedniego pilota (inna liczba seedów, drugie środowisko), uzasadnionymi obserwacją niestabilności oszacowania wariancji. Analogicznie B4b ma używać wariancji dwupoziomowej z podanym stosunkiem składowych.",
+          "lead": "Stan"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Zweryfikowane:** **żaden z tych parametrów ani żadna z tych obserwacji nie występuje w repozytorium** — ani w dokumentach, ani w artefaktach `reports/pilot/`, ani w kodzie. Istnieją wyłącznie w dokumencie przekazania kontekstu.",
+          "lead": "Zweryfikowane"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Dlaczego to jest problem, a nie drobiazg:** B4 §3 dopuszcza zwiększenie liczby seedów, ale warunkuje je obejrzeniem rozkładu — i wolno to zrobić **tylko dlatego**, że mierzona wielkość nie niesie informacji o efekcie. Ta dopuszczalność opiera się na **konkretnej przesłance** (jaki rozkład zaobserwowano, jak niestabilne było oszacowanie). Bez artefaktu przesłanka jest niesprawdzalna, a decyzja o liczbie seedów staje się nieodróżnialna od dobrania jej po fakcie.",
+          "lead": "Dlaczego to jest problem, a nie drobiazg"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Rekomendacja:** przed Pilotem Final zapisać notatkę z uzasadnieniem parametrów, wzorem B4 — z jawnym wskazaniem, z którego artefaktu pochodzi obserwacja niestabilności. Jeśli obserwacja pochodzi z ponownej analizy istniejącego artefaktu pilota, wystarczy wskazać tę analizę. **Ten dokument celowo nie przytacza tych liczb** (C-001, a niezależnie od C-001 — nie mają źródła).",
+          "lead": "Rekomendacja"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "numbered": true,
+      "level": 2,
+      "title": "7. Czego ten dokument nie rozstrzyga",
+      "start_line": 459,
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Nie zmienia żadnego kryterium.** Zmiana kryterium wymaga datowanego aneksu, przed obejrzeniem danych, których dotyczy (PC-001 §12).",
+            "**Nie proponuje okien K3a** — to osobne zadanie projektowe, poza PC-001 (§5 pkt 1).",
+            "**Nie klasyfikuje znalezisk z §6 jako Typ M ani Typ I** — klasyfikacja jest decyzją CTO na podstawie analizy audytora (GOV → G-001, „Role\").",
+            "**Nie przechowuje żadnej wartości** (C-001).",
+            "**Nie zastępuje żadnego dokumentu.** Wszystkie źródła pozostają w mocy pod swoimi adresami."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "numbered": true,
+      "level": 2,
+      "title": "8. Warunki utrzymania",
+      "start_line": 471,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Ten dokument wymaga aktualizacji **wyłącznie** wtedy, gdy zmienia się jedno z:"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**struktura reguły decyzyjnej** (warunek dodany, usunięty lub zmieniający status),",
+            "**adres** obowiązującej definicji (nowy aneks, przeniesienie parametru do kodu),",
+            "**stan pozycji otwartej** z §5,",
+            "**zawartość mapy §4** (nowe źródło częściowo unieważnione)."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Nie wymaga aktualizacji, gdy zmienia się **wartość** czegokolwiek — to jest cała korzyść z C-001."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Wersjonowanie:** zmiana w §2 lub §4 → nowa wersja mniejsza (v1.1). Zmiana zasady C-001 albo roli dokumentu → wersja większa (v2.0).",
+          "lead": "Wersjonowanie"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Format:** markdown jest kanoniczny, JSON jest jego **mechanicznym odwzorowaniem** (`spec_md_to_json.py`). JSON nie jest pisany ręcznie i nie może być: walidator **regeneruje odwzorowanie z bieżącego markdowna w pamięci i porównuje je strukturalnie** z plikiem JSON w repo. Wykrywa to zarówno ręczną edycję JSON-a, jak i JSON pochodzący ze starszej wersji markdowna. Ręczna edycja jest wykrywalna, nie tylko zabroniona.",
+          "lead": "Format"
+        },
+        {
+          "type": "note",
+          "text": "**Dlaczego regeneracja, a nie skrót markdowna zapisany w JSON.** Skrót wymagałby wpisania do JSON-a wartości wyliczalnej z repozytorium, czyli **odstępstwa od C-001** — a odstępstwo od zasady, choćby uzasadnione, jest początkiem jej erozji. Regeneracja daje ten sam efekt bez wyjątku i wykrywa **więcej**: skrót łapie zmianę markdowna bez regeneracji, regeneracja łapie to samo **oraz** ręczną edycję JSON-a przy nietkniętym markdownie.  **Znane ograniczenie tego rozwiązania:** walidator zależy od konwertera, więc błąd w konwerterze jest wspólny obu stronom porównania — zgodność zachodzi, choć oba pliki są błędne. Skrót tej zależności nie miał. Ryzyko domyka wyłącznie **własny zestaw testów konwertera**, w tym test idempotencji; bez niego porównanie jest samopotwierdzające."
+        }
+      ]
+    },
+    {
+      "id": "8.1",
+      "numbered": true,
+      "level": 3,
+      "title": "8.1 Członkostwo w rejestrze plików krytycznych — rekomendacja: NIE",
+      "start_line": 502,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "**Rekomendacja audytora: nie włączać do `CRITICAL_FILES_PC_001`.** Trzy powody, w kolejności wagi.",
+          "lead": "Rekomendacja audytora: nie włączać do `CRITICAL_FILES_PC_001`."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Po pierwsze — kryterium członkostwa jest zapisane i przemawia przeciw.** Brzmi ono: *„czy zmiana treści tego pliku mogłaby zmienić liczby, które wyprodukuje eksperyment PC-001\"*. Ten dokument nie zawiera żadnej wartości (C-001) i nie jest importowany przez żaden kod — nie może zmienić żadnej liczby. Włączanie do rejestru pozycji niespełniających kryterium **niszczy informacyjną wartość samego rejestru**: dziś członkostwo znaczy jedną, sprawdzalną rzecz, a po dodaniu wyjątku znaczyłoby „ważne zdaniem kogoś\".",
+          "lead": "Po pierwsze — kryterium członkostwa jest zapisane i przemawia przeciw."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Po drugie — hash chroni przed zmianą, a ten dokument wymaga ochrony przed *niepoprawnością*.** Zamrożenie hashem jest właściwe dla kryteriów: mają nie zmieniać się wcale. Indeks jest inny — **ma się zmieniać** za każdym razem, gdy dochodzi aneks (warunki utrzymania powyżej). Zamrożony indeks rozjechałby się ze źródłami w pierwszym dniu, w którym stałby się nieaktualny, a hash nadal byłby zielony. Hash wykryłby edycję, ale nie wykryłby **braku** edycji — a to jest dokładnie ten tryb awarii, na który indeks jest podatny.",
+          "lead": "Po drugie — hash chroni przed zmianą, a ten dokument wymaga ochrony przed *niepoprawnością*."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Po trzecie — właściwa ochrona już istnieje i jest mocniejsza.** `validate_canonical_spec.py` w CI wykrywa rozjazd indeksu ze źródłami: martwy odnośnik, usunięty symbol, pozycję rejestru nieopisaną w §2, naruszenie C-001, ręcznie edytowany JSON. Hash tego nie potrafi. Dla mapy **ciągła weryfikacja poprawności bije jednorazowe zamrożenie**.",
+          "lead": "Po trzecie — właściwa ochrona już istnieje i jest mocniejsza."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Rekomendacja operacyjna:** wpiąć walidator do CI obok istniejących testów, jako warunek zielonej gałęzi. Wymaga to commitu `validate_canonical_spec.py` i `spec_md_to_json.py` do repo — one same nie muszą być w rejestrze z tego samego powodu co ten dokument.",
+          "lead": "Rekomendacja operacyjna"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Zastrzeżenie, którego audytor nie ukrywa:** przy tej decyzji mapa §4 **nie jest** chroniona przed cichym przeredagowaniem. Ktoś mógłby usunąć wiersz mówiący, że dany fragment nie obowiązuje, i żaden test tego nie złapie — bo testy sprawdzają, czy adresy się rozwiązują, nie czy mapa jest kompletna. **Kompletności §4 nie da się dziś sprawdzić mechanicznie.** Jeśli CTO uzna to ryzyko za przeważające, właściwą odpowiedzią jest włączenie do rejestru **mimo** niespełnienia kryterium — ale wtedy z jawnym zapisem, że jest to wyjątek i dlaczego, żeby kryterium nie erodowało po cichu.",
+          "lead": "Zastrzeżenie, którego audytor nie ukrywa"
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "numbered": true,
+      "level": 2,
+      "title": "9. Weryfikowalność",
+      "start_line": 539,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Ten dokument jest sprawdzalny **mechanicznie**, nie przez lekturę:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Walidator: `validate_canonical_spec.py` — uruchamiany przeciw świeżemu klonowi. Przekazany razem z tym dokumentem, **jeszcze nie w repo** (audytor nie commituje); walidator odnotowuje ten stan jawnie i przestanie go zgłaszać dopiero po commicie przez wykonawcę."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "#",
+            "Test",
+            "Co wykrywa"
+          ],
+          "rows": [
+            {
+              "#": "1",
+              "Test": "każdy adres pliku istnieje w repo",
+              "Co wykrywa": "odnośnik do nieistniejącego pliku"
+            },
+            {
+              "#": "2",
+              "Test": "każdy adres `plik §N` / `plik → \"fragment\"` rozwiązuje się do istniejącej sekcji",
+              "Co wykrywa": "odnośnik do nieistniejącej sekcji"
+            },
+            {
+              "#": "3",
+              "Test": "każdy adres `plik::SYMBOL` rozwiązuje się do istniejącego symbolu",
+              "Co wykrywa": "odnośnik do usuniętej lub przemianowanej stałej"
+            },
+            {
+              "#": "4",
+              "Test": "**test negatywny C-001:** dokument nie zawiera liczby w kontekście wartości parametru",
+              "Co wykrywa": "naruszenie zasady zero-wartości"
+            },
+            {
+              "#": "4b",
+              "Test": "**test negatywny testu nr 4:** wstrzyknięte sondy (próg, podłoga, liczność, odsetek) **muszą** zostać złapane",
+              "Co wykrywa": "filtr C-001 rozluźniony wyjątkami do stanu dekoracji"
+            },
+            {
+              "#": "5",
+              "Test": "każda pozycja rejestru plików krytycznych jest osiągalna z §2",
+              "Co wykrywa": "luka w indeksie — plik chroniony, ale nieopisany"
+            },
+            {
+              "#": "6",
+              "Test": "**test negatywny testu nr 5:** usunięcie adresu z §2 **musi** zepsuć test nr 5",
+              "Co wykrywa": "czy test nr 5 w ogóle działa"
+            },
+            {
+              "#": "7",
+              "Test": "JSON niezgodny z odwzorowaniem regenerowanym z bieżącego markdowna",
+              "Co wykrywa": "JSON edytowany ręcznie albo pochodzący ze starszej wersji dokumentu"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Testy 4b i 6 istnieją, bo w tym projekcie pięciokrotnie okazało się, że **walidator bez testu negatywnego jest dekoracją**: indeks deklarujący, że nie zawiera wartości, wygląda dokładnie tak samo jak indeks, który je zawiera — dopóki się tego nie sprawdzi."
+        },
+        {
+          "type": "paragraph",
+          "text": "Test 4b nie jest ozdobnikiem. Filtr rozpoznający „liczbę w kontekście wartości\" musi odróżnić ją od numeracji sekcji, identyfikatorów kontroli, dat w ścieżkach i odsyłaczy z polską odmianą. Każdy dodany wyjątek zbliża filtr do przepuszczania wszystkiego — **test 4b jest jedyną rzeczą, która to zatrzymuje**, i musi zostać uruchomiony po każdej zmianie filtra."
+        },
+        {
+          "type": "paragraph",
+          "text": "**Stan na moment przekazania:** wszystkie testy PASS na świeżym klonie. Wynik testów 5 i 2 był początkowo negatywny i wymusił dwie realne poprawki dokumentu (uzupełnienie §2.12 o powierzchnię wykonawczą, doprecyzowanie notacji `→ \"fragment\"` w §1) — walidator zadziałał, zanim dokument trafił do przeglądu.",
+          "lead": "Stan na moment przekazania"
+        },
+        {
+          "type": "paragraph",
+          "text": "*Dokument nie zawiera żadnej wartości liczbowej pochodzącej z repozytorium (C-001, §0.2). Wszystkie adresy zweryfikowane na świeżym klonie; procedura weryfikacji w §9. Audytor nie commituje — pliki przekazane do decyzji CTO i wykonania przez wykonawcę.*"
+        }
+      ]
+    }
+  ]
+}

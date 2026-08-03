@@ -55,6 +55,13 @@ jobs:
       - name: Validate artifact freshness (staleness vs population_validation)
         run: python scripts/validate_artifact_freshness.py
 
+      # Wpiecie walidatora Specyfikacji Kanonicznej PC-001 do CI jako brama zielonej
+      # galezi (zadanie audytora §2.4, rekomendacja spec §8.1: ciagla weryfikacja
+      # poprawnosci indeksu bije jednorazowe zamrozenie hashem - patrz uzasadnienie
+      # w SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §8.1 i docstring modulu).
+      - name: Validate Canonical Spec PC-001 (address resolution, C-001, registry coverage)
+        run: python -m scripts.validate_canonical_spec
+
       # Zrodlo statusu testow/CI dla Panelu Badacza (SPRINT_v0.8.5.md, P3,
       # opcja a). Dochodzi do tego kroku WYLACZNIE gdy pytest i wszystkie
       # cztery walidatory powyzej juz przeszly (kazdy krok bez
