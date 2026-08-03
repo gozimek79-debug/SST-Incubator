@@ -21,8 +21,10 @@ from scripts.generate_canonical_parameters_report import (
     consistency_checks,
     critical_files_at,
     delta,
+    file_history_revs,
     fmt,
     is_live_head_rev,
+    main,
     module_constant_at,
     module_constant_in_text,
     pc_001_baseline_literal_present_in_text,
@@ -259,3 +261,52 @@ class TestHistoryReadsFromGitNotFromPreviousReport:
         assert "Minimalny mianownik" in labels
         assert "Liczba realizacji na tick (domyslna)" in labels
         assert len(PARAM_ADDRESSES) == 9  # §2.9 minus Warunek B (brak adresu, wyklucza sie celowo)
+
+
+class TestHistoryWithoutExplicitRevisionsIsNotSilent:
+    """Audyt 661b92a, punkt 1: '--history SYMBOL' bez REV dawalo brak wyjscia i
+    kod 0 - cicha zielen, ta sama klasa co 'walidator bez testu negatywnego jest
+    dekoracja'. Wymog audytora: albo kod niezerowy, albo wyjscie niepuste. Ta
+    implementacja wybiera wariant (b) - pelna historia pliku z `git log`, nigdy
+    z wczesniej wygenerowanego raportu."""
+
+    def test_reproduces_the_exact_audit_repro_command_without_regressing(self, capsys):
+        """Doslowny przypadek z audytu: 'python -m scripts.generate_canonical_parameters_report
+        --history MIN_DENOMINATOR' (bez REV)."""
+        code = main(["--history", "MIN_DENOMINATOR"])
+        captured = capsys.readouterr()
+        assert not (captured.out.strip() == "" and code == 0), (
+            "regresja do cichej zieleni: brak wyjscia I kod 0 naraz - dokladnie "
+            "usterka zgloszona w audycie commita 661b92a"
+        )
+
+    def test_output_is_nonempty_and_exit_code_is_zero_only_because_output_is_real(self, capsys):
+        code = main(["--history", "MIN_DENOMINATOR"])
+        captured = capsys.readouterr()
+        lines = [line for line in captured.out.splitlines() if line.strip()]
+        assert code == 0
+        assert len(lines) >= 1
+
+    def test_falls_back_to_full_git_log_history_of_the_parameters_file(self):
+        _label, path, _sym, _just = next(p for p in PARAM_ADDRESSES if p[0] == "Minimalny mianownik")
+        revs = file_history_revs(path)
+        assert len(revs) >= 1
+        assert all(len(r) == 40 for r in revs)  # pelne SHA (git log --format=%H), nie skrocone
+
+    def test_explicit_revs_still_take_priority_over_git_log_fallback(self, capsys):
+        code = main(["--history", "MIN_DENOMINATOR", "HEAD"])
+        captured = capsys.readouterr()
+        assert code == 0
+        assert captured.out.strip().startswith("HEAD:")
+
+    def test_symbol_with_no_git_history_at_all_returns_nonzero_not_silent_zero(self, monkeypatch, capsys):
+        """Galaz 'brak historii wcale' (np. plik nigdy nie byl w repo) - izolowana
+        przez monkeypatch file_history_revs, bo wszystkie prawdziwe PARAM_ADDRESSES
+        maja historie w tym repo. Musi zwrocic kod niezerowy z komunikatem."""
+        import scripts.generate_canonical_parameters_report as mod
+
+        monkeypatch.setattr(mod, "file_history_revs", lambda path: [])
+        code = main(["--history", "MIN_DENOMINATOR"])
+        captured = capsys.readouterr()
+        assert code != 0
+        assert captured.out.strip() != ""

@@ -34,9 +34,19 @@ import re
 import sys
 from pathlib import Path
 
-from scripts.spec_md_to_json import convert
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+try:
+    from scripts.spec_md_to_json import convert
+except ImportError:
+    # Uruchomienie jako `python scripts/validate_canonical_spec.py` (zamiast
+    # `python -m scripts.validate_canonical_spec`, tak jak robi CI) nie dodaje
+    # katalogu repo do sys.path, wiec pakiet `scripts` jest niewidoczny. Nie jest
+    # to defekt CI (dziala poprawnie), ale narzedzie majace bronic dokumentu przed
+    # rozjazdem nie powinno konczyc sie surowym tracebackiem przy najbardziej
+    # naturalnym wywolaniu (audyt commita 661b92a, punkt 4, opcjonalny).
+    sys.path.insert(0, str(REPO_ROOT))
+    from scripts.spec_md_to_json import convert
 SPEC_MD = REPO_ROOT / "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md"
 SPEC_JSON = REPO_ROOT / "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.json"
 HALT_PATH = REPO_ROOT / "execution_package_v0_11" / "validators" / "hard_halt.py"

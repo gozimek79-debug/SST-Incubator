@@ -52,7 +52,8 @@ w tests/test_generate_canonical_parameters_report.py.
 Uzycie:
     python scripts/generate_canonical_parameters_report.py [--rev REV] [--compare REV] [-o PLIK]
     python scripts/generate_canonical_parameters_report.py --verify RAPORT.md
-    python scripts/generate_canonical_parameters_report.py --history SYMBOL REV [REV ...]
+    python scripts/generate_canonical_parameters_report.py --history SYMBOL [REV ...]
+        (bez REV: pelna historia pliku z `git log`, nigdy z wczesniejszego raportu)
 """
 
 import argparse
@@ -131,6 +132,16 @@ def list_files_at(rev, dir_path):
     if result.returncode != 0:
         return []
     return sorted(line for line in result.stdout.decode("utf-8").splitlines() if line.strip())
+
+
+def file_history_revs(rel_path):
+    """Rewizje (najstarsza pierwsza) ktore zmienily dany plik - z `git log`, NIGDY z
+    wczesniej wygenerowanego raportu. Uzywane przez --history, gdy uzytkownik nie
+    poda rewizji jawnie (patrz main()) - pusta lista REV nie moze oznaczac ciszy."""
+    result = _git(["log", "--follow", "--format=%H", "--reverse", "--", rel_path], check=False)
+    if result.returncode != 0:
+        return []
+    return [line for line in result.stdout.decode("utf-8").splitlines() if line.strip()]
 
 
 def commit_meta_at(rev):
@@ -557,12 +568,18 @@ def main(argv=None):
 
     if args.history:
         symbol = args.history[0]
-        revs = args.history[1:]
+        explicit_revs = args.history[1:]
         entry = next((p for p in PARAM_ADDRESSES if p[0] == symbol or p[2] == symbol), None)
         if entry is None:
             print(f"nieznany parametr: {symbol}")
             return 2
         label, path, sym, _just = entry
+        # Brak REV nie moze oznaczac ciszy (audyt 661b92a, punkt 1): bez jawnych
+        # rewizji przechodzimy CALA historie pliku z `git log`, nie z raportu.
+        revs = explicit_revs if explicit_revs else file_history_revs(path)
+        if not revs:
+            print(f"brak historii dla '{symbol}' ({path}) - `git log` nie znalazl zadnej rewizji")
+            return 1
         for rev in revs:
             value = module_constant_at(rev, path, sym)
             print(f"{rev}: {fmt(value)}")
