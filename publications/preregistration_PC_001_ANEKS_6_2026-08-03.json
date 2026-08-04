@@ -1,0 +1,157 @@
+{
+  "document_type": "aneks",
+  "amends": "publications/preregistration_PC_001.json",
+  "aneks_id": "PC-001-ANEKS-6",
+  "title": "mechanizm predykcji: korekta wyjaśnienia, nie wniosku",
+  "date": "2026-08-03",
+  "status": "ZATWIERDZONY",
+  "basis": [
+    "decyzje CTO z 2026-08-02 (K7 -> Typ M, T7 pozostaje, korekta przez aneks nie nadpisanie, studium wstrzymane)",
+    "G-001",
+    "G-004",
+    "D-017"
+  ],
+  "author": "audytor niezależny (zatwierdzony przez CTO)",
+
+  "subject_classification_g005": {
+    "przedmiot": "CORE",
+    "reasoning": "właściwość badanego systemu, nie błąd metodologii i nie usterka infrastruktury"
+  },
+
+  "classification_g001": {
+    "type": "M",
+    "scope": "K7",
+    "reasoning": "kontrola nie obserwuje mechanizmu, który deklaruje obserwować; nie blokuje Primary Endpointu, ale nie spełnia swojej funkcji kontrolnej",
+    "note": "obie osie (G-005 CORE, G-001 Typ M) są ortogonalne - ten dokument jest przykładem przedmiotu CORE przy poprawce Typu M"
+  },
+
+  "single_topic": "Mechanizm, którym predict() wytwarza predykcję po wstrząsie, jest inny niż opisany w Aneksie 2 (T7, K7) i w Aneksie 5 (uzasadnienie zawieszenia warunku 2 K3a). Obserwacje z obu aneksów pozostają w mocy. Zmienia się model wyjaśniający. Aneksy 2 i 5 nie są nadpisywane ani wycofywane - pozostają jako ślad tego, dlaczego sądzono inaczej.",
+
+  "findings": {
+    "arithmetic": {
+      "source": "clos_brain/runtime/prediction.py",
+      "condition": "abs(r.stimulus_hash - input_hash) < brain.attention_threshold * 1000",
+      "hash_range": "_hash_stimulus() zwraca liczbę całkowitą z [0, 100] - maksymalny możliwy dystans wynosi 100",
+      "threshold_constancy": "attention_threshold jest stały we wszystkich 23 genomach w ścieżce lekcji L1.1/L1.2 (BrainTissue używa wartości domyślnej dataclass; population.py nie umieszcza tego pola wśród wymiarów LHS; lekcje go nie czytają) - próg wynosi 300",
+      "conclusion": "warunek jest spełniony zawsze, gdy pamięć jest niepusta - matching_records to cała pamięć, nie jej podzbiór. Gałąź else (awaryjna, licząca średnią kroczącą wejść) jest osiągalna wyłącznie przy pustej pamięci"
+    },
+    "measurement": {
+      "method": "instrumentacja predict(), 300 ticków, genom default, cztery środowiska, seedy 1-3",
+      "result": "gałąź pamięciowa 299 wywołań, gałąź awaryjna 1 (tick 0, pamięć jeszcze pusta), bez wyjątku",
+      "contamination": "brak - mierzono którą gałęzią biegnie wykonanie, nie żadną wielkość wchodzącą do reguły decyzyjnej. Seedy z zakresu pilota, rozłączne z konfirmacją. Nic nie zapisano na dysk"
+    },
+    "mechanism": {
+      "description": "średnia ważona pól record.prediction, z wagami 1/(1+error). Pola te są inicjalizowane wartością brain.last_input (plasticity.py, gałąź dodania rekordu) i przy niskim błędzie przyciągane dalej ku last_input. Inspekcja pamięci po przebiegu potwierdza: każdy rekord przechowuje wartość odpowiadającą swojemu bucketowi wejścia",
+      "conclusion": "predykcja jest zatem filtrem po przeszłych wejściach - tyle że innym niż zakładano"
+    }
+  },
+
+  "consequence_t7": {
+    "decision": "T7 pozostaje, zmienia się opis mechanizmu. Testu nie usuwa się.",
+    "original_threat": "predykcja skorelowana z wejściem bez modelu generatywnego, bo jest średnią kroczącą wejścia (Aneks 2, Zmiana 6)",
+    "revised_assessment": "zagrożenie jest realne i szersze, niż zapisano - realizuje się nie w gałęzi awaryjnej (raz na przebieg), lecz w gałęzi pamięciowej (praktycznie cały przebieg)",
+    "revised_wording": {
+      "mechanizm_trywialny": "predykcja jako filtr po przeszłych wejściach - średnia ważona zapamiętanych wartości, inicjalizowanych i aktualizowanych z input",
+      "dlaczego_daje_spadek_pe": "predykcja współzmienia się z wejściem bez modelu generatywnego; korelacja prediction<->input powstaje z konstrukcji pamięci, nie z przewidywania",
+      "ktora_kontrola_go_odroznia": "K4 (separacja), K5 (ablacja). K7 - patrz consequence_k7"
+    },
+    "change_character": "zawężająca - zagrożenie okazuje się obejmować cały przebieg, a nie jeden tick"
+  },
+
+  "consequence_k7": {
+    "decision": "Typ M",
+    "reasoning": "kontrola nie obserwuje mechanizmu, który deklaruje obserwować; nie blokuje Primary Endpointu, ale nie spełnia swojej funkcji kontrolnej",
+    "structural_result": "odsetek tickow w gałęzi awaryjnej wynosi strukturalnie jeden tick na przebieg - poniżej najniższego progu interpretacyjnego w każdym genomie, środowisku i seedzie. K7 będzie więc zawsze raportować, że K6 jest wiarygodny, nie dlatego że jest, tylko dlatego że mierzona wielkość jest strukturalnie bliska zeru",
+    "decision_rule_impact": {
+      "effect": "żaden",
+      "reasoning": "K7 nie wchodzi do reguły decyzyjnej (Aneks 2 stwierdza to wprost). Nie może więc spowodować błędnego wsparcia ani błędnego odrzucenia hipotezy. Reguła decyzyjna pozostaje bez zmian"
+    },
+    "k6_reporting_impact": {
+      "effect": "istotny i wymaga zapisania",
+      "requirement": "po tym aneksie K6 pozostaje aktywnym warunkiem decyzyjnym, ale traci diagnostykę, która miała go kwalifikować. Raport końcowy nie może przedstawiać K6 jako zweryfikowanego przez K7. Musi natomiast zawierać jawne stwierdzenie, że mechanizm wytwarzania predykcji czyni dodatnią korelację prediction<->input oczekiwaną z konstrukcji, niezależnie od obecności Predictive Coding",
+      "character": "zaostrzenie, nie złagodzenie - czytelnik dostaje mocniejsze zastrzeżenie niż dotąd"
+    },
+    "not_proposed": "nowa definicja K7 ani zastępcza kontrola mechanizmu - kontrola obserwująca gałąź pamięciową byłaby nową kontrolą i podlega G-003 (sześć wymagań jednocześnie); zaprojektowanie jej przy okazji tego aneksu powtórzyłoby wzorzec, który unieruchomił K3b",
+    "recommended_status": "zawieszona jako diagnostyka K6, zdefiniowana i nieusunięta - analogicznie do K3b (ARCHITECTURE-LIMITED) i warunku 2 K3a (SUSPENDED PENDING WINDOW REDEFINITION). Etykieta statusu należy do CTO"
+  },
+
+  "consequence_aneks5": {
+    "decision": "Aneksu 5 nie poprawiać. Korekta przez ten aneks.",
+    "original_explanation": "gałąź awaryjna predict() to średnia z ostatnich prediction_depth wejść; przy stałym post-wstrząsowym plateau ta średnia zbiega w kilka ticków",
+    "correction": "gałąź awaryjna nie działa po wstrząsie. Zbieżność zachodzi w gałęzi pamięciowej, rządzonej strukturą bucketów, wagami 1/(1+error), kolejnością wstawiania rekordów i zanikiem pamięci",
+    "remains_valid": [
+      "dowód trajektoryjny (PE spada do pasma szumu w kilka ticków) - jest obserwacją, nie wyjaśnieniem, i nie zależy od tego, która gałąź go wyprodukowała",
+      "pomiar zbiorczy warunku 1 i warunku 2 K3a",
+      "status warunku 2 K3a: SUSPENDED PENDING WINDOW REDEFINITION - bez zmian",
+      "status warunku 1 K3a: aktywny, gwarantowany strukturalnie - bez zmian",
+      "klasyfikacja Typ M dla warunku 2 K3a - bez zmian"
+    ],
+    "no_longer_valid": "twierdzenie, że skala czasowa readaptacji jest prostą funkcją prediction_depth, a więc wielkością przewidywalną bez uruchamiania systemu. To twierdzenie było jedyną podstawą do uznania, że okna da się przeprojektować na podstawie samego generatora i parametrów genomu"
+  },
+
+  "consequence_window_study": {
+    "decision": "wstrzymać",
+    "reasoning": "pierwszym krokiem wg G-003 pkt 6 jest mechaniczna klasyfikacja typu danych potrzebnych do zaplanowania mocy - i klasyfikacja ta zależy od mechanizmu",
+    "data_type_classification": [
+      {
+        "mechanism": "jak w Aneksie 5",
+        "depends_on": "generatora + stałego parametru genomu",
+        "data_type_g003_pkt6": "dane środowiska",
+        "pkt4_effect": "spełniony"
+      },
+      {
+        "mechanism": "jak w implementacji",
+        "depends_on": "trajektorii stanu pamięci w przebiegu",
+        "data_type_g003_pkt6": "nierozstrzygnięte; możliwe, że dane eksperymentalne",
+        "pkt4_effect": "jeśli eksperymentalne -> automatycznie niespełniony"
+      }
+    ],
+    "next_step": "rozstrzygnięcie wymaga osobnego zadania: czy skalę czasową readaptacji da się wyprowadzić z generatora i struktury pamięci bez uruchamiania mózgu - analogicznie do clos_world/floor_model.py, gdzie podłogę wyznaczono z generatora, nie z przebiegów",
+    "g003_note": "G-003 zadziałał zgodnie z przeznaczeniem. Przy K3b luka wyszła sześć tur po zaprojektowaniu kontroli. Tutaj - przed napisaniem pierwszej linijki projektu"
+  },
+
+  "system_observations": {
+    "note": "zapisane jako wynik badań nad CLOS v0.11, nie jako usterki. G-004 zakazuje modyfikowania Core, żeby kontrola stała się wykonalna; poprawienie któregokolwiek z poniższych stworzyłoby nową wersję badanego systemu",
+    "observations": [
+      "attention_threshold jest w tej konfiguracji bezczynny - dla dowolnej wartości powyżej 0.1 próg przekracza maksymalny możliwy dystans hashy. Filtr podobieństwa bodźca nie filtruje",
+      "prediction_depth nie wybiera rekordów najbardziej podobnych ani najświeższych - matching_records[-prediction_depth:] to ostatnie pozycje listy w kolejności wstawiania, czyli buckety najpóźniej zobaczone po raz pierwszy; aktualizacja rekordu nie zmienia jego pozycji"
+    ],
+    "precedent": "ten sam co przy nasyceniu entropii (Aneks 4, D-026): zweryfikowana właściwość badanego modelu, nie usterka"
+  },
+
+  "freezing_condition": {
+    "binding_statement": "ten aneks nie może zostać zamrożony, dopóki znalezisko z §1 nie zostanie potwierdzone niezależnie przez wykonawcę (zlecenie Z1)",
+    "procedural_reason": "cała treść aneksu opiera się na pomiarze i inspekcji wykonanych przez audytora. Audytor nie zatwierdza własnej pracy",
+    "attention_point": "czy apply_decay() może opróżnić pamięć w trakcie przebiegu (usuwa rekordy powyżej progu błędu). Audytor nie zbadał tego osobno - oparł się na pomiarze zbiorczym, który tego nie rozstrzyga",
+    "conditional_consequence_if_memory_can_empty": [
+      "§3 wymagałby przeredagowania - K7 nie byłby kontrolą nieobserwującą swojego mechanizmu, lecz kontrolą o niskiej czułości",
+      "klasyfikacja K7 jako Typ M wymagałaby ponownego rozważenia - kontrola o niskiej czułości, dla której istnieje poprawna zawężona interpretacja, spełnia raczej kryteria Typu I",
+      "§2 i §4 pozostają w mocy niezależnie od wyniku"
+    ],
+    "verification_7_1": {
+      "verifier": "wykonawca, niezależnie od audytora",
+      "scope": "szerszy niż oryginalny: pełny zestaw genomów, cztery środowiska, trzy seedy z zakresu pilota",
+      "results": [
+        {"finding": "zakres wartości zwracanych przez funkcję haszującą bodziec", "result": "potwierdzony"},
+        {"finding": "stałość progu dopasowania we wszystkich genomach ścieżki L1.1/L1.2", "result": "potwierdzona"},
+        {"finding": "częstość gałęzi awaryjnej: raz na przebieg, w ticku zerowym", "result": "potwierdzona, bez wyjątku"},
+        {"finding": "punkt najsłabszy - czy pamięć może się opróżnić w trakcie przebiegu", "result": "rozstrzygnięty: rozmiar pamięci nie spadł poniżej jednego rekordu po ticku zerowym w żadnym przebiegu"}
+      ],
+      "conclusion": "gałąź awaryjna jest strukturalnie osiągalna, lecz empirycznie nigdy nie wznawiana po ticku zerowym. Warunek zapisany w §7 jest spełniony",
+      "classification_holds": "klasyfikacja K7 jako Typ M zostaje w mocy. Scenariusz warunkowy z §7 (gałąź rzadka, nie martwa -> rozważyć Typ I) nie zachodzi",
+      "honest_caveat": "mechanizm opróżnienia pamięci istnieje - funkcja zaniku jest wywoływana cyklicznie i usuwa rekordy powyżej progu błędu. Nie zaobserwowano jego zadziałania w badanym zakresie. To jest wynik empiryczny na skończonej próbie, nie dowód niemożliwości. Gdyby przy innej konfiguracji genomu albo dłuższym przebiegu pamięć się opróżniła, wniosek wymaga ponownego rozważenia"
+    }
+  },
+
+  "does_not_change": [
+    "Primary Endpoint i W2 - PE_red, podłoga, procedura V-C, okna pomiarowe: bez zmian",
+    "reguła decyzyjna - bez zmian; K7 nigdy do niej nie należał",
+    "pilot B4a-2 - nieunieważniony; zapisał wyłącznie W_early_red",
+    "status K3b (ARCHITECTURE-LIMITED) i warunku 1 K3a - bez zmian",
+    "status Homeostatic Resilience w v0.11 - bez zmian"
+  ],
+
+  "freezing": {
+    "statement": "po zatwierdzeniu przez CTO i po spełnieniu warunku z §7 aneks zostaje zamrożony jako publications/preregistration_PC_001_ANEKS_6_2026-08-03.{md,json} (oba formaty, markdown kanoniczny) i dodany do CRITICAL_FILES_PC_001 - tym samym uzasadnieniem co Aneksy 4 i 5: status kontroli i klasyfikacja zagrożenia nie mogą się zmienić bez złamania hasha."
+  }
+}

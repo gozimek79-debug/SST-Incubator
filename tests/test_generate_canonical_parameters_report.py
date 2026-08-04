@@ -8,6 +8,7 @@ AUD_001_BASELINE legalnie ma swoj wlasny), a mimo to LAPIE prawdziwe przypisanie
 """
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -40,6 +41,11 @@ from scripts.generate_canonical_parameters_report import (
 CONFIG_PATH = "clos_scientist/pc_001_experiment_config.py"
 HALT_PATH = "execution_package_v0_11/validators/hard_halt.py"
 REAL_HALT_TEXT = read_text_at("HEAD", HALT_PATH)
+# Drzewo robocze, NIE HEAD - patrz TestRegistryLengthAssertion. Zmienna osobna
+# od REAL_HALT_TEXT (git HEAD), bo ten konkretny test mierzy SPOJNOSC PLIKU ZE
+# SOBA SAMYM teraz, nie stan ostatniego commita - historia nie jest tu w ogole
+# w grze, wiec czytanie z gita byloby niewlasciwym narzedziem, nie ostroznoscia.
+_HALT_WORKING_TREE_PATH = Path(__file__).resolve().parents[1] / HALT_PATH
 
 
 class TestGitObjectLayer:
@@ -95,9 +101,20 @@ class TestStaticModuleReadNoImport:
 
 class TestRegistryLengthAssertion:
     def test_real_assertion_matches_real_list_length(self):
-        n = registry_length_assertion_in_text(REAL_HALT_TEXT)
-        files = critical_files_at("HEAD")
-        assert n == len(files) == 47
+        """Czyta DRZEWO ROBOCZE, nie git HEAD (naprawa po D-031/Z5B): ten test
+        sprawdza, czy assert w hard_halt.py zgadza sie z WLASNA lista TERAZ - to
+        pytanie o biezacy plik, nie o historie, wiec czytanie z gita mierzyloby
+        niewlasciwa rzecz i byloby zielone/czerwone naprzemiennie w zaleznosci od
+        tego, po ktorej stronie commita test akurat biegnie (ujawnione przy
+        rozszerzeniu rejestru 47->49 - test zielony przed commitem i czerwony po
+        nim, nigdy stabilnie). Przeczytanie z drzewa roboczego mierzy to samo,
+        co widzi walidator, wiec jest zielony po obu stronach kazdego commita."""
+        text = _HALT_WORKING_TREE_PATH.read_text(encoding="utf-8")
+        n = registry_length_assertion_in_text(text)
+        from scripts.validate_canonical_spec import load_critical_files
+
+        files = load_critical_files()
+        assert n == len(files) == 51
 
     def test_missing_assert_is_missing_sentinel(self):
         assert registry_length_assertion_in_text("CRITICAL_FILES_PC_001 = ['a.py']\n") is MISSING

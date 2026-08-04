@@ -2,7 +2,7 @@
 
 Niezalezna implementacja wzgledem prototypu audytora
 (generate_canonical_parameters_report.py, root repo, material referencyjny - nie do
-wklejenia). Odpowiada SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §0.4: artefakt POCHODNY,
+wklejenia). Odpowiada SPECYFIKACJA_KANONICZNA_PC_001.md §0.4: artefakt POCHODNY,
 NIEKANONICZNY, nieobjety hashem, wazny WYLACZNIE dla commitu, ktory deklaruje.
 
 ZASADY (wiazace, patrz zadanie audytora §2.3):
@@ -74,7 +74,7 @@ FLOOR_MODEL_PATH = "clos_world/floor_model.py"
 HALT_PATH = "execution_package_v0_11/validators/hard_halt.py"
 BASELINE_HASH_FILE = "execution_package_v0_11/hashes/pc_001_baseline_hash.txt"
 
-# Adresy parametrow (SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §2.9) - to sa ADRESY, nie
+# Adresy parametrow (SPECYFIKACJA_KANONICZNA_PC_001.md §2.9) - to sa ADRESY, nie
 # wartosci: nazwa etykiety, sciezka modulu, nazwa symbolu, adres uzasadnienia (proza).
 PARAM_ADDRESSES = [
     ("Tolerancja biasu podlogi", CONFIG_PATH, "FLOOR_BIAS_TOLERANCE", "W2-SPEC §2.1a; FLOOR §3"),

@@ -13,7 +13,7 @@ storage/snapshots/*.json
 .pytest_cache/
 
 # v0.7.2 Z4: artefakt pochodny Specyfikacji Kanonicznej PC-001, z zalozenia
-# niekomitowany (SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §0.4)
+# niekomitowany (SPECYFIKACJA_KANONICZNA_PC_001.md §0.4)
 CANONICAL_PARAMETERS_REPORT.md
 
 # v0.8.5: lokalna konfiguracja narzedzia (Claude Code), nie kod projektu

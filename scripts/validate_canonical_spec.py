@@ -1,4 +1,4 @@
-"""Walidator SPECYFIKACJI KANONICZNEJ PC-001 (SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md).
+"""Walidator SPECYFIKACJI KANONICZNEJ PC-001 (SPECYFIKACJA_KANONICZNA_PC_001.md).
 
 Niezalezna implementacja wzgledem prototypu audytora (validate_canonical_spec.py,
 root repo, material referencyjny - nie do wklejenia). Uruchamiany przeciw swiezemu
@@ -47,8 +47,8 @@ except ImportError:
     # naturalnym wywolaniu (audyt commita 661b92a, punkt 4, opcjonalny).
     sys.path.insert(0, str(REPO_ROOT))
     from scripts.spec_md_to_json import convert
-SPEC_MD = REPO_ROOT / "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md"
-SPEC_JSON = REPO_ROOT / "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.json"
+SPEC_MD = REPO_ROOT / "SPECYFIKACJA_KANONICZNA_PC_001.md"
+SPEC_JSON = REPO_ROOT / "SPECYFIKACJA_KANONICZNA_PC_001.json"
 HALT_PATH = REPO_ROOT / "execution_package_v0_11" / "validators" / "hard_halt.py"
 
 SHORTCUTS = {
@@ -58,6 +58,9 @@ SHORTCUTS = {
     "A3": "publications/preregistration_PC_001_ANEKS_3_2026-07-28.md",
     "A4": "publications/preregistration_PC_001_ANEKS_4_2026-07-28.md",
     "A5": "publications/preregistration_PC_001_ANEKS_5_2026-07-28.md",
+    # A6 ma inna date w nazwie niz A1-A5, wiec {1..5} (SHORTCUTS-tabela §1) go nie
+    # obejmuje - osobny wpis, wzorem A1-A5.
+    "A6": "publications/preregistration_PC_001_ANEKS_6_2026-08-03.md",
     "W2-SPEC": "publications/specyfikacja_W2_2026-07-28.md",
     "FLOOR": "publications/analiza_floor_model_2026-07-28.md",
     "B4": "publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md",
@@ -69,6 +72,9 @@ SHORTCUTS = {
     "HALT": "execution_package_v0_11/validators/hard_halt.py",
     "K7-MOD": "clos_scientist/fallback_branch_diagnostic.py",
     "STATS": "clos_curriculum/laboratory/statistics.py",
+    # v1.2 (D-031, §1): dokumenty uzasadniajace objete rejestrem CRITICAL_FILES_PC_001.
+    "SPRINT": "SPRINT_v0.11.0.md",
+    "BEZP": "publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md",
 }
 _SHORTCUT_ALT = "|".join(re.escape(k) for k in sorted(SHORTCUTS, key=len, reverse=True))
 

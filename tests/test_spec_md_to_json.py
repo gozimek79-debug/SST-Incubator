@@ -11,7 +11,7 @@ from pathlib import Path
 
 from scripts.spec_md_to_json import convert, parse_content_blocks
 
-SPEC_MD_PATH = Path(__file__).resolve().parents[1] / "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md"
+SPEC_MD_PATH = Path(__file__).resolve().parents[1] / "SPECYFIKACJA_KANONICZNA_PC_001.md"
 
 
 class TestPreamble:
@@ -122,8 +122,8 @@ class TestNoEmbeddedHash:
 class TestDeterminism:
     def test_convert_is_idempotent_on_identical_input(self):
         md = SPEC_MD_PATH.read_text(encoding="utf-8")
-        first = convert(md, "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md")
-        second = convert(md, "SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md")
+        first = convert(md, "SPECYFIKACJA_KANONICZNA_PC_001.md")
+        second = convert(md, "SPECYFIKACJA_KANONICZNA_PC_001.md")
         assert first == second
 
 
@@ -135,10 +135,12 @@ class TestRealDocument:
         md = SPEC_MD_PATH.read_text(encoding="utf-8")
         data = convert(md, SPEC_MD_PATH.name)
         ids = {s["id"] for s in data["sections"]}
-        for expected in ("0.2", "2.9", "6.1", "6.3", "8.1", "9"):
+        for expected in ("0.2", "2.9", "6.1", "6.3", "8.1", "9", "9.1", "2.13", "9.2", "9.3"):
             assert expected in ids
 
     def test_section_count_matches_known_structure(self):
+        """v1.3 (uzupelniona): 35 sekcji (34 + nowa §9.3 'Trzecia wlasciwosc kontroli
+        nr 5 - ziarnistosc sekcji, nie wiersza - PRZYJETA')."""
         md = SPEC_MD_PATH.read_text(encoding="utf-8")
         data = convert(md, SPEC_MD_PATH.name)
-        assert len(data["sections"]) == 31
+        assert len(data["sections"]) == 35

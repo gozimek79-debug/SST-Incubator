@@ -5,7 +5,7 @@ material referencyjny, nie do wklejenia). Ten plik czyta wylacznie STRUKTURE mar
 naglowki (numerowane i nie), tabele jako dane (nie tekst), cytaty, listy, bloki kodu,
 akapity. Nie wyciaga zadnej "wartosci", nie normalizuje, nie uzupelnia brakow -
 kazda taka proba uczynilaby JSON drugim zrodlem znaczenia obok markdowna (zasada C-001,
-SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §0.2).
+SPECYFIKACJA_KANONICZNA_PC_001.md §0.2).
 
 DECYZJA: BRAK HASHA MARKDOWNA W JSON (odstepstwo od prototypu, do zatwierdzenia przez CTO)
 ---------------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ def convert(md_text, source_filename):
         "note": (
             "JSON jest mechanicznym odwzorowaniem markdowna kanonicznego, bez interpretacji "
             "tresci. Przy rozbieznosci rozstrzyga markdown, nastepnie adres, na ktory markdown "
-            "wskazuje (SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §0.3). Ten plik nie jest recznie "
+            "wskazuje (SPECYFIKACJA_KANONICZNA_PC_001.md §0.3). Ten plik nie jest recznie "
             "edytowalny - regenerowac przez `python scripts/spec_md_to_json.py "
             f"{source_filename}`. Zgodnosc z markdownem sprawdza "
             "scripts/validate_canonical_spec.py (test 7) przez regeneracje w pamieci, nie "

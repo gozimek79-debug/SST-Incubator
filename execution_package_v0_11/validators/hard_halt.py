@@ -288,8 +288,42 @@ CRITICAL_FILES_PC_001 = [
     # zlamania hasha.
     "publications/preregistration_PC_001_ANEKS_5_2026-07-28.json",
     "publications/preregistration_PC_001_ANEKS_5_2026-07-28.md",
+    # Aneks 6 (2026-08-03, zatwierdzony po niezaleznej weryfikacji warunku z §7,
+    # zlecenie Z1): K7 -> Typ M (przedmiot G-005: CORE) - galaz awaryjna predict()
+    # strukturalnie osiagalna, empirycznie nigdy nie wznawiana po ticku 0 (276
+    # przebiegow, 23 genomy x 4 srodowiska x 3 seedy). T7 przeredagowane (zagrozenie
+    # realizuje sie w galezi pamieciowej, nie awaryjnej). Korekta mechanizmu wobec
+    # Aneksu 5 (readaptacja rzadzona struktura pamieci, nie prediction_depth) -
+    # Aneks 5 NIE nadpisany, pozostaje jako slad. Status kontroli i klasyfikacja
+    # zagrozenia nie moga sie zmienic bez zlamania hasha - tym samym uzasadnieniem
+    # co Aneksy 4 i 5.
+    "publications/preregistration_PC_001_ANEKS_6_2026-08-03.json",
+    "publications/preregistration_PC_001_ANEKS_6_2026-08-03.md",
+    # D-031 (2026-08-04), przed B5: dwa dokumenty istniejace dotad poza repo,
+    # wniesione PRZED policzeniem PC_001_BASELINE (baseline liczony raz - sklad
+    # rejestru musi byc ustalony wczesniej). Bez pary .json - zaden kod ich nie
+    # parsuje (proza, nie dane strukturalne), wzorem
+    # publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md (jedyny dotychczasowy
+    # czlonek rejestru bez blizniaczego JSON-a z tego samego powodu).
+    #
+    # SPRINT_v0.11.0.md: dyrektywa sprintu cytowana przez 28 plikow w repo, w tym
+    # CZTERY czlonkow tego rejestru - clos_academy/lesson_L1_1.py,
+    # clos_academy/lesson_L1_2.py, clos_curriculum/laboratory/statistics.py,
+    # clos_world/scenarios.py (oba protokoly lekcji, testy statystyczne reguly
+    # decyzyjnej, definicje srodowisk - rdzen powierzchni pomiarowej PC-001).
+    # Uzasadnienie: dokument JUZ jest de facto zrodlem wiazacych zasad dla kodu
+    # w rejestrze; brak wlasnego adresu bylby luka identyczna do tej, ktora
+    # uzasadnila D-020.
+    "SPRINT_v0.11.0.md",
+    # BEZPIECZENSTWO_POMIARU_recovery_spearman.md: ZERO cytowan w repo - inne
+    # uzasadnienie niz wyzej, celowo. Jest JEDYNYM zapisanym uzasadnieniem
+    # obowiazujacego zakazu pomiarowego (recovery_i nigdy nie jest mierzone w
+    # pilocie - G-003 pkt 6, dane eksperymentalne) i bezposrednio dotyczy zakresu
+    # pomiarowego Pilota Final (Spearman w oknie wczesnym, D-031). Bez wlasnego
+    # adresu ten zakaz istnialby wylacznie jako niepisana konwencja.
+    "publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 47, f"oczekiwano 47 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 51, f"oczekiwano 51 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

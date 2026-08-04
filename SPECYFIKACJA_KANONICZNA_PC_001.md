@@ -1,11 +1,40 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.0
+# SPECYFIKACJA KANONICZNA PC-001 — v1.4
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Status:** **PROJEKT do przeglądu.** Nie zamrożona, nie w `CRITICAL_FILES_PC_001`.
+**Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
+**Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
-CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-001 (§0.2, do zatwierdzenia)
-**Weryfikacja:** wszystkie adresy w tym dokumencie sprawdzone na świeżym klonie gałęzi
+CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-001 (§0.2)
+**Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
+
+> **Zmiany w v1.4** (po zatwierdzeniu A6):
+> §1 — skrót rozszerzony o A6; §2.6 i §2.7 — status K7 i brzmienie T7 zaktualizowane;
+> §2.13 — rozdzielone dwa pytania o format (czy tworzyć JSON / czy rejestrować istniejący);
+> §3 — wiersz A6 w mapie aneksów; §4 — dwie nowe pozycje nieobowiązujące;
+> §5 — status studium okien K3a.
+>
+> **Zmiany w v1.3** (po wykryciu fałszywego pozytywu kontroli nr 5 przez wykonawcę):
+> §1 — adres zbiorczy `katalog/` zastrzeżony wyłącznie dla Core, zakaz odwrotnych apostrofów
+> przy nazwach katalogów w prozie; §2.13 — usunięty wyzwalacz fałszywego pozytywu;
+> §9.2 — nowa sekcja opisująca to ograniczenie i ryzyko rezydualne;
+> §9.3 — trzecia właściwość kontroli nr 5 (ziarnistość sekcji), świadomie przyjęta.
+>
+> **Zmiany w v1.2** (po wprowadzeniu dwóch dokumentów-sierot do repo, D-031):
+> §1 — dodane skróty **SPRINT** i **BEZP**;
+> §2.13 — nowa sekcja: dokumenty uzasadniające objęte rejestrem;
+> §5 — pozycja o dwóch dokumentach poza repozytorium **zamknięta**;
+> §6.4 — odnotowane, że analiza bezpieczeństwa pomiaru ma już adres w repo.
+>
+> **Zmiany w v1.1** (po wpisaniu governance do `docs/GOVERNANCE_RULES.md`):
+> §2.10 — dodane G-005 i G-006, D-020 dostało adres, dopisana uwaga o ortogonalności osi;
+> §5 — dodana pozycja otwarta o dwóch dokumentach poza repozytorium (D-031);
+> §6.3 — znalezisko **zamknięte**, opis zachowany jako ślad;
+> §9 — odnotowane ograniczenie walidatora ujawnione przy tej zmianie.
+>
+> **Nieaktualność wykrył wykonawca, nie walidator.** Wiersz D-020 w §2.10 twierdził „brak
+> adresu w repo" i po wpisaniu reguły stałby się fałszywy, a §2.10 nie wymieniała G-005 ani
+> G-006. Walidator zwracał przy tym sześć razy PASS — patrz §9.
 
 ---
 
@@ -84,7 +113,14 @@ stan bramek) żyją w raporcie **generowanym z repozytorium**, nie w tym dokumen
 | `plik §N` | sekcja N wskazanego dokumentu |
 | `plik → "fragment"` | nagłówek albo wytłuszczony akapit wskazany nazwą (gdy dokument nie numeruje sekcji) |
 | `plik::SYMBOL` | nazwana stała, funkcja lub klasa w module |
+| `katalog/` | **adres zbiorczy** — cały katalog opisany jako jedna całość |
 | `D-XXX` | decyzja CTO (identyfikator; treść w dokumencie, który się na nią powołuje) |
+
+> **Adres zbiorczy jest zastrzeżony.** Zapis z ukośnikiem na końcu wolno stosować **wyłącznie
+> do zamrożonego Core** (§2.12), który z założenia opisuje się jako blok, a nie plik po pliku.
+> Kontrola §9 nr 5 traktuje taki adres jak deklarację pokrycia **całej zawartości katalogu** —
+> więc użycie go w prozie, mimochodem, wyłączyłoby kontrolę dla wszystkich plików rejestru
+> w tym katalogu. **W tekście opisowym nazwy katalogów podaje się bez odwrotnych apostrofów.**
 
 Skróty nazw plików używane dalej — pełne ścieżki względem katalogu głównego repo:
 
@@ -92,11 +128,14 @@ Skróty nazw plików używane dalej — pełne ścieżki względem katalogu gł�
 |---|---|
 | **PC-001** | `publications/preregistration_PC_001.md` |
 | **A1 … A5** | `publications/preregistration_PC_001_ANEKS_{1..5}_2026-07-28.md` |
+| **A6** | `publications/preregistration_PC_001_ANEKS_6_2026-08-03.md` |
 | **W2-SPEC** | `publications/specyfikacja_W2_2026-07-28.md` |
 | **FLOOR** | `publications/analiza_floor_model_2026-07-28.md` |
 | **B4** | `publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md` |
 | **W2-REPORT** | `publications/W2_completion_report_2026-07-28.md` |
 | **GOV** | `docs/GOVERNANCE_RULES.md` |
+| **SPRINT** | `SPRINT_v0.11.0.md` |
+| **BEZP** | `publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md` |
 | **CONFIG** | `clos_scientist/pc_001_experiment_config.py` |
 | **ENDPOINT** | `clos_scientist/w2_endpoint.py` |
 | **FLOOR-MOD** | `clos_world/floor_model.py` |
@@ -104,8 +143,12 @@ Skróty nazw plików używane dalej — pełne ścieżki względem katalogu gł�
 | **K7-MOD** | `clos_scientist/fallback_branch_diagnostic.py` |
 | **STATS** | `clos_curriculum/laboratory/statistics.py` |
 
-Każdy z powyższych dokumentów ma bliźniaczy plik `.json`. **Markdown jest kanoniczny**
-(A2 → „Zamrożenie"); JSON jest odwzorowaniem. Adresy w tym indeksie wskazują markdown.
+**Markdown jest kanoniczny** (A2 → „Zamrożenie"); tam, gdzie istnieje plik `.json`, jest on
+odwzorowaniem. Adresy w tym indeksie wskazują markdown.
+
+> **Nie każdy dokument ma bliźniaka `.json`** — i nie jest to niekonsekwencja. Kryterium
+> zapisane w §2.13: **JSON istnieje tam, gdzie coś go parsuje.** Bez pary są **GOV**, **B4**,
+> **SPRINT** i **BEZP**; żaden kod w repo nie odczytuje ich strukturalnie.
 
 ---
 
@@ -203,11 +246,12 @@ z A4 i A5. Pierwotne, **nieobowiązujące** brzmienie: PC-001 §6 (patrz §4).
 | Element | Charakter | Adres |
 |---|---|---|
 | **K2** (`stable_world`) | przesłanka **opisowa**, poza inferencją statystyczną | PC-001 §5 → „K2" (D-005 pkt 4) |
-| **K7** (gałąź awaryjna `predict()`) | **pomiar raportowany**, nie warunek | A2 → „Zmiana 7"; implementacja: K7-MOD::k7_fallback_branch_fraction |
+| **K7** (gałąź awaryjna `predict()`) | **zawieszona jako diagnostyka K6** — zdefiniowana, nieusunięta; klasyfikacja **Typ M** | **A6 §3**; definicja: A2 → „Zmiana 7"; implementacja: K7-MOD::k7_fallback_branch_fraction |
 | Progi interpretacyjne K7 i ich konwencyjne pochodzenie | — | A2 → „Zmiana 7", „Interpretacja"; implementacja: K7-MOD::interpret_k7_fraction |
 | Ograniczenia metody K7 (oszacowanie **dolne**, heurystyka) | — | A2 → „Ograniczenia metody" |
 | Obsługa przypadku „K7 nieobliczalny" | — | A2 → „Ograniczenia metody" pkt 1; K7-MOD::default_prediction_depth |
-| Zagrożenie T7, które K7 adresuje | — | A2 → „Zmiana 6" |
+| Zagrożenie T7 — predykcja jako **filtr po przeszłych wejściach** | brzmienie obowiązujące | **A6 §2**; pierwotne brzmienie: A2 → „Zmiana 6" |
+| Zastrzeżenie do raportowania K6 po zawieszeniu K7 | wiążące | **A6 §3.2** |
 
 ### 2.8 Klasyfikacja wyniku
 
@@ -246,9 +290,17 @@ przyszły eksperyment może mieć inne, ale wymaga wtedy własnej prerejestracji
 | **G-002** — źródłem decyzji jest wpływ na mierzalność | GOV → „G-002" |
 | **G-003** — sześć wymagań dla nowej kontroli, w tym klasyfikacja typu danych | GOV → „G-003" |
 | **G-004** — zakaz modyfikacji Core, by kontrola stała się wykonalna | GOV → „G-004" |
+| **G-005** — klasyfikacja przedmiotu znaleziska (METODOLOGIA / INFRASTRUKTURA / CORE); przedmiot CORE uruchamia G-004 automatycznie | GOV → „G-005" |
+| **G-006** — koszt zmiany governance: ocena kosztu utrzymania + konkretny błąd historyczny | GOV → „G-006" |
 | **D-017** — źródłem prawdy jest implementacja, nie jej model | GOV → „D-017" |
-| Testy historyczne G-001 i G-003 na rzeczywistych decyzjach | GOV §5, §6 |
-| **D-020 (wariant B)** — kolejna niespójność idzie do PC-002, chyba że czyni endpoint niemierzalnym | brak adresu w repo · **znalezisko §6.3** |
+| **D-020 (wariant B)** — kolejna niespójność idzie do PC-002, chyba że czyni endpoint niemierzalnym; rozstrzyga się **przed** G-001 | GOV → „D-020" |
+| Testy historyczne G-001, G-003 i G-005 na rzeczywistych decyzjach | GOV §5, §6, §7 |
+
+> **Ortogonalność dwóch osi.** G-005 odpowiada na pytanie *czego dotyczy znalezisko*,
+> G-001 — *co z poprawką zrobić*. Obie deklaracje są wymagane i są niezależne: znalezisko
+> o przedmiocie **CORE** może pociągać poprawkę **Typu M** (przykład: gałąź `predict()`
+> i status K7). Litery **M** i **I** oznaczają wyłącznie typy z G-001 i nigdy nie oznaczają
+> przedmiotu.
 
 ### 2.11 Mechanizmy ochronne
 
@@ -288,6 +340,42 @@ jednorazowe, które **wyznaczyły** wartość, ale nie są kodem stosowanym przy
 runner wyznaczający podłogę i runner pilota. Ich wyniki są chronione przez zamrożenie **wartości**
 w CONFIG, nie przez hash kodu.
 
+### 2.13 Dokumenty uzasadniające objęte rejestrem
+
+Rejestr chroni nie tylko kod i kryteria, ale też **uzasadnienia decyzji, które te kryteria
+ukształtowały**. Poniższe dwa dokumenty weszły do rejestru decyzją **D-031**, przed
+policzeniem baseline'u — bo skład listy musi być ustalony wcześniej, a baseline liczony raz.
+
+| Dokument | Rola | Dlaczego w rejestrze |
+|---|---|---|
+| **SPRINT** | dyrektywa sprintu v0.11 (P0–P6) | cytowana przez **czterech członków rejestru**: `clos_academy/lesson_L1_1.py`, `clos_academy/lesson_L1_2.py`, `clos_curriculum/laboratory/statistics.py`, `clos_world/scenarios.py`. Uzasadnia decyzje kształtujące powierzchnię pomiarową — zmiana jej treści zmieniałaby uzasadnienie tego, co kod robi |
+| **BEZP** | analiza bezpieczeństwa pomiaru `recovery_i` i korelacji Spearmana | **zero cytowań w repo** — podstawa jest inna: jest to **jedyne zapisane uzasadnienie zakazu** mierzenia `recovery_i` (G-003 pkt 6: dane eksperymentalne). Zmiana tego uzasadnienia zmieniałaby, **co wolno mierzyć** |
+
+> **Dwa różne powody, celowo nie zlane w jeden.** Przy SPRINT argumentem jest „kod go cytuje",
+> przy BEZP — „jest jedynym zapisanym uzasadnieniem obowiązującego zakazu". Zapisanie tego
+> osobno chroni przed odczytaniem za rok, że oba weszły z tej samej przyczyny.
+
+**Format: wyłącznie markdown, bez pary JSON.** Nie jest to odstępstwo od konwencji katalogu
+publikacji — dwóch członków rejestru już jej nie ma: `publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md`
+oraz `docs/GOVERNANCE_RULES.md`.
+
+> **Dwa różne pytania, których nie wolno zlewać.**
+>
+> **Czy dokument ma mieć reprezentację JSON?** Dokumenty prerejestracji — prerejestracja
+> i aneksy — mają ją **z konwencji protokołu** (A2 → „Zamrożenie": oba formaty, markdown
+> kanoniczny). Dokumenty spoza tej rodziny dostają JSON tylko wtedy, gdy **coś go parsuje**.
+> Żaden kod w repo nie odczytuje strukturalnie SPRINT ani BEZP — cytowania SPRINT to
+> komentarze i docstringi, nie odczyt — więc JSON-a nie tworzy się.
+>
+> **Czy istniejący JSON ma być w rejestrze?** **Zawsze tak**, niezależnie od tego, czy coś
+> go parsuje. Uzasadnienie jest zapisane w HALT przy pozycjach prerejestracji: *ani kanoniczny
+> tekst, ani reprezentacja maszynowa nie zmieni się bez złamania hasha*. Ochronie podlega
+> **niesprzeczność pary**, nie jej użyteczność dla kodu.
+>
+> Pierwsze pytanie rozstrzyga, ile plików powstaje. Drugie — ile z nich wchodzi do rejestru.
+> Zlanie ich prowadzi do wniosku, że aneksy nie powinny mieć JSON-ów, co jest sprzeczne
+> z obowiązującą konwencją protokołu.
+
 ---
 
 ## 3. Mapa aneksów — co każdy zmienił
@@ -300,6 +388,7 @@ w CONFIG, nie przez hash kodu.
 | **W2-SPEC** | formalną definicję W2, procedurę V-C, obsługę małego mianownika, wymagania weryfikacyjne, wpływ W2 na każdą kontrolę | okien pomiarowych (stwierdza to wprost w §6), progu wielkości, liczby seedów |
 | **A4** | status K3b: ARCHITECTURE-LIMITED; zastrzeżenie o nieporównywalności dwóch pomiarów cenzurowania | definicji K3b; statusu Homeostatic Resilience w v0.11 (D-025E: **bez zmian**) |
 | **A5** | status warunku 2 K3a: SUSPENDED PENDING WINDOW REDEFINITION; klasyfikację Typ M; dowód mechanizmu | definicji warunku 2 K3a; statusu warunku 1 K3a (pozostaje aktywny); **nie proponuje nowych okien** |
+| **A6** | korektę **wyjaśnienia mechanizmu** predykcji; nowe brzmienie T7; zawieszenie K7 jako diagnostyki K6 (Typ M); zastrzeżenie do raportowania K6 | **żadnej obserwacji ani wniosku** z A2 i A5 — zmienia model wyjaśniający, nie wyniki; reguły decyzyjnej; statusu K3b i warunku 1 K3a; **nie proponuje zastępczej kontroli** |
 
 **Kolejność czytania dla kogoś nowego:** PC-001 §1 → A3 §2 (dlaczego endpoint się zmienił) →
 W2-SPEC §2 (czym jest endpoint dziś) → A1 „Zaktualizowana reguła decyzyjna" → A4 i A5 (statusy) →
@@ -331,6 +420,8 @@ w zamrożonym dokumencie **wygląda na obowiązujący**, a nie jest. Źródeł n
 | 14 | B4 §7, wiersz B4a | opis pilota w brzmieniu sprzed W2 | pilot powtórzony | W2-REPORT §7 → „Ponowny pilot jest konieczny" |
 | 15 | A1 → „Zmiana 1" | K3b jako warunek reguły decyzyjnej | zdefiniowana, ale **niewykonywana** | A4 |
 | 16 | A1 → „Zmiana 5" | ścieżka artefaktu analizy mocy | ścieżka nadal obowiązuje; **artefakt nie istnieje** | §5 pkt 3 |
+| 17 | A2 → „Zmiana 6" i „Zmiana 7" | T7 opisane jako zagrożenie z **gałęzi awaryjnej**; K7 jako czynna diagnostyka K6 | mechanizm przypisany niewłaściwej gałęzi — gałąź awaryjna wykonuje się raz na przebieg | **A6 §2** (brzmienie T7) · **A6 §3** (status K7) |
+| 18 | A5 → „Warunek 2 K3a" | uzasadnienie: zbieżność przez średnią kroczącą wejść w gałęzi awaryjnej | **wniosek i status pozostają w mocy** — obalone jest wyłącznie **wyjaśnienie** | **A6 §4** |
 
 **Wzorzec wspólny dla pozycji 7–10:** wielkości wyprowadzone analitycznie zostały unieważnione
 przez D-017, ale **korekty w źródłach są umieszczone lokalnie** — pod tabelą albo na końcu
@@ -344,13 +435,14 @@ dla którego mapa §4 musi istnieć.
 
 | # | Pozycja | Status | Adres / uwaga |
 |---|---|---|---|
-| 1 | **Okna K3a** | otwarte, **świadomie odłożone** (decyzja CTO). Warunek naprawialny bez dotykania Core | A5 → „Status"; zadanie: **K3a Window Design Study**, artefakt projektowy **poza PC-001** |
+| 1 | **Okna K3a** | otwarte, **świadomie odłożone** (decyzja CTO) · studium projektowe **WSTRZYMANE** do rozstrzygnięcia typu danych wg G-003 | A5 → „Status"; **A6 §5** |
 | 2 | **`PC_001_BASELINE`** | TBD — liczony jako **ostatni** krok, gdy cały pipeline istnieje | `execution_package_v0_11/hashes/pc_001_baseline_hash.txt` |
 | 3 | **Artefakt analizy mocy** | ścieżka prerejestrowana, plik **nie istnieje** | A1 → „Zmiana 5" |
 | 4 | **Pilot Final** | zaplanowany; parametry **nieudokumentowane w repo** | znalezisko §6.4 |
 | 5 | **Monte Carlo (B4b)** | zaprojektowany, niewykonany; walidacja symulatora **obowiązkowa przed użyciem wyników** | B4 §4, §4a |
 | 6 | **Bramka wejścia (B6)** | niewykonana | B4 §7 |
 | 7 | **Hard Halt eksperymentu** | **POZOSTAJE** (Hard Halt W2 zdjęty decyzją D-019) | W2-REPORT → nagłówek, §7 |
+| 8 | **Dwa dokumenty poza repozytorium** (dyrektywa sprintu v0.11 oraz analiza bezpieczeństwa pomiaru) | **ZAMKNIĘTE** — oba w repo i w rejestrze | §2.13; GOV → „D-031" |
 
 **Kolejność wykonania ustalona przez CTO** (ten dokument jest pozycją 1):
 
@@ -417,9 +509,13 @@ niedopuszczalna. Nieaktualne jest **uzasadnienie**, nie parametr.
 uzna, że uzasadnienie ma zostać przeliczone, jest to zadanie na PC-002 albo na osobną notatkę —
 nie zmiana parametru bieżącego protokołu.
 
-### 6.3 D-020 nie ma adresu w repo
+### 6.3 D-020 nie ma adresu w repo — **ZAMKNIĘTE**
 
-**Stan:** D-020 (wariant B) — *„po zamknięciu fazy projektowania kolejna niespójność idzie do
+> **Status: zamknięte.** D-020 wpisane do `docs/GOVERNANCE_RULES.md` razem z G-005 i G-006.
+> Adres obowiązujący: GOV → „D-020" (§2.10). Opis poniżej zachowany jako ślad — usunięcie go
+> zatarłoby powód, dla którego reguła procesowa mogła przez wiele decyzji działać bez adresu.
+
+**Stan w chwili zgłoszenia:** D-020 (wariant B) — *„po zamknięciu fazy projektowania kolejna niespójność idzie do
 PC-002, chyba że czyni endpoint niemierzalnym"* — jest regułą **proceduralną o tej samej wadze
 co G-001**, a jedyny jej ślad to wzmianka w commicie zamykającym fazę projektowania. GOV zawiera
 O-001 i G-001…G-004, nie zawiera D-020.
@@ -453,6 +549,12 @@ niesprawdzalna, a decyzja o liczbie seedów staje się nieodróżnialna od dobra
 z jawnym wskazaniem, z którego artefaktu pochodzi obserwacja niestabilności. Jeśli obserwacja
 pochodzi z ponownej analizy istniejącego artefaktu pilota, wystarczy wskazać tę analizę.
 **Ten dokument celowo nie przytacza tych liczb** (C-001, a niezależnie od C-001 — nie mają źródła).
+
+> **Aktualizacja v1.2 — częściowo zaadresowane.** Zakres pomiarowy Pilota Final obejmuje
+> korelację Spearmana, a analiza bezpieczeństwa tego pomiaru ma teraz adres w repo: **BEZP**
+> (§2.13). Znalezisko **pozostaje otwarte** w części dotyczącej **liczby seedów i wariancji** —
+> te parametry nadal nie mają artefaktu. Rozstrzygnięcie D-031 dało adres uzasadnieniu zakazu
+> pomiarowego, nie uzasadnieniu doboru `n`.
 
 ---
 
@@ -568,6 +670,101 @@ która to zatrzymuje**, i musi zostać uruchomiony po każdej zmianie filtra.
 początkowo negatywny i wymusił dwie realne poprawki dokumentu (uzupełnienie §2.12 o powierzchnię
 wykonawczą, doprecyzowanie notacji `→ "fragment"` w §1) — walidator zadziałał, zanim dokument
 trafił do przeglądu.
+
+### 9.1 Znane ograniczenie walidatora — ujawnione w v1.1
+
+> **Walidator sprawdza, czy adresy się rozwiązują. Nie sprawdza, czy zdania są prawdziwe.**
+
+Przy wpisywaniu G-005, G-006 i D-020 do `docs/GOVERNANCE_RULES.md` wyszło, że §2.10 tego
+dokumentu:
+
+- twierdziła, że D-020 **nie ma adresu w repo** — twierdzenie fałszywe od momentu wpisania reguły;
+- **nie wymieniała** G-005 ani G-006, mimo że obie obowiązują PC-001.
+
+Walidator zwracał w tym stanie **sześć razy PASS**. Kontrola nr 5 pilnuje, żeby każda pozycja
+rejestru plików krytycznych była opisana — ale `GOVERNANCE_RULES.md` jest jedną pozycją rejestru
+i była opisana, więc kontrola przechodziła niezależnie od tego, **ile** reguł ten plik zawiera.
+
+**Nieaktualność wykrył człowiek — wykonawca, przy okazji innego zadania.** To jest ta sama klasa
+błędu, przed którą ten dokument ma chronić: twierdzenie w dokumencie pochodnym rozjeżdża się
+ze źródłem, a mechanizm kontrolny tego nie widzi. Odnotowuję to tutaj, bo **przemilczenie
+byłoby gorsze niż samo ograniczenie**.
+
+**Rekomendacja — do decyzji CTO, nie wdrażam samodzielnie.** Domknięcie tej luki jest tanie:
+kontrola porównująca listę nagłówków reguł w `GOVERNANCE_RULES.md` z pozycjami wymienionymi
+w §2.10. Jedna funkcja, jeden test negatywny.
+
+### 9.2 Drugie ograniczenie kontroli nr 5 — adres zbiorczy jako wyłącznik
+
+> **Kontrola nr 5 może przejść fałszywie, gdy w tekście pojawi się adres zbiorczy katalogu.**
+
+Wykryte przez wykonawcę przy wprowadzaniu §2.13 do repo. Kontrola uznaje adres z ukośnikiem
+na końcu za deklarację pokrycia całego katalogu — mechanizm potrzebny dla zamrożonego Core,
+opisywanego jako blok. Ale zadziała tak samo dla **każdego** katalogu wymienionego w prozie
+mimochodem, wyłączając kontrolę dla wszystkich pozycji rejestru w tym katalogu.
+
+**To był realny fałszywy pozytyw, nie hipoteza.** Zdanie o konwencji formatu w §2.13 zawierało
+nazwę katalogu publikacji w odwrotnych apostrofach i sprawiło, że jedna z nowych pozycji
+rejestru przeszła kontrolę **z niewłaściwego powodu**. Autorem tego zdania jest audytor,
+autorem mechanizmu — również.
+
+**Waga jest konkretna, nie teoretyczna:** większość dokumentów protokołu leży w katalogu
+publikacji. Kolejny dodawany tam plik przeszedłby kontrolę bez opisania w §2 — czyli
+dokładnie ten tryb awarii, przed którym kontrola nr 5 ma bronić.
+
+**Zastosowana odpowiedź — bez zmiany narzędzia:** §1 zastrzega adres zbiorczy wyłącznie
+dla Core i nakazuje podawać nazwy katalogów w prozie bez odwrotnych apostrofów. Wyzwalacz
+usunięty, konwencja zapisana.
+
+**Ryzyko rezydualne, zapisane świadomie:** to jest zabezpieczenie **konwencją, nie
+mechanizmem**. Chroni przed powtórzeniem tego samego błędu przez kogoś, kto zna konwencję;
+nie chroni przed kimś, kto jej nie przeczyta. Mechaniczne domknięcie — ograniczenie adresu
+zbiorczego do jawnej listy katalogów Core — jest tanie, ale należy do warstwy narzędziowej
+objętej D-029/D-030. **Rekomendacja: wykonać przy pierwszej sytuacji, która i tak wymaga
+zmiany walidatora; nie otwierać dla tego osobnej rundy.**
+
+**Weryfikacja skuteczności — wykonana, nie założona.** Po usunięciu wyzwalacza sprawdzono
+wprost wewnętrzny stan kontroli: zbiór adresów zbiorczych zawiera **wyłącznie trzy katalogi
+zamrożonego Core**. Żaden inny wyciek zbiorczy nie pozostał.
+
+### 9.3 Trzecia właściwość kontroli nr 5 — ziarnistość sekcji, nie wiersza — PRZYJĘTA
+
+Ujawniona przy weryfikacji §9.2. **Nie jest defektem do naprawy — jest świadomie przyjętym
+zachowaniem**, zapisanym, żeby nie została odkryta powtórnie jako niespodzianka.
+
+Kontrola uznaje pozycję rejestru za opisaną, jeśli jej adres albo skrót pojawia się
+**gdziekolwiek w §2**, nie wymagając dedykowanego wiersza adresowego. Skutek: wzmianka
+poboczna w tekście towarzyszącym wystarcza, żeby kontrola przeszła.
+
+**Dlaczego to przyjmujemy, zamiast zaostrzać:**
+
+- **Podstawowy tryb awarii jest nadal łapany.** Plik dodany do rejestru i nieopisany
+  **w ogóle** nie ma w §2 ani adresu, ani skrótu — kontrola pada.
+- **Dla nowego dokumentu kontrola jest faktycznie ścisła.** Dopóki skrót nie zostanie
+  zdefiniowany w §1, kontrola szuka pełnej ścieżki — a w prozie pisze się nazwę aneksu,
+  nie jego ścieżkę w katalogu publikacji. Luka nie otwiera się sama przy dodawaniu
+  kolejnych dokumentów protokołu.
+- **Realizacja luki wymaga trzech warunków naraz:** skrót zdefiniowany w §1, wzmianka
+  w prozie §2.x, **oraz** brak wiersza adresowego. Kto definiuje skrót, ten praktycznie
+  zawsze nadaje też adres — bo po to skrót powstaje.
+
+**Czego to nie chroni:** dokumentu, któremu nadano skrót, wspomniano go mimochodem
+i zapomniano wiersza adresowego. Skutkiem byłby dokument obecny w indeksie z nazwy,
+lecz bez adresu — **wada indeksu, nie luka w ochronie hashem.**
+
+**Rozstrzygnięcie:** zaostrzanie kontroli do poziomu wiersza kosztowałoby zmianę logiki
+w warstwie objętej D-029/D-030, a eliminowałoby błąd, który się nie zdarzył i wymaga
+nietypowej kombinacji trzech warunków. To jest dokładnie ta klasa propozycji, którą **G-006
+odrzuca**: „mogłoby się kiedyś przydać" nie jest wskazaniem konkretnego błędu historycznego.
+
+---
+
+**Napięcie, którego nie ukrywam:** D-029 i D-030 zamykają rozwój infrastruktury i dopuszczają
+nowe narzędzia wyłącznie przy konkretnej potrzebie wynikającej z eksperymentów. Ta potrzeba
+nie wynika z eksperymentu — wynika z **rzeczywistego błędu, który właśnie wystąpił**. G-006
+wymaga od nowej reguły wskazania konkretnego błędu historycznego; tutaj błąd jest, ale rozstrzygnięcie
+napięcia z D-030 należy do CTO. **Do tego czasu ograniczenie zostaje zapisane, nie obejmowane
+narzędziem.**
 
 ---
 

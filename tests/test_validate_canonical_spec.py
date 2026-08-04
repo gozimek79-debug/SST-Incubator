@@ -3,7 +3,7 @@
 Konwencja projektu: kazdy test pozytywny ma test negatywny obok (patrz
 tests/test_validate_artifact_freshness.py) - inaczej nie wiadomo, czy walidator
 cokolwiek chroni ("walidator bez testu negatywnego jest dekoracja",
-SPECYFIKACJA_KANONICZNA_PC_001_v1.0.md §9).
+SPECYFIKACJA_KANONICZNA_PC_001.md §9).
 
 Najwazniejsza klasa testow tutaj to TestC001FilterCatchesInjectedValues: dowodzi,
 ze mimo wszystkich wyjatkow w find_c001_violations_in_text (kolumna '#', cudzyslowy
@@ -195,6 +195,18 @@ class TestC001AllowedReferencesNotFlagged:
     def test_row_index_column_not_flagged_regardless_of_value(self):
         assert find_c001_violations_in_text("47", column="#") == []
 
+    def test_a6_recognized_as_document_identifier_like_a1_through_a5(self):
+        """A6 (Aneks 6, data inna niz A1-A5, wiec poza wzorcem {1..5}) - zero
+        zmian w filtrze bylo potrzebne: kazdy token sklejony z litera (A6, A1,
+        K3a...) jest automatycznie wykluczony przez PURE_NUMBER_RE.fullmatch,
+        niezaleznie od tego, ile takich skrotow SHORTCUTS wymienia. Test
+        dokumentuje to zachowanie wprost, zamiast polegac na przypadku."""
+        assert find_c001_violations_in_text("patrz A6 §3, definicja w A2") == []
+
+    def test_a6_does_not_mask_a_real_injected_value_beside_it(self):
+        violations = find_c001_violations_in_text("A6 wprowadza próg 0.20")
+        assert any(tok == "0.20" for _, tok in violations)
+
 
 class TestC001FilterCatchesInjectedValues:
     """Test negatywny 4b (spec §9): sondy - prog, podloga, licznosc, odsetek -
@@ -247,11 +259,17 @@ class TestCriticalFilesRegistryCoverage:
     def test_real_registry_fully_covered(self):
         assert check_critical_files_registry_coverage(REAL_SPEC_DATA) == []
 
-    def test_load_critical_files_returns_47_known_entries(self):
+    def test_load_critical_files_returns_51_known_entries(self):
+        """D-031 (2026-08-04): +2 wzgledem 47 - SPRINT_v0.11.0.md,
+        publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md, przed B5.
+        Aneks 6 (2026-08-03, po weryfikacji Z1): +2 (md+json), 49 -> 51."""
         files = load_critical_files()
-        assert len(files) == 47
+        assert len(files) == 51
         assert "docs/GOVERNANCE_RULES.md" in files
         assert "clos_brain/tissue.py" in files
+        assert "SPRINT_v0.11.0.md" in files
+        assert "publications/preregistration_PC_001_ANEKS_6_2026-08-03.md" in files
+        assert "publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md" in files
 
     def test_removing_directory_prefix_row_breaks_coverage_for_its_files(self):
         """Negatyw (test §9 nr 6, odpowiednik): usuniecie adresu z §2 MUSI zepsuc test 5 -

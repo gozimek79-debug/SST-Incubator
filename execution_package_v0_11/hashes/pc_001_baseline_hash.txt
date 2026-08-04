@@ -39,7 +39,7 @@
 # baseline'u - pierwsza wpisana wartosc uniewazniala sama siebie). Wartosc
 # zyje WYLACZNIE tutaj, w pliku, ktory NIE jest czlonem CRITICAL_FILES_PC_001.
 #
-# 47 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
+# 51 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
 # kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmienic liczby,
 # ktore wyprodukuje eksperyment PC-001" - uzasadnienie per pozycja w
 # execution_package_v0_11/validators/hard_halt.py, komentarz nad
@@ -52,7 +52,19 @@
 # zamkniecie fazy projektowania (D-019, 2026-07-28): W2 Completion Report i
 # docs/GOVERNANCE_RULES.md (O-001/G-001/G-002/D-017 wiazace), Aneks 4
 # (D-026, 2026-07-28): status K3b ARCHITECTURE-LIMITED, oraz Aneks 5
-# (D-025D, 2026-07-28): K3a warunek 2 SUSPENDED PENDING WINDOW REDEFINITION:
+# (D-025D, 2026-07-28): K3a warunek 2 SUSPENDED PENDING WINDOW REDEFINITION.
+# Rozszerzone 2026-08-04 (D-031, 47->49, przed B5): SPRINT_v0.11.0.md
+# (dyrektywa cytowana przez 4 czlonkow rejestru - oba protokoly lekcji, testy
+# statystyczne reguly decyzyjnej, definicje srodowisk) oraz
+# publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md (jedyne zapisane
+# uzasadnienie zakazu pomiarowego recovery_i, dotyczy zakresu Pilota Final) -
+# oba bez pary .json, wzorem NOTATKA_B4_ANALIZA_MOCY (proza, zaden kod nie
+# parsuje). Rozszerzone 2026-08-04 (Aneks 6, 49->51, po niezaleznej weryfikacji
+# warunku zamrozenia z §7 aneksu, zlecenie Z1 - 276 przebiegow, pamiec nigdy
+# nie oprozniona ponizej jednego rekordu po ticku 0): K7 -> Typ M (przedmiot
+# G-005: CORE), T7 przeredagowane, korekta mechanizmu wobec Aneksu 5 (Aneks 5
+# NIE nadpisany). Z para .json, wzorem Aneksow 1-5:
+SPRINT_v0.11.0.md
 birth/brain.py
 birth/engine.py
 clos_academy/lesson_L1_1.py
@@ -81,6 +93,7 @@ genome/engine.py
 genome/gene.py
 genome/genome.py
 genome/presets.py
+publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md
 publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md
 publications/W2_completion_report_2026-07-28.json
 publications/W2_completion_report_2026-07-28.md
@@ -98,6 +111,8 @@ publications/preregistration_PC_001_ANEKS_4_2026-07-28.json
 publications/preregistration_PC_001_ANEKS_4_2026-07-28.md
 publications/preregistration_PC_001_ANEKS_5_2026-07-28.json
 publications/preregistration_PC_001_ANEKS_5_2026-07-28.md
+publications/preregistration_PC_001_ANEKS_6_2026-08-03.json
+publications/preregistration_PC_001_ANEKS_6_2026-08-03.md
 publications/specyfikacja_W2_2026-07-28.json
 publications/specyfikacja_W2_2026-07-28.md
 #
