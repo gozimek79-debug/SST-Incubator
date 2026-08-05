@@ -1,4 +1,4 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.4
+# SPECYFIKACJA KANONICZNA PC-001 — v1.5
 
 **Od:** audytor niezależny · **Dla:** CTO
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
@@ -8,6 +8,10 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.5** (po nadaniu progowi Warunku B adresu w kodzie):
+> §2.9 — próg Warunku B ma adres, wiersz „brak adresu" usunięty;
+> §6.1 — znalezisko **zamknięte**, opis zachowany jako ślad.
+>
 > **Zmiany w v1.4** (po zatwierdzeniu A6):
 > §1 — skrót rozszerzony o A6; §2.6 i §2.7 — status K7 i brzmienie T7 zaktualizowane;
 > §2.13 — rozdzielone dwa pytania o format (czy tworzyć JSON / czy rejestrować istniejący);
@@ -279,7 +283,7 @@ przyszły eksperyment może mieć inne, ale wymaga wtedy własnej prerejestracji
 | Zamrożona podłoga środowiska Primary | CONFIG::FROZEN_FLOOR_NOISE_WORLD | W2-REPORT §5 |
 | Tolerancja kontroli odtwarzalności podłogi | CONFIG::FLOOR_ENV_VERIFICATION_TOLERANCE | FLOOR §6 |
 | Liczba realizacji / początek zakresu seedów podłogi | FLOOR-MOD::DEFAULT_N, FLOOR-MOD::DEFAULT_SEED_START | FLOOR §6 |
-| **Próg wielkości redukcji (Warunek B)** | **brak adresu w kodzie** | A1 → „Zmiana 4" · **znalezisko §6.1** |
+| **Próg wielkości redukcji (Warunek B)** | CONFIG::CONDITION_B_REDUCTION_THRESHOLD | A1 → „Zmiana 4"; zgodność ze źródłem chroniona testem — patrz §6.1 |
 
 ### 2.10 Governance obowiązujące PC-001
 
@@ -467,7 +471,20 @@ Cztery pozycje wykryte **wyłącznie** dlatego, że konsolidacja wymusiła zesta
 parametru z jego adresem. Żadna nie jest zarzutem wobec wcześniejszej pracy; wszystkie są
 konsekwencją tego, że dokumenty zamrażano w kolejności, w jakiej powstawały.
 
-### 6.1 Próg Warunku B nie ma adresu w kodzie
+### 6.1 Próg Warunku B nie ma adresu w kodzie — **ZAMKNIĘTE**
+
+> **Status: zamknięte.** Próg ma adres: CONFIG::CONDITION_B_REDUCTION_THRESHOLD.
+> Zgodność wartości ze źródłem jest chroniona **testem prowieniencji**, nie deklaracją:
+> test wydobywa próg z obu zamrożonych dokumentów **dwoma niezależnymi wzorcami** —
+> jednym dla zdania definiującego kryterium, drugim dla zdania o pochodzeniu progu —
+> wymaga zgodności wszystkich znalezionych wartości między sobą **oraz** ze stałą,
+> i **pada, gdy którykolwiek wzorzec nie znajdzie nic**.
+>
+> **Dlaczego dwa wzorce, a nie jeden:** oba rodzaje zdań są w dokumentach z różnych
+> powodów i mogłyby się rozjechać niezależnie. Jeden wzorzec łapiący oba tego nie odróżni.
+>
+> Opis poniżej zachowany jako ślad — usunięcie go zatarłoby powód, dla którego parametr
+> o największej konsekwencji dla werdyktu przez cały czas projektowania nie miał adresu.
 
 **Stan:** pozostałe parametry prerejestrowane (§2.9) żyją jako nazwane stałe w CONFIG i są
 importowane przez ENDPOINT. Próg wielkości redukcji — parametr o **największej konsekwencji

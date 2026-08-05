@@ -58,6 +58,26 @@ MIN_DENOMINATOR: float = 0.02
 # -> cala komorka INCONCLUSIVE, niezaleznie od wyniku pozostalych przebiegow.
 FLOOR_LIMITED_CELL_THRESHOLD: float = 0.30
 
+# Warunek B (prog wielkosci redukcji) - PARAMETR PREREJESTROWANY PC-001, NIE
+# globalna stala CLOS (D-018 pkt 3, jak pozostale stale w tym pliku).
+#
+# preregistration_PC_001_ANEKS_1_2026-07-28.md, "Zmiana 4" ("jawne oznaczenie
+# pochodzenia progu 20%"): prog jest KONWENCJA PROJEKTU przyjeta w AIA v4, NIE
+# wartoscia wyprowadzona z literatury przedmiotu ani z analizy oczekiwanej
+# wielkosci efektu. Jego wartoscia jest NIEZMIENNOSC, nie trafnosc.
+#
+# "Zmiana progu po obejrzeniu danych jest niedopuszczalna i uniewaznia
+# prerejestracje" (Aneks 1, tamze). Ta stala nie ma byc dostrajana - ma byc
+# adresem, pod ktorym zyje wartosc juz ustalona przed zobaczeniem jakichkolwiek
+# danych konfirmacyjnych.
+#
+# Do tego zlecenia (Z9) prog istnial WYLACZNIE jako tekst proza w prerejestracji
+# i Aneksie 1 - clos_scientist/w2_endpoint.py liczy redukcje, ale NIE porownuje
+# jej z progiem (to porownanie w repo nie istnieje, powstanie dopiero przy
+# kodzie ewaluacji reguly decyzyjnej). Ta stala nadaje progowi ADRES; NIE
+# implementuje porownania - to osobny, nieobjety tym zleceniem krok.
+CONDITION_B_REDUCTION_THRESHOLD: float = 0.20
+
 # Okna pomiarowe - z publications/preregistration_PC_001.json
 # primary_endpoint.condition_b_reduction.windows (niezmienione przez W2,
 # specyfikacja_W2 §6: "okien pomiarowych ta specyfikacja NIE rozstrzyga").
