@@ -95,7 +95,13 @@ class TestIdempotency:
 
         pop1 = json.loads(outs1["population_out_path"].read_text(encoding="utf-8"))
         pop2 = json.loads(outs2["population_out_path"].read_text(encoding="utf-8"))
-        assert pop1 == pop2, "population_validation nie niesie zadnego pola czasowego - musi byc bajtowo identyczny"
+        # Odmrozenie panelu (daty w artefaktach): aggregate_results.py dostal
+        # pole "generated_at" (data tresci dla przyszlych re-runow) - ten sam
+        # wzorzec porownania co ponizej dla competency_profile.generated_at,
+        # zamiast poprzedniego wymogu bajtowej identycznosci calego pliku.
+        pop1.pop("generated_at", None)
+        pop2.pop("generated_at", None)
+        assert pop1 == pop2, "population_validation poza 'generated_at' musi byc identyczny na tych samych danych"
 
         prof1 = json.loads((outs1["competency_output_dir"] / "competency_profile.json").read_text(encoding="utf-8"))
         prof2 = json.loads((outs2["competency_output_dir"] / "competency_profile.json").read_text(encoding="utf-8"))

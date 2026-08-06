@@ -26,6 +26,7 @@ import json
 import random as _random_module
 import statistics as py_statistics
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -170,6 +171,10 @@ def build_report(records: List[Dict[str, Any]]) -> Dict[str, Any]:
         interpretation = "recovery NIE miesci sie w interval=40 (mediana > 35) - K3b niewykonalne w obecnym srodowisku niezaleznie od dlugosci przebiegu"
 
     return {
+        # Odmrozenie panelu (daty w artefaktach): brakowalo pola daty tresci -
+        # dodane dla przyszlych przebiegow. Skrypt nie jest czlonkiem
+        # CRITICAL_FILES_PC_001 (jednorazowy runner pomiarowy).
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "purpose": "power_analysis_only",
         "NEVER_FOR_INFERENCE": True,
         "recorded_quantity": "recovery_1_summary_only",

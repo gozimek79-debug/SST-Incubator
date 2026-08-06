@@ -14,6 +14,7 @@ eksperymentem, bez zadnych danych z mozgu").
 import json
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -30,6 +31,11 @@ def main():
     elapsed = time.time() - t0
 
     out = {
+        # Odmrozenie panelu (daty w artefaktach): brakowalo pola daty tresci -
+        # dodane dla przyszlych przebiegow. Ten skrypt nie jest czlonkiem
+        # CRITICAL_FILES_PC_001 (jednorazowy runner, komentarz wyzej), wiec
+        # zmiana nie dotyka zadnego hasha.
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "environment": "noise_world",
         "N": DEFAULT_N,
         "n_ticks": len(MEASURABLE_WINDOW_TICKS),

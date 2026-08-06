@@ -21,6 +21,7 @@ NIE dotyka reports/population/population_validation_v0_10_1.json
 import json
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -168,6 +169,14 @@ def build_report(results_path: Path) -> Dict[str, Any]:
 
     report: Dict[str, Any] = {
         "study_id": "v0.11.0_confirmatory_rerun",
+        # Odmrozenie panelu (daty w artefaktach): pole dodane do GENERATORA,
+        # zeby KOLEJNE re-runy mialy date tresci - reports/population/
+        # population_validation_v0_11_0.json (juz istniejacy, zamrozony w
+        # AUD_001_BASELINE/hard_halt_baseline zapisanym wewnatrz tego samego
+        # pliku) CELOWO NIE zostal cofnietem dopisany, zeby nie zlamac hasha.
+        # Jego faktyczna data = data commita cfc15e2 (2026-07-19T21:58:31+02:00,
+        # patrz SPECYFIKACJA_KANONICZNA_PC_001.md, nota przy §2.11).
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "dataset_status": (
             "CONFIRMATORY (NIE Exploratory) - re-run autoryzowany przez Final Audit Gate "
             "(audytor, klon 5098e1f, 2026-07-19). N=185/93/92 wg experiment_manifest.json. "

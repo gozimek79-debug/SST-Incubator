@@ -37,6 +37,13 @@
     // Przycisk "Generuj raport do analizy" tylko go FETCHUJE i pobiera -
     // ZERO skladania raportu w JS (jedno zrodlo prawdy = generator Python).
     report_md: "reports/rerun_full_report_v0_11_0.md",
+    // Odmrozenie sekcji PC-001 (zadanie uzytkownika): panel.js mial ZERO
+    // odwolan do calego programu PC-001 (zweryfikowane grepem przed ta
+    // zmiana) - spec i baseline sa jedynym zrodlem prawdy o stanie
+    // protokolu/bramek, wiec czytane bezposrednio, tak jak reszta ARTIFACTS.
+    spec: "SPECYFIKACJA_KANONICZNA_PC_001.json",
+    baseline_hash: "execution_package_v0_11/hashes/pc_001_baseline_hash.txt",
+    power_analysis: "publications/power_analysis_PC_001.json",
   };
 
   // CTO 2026-07-22 (audyt "panel samodzielny"): sekcja "Lekcje i wyniki"
@@ -69,10 +76,10 @@
   };
 
   /* ---------- sekcje (musi byc zgodne z index.html) ---------- */
-  var SECTIONS = ["overview", "history", "lessons", "competency", "genomes", "provenance", "tests", "reports"];
+  var SECTIONS = ["overview", "history", "lessons", "competency", "genomes", "provenance", "pc001", "tests", "reports"];
   var SECTION_LABELS = {
     overview: "Przegląd", history: "Historia", lessons: "Lekcje i wyniki", competency: "Profil kompetencji",
-    genomes: "Porównanie genomów", provenance: "Prowenancja", tests: "Testy i CI", reports: "Raporty",
+    genomes: "Porównanie genomów", provenance: "Prowenancja", pc001: "PC-001", tests: "Testy i CI", reports: "Raporty",
   };
 
   /* ================= nawigacja (Priorytet 1) ================= */
@@ -152,6 +159,71 @@
       text = days + " " + (days === 1 ? "dzień" : "dni") + " temu";
     }
     return { text: text, days: days, stale: days > 7 };
+  }
+
+  /* ================= daty tresci (odmrozenie: daty wszedzie) =================
+   * Rozroznienie DWOCH dat, celowo nie mieszanych (decyzja uzytkownika):
+   *   DATA TRESCI  - kiedy artefakt POWSTAL, czytana Z WNETRZA pliku. Glowna.
+   *   DATA COMMITA - kiedy plik OSTATNIO ZMIENIONO w repo (GitHub API,
+   *     patrz fetchLastCommitDate) - uzywana WYLACZNIE tam, gdzie rozjazd
+   *     miedzy "tresc powstala X" a "plik dotkniety pozniej" ma znaczenie
+   *     (Bramki - patrz renderPc001Gates) - NIE przy kazdym dokumencie, bo
+   *     kosztowaloby to jedno zapytanie API na plik (~60+ plikow w Raportach/
+   *     PC-001 razem) i przebilo limit 60/h bez autoryzacji z marginesem
+   *     rownym zero. Poza Bramkami pokazujemy WYLACZNIE date tresci.
+   */
+
+  // Kolejnosc = priorytet, gdy artefakt ma wiecej niz jedno pole - "timestamp"
+  // przed "bundled_at" u bogatych bundli (patrz renderBundleCard: timestamp
+  // to moment ZAMROZENIA bundla, bundled_at to moment spakowania - starszy
+  // fakt bije mlodszy, gdy oba istnieja). Lista zamknieta i jawna - ZERO
+  // zgadywania nazwy pola spoza niej (task: "jesli pole daty nie istnieje -
+  // 'data nieznana', nie zgadywanie").
+  var CONTENT_DATE_FIELDS = ["generated_at", "timestamp", "date", "bundled_at", "preregistration_date"];
+
+  function extractJsonContentDate(obj) {
+    if (!obj) return null;
+    for (var i = 0; i < CONTENT_DATE_FIELDS.length; i++) {
+      var v = obj[CONTENT_DATE_FIELDS[i]];
+      if (v) return v;
+    }
+    return null;
+  }
+
+  // Naglowek dokumentow protokolu ma linie "**Data:** 2026-07-28 · ..." -
+  // pierwszy token po dwukropku, przed spacja/interpunktem. Fallback: data
+  // zaszyta w nazwie pliku (np. "..._ANEKS_1_2026-07-28.md") - dokladnie
+  // tak, jak nazwano to w zadaniu. Kolejnosc: naglowek MA PIERWSZENSTWO -
+  // to jest tresc dokumentu, nazwa pliku to tylko etykieta.
+  var MD_DATE_HEADER_RE = /\*\*Data:\*\*\s*(\S+)/;
+  var FILENAME_DATE_RE = /(\d{4}-\d{2}-\d{2})/;
+
+  function extractMdContentDate(text, filename) {
+    var m = MD_DATE_HEADER_RE.exec(text || "");
+    if (m) return m[1];
+    var fm = FILENAME_DATE_RE.exec(filename || "");
+    if (fm) return fm[1];
+    return null;
+  }
+
+  // Czysta data "2026-07-28" (bez czasu) pokazana WPROST - formatUtc()
+  // doklejalaby "00:00 UTC", ktorego w zrodle nie ma (fabrykowalby precyzje).
+  function formatContentDate(raw) {
+    if (!raw) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+    return formatUtc(raw) || raw;
+  }
+
+  // Znacznik "data nieznana" jest CELOWO widoczny (nie pusty string) - luka
+  // w artefakcie ma byc widoczna na ekranie, nie cicho pominieta (ten sam
+  // duch co "cisza jest gorsza niz blad", SPRINT_v0.11.0.md).
+  function dateBadgeHtml(raw) {
+    var formatted = formatContentDate(raw);
+    if (!formatted) return '<span class="leg-note" style="color:var(--mut)">data nieznana</span>';
+    var age = ageInfo(raw);
+    return '<span class="leg-note">' + escapeHtml(formatted) +
+      (age ? ' <span class="' + (age.stale ? "age-stale" : "") + '">(' + escapeHtml(age.text) + ")</span>" : "") +
+      "</span>";
   }
 
   // Sekcje w index.html maja juz klase "grid" nadana statycznie — renderery
@@ -295,9 +367,12 @@
         var relPath = dirPath ? dirPath + "/" + f.name : f.name;
         return fetchText(relPath).then(function (text) {
           var m = text.match(/^#\s+(.+)$/m);
-          return { path: relPath, title: m ? m[1].trim() : relPath, ok: true };
+          return {
+            path: relPath, title: m ? m[1].trim() : relPath,
+            date: extractMdContentDate(text, f.name), ok: true,
+          };
         }).catch(function (err) {
-          return { path: relPath, title: relPath, ok: false, error: err };
+          return { path: relPath, title: relPath, date: null, ok: false, error: err };
         });
       }));
     });
@@ -312,10 +387,35 @@
   // plikami RUN-LEVEL (np. 40 runs/run_*.json per bundle, 12765 rekordow
   // JSONL) - to sa DANE, juz pokazywane w Lekcjach/Prowenancji, nie
   // "dokumenty do przeczytania" ktore ta sekcja ma listowac.
+  // "reports/pilot" dodany do zasiegu (odmrozenie sekcji PC-001) - dzis nie
+  // niesie plikow .md (tylko dane pilota w JSON, patrz fetchAllPilotResults
+  // ponizej i sekcja PC-001), ale jest w liscie na rowni z pozostalymi
+  // katalogami: jesli kiedys pojawi sie tam plik .md (np. notatka do pilota),
+  // Raporty go odkryja bez zadnej zmiany w tym pliku.
   function fetchAllReports() {
-    var dirs = ["", "docs", "publications", "clos_academy"];
+    var dirs = ["", "docs", "publications", "clos_academy", "reports/pilot"];
     return Promise.all(dirs.map(fetchMdReportsIn)).then(function (lists) {
       return lists.reduce(function (acc, l) { return acc.concat(l); }, []);
+    });
+  }
+
+  // Sekcja PC-001: odkrywa WSZYSTKIE pliki .json w reports/pilot/ (GitHub API
+  // listing, ten sam wzorzec co fetchAllBundles/fetchMdReportsIn) i pobiera
+  // kazdy - zero listy plikow wpisanej na sztywno. Nowy plik pilota w tym
+  // katalogu pojawia sie w sekcji PC-001 bez zadnej zmiany w tym pliku.
+  function fetchAllPilotResults() {
+    var listUrl = API_BASE + "/contents/reports/pilot?ref=" + BRANCH;
+    return fetch(listUrl).then(function (res) {
+      if (!res.ok) throw apiHttpError(res, listUrl);
+      return res.json();
+    }).then(function (entries) {
+      var files = entries.filter(function (en) { return en.type === "file" && /\.json$/i.test(en.name); });
+      return Promise.all(files.map(function (f) {
+        var relPath = "reports/pilot/" + f.name;
+        return fetchJSON(relPath)
+          .then(function (data) { return { path: relPath, data: data, ok: true }; })
+          .catch(function (err) { return { path: relPath, ok: false, error: err }; });
+      }));
     });
   }
 
@@ -324,6 +424,22 @@
     return fetch(url).then(function (res) {
       if (!res.ok) throw apiHttpError(res, url);
       return res.json();
+    });
+  }
+
+  // DATA COMMITA dla jednego pliku (patrz blok komentarza przy dateBadgeHtml)
+  // - jedno zapytanie API. Uzywane CELOWO oszczednie: tylko tam, gdzie
+  // rozjazd tresc/commit ma znaczenie interpretacyjne (Bramki), NIE dla
+  // kazdego z ~60 dokumentow w Raportach/PC-001 (przebilo by limit 60/h).
+  function fetchLastCommitDate(path) {
+    var url = API_BASE + "/commits?path=" + encodeURIComponent(path) + "&sha=" + BRANCH + "&per_page=1";
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw apiHttpError(res, url);
+      return res.json();
+    }).then(function (commits) {
+      if (!commits || !commits.length) return null;
+      var latest = commits[0];
+      return (latest.commit && latest.commit.author && latest.commit.author.date) || null;
     });
   }
 
@@ -528,6 +644,14 @@
     var statusNote = population.dataset_status
       ? '<p class="prose" style="grid-column:1/-1">' + escapeHtml(population.dataset_status) + "</p>" : "";
 
+    // Odmrozenie: data wygenerowania pliku populacyjnego. Zgloszenie, nie
+    // naprawa: population_validation_v0_11_0.json NIE MA zadnego pola daty
+    // (generated_at/timestamp/date) - "data nieznana" ponizej jest wiec
+    // realnym stanem pliku, nie usterka tej funkcji. Luka do wypelnienia w
+    // generatorze (clos_scientist/...), nie w panelu.
+    var dateNote = '<p class="prose" style="grid-column:1/-1">Data wygenerowania: ' +
+      dateBadgeHtml(extractJsonContentDate(population)) + "</p>";
+
     var lessonKeys = Object.keys(population.lessons).sort();
     var cards = lessonKeys.map(function (lessonKey) {
       var envs = population.lessons[lessonKey] || {};
@@ -549,7 +673,7 @@
       }).join("");
     }).join("");
 
-    setSectionHTML("lessons", statusNote + (cards || '<p class="prose" style="grid-column:1/-1">Plik populacyjny nie zawiera żadnej lekcji.</p>'));
+    setSectionHTML("lessons", dateNote + statusNote + (cards || '<p class="prose" style="grid-column:1/-1">Plik populacyjny nie zawiera żadnej lekcji.</p>'));
   }
 
   // Audytor 2026-07-21: demo-raport 2-genomowy (v0.8/v0.9, n=10) NIE jest
@@ -591,6 +715,11 @@
       '<div><span>Seedy / genom</span><b>' + (seeds || "—") + "</b></div>" +
       '<div><span>Wynik</span><b style="color:' + (allPassed === null ? "var(--mut)" : allPassed ? "var(--ok)" : "var(--crit)") + '">' +
       (allPassed === null ? "—" : allPassed ? "PASS" : "FAIL") + "</b></div>" +
+      // Odmrozenie: data prerejestracji (prereg.preregistration_date) - jedyne
+      // pole daty w tej parze artefaktow. `report` (reports/academy/
+      // L1_1_pattern_echo.json) NIE MA zadnego pola daty - zgloszenie, nie luka
+      // tej funkcji.
+      '<div><span>Data (prereg)</span><b>' + dateBadgeHtml(extractJsonContentDate(prereg)) + "</b></div>" +
       "</div></div></section>";
 
     var chartHtml = "";
@@ -807,9 +936,13 @@
     // przestaje wykrywac usuniety klucz.
     if (item.meta.provenance) {
       var legacy = item.meta;
+      // Odmrozenie (#1e "sprawdz czy wszystkie karty maja daty"): bundle
+      // legacy MA pole "bundled_at" (zweryfikowane w plikach EXP-*), po
+      // prostu nie bylo dotad pokazywane - to jest dokladnie ta luka.
       return '<div class="leg-row"><code>' + escapeHtml(legacy.experiment_id || item.name) + "</code>" +
         '<span class="pill" style="color:var(--mut);border-color:#78879A55">' + escapeHtml(legacy.provenance) + "</span>" +
-        '<span class="leg-note">git_commit: ' + (legacy.git_commit ? escapeHtml(truncHash(legacy.git_commit)) : "pusty (nie zgadywany)") + "</span></div>";
+        '<span class="leg-note">git_commit: ' + (legacy.git_commit ? escapeHtml(truncHash(legacy.git_commit)) : "pusty (nie zgadywany)") + "</span>" +
+        dateBadgeHtml(extractJsonContentDate(legacy)) + "</div>";
     }
     var metadata = item.meta;
     // SPRINT_v0.11.0.md Zadanie 3 (NAJWAZNIEJSZE z trzech stanow): bundle
@@ -857,6 +990,10 @@
       "<div><dt>manifest</dt><dd>" + escapeHtml(population.manifest || "—") + "</dd></div>" +
       "<div><dt>n_raw_records</dt><dd>" + escapeHtml(String(population.n_raw_records != null ? population.n_raw_records : "—")) + "</dd></div>" +
       (fdr ? "<div><dt>fdr_correction.n_real_testable_cells</dt><dd>" + escapeHtml(String(fdr.n_real_testable_cells)) + "</dd></div>" : "") +
+      // Odmrozenie: brak pola daty w population_validation_v0_11_0.json
+      // (zweryfikowane) - "data nieznana" tutaj jest zgloszeniem stanu pliku,
+      // nie usterka tej karty (patrz ta sama uwaga w renderLessons).
+      "<div><dt>data treści</dt><dd>" + dateBadgeHtml(extractJsonContentDate(population)) + "</dd></div>" +
       '</dl><p class="note">Pola wprost z <code>' + escapeHtml(ARTIFACTS.population) +
       "</code> (już pobrany dla sekcji Lekcje) — kanoniczny ślad Hard-Halt dla aktualnego, " +
       "konfirmacyjnego zestawu danych.</p></div></section>";
@@ -884,6 +1021,219 @@
     var demoCard = renderLegacyDemoCard(demoReport, demoPrereg, demoReportError, demoPreregError);
 
     setSectionHTML("provenance", hardHaltCard + bundlesHtml + demoCard);
+  }
+
+  /* ================= sekcja PC-001 (odmrożenie) =================
+   * Zasada jak wszędzie indziej w tym pliku: panel POKAZUJE dane, NIE
+   * interpretuje (interpretacja żyje w SPECYFIKACJA_KANONICZNA_PC_001.md).
+   * Zero list warunków/dokumentów wpisanych na sztywno - wszystko z
+   * Object.keys()/GitHub API listing, jak sekcje Lekcje (#3) i Raporty (#8).
+   */
+
+  function stripMd(s) {
+    return String(s == null ? "" : s).replace(/\*\*/g, "").replace(/`/g, "").replace(/^\s+|\s+$/g, "");
+  }
+
+  // Reguła decyzyjna żyje w §2.6 Specyfikacji (adres strukturalny dokumentu,
+  // ta sama kategoria co ARTIFACTS.report/competency itd. - "wolno" pod C-001,
+  // patrz SPECYFIKACJA_KANONICZNA_PC_001.md §0.2). Tabela odnaleziona PO
+  // KSZTAŁCIE (kolumny "Warunek" + "Status"), nie po pozycji w liście bloków -
+  // §2.6 ma DWIE tabele (reguła + zastrzeżenia wiążące), z różnymi kolumnami.
+  function findDecisionRuleTable(spec) {
+    var sections = (spec && spec.sections) || [];
+    var section = null;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].id === "2.6") { section = sections[i]; break; }
+    }
+    if (!section) return null;
+    var blocks = section.blocks || [];
+    for (var j = 0; j < blocks.length; j++) {
+      var b = blocks[j];
+      if (b.type === "table" && b.columns && b.columns.indexOf("Warunek") !== -1 && b.columns.indexOf("Status") !== -1) {
+        return b;
+      }
+    }
+    return null;
+  }
+
+  function renderPc001DecisionRule(spec, specErr) {
+    if (!spec) return missingArtifactHtml(ARTIFACTS.spec, specErr);
+    var table = findDecisionRuleTable(spec);
+    if (!table) {
+      return missingArtifactHtml(ARTIFACTS.spec + " §2.6 (tabela reguły decyzyjnej)", null);
+    }
+    var rows = table.rows || [];
+    var suspended = rows.filter(function (r) { return stripMd(r["Status"]) !== "aktywny"; });
+    var suspendedHtml = suspended.map(function (r) {
+      return '<div class="leg-row"><code>' + escapeHtml(stripMd(r["Warunek"])) + "</code>" +
+        '<span class="pill" style="color:var(--warn);border-color:#F2B04955">' +
+        escapeHtml(stripMd(r["Status"])) + "</span></div>";
+    }).join("");
+
+    return '<section class="card span"><header class="card-h"><span class="card-t">' +
+      escapeHtml(spec.title || "Specyfikacja Kanoniczna PC-001") + "</span>" +
+      '<span class="card-s">reguła decyzyjna: ' + (rows.length - suspended.length) + "/" + rows.length +
+      " warunków aktywnych · " + (spec.sections ? spec.sections.length : "—") + " sekcji w dokumencie</span></header>" +
+      '<div class="card-b"><div class="legacy">' +
+      (suspendedHtml || '<p class="prose">Wszystkie warunki reguły decyzyjnej mają status „aktywny".</p>') +
+      "</div>" +
+      '<p class="note">Pełna lista ' + rows.length + " warunków (w tym aktywnych) w <code>" +
+      escapeHtml(ARTIFACTS.spec) + "</code> §2.6 — panel pokazuje tylko warunki o statusie innym niż " +
+      '„aktywny"; nazwa i status wprost z tabeli, interpretacja (dlaczego) żyje w Specyfikacji, ' +
+      "nie tutaj.</p></div></section>";
+  }
+
+  // Blok komentarza "# STATUS: ..." w pc_001_baseline_hash.txt może się
+  // rozciągać na kilka linii (jedna linia obcięłaby zdanie w połowie) -
+  // ten sam algorytm co baseline_status_at() w
+  // scripts/generate_canonical_parameters_report.py, tylko po stronie JS,
+  // bo panel nie ma zaplecza Pythona - czyta surowy tekst przez fetchText().
+  function parseBaselineStatus(text) {
+    if (!text) return null;
+    var lines = text.split("\n");
+    var collected = [];
+    var collecting = false;
+    for (var i = 0; i < lines.length; i++) {
+      var stripped = lines[i].replace(/^\s+|\s+$/g, "");
+      if (!collecting) {
+        if (stripped.indexOf("# STATUS:") === 0) {
+          collecting = true;
+          collected.push(stripped.slice("# STATUS:".length).replace(/^\s+/, ""));
+        }
+        continue;
+      }
+      if (stripped === "#" || stripped === "") break;
+      if (stripped.indexOf("#") === 0) {
+        collected.push(stripped.replace(/^#+\s*/, ""));
+      } else {
+        break;
+      }
+    }
+    return collected.length ? collected.join(" ") : null;
+  }
+
+  // "Pilot Final" nie ma dziś jeszcze artefaktu (D-031, znalezisko §6.4
+  // Specyfikacji: parametry Pilota Final nieudokumentowane w repo) i nie ma
+  // ustalonej konwencji nazewnictwa pliku (istniejące piloty B4a/B4a-2/W-01
+  // nazywają się wg mierzonej wielkości: "pilot_W_early_red_...",
+  // "w01_recovery_1_..." - żaden nie zawiera słowa "final"). Zero-hardkodowany
+  // sposób odróżnienia "jest" od "brak": szukamy pliku, którego NAZWA albo
+  // pole "purpose" zawiera "final" (bez rozróżniania wielkości liter) - gdy
+  // Pilot Final faktycznie powstanie, ujawni się przez tę samą, ogólną regułę,
+  // bez zmiany w tym pliku. Do tego czasu poprawnie pokazuje "brak".
+  function findPilotFinalArtifact(pilotResults) {
+    var items = pilotResults || [];
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var name = item.path.slice(item.path.lastIndexOf("/") + 1);
+      var purpose = (item.ok && item.data && item.data.purpose) || "";
+      if (/final/i.test(name) || /final/i.test(purpose)) return item;
+    }
+    return null;
+  }
+
+  // Bramki to JEDYNE miejsce w tym pliku, gdzie dokladamy DATE COMMITA
+  // (fetchLastCommitDate) obok daty tresci - patrz blok komentarza przy
+  // dateBadgeHtml co do tego, dlaczego nie robimy tego wszedzie. baseline_hash.txt
+  // to plik tekstowy z prozą (nie JSON/naglowek MD), wiec nie ma "daty tresci"
+  // w rozumieniu §2 zadania - jedyny dostepny fakt to KIEDY PLIK OSTATNIO
+  // ZMIENIONO, jawnie podpisany jako taki (nie udajemy, ze to data tresci).
+  function renderPc001Gates(baselineText, baselineErr, baselineCommitDate, powerAnalysisExists, pilotResults) {
+    var baselineStatus = parseBaselineStatus(baselineText);
+    var baselineComputed = !!baselineStatus && !/^TBD\b/i.test(baselineStatus);
+    var baselineVal = baselineStatus ? escapeHtml(baselineStatus) : (baselineErr ? "błąd odczytu" : "—");
+    var baselineCommitHtml = baselineCommitDate
+      ? " <span class=\"leg-note\">(ostatnia zmiana pliku: " + escapeHtml(formatContentDate(baselineCommitDate)) + ")</span>"
+      : "";
+    var pilotFinal = findPilotFinalArtifact(pilotResults);
+    var pilotFinalDateHtml = pilotFinal ? " " + dateBadgeHtml(extractJsonContentDate(pilotFinal.data)) : "";
+    return '<section class="card span"><header class="card-h"><span class="card-t">Bramki przed startem</span>' +
+      '<span class="card-s">Pilot Final → B4b Monte Carlo → B5 baseline → B6 → START</span></header>' +
+      '<div class="card-b"><div class="kv">' +
+      '<div><span>Pilot Final</span><b style="color:' + (pilotFinal ? "var(--ok)" : "var(--mut)") + '">' +
+      (pilotFinal ? "istnieje (" + escapeHtml(pilotFinal.path) + ")" : "brak") + pilotFinalDateHtml + "</b></div>" +
+      '<div><span>PC_001_BASELINE</span><b style="color:' + (baselineComputed ? "var(--ok)" : "var(--warn)") +
+      '">' + baselineVal + baselineCommitHtml + "</b></div>" +
+      '<div><span>Artefakt analizy mocy</span><b style="color:' +
+      (powerAnalysisExists ? "var(--ok)" : "var(--mut)") + '">' +
+      (powerAnalysisExists ? "istnieje" : "nie istnieje") + "</b></div></div>" +
+      '<p class="note">Status <code>PC_001_BASELINE</code> czytany wprost z <code>' +
+      escapeHtml(ARTIFACTS.baseline_hash) + "</code> (blok komentarza <code># STATUS:</code>) plus data " +
+      "ostatniego commita dotykającego ten plik (GitHub API), " +
+      "istnienie artefaktu mocy sprawdzone przez pobranie <code>" + escapeHtml(ARTIFACTS.power_analysis) +
+      "</code>, Pilot Final wykryty przez dopasowanie „final” w nazwie pliku/polu <code>purpose</code> " +
+      "wśród <code>reports/pilot/*.json</code> (data tam, gdzie istnieje: pole treści pliku) — panel nic " +
+      "tu nie liczy ani nie zgaduje.</p></div></section>";
+  }
+
+  // Dokumenty PC-001 to PODZBIÓR listy już pobranej dla sekcji Raporty
+  // (loads.reports) - zero dodatkowego zapytania do API. Filtr po nazwie
+  // pliku (nie po katalogu), bo prerejestracje/aneksy leżą w publications/,
+  // a Specyfikacja Kanoniczna w katalogu głównym.
+  var PC001_DOC_NAME_RE = /^(SPECYFIKACJA_KANONICZNA_PC_001|preregistration_PC_001|specyfikacja_W2)/;
+
+  function renderPc001Documents(reports, reportsErr) {
+    if (!reports) {
+      return '<section class="card span"><div class="card-b">' +
+        apiErrorHtml("lista dokumentów PC-001 (GitHub API)", reportsErr) + "</div></section>";
+    }
+    var docs = reports.filter(function (r) {
+      var base = r.path.slice(r.path.lastIndexOf("/") + 1);
+      return PC001_DOC_NAME_RE.test(base);
+    }).sort(function (a, b) { return a.path < b.path ? -1 : 1; });
+
+    var noDate = docs.filter(function (r) { return !r.date; }).length;
+    var rowsHtml = docs.map(function (r) {
+      var url = "https://github.com/" + OWNER + "/" + REPO + "/blob/" + BRANCH + "/" + r.path;
+      var descr = r.ok ? r.title : "błąd wczytania nagłówka";
+      return '<div class="rep-row"><a class="rep-f" href="' + url + '" target="_blank" rel="noopener">' +
+        escapeHtml(r.path) + "</a><span class=\"rep-d\">" + escapeHtml(descr) + "</span>" +
+        dateBadgeHtml(r.date) + "</div>";
+    }).join("");
+
+    return '<section class="card span"><header class="card-h"><span class="card-t">Dokumenty PC-001</span>' +
+      '<span class="card-s">' + docs.length + " plików .md · prerejestracja, aneksy, Specyfikacja Kanoniczna, W2" +
+      (noDate ? " · " + noDate + " bez daty" : "") + "</span></header>" +
+      '<div class="card-b"><div class="reports">' +
+      (rowsHtml || '<p class="prose">Brak dopasowanych dokumentów.</p>') + "</div></div></section>";
+  }
+
+  function renderPc001PilotResults(items, itemsErr) {
+    if (!items) {
+      return '<section class="card span"><div class="card-b">' +
+        apiErrorHtml("lista wyników pilotów (GitHub API)", itemsErr) + "</div></section>";
+    }
+    var rows = items.map(function (item) {
+      if (!item.ok) {
+        return '<div class="leg-row"><code>' + escapeHtml(item.path) + "</code>" +
+          '<span class="leg-note" style="color:var(--crit)">nie wczytano</span></div>';
+      }
+      var d = item.data || {};
+      var neverPill = d.NEVER_FOR_INFERENCE
+        ? '<span class="pill" style="color:var(--crit);border-color:#F0655A55">NEVER_FOR_INFERENCE</span>' : "";
+      return '<div class="leg-row"><code>' + escapeHtml(item.path) + "</code>" + neverPill +
+        (d.purpose ? '<span class="leg-note">' + escapeHtml(d.purpose) + "</span>" : "") +
+        (d.recorded_quantity ? '<span class="leg-note">recorded_quantity: ' + escapeHtml(d.recorded_quantity) + "</span>" : "") +
+        dateBadgeHtml(extractJsonContentDate(d)) +
+        "</div>";
+    }).join("");
+
+    return '<section class="card span"><header class="card-h"><span class="card-t">Wyniki pilotów</span>' +
+      '<span class="card-s">' + items.length + " plików · reports/pilot/ · GitHub API</span></header>" +
+      '<div class="card-b"><div class="legacy">' +
+      (rows || '<p class="prose">Brak plików w reports/pilot/.</p>') + "</div>" +
+      '<p class="note">Plik z jawnym <code>NEVER_FOR_INFERENCE</code> NIE jest wynikiem konfirmacyjnym — ' +
+      "gwarancja ślepoty pilota (B4 §2 → „Wzmocnienie”, patrz też Specyfikacja Kanoniczna §2.11). Panel " +
+      "pokazuje istnienie pliku i zadeklarowane pola <code>purpose</code>/<code>recorded_quantity</code>, " +
+      "nie interpretuje wartości w środku.</p></div></section>";
+  }
+
+  function renderPc001(ctx) {
+    var html = renderPc001DecisionRule(ctx.spec, ctx.specError) +
+      renderPc001Gates(ctx.baselineText, ctx.baselineError, ctx.baselineCommitDate, ctx.powerAnalysisExists, ctx.pilotResults) +
+      renderPc001Documents(ctx.reports, ctx.reportsError) +
+      renderPc001PilotResults(ctx.pilotResults, ctx.pilotResultsError);
+    setSectionHTML("pc001", html);
   }
 
   function renderTests(status, statusErr) {
@@ -1002,6 +1352,7 @@
     docs: "docs/ — dokumentacja i metodologia",
     publications: "publications/ — profil kompetencji",
     clos_academy: "clos_academy/ — ontologia",
+    "reports/pilot": "reports/pilot/ — noty pilota PC-001 (dane liczbowe: sekcja PC-001)",
   };
 
   function renderReports(reports, reportsErr) {
@@ -1016,7 +1367,7 @@
       if (!byDir[dir]) byDir[dir] = [];
       byDir[dir].push(r);
     });
-    var dirOrder = ["", "docs", "publications", "clos_academy"];
+    var dirOrder = ["", "docs", "publications", "clos_academy", "reports/pilot"];
     Object.keys(byDir).forEach(function (d) { if (dirOrder.indexOf(d) === -1) dirOrder.push(d); });
 
     var html = dirOrder.filter(function (d) { return byDir[d] && byDir[d].length; }).map(function (dir) {
@@ -1025,7 +1376,8 @@
         var url = "https://github.com/" + OWNER + "/" + REPO + "/blob/" + BRANCH + "/" + r.path;
         var descr = r.ok ? r.title : "błąd wczytania nagłówka";
         return '<div class="rep-row"><a class="rep-f" href="' + url + '" target="_blank" rel="noopener">' +
-          escapeHtml(r.path) + "</a><span class=\"rep-d\">" + escapeHtml(descr) + "</span></div>";
+          escapeHtml(r.path) + "</a><span class=\"rep-d\">" + escapeHtml(descr) + "</span>" +
+          dateBadgeHtml(r.date) + "</div>";
       }).join("");
       var label = REPORT_GROUP_LABELS[dir] || (dir + "/");
       return '<section class="card span"><header class="card-h"><span class="card-t">' + escapeHtml(label) + "</span>" +
@@ -1139,6 +1491,11 @@
       bundles: fetchAllBundles(),
       reports: fetchAllReports(),
       commits: fetchCommits(10),
+      spec: fetchJSON(ARTIFACTS.spec),
+      baselineText: fetchText(ARTIFACTS.baseline_hash),
+      baselineCommitDate: fetchLastCommitDate(ARTIFACTS.baseline_hash),
+      powerAnalysis: fetchJSON(ARTIFACTS.power_analysis),
+      pilotResults: fetchAllPilotResults(),
     };
 
     var results = {};
@@ -1154,6 +1511,36 @@
     loads.bundles.then(function (v) { results.bundles = v; }).catch(function (e) { results.bundlesError = e; });
     loads.reports.then(function (v) { results.reports = v; }).catch(function (e) { results.reportsError = e; });
     loads.commits.then(function (v) { results.commits = v; }).catch(function (e) { results.commitsError = e; });
+    loads.spec.then(function (v) { results.spec = v; }).catch(function (e) { results.specError = e; });
+    loads.baselineText.then(function (v) { results.baselineText = v; }).catch(function (e) { results.baselineTextError = e; });
+    loads.baselineCommitDate.then(function (v) { results.baselineCommitDate = v; }).catch(function () { results.baselineCommitDate = null; });
+    loads.powerAnalysis.then(function () { results.powerAnalysisExists = true; })
+      .catch(function () { results.powerAnalysisExists = false; });
+    loads.pilotResults.then(function (v) { results.pilotResults = v; }).catch(function (e) { results.pilotResultsError = e; });
+
+    // Sekcja PC-001: czeka na spec/baseline/analizamocy/dokumenty(reports)/
+    // wyniki pilotow - render dopiero gdy wszystkie sie rozstrzygna (sukces
+    // lub blad, stad .catch zwracajacy null zamiast przerywac Promise.all),
+    // zeby czesciowy sukces (np. spec OK, pilotResults blad API) nadal
+    // wyrenderowal to, co sie udalo - renderPc001Documents/PilotResults
+    // maja wlasne stany bledu per karta.
+    Promise.all([
+      loads.spec.catch(function () { return null; }),
+      loads.baselineText.catch(function () { return null; }),
+      loads.baselineCommitDate.catch(function () { return null; }),
+      loads.powerAnalysis.then(function () { return true; }).catch(function () { return false; }),
+      loads.reports.catch(function () { return null; }),
+      loads.pilotResults.catch(function () { return null; }),
+    ]).then(function () {
+      renderPc001({
+        spec: results.spec, specError: results.specError,
+        baselineText: results.baselineText, baselineError: results.baselineTextError,
+        baselineCommitDate: results.baselineCommitDate,
+        powerAnalysisExists: results.powerAnalysisExists,
+        reports: results.reports, reportsError: results.reportsError,
+        pilotResults: results.pilotResults, pilotResultsError: results.pilotResultsError,
+      });
+    });
 
     // Lekcje i wyniki: WYLACZNIE population (re-run konfirmacyjny) - demo
     // report/prereg NIE trafiaja tu juz w ogole, patrz renderProvenance.

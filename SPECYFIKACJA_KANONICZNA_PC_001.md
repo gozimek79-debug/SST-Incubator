@@ -1,6 +1,7 @@
 # SPECYFIKACJA KANONICZNA PC-001 — v1.5
 
 **Od:** audytor niezależny · **Dla:** CTO
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-05 (v1.5)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -39,6 +40,19 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 > **Nieaktualność wykrył wykonawca, nie walidator.** Wiersz D-020 w §2.10 twierdził „brak
 > adresu w repo" i po wpisaniu reguły stałby się fałszywy, a §2.10 nie wymieniała G-005 ani
 > G-006. Walidator zwracał przy tym sześć razy PASS — patrz §9.
+
+> **Uwaga o datach** (dopisana po odmrożeniu sekcji PC-001 w panelu; nie wymaga podbicia
+> wersji — §8: nie zmienia §2 ani §4):
+>
+> `ANEKS_6_2026-08-03.md` — data treści (nagłówek „**Data:**") to **2026-08-02**, data
+> w nazwie pliku to **2026-08-03**. Rozjazd jednodniowy; treść jest nadrzędna (Aneks jest
+> zamrożony, nazwa pliku nie jest korygowana retroaktywnie).
+>
+> `reports/population/population_validation_v0_11_0.json` nie niesie pola daty — plik jest
+> zamrożony (`hard_halt_baseline` = AUD_001_BASELINE zapisany w jego treści), więc pole nie
+> zostało dopisane retroaktywnie. Generator (`execution_package_v0_11/runners/
+> aggregate_results.py`) dostał pole `generated_at` dla przyszłych re-runów. Faktyczna data
+> tego pliku to data commita `cfc15e2` (2026-07-19).
 
 ---
 
