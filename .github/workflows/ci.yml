@@ -69,20 +69,29 @@ jobs:
       - name: Write reports/status.json
         run: python scripts/write_status.py pytest_output.txt reports/status.json
 
-      # Commituje reports/status.json z powrotem do repo, zeby panel mogl
-      # go przeczytac przez raw.githubusercontent.com (nie jest to efemeryczny
-      # artefakt CI). Tylko na push (nie na pull_request z forkow, gdzie token
-      # jest tylko-do-odczytu). [skip ci] w komunikacie zapobiega petli
+      # NAPRAWA LIMITU API (zgloszenie uzytkownika): panel odkrywal dokumenty/
+      # piloty/bundle listowaniem katalogow GitHub API z kazdej przegladarki
+      # (~8 zapytan/ladowanie, limit 60/h bez autoryzacji wyczerpywany). Ten
+      # sam wzorzec co reports/status.json powyzej - indeks generowany RAZ w
+      # CI z listingu systemu plikow, panel czyta go przez raw fetch.
+      - name: Write reports/artifacts_index.json
+        run: python scripts/generate_artifacts_index.py reports/artifacts_index.json
+
+      # Commituje reports/status.json i reports/artifacts_index.json z
+      # powrotem do repo, zeby panel mogl je przeczytac przez
+      # raw.githubusercontent.com (nie sa to efemeryczne artefakty CI). Tylko
+      # na push (nie na pull_request z forkow, gdzie token jest
+      # tylko-do-odczytu). [skip ci] w komunikacie zapobiega petli
       # push->CI->push.
-      - name: Commit status.json
+      - name: Commit status.json and artifacts_index.json
         if: github.event_name == 'push' && github.ref == 'refs/heads/v0.7.2-scientific-integrity'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports/status.json
+          git add reports/status.json reports/artifacts_index.json
           if ! git diff --cached --quiet; then
-            git commit -m "ci: aktualizacja reports/status.json [skip ci]"
+            git commit -m "ci: aktualizacja reports/status.json i reports/artifacts_index.json [skip ci]"
             git push
           else
-            echo "reports/status.json bez zmian, pomijam commit"
+            echo "reports/status.json i reports/artifacts_index.json bez zmian, pomijam commit"
           fi

@@ -44,6 +44,14 @@
     spec: "SPECYFIKACJA_KANONICZNA_PC_001.json",
     baseline_hash: "execution_package_v0_11/hashes/pc_001_baseline_hash.txt",
     power_analysis: "publications/power_analysis_PC_001.json",
+    // NAPRAWA LIMITU API (zadanie uzytkownika): dokumenty/piloci/bundle byly
+    // odkrywane listowaniem katalogow GitHub API z kazdej przegladarki przy
+    // kazdym ladowaniu (~8 zapytan x auto-refresh = limit 60/h wyczerpywany).
+    // Ten plik jest generowany RAZ w CI (scripts/generate_artifacts_index.py,
+    // ten sam wzorzec co status: powyzej / write_status.py) - panel czyta go
+    // przez raw fetch (fetchJSON, bez limitu API) zamiast listowac katalogi
+    // sam. Auto-discovery ZACHOWANE, przeniesione o warstwe nizej (do CI).
+    artifacts_index: "reports/artifacts_index.json",
   };
 
   // CTO 2026-07-22 (audyt "panel samodzielny"): sekcja "Lekcje i wyniki"
@@ -327,96 +335,28 @@
     return e;
   }
 
-  // CTO 2026-07-22 (audyt "panel samodzielny", #6): odkrywa WSZYSTKIE
-  // katalogi w publications/ i probuje pobrac metadata.json z kazdego -
-  // zero filtra po prefiksie nazwy (wczesniej: tylko "EXP-*", wiec
-  // L1_1_pattern_echo/L1_2_shock_recovery mialy OSOBNY, recznie zaszyty
-  // fetch ARTIFACTS.metadata ograniczony do L1.1, a L1.2 (istniejacy bundle)
-  // nigdzie sie nie pojawial). Dodanie L1_3_.../metadata.json do repo
-  // pojawia sie w Prowenancji bez zadnej zmiany w tym pliku.
-  function fetchAllBundles() {
-    var listUrl = API_BASE + "/contents/publications?ref=" + BRANCH;
-    return fetch(listUrl).then(function (res) {
-      if (!res.ok) throw apiHttpError(res, listUrl);
-      return res.json();
-    }).then(function (entries) {
-      var dirs = entries.filter(function (en) { return en.type === "dir"; });
-      return Promise.all(dirs.map(function (d) {
-        return fetchJSON("publications/" + d.name + "/metadata.json")
-          .then(function (meta) { return { name: d.name, meta: meta, ok: true }; })
-          .catch(function (err) { return { name: d.name, error: err, ok: false }; });
-      }));
-    });
-  }
-
-  // CTO 2026-07-22 (audyt "panel samodzielny", #8): odkrywa pliki .md w
-  // podanym katalogu przez GitHub API listing (ten sam wzorzec co
-  // fetchAllBundles) - opis kazdego wpisu to PIERWSZY NAGLOWEK H1 pliku
-  // (fetchText + regex), NIE reczny string wpisany w panel.js. Wczesniej
-  // caly ten spis (28 pozycji, 4 grupy tematyczne) byl tablica zaszyta
-  // wprost w kodzie JS - identyczny blad co POPULATION_LESSONS (#3) i
-  // ARTIFACTS.metadata (#6): WYKONAWCA decydowal co widac.
-  function fetchMdReportsIn(dirPath) {
-    var listUrl = API_BASE + "/contents" + (dirPath ? "/" + dirPath : "") + "?ref=" + BRANCH;
-    return fetch(listUrl).then(function (res) {
-      if (!res.ok) throw apiHttpError(res, listUrl);
-      return res.json();
-    }).then(function (entries) {
-      var files = entries.filter(function (en) { return en.type === "file" && /\.md$/i.test(en.name); });
-      return Promise.all(files.map(function (f) {
-        var relPath = dirPath ? dirPath + "/" + f.name : f.name;
-        return fetchText(relPath).then(function (text) {
-          var m = text.match(/^#\s+(.+)$/m);
-          return {
-            path: relPath, title: m ? m[1].trim() : relPath,
-            date: extractMdContentDate(text, f.name), ok: true,
-          };
-        }).catch(function (err) {
-          return { path: relPath, title: relPath, date: null, ok: false, error: err };
-        });
-      }));
-    });
-  }
-
-  // Zasieg CELOWO ograniczony do 4 katalogow, NIEREKURENCYJNIE (type==="file"
-  // wprost w kazdym z nich, nie w podkatalogach): "" (root: raporty sprintow,
-  // README, ROADMAP), docs/ (dokumentacja/metodologia), publications/
-  // (competency_profile.md - JSON-y i podkatalogi bundli odfiltrowane przez
-  // /\.md$/), clos_academy/ (ontologia). Rekurencyjne przeszukanie
-  // publications//execution_package_v0_11/reports/population zalaloby liste
-  // plikami RUN-LEVEL (np. 40 runs/run_*.json per bundle, 12765 rekordow
-  // JSONL) - to sa DANE, juz pokazywane w Lekcjach/Prowenancji, nie
-  // "dokumenty do przeczytania" ktore ta sekcja ma listowac.
-  // "reports/pilot" dodany do zasiegu (odmrozenie sekcji PC-001) - dzis nie
-  // niesie plikow .md (tylko dane pilota w JSON, patrz fetchAllPilotResults
-  // ponizej i sekcja PC-001), ale jest w liscie na rowni z pozostalymi
-  // katalogami: jesli kiedys pojawi sie tam plik .md (np. notatka do pilota),
-  // Raporty go odkryja bez zadnej zmiany w tym pliku.
-  function fetchAllReports() {
-    var dirs = ["", "docs", "publications", "clos_academy", "reports/pilot"];
-    return Promise.all(dirs.map(fetchMdReportsIn)).then(function (lists) {
-      return lists.reduce(function (acc, l) { return acc.concat(l); }, []);
-    });
-  }
-
-  // Sekcja PC-001: odkrywa WSZYSTKIE pliki .json w reports/pilot/ (GitHub API
-  // listing, ten sam wzorzec co fetchAllBundles/fetchMdReportsIn) i pobiera
-  // kazdy - zero listy plikow wpisanej na sztywno. Nowy plik pilota w tym
-  // katalogu pojawia sie w sekcji PC-001 bez zadnej zmiany w tym pliku.
-  function fetchAllPilotResults() {
-    var listUrl = API_BASE + "/contents/reports/pilot?ref=" + BRANCH;
-    return fetch(listUrl).then(function (res) {
-      if (!res.ok) throw apiHttpError(res, listUrl);
-      return res.json();
-    }).then(function (entries) {
-      var files = entries.filter(function (en) { return en.type === "file" && /\.json$/i.test(en.name); });
-      return Promise.all(files.map(function (f) {
-        var relPath = "reports/pilot/" + f.name;
-        return fetchJSON(relPath)
-          .then(function (data) { return { path: relPath, data: data, ok: true }; })
-          .catch(function (err) { return { path: relPath, ok: false, error: err }; });
-      }));
-    });
+  // NAPRAWA LIMITU API (zgloszenie uzytkownika): auto-discovery dokumentow/
+  // pilotow/bundli dzialalo dotad przez listowanie katalogow GitHub API Z
+  // PRZEGLADARKI kazdego uzytkownika (~8 zapytan/ladowanie x auto-refresh co
+  // 10 min = limit 60/h bez autoryzacji wyczerpywany, listy znikaly).
+  // Rozwiazanie: ten sam wzorzec co reports/status.json - odkrywanie
+  // PRZENIESIONE do CI (scripts/generate_artifacts_index.py, listing z
+  // systemu plikow, uruchamiany raz na commit), panel czyta JEDEN
+  // wygenerowany plik przez raw.githubusercontent (bez limitu API), zamiast
+  // wielu zapytan API na kazde ladowanie. Auto-discovery jest ZACHOWANE -
+  // przeniesione o warstwe nizej, nie zlikwidowane: nowy dokument/pilot w
+  // repo pojawia sie w indeksie przy najblizszym commicie CI, bez zadnej
+  // zmiany w panel.js. Ksztalt kazdej pozycji w indeksie jest CELOWO
+  // identyczny z tym, co dawniej zwracaly fetchMdReportsIn()/
+  // fetchAllPilotResults()/fetchAllBundles() (API) - wiec renderReports/
+  // renderPc001Documents/renderPc001PilotResults/renderProvenance ponizej
+  // NIE WYMAGAJA zadnej zmiany, tylko zrodlo danych sie zmienilo.
+  //
+  // Historia (fetchCommits) ZOSTAJE na GitHub API - to jedyna rzecz, ktorej
+  // statyczny indeks nie moze zastapic (strumien biezacych commitow), i to
+  // JEDNO zapytanie/ladowanie, nie osiem.
+  function fetchArtifactsIndex() {
+    return fetchJSON(ARTIFACTS.artifacts_index);
   }
 
   function fetchCommits(limit) {
@@ -1009,13 +949,14 @@
       var richCards = rich.map(renderBundleCard).join("");
       var sparseCard = sparse.length
         ? '<section class="card span"><header class="card-h"><span class="card-t">Bundle legacy / niekompletne</span>' +
-          '<span class="card-s">oznaczone, prowenancja nie fabrykowana · GitHub API</span></header>' +
+          '<span class="card-s">oznaczone, prowenancja nie fabrykowana</span></header>' +
           '<div class="card-b"><div class="legacy">' + sparse.map(renderBundleCard).join("") + "</div></div></section>"
         : "";
       bundlesHtml = richCards + sparseCard;
     } else {
-      bundlesHtml = '<section class="card span"><div class="card-b">' +
-        apiErrorHtml("lista bundli publikacji", bundlesError) + "</div></section>";
+      // Zrodlem jest teraz raw fetch indeksu CI (nie GitHub API), wiec blad
+      // to brak/uszkodzony artefakt, nie limit zapytan - missingArtifactHtml.
+      bundlesHtml = missingArtifactHtml(ARTIFACTS.artifacts_index, bundlesError);
     }
 
     var demoCard = renderLegacyDemoCard(demoReport, demoPrereg, demoReportError, demoPreregError);
@@ -1174,8 +1115,9 @@
 
   function renderPc001Documents(reports, reportsErr) {
     if (!reports) {
-      return '<section class="card span"><div class="card-b">' +
-        apiErrorHtml("lista dokumentów PC-001 (GitHub API)", reportsErr) + "</div></section>";
+      // Zrodlem jest teraz raw fetch indeksu CI (nie GitHub API) - brak
+      // artefaktu, nie limit zapytan.
+      return missingArtifactHtml(ARTIFACTS.artifacts_index, reportsErr);
     }
     var docs = reports.filter(function (r) {
       var base = r.path.slice(r.path.lastIndexOf("/") + 1);
@@ -1200,8 +1142,9 @@
 
   function renderPc001PilotResults(items, itemsErr) {
     if (!items) {
-      return '<section class="card span"><div class="card-b">' +
-        apiErrorHtml("lista wyników pilotów (GitHub API)", itemsErr) + "</div></section>";
+      // Zrodlem jest teraz raw fetch indeksu CI (nie GitHub API) - brak
+      // artefaktu, nie limit zapytan.
+      return missingArtifactHtml(ARTIFACTS.artifacts_index, itemsErr);
     }
     var rows = items.map(function (item) {
       if (!item.ok) {
@@ -1219,7 +1162,7 @@
     }).join("");
 
     return '<section class="card span"><header class="card-h"><span class="card-t">Wyniki pilotów</span>' +
-      '<span class="card-s">' + items.length + " plików · reports/pilot/ · GitHub API</span></header>" +
+      '<span class="card-s">' + items.length + " plików · reports/pilot/</span></header>" +
       '<div class="card-b"><div class="legacy">' +
       (rows || '<p class="prose">Brak plików w reports/pilot/.</p>') + "</div>" +
       '<p class="note">Plik z jawnym <code>NEVER_FOR_INFERENCE</code> NIE jest wynikiem konfirmacyjnym — ' +
@@ -1357,8 +1300,9 @@
 
   function renderReports(reports, reportsErr) {
     if (!reports || !reports.length) {
-      setSectionHTML("reports", '<section class="card span"><div class="card-b">' +
-        apiErrorHtml("lista dokumentów (GitHub API)", reportsErr) + "</div></section>");
+      // Zrodlem jest teraz raw fetch indeksu CI (nie GitHub API) - brak
+      // artefaktu, nie limit zapytan.
+      setSectionHTML("reports", missingArtifactHtml(ARTIFACTS.artifacts_index, reportsErr));
       return;
     }
     var byDir = {};
@@ -1385,10 +1329,11 @@
         '<div class="card-b"><div class="reports">' + rowsHtml + "</div></div></section>";
     }).join("") +
       '<section class="card span"><div class="card-b">' +
-      '<p class="note">Lista odkrywana automatycznie (GitHub API listing katalogu głównego, docs/, ' +
-      "publications/, clos_academy/) — opis każdego wpisu to pierwszy nagłówek H1 pliku, nie tekst " +
-      "wpisany w panel.js. Nowy plik .md w jednym z tych katalogów pojawia się tu bez zmiany kodu " +
-      "panelu. Świadomie NIE rekurencyjne — pomija podkatalogi z danymi run-level " +
+      '<p class="note">Lista odkrywana automatycznie w CI (scripts/generate_artifacts_index.py, listing ' +
+      "katalogu głównego, docs/, publications/, clos_academy/, reports/pilot/ przy każdym commicie) — " +
+      "opis każdego wpisu to pierwszy nagłówek H1 pliku, nie tekst wpisany w panel.js. Nowy plik .md w " +
+      "jednym z tych katalogów pojawia się tu przy najbliższym commicie, bez zmiany kodu panelu. " +
+      "Świadomie NIE rekurencyjne — pomija podkatalogi z danymi run-level " +
       "(publications/*/runs/, execution_package_v0_11/), już pokazane w Lekcjach/Prowenancji.</p></div></section>";
     setSectionHTML("reports", html);
   }
@@ -1488,14 +1433,12 @@
       status: fetchJSON(ARTIFACTS.status),
       chronicle: fetchJSON(ARTIFACTS.chronicle),
       population: fetchJSON(ARTIFACTS.population),
-      bundles: fetchAllBundles(),
-      reports: fetchAllReports(),
+      artifactsIndex: fetchArtifactsIndex(),
       commits: fetchCommits(10),
       spec: fetchJSON(ARTIFACTS.spec),
       baselineText: fetchText(ARTIFACTS.baseline_hash),
       baselineCommitDate: fetchLastCommitDate(ARTIFACTS.baseline_hash),
       powerAnalysis: fetchJSON(ARTIFACTS.power_analysis),
-      pilotResults: fetchAllPilotResults(),
     };
 
     var results = {};
@@ -1508,29 +1451,42 @@
       sectionError("competency", ARTIFACTS.competency, e);
       sectionError("genomes", ARTIFACTS.competency, e);
     });
-    loads.bundles.then(function (v) { results.bundles = v; }).catch(function (e) { results.bundlesError = e; });
-    loads.reports.then(function (v) { results.reports = v; }).catch(function (e) { results.reportsError = e; });
+    // Bundles/dokumenty/piloci pochodza teraz z JEDNEGO indeksu generowanego
+    // w CI (fetchArtifactsIndex, raw fetch - bez limitu API) zamiast trzech
+    // osobnych listowan katalogow GitHub API. Ksztalt idx.documents/.pilots/
+    // .bundles jest celowo identyczny z tym, co dawniej zwracaly usuniete
+    // fetchAllReports()/fetchAllPilotResults()/fetchAllBundles(), wiec
+    // renderReports/renderPc001Documents/renderPc001PilotResults/
+    // renderProvenance ponizej nie wymagaja zadnej zmiany logiki.
+    loads.artifactsIndex.then(function (idx) {
+      results.bundles = idx.bundles;
+      results.reports = idx.documents;
+      results.pilotResults = idx.pilots;
+    }).catch(function (e) {
+      results.bundlesError = e;
+      results.reportsError = e;
+      results.pilotResultsError = e;
+    });
     loads.commits.then(function (v) { results.commits = v; }).catch(function (e) { results.commitsError = e; });
     loads.spec.then(function (v) { results.spec = v; }).catch(function (e) { results.specError = e; });
     loads.baselineText.then(function (v) { results.baselineText = v; }).catch(function (e) { results.baselineTextError = e; });
     loads.baselineCommitDate.then(function (v) { results.baselineCommitDate = v; }).catch(function () { results.baselineCommitDate = null; });
     loads.powerAnalysis.then(function () { results.powerAnalysisExists = true; })
       .catch(function () { results.powerAnalysisExists = false; });
-    loads.pilotResults.then(function (v) { results.pilotResults = v; }).catch(function (e) { results.pilotResultsError = e; });
 
     // Sekcja PC-001: czeka na spec/baseline/analizamocy/dokumenty(reports)/
     // wyniki pilotow - render dopiero gdy wszystkie sie rozstrzygna (sukces
     // lub blad, stad .catch zwracajacy null zamiast przerywac Promise.all),
-    // zeby czesciowy sukces (np. spec OK, pilotResults blad API) nadal
+    // zeby czesciowy sukces (np. spec OK, artifactsIndex niedostepny) nadal
     // wyrenderowal to, co sie udalo - renderPc001Documents/PilotResults
-    // maja wlasne stany bledu per karta.
+    // maja wlasne stany bledu per karta. Dokumenty i piloci pochodza z
+    // jednego loads.artifactsIndex (patrz komentarz przy jego .then wyzej).
     Promise.all([
       loads.spec.catch(function () { return null; }),
       loads.baselineText.catch(function () { return null; }),
       loads.baselineCommitDate.catch(function () { return null; }),
       loads.powerAnalysis.then(function () { return true; }).catch(function () { return false; }),
-      loads.reports.catch(function () { return null; }),
-      loads.pilotResults.catch(function () { return null; }),
+      loads.artifactsIndex.catch(function () { return null; }),
     ]).then(function () {
       renderPc001({
         spec: results.spec, specError: results.specError,
@@ -1554,7 +1510,7 @@
     }).catch(function () {});
 
     Promise.all([
-      loads.bundles.catch(function () { return null; }),
+      loads.artifactsIndex.then(function (idx) { return idx.bundles; }).catch(function () { return null; }),
       loads.population.catch(function () { return null; }),
       loads.report.catch(function () { return null; }),
       loads.prereg.catch(function () { return null; }),
@@ -1576,7 +1532,7 @@
       renderHistory(vals[0], vals[1], chronState.chronErr, chronState.commitsErr);
     });
 
-    loads.reports.catch(function () { return null; }).then(function (reports) {
+    loads.artifactsIndex.then(function (idx) { return idx.documents; }).catch(function () { return null; }).then(function (reports) {
       renderReports(reports, results.reportsError);
     });
 
@@ -1595,8 +1551,9 @@
 
     // Stopka pokazuje date wygenerowania bundla L1.1 - wczesniej osobny
     // fetch ARTIFACTS.metadata, teraz L1.1 jest jednym z odkrytych bundli
-    // (loads.bundles), wiec zero dodatkowego zapytania.
-    loads.bundles.then(function (list) {
+    // (loads.artifactsIndex.bundles), wiec zero dodatkowego zapytania.
+    loads.artifactsIndex.then(function (idx) {
+      var list = idx.bundles;
       var l11 = (list || []).filter(function (b) { return b.ok && b.name === "L1_1_pattern_echo"; })[0];
       updateFooter(l11 ? l11.meta : null);
     }).catch(function () { updateFooter(null); });
