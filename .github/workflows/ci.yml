@@ -11,11 +11,94 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 (pelna historia) - wymagane przez krok "Check
+      # reports/status.json freshness" ponizej, ktory liczy dystans commitow
+      # (git rev-list) miedzy commitem zapisanym w status.json a HEAD. Domyslny
+      # plytki checkout (depth=1) nie zawieralby tego commita w historii.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # NAPRAWA CI (zdiagnozowane doswiadczalnie 2026-08-07): reports/status.json
+      # nie byl aktualizowany od commita 661b92a (2026-08-03) - "Run tests" ponizej
+      # padal na "pytest -q" (bare) z ModuleNotFoundError('clos_scientist'), bo bez
+      # katalogu glownego w sys.path tests/conftest.py:19 ("import
+      # clos_scientist.experiment") nie ladowal sie -> pytest exit code 4 (usage
+      # error, PRZED zebraniem testow) -> wszystkie kroki po "Run tests" pomijane.
+      # 6 pushy (661b92a..c5d1103, 4 dni) weszlo bez ijakiejkolwiek niezaleznej
+      # weryfikacji CI - niewidoczne w panelu, bo "CI: success" w gornym pasku to
+      # ostatni ZAPISANY status.json (sprzed 661b92a), nie biezacy stan brancha.
+      #
+      # Ten krok jest niezaleznym, jawnym trip-wire: sprawdza PRZED odpaleniem
+      # testow, czy zacommitowany reports/status.json jest swiezy wzgledem HEAD -
+      # licząc TYLKO commity BEZ "[skip ci]" (czyli wlasne auto-commity tego
+      # joba sie nie licza). Przy zdrowym cyklu miedzy dwoma zapisami zawsze
+      # siedzi dokladnie jeden taki auto-commit - liczenie WSZYSTKICH commitow
+      # dawaloby gap=2 na KAZDYM zdrowym pushu (falszywy alarm co push).
+      #
+      # continue-on-error: CELOWO nieblokujace. Gdyby ten krok TWARDO przerywal
+      # joba (exit 1 + brak continue-on-error), pierwsze uruchomienie po
+      # wykryciu nieswiezosci zablokowaloby WLASNIE te kroki nizej (Run tests
+      # -> Write reports/status.json), ktore jedyne moga ja naprawic - petla
+      # bez wyjscia. continue-on-error pokazuje ten krok jako jawnie czerwony
+      # (widoczny, nie do przeoczenia) ale POZWALA reszcie joba pojechac dalej
+      # i sie samo-naprawic, gdy testy faktycznie przejda.
+      - name: Check reports/status.json freshness
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          status_path = Path("reports/status.json")
+          if not status_path.exists():
+              print("reports/status.json nie istnieje jeszcze - pierwszy zapis, pomijam sprawdzenie swiezosci.")
+              sys.exit(0)
+
+          status = json.loads(status_path.read_text(encoding="utf-8"))
+          recorded_commit = status.get("commit")
+          if not recorded_commit:
+              print("reports/status.json bez pola 'commit' - nie moge sprawdzic swiezosci, pomijam.")
+              sys.exit(0)
+
+          ancestor_check = subprocess.run(
+              ["git", "merge-base", "--is-ancestor", recorded_commit, "HEAD"],
+          )
+          if ancestor_check.returncode != 0:
+              print(
+                  f"UWAGA: commit {recorded_commit} zapisany w status.json nie jest przodkiem HEAD "
+                  "(przepisana historia?) - nie moge policzyc dystansu, pomijam sprawdzenie."
+              )
+              sys.exit(0)
+
+          count = subprocess.run(
+              ["git", "rev-list", "--count", "--invert-grep", "--fixed-strings",
+               "--grep=[skip ci]", f"{recorded_commit}..HEAD"],
+              capture_output=True, text=True, check=True,
+          )
+          gap = int(count.stdout.strip())
+          print(
+              f"reports/status.json zapisany dla commita {recorded_commit}; od tego czasu "
+              f"{gap} realny(ch) (nie-[skip ci]) commit(ow) do HEAD wlacznie."
+          )
+          if gap > 1:
+              print(
+                  f"BLAD: reports/status.json jest nieaktualny o {gap} realnych commitow (> 1) - "
+                  "co najmniej jeden wczesniejszy push nie zdolal go zaktualizowac w CI "
+                  "(np. 'Run tests' padl, zanim doszlo do 'Write reports/status.json'). "
+                  "Panel Badacza moze pokazywac przedawnione dane bez ostrzezenia. "
+                  "Znajdz i napraw przyczyne nieudanych runow CI dla pominietych commitow - "
+                  "ten krok przejdzie sam, gdy nastepny udany run zapisze swiezy status.json.",
+                  file=sys.stderr,
+              )
+              sys.exit(1)
+          PY
 
       - name: Install dependencies
         run: |
@@ -23,10 +106,17 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
+      # NAPRAWA CI: "python -m pytest" (nie bare "pytest") - "python -m" dodaje
+      # katalog biezacy do sys.path, czego bare "pytest" NIE robi. Bez tego
+      # tests/conftest.py:19 ("import clos_scientist.experiment") nie ladowal
+      # sie w CI (ModuleNotFoundError), mimo ze u kazdego, kto testowal lokalnie
+      # przez "python -m pytest", dzialalo bez zarzutu - stad luka niewidoczna
+      # przez 4 dni. Patrz komentarz przy kroku "Check reports/status.json
+      # freshness" powyzej.
       - name: Run tests
         run: |
           set -o pipefail
-          pytest -q | tee pytest_output.txt
+          python -m pytest -q | tee pytest_output.txt
 
       - name: Validate publication provenance
         run: python scripts/validate_publication.py
