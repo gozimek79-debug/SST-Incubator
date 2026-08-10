@@ -23,17 +23,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6.0.0
 
       # Panel jest statyczny (HTML/CSS/JS, zero build stepu) - publikujemy
       # katalog wprost, bez kompilacji. Dane panel czyta w przegladarce z
       # raw.githubusercontent.com (BASE w panel.js), wiec Pages hostuje
       # wylacznie index.html/panel.css/panel.js, nie kopie danych.
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: clos_studio/panel
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5.0.0

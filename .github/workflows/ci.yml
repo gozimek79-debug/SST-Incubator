@@ -15,11 +15,11 @@ jobs:
       # reports/status.json freshness" ponizej, ktory liczy dystans commitow
       # (git rev-list) miedzy commitem zapisanym w status.json a HEAD. Domyslny
       # plytki checkout (depth=1) nie zawieralby tego commita w historii.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.12"
 
