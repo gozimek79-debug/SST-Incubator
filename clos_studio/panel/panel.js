@@ -1189,9 +1189,32 @@
     var ci = status.ci || {};
     var validators = status.validators || {};
 
+    // NAPRAWA CI-01/CI-01B (zgloszenia uzytkownika/audytora 2026-08-10/11):
+    // "N passed / green" wygladalo identycznie niezaleznie od tego, ile
+    // testow cicho zniknelo (importorskip NA POZIOMIE MODULU - brak scipy
+    // dawal "1 skipped" w CI, nie "60 skipped", bo caly modul to jedna
+    // pozycja kolekcji - sama liczba pominietych nie wystarczala jako
+    // widocznosc). write_status.py liczy teraz TAKZE "collected" (z
+    // niezaleznego przebiegu pytest --collect-only) i WYLICZA tests.status
+    // (nie literal "green"): "red" gdy failed/errors>0, "unknown" gdy
+    // collected nie do odczytania lub nie zgadza sie z suma kategorii (BRAK
+    // ODCZYTU != ZERO), "warning" gdy skipped>0, "green" tylko gdy wszystko
+    // policzone i zgadza sie. Panel pokazuje wprost, co przyszlo w polu.
+    var skipped = tests.skipped || 0;
+    var failed = tests.failed || 0;
+    var errors = tests.errors || 0;
+    var testsStatus = tests.status;
+    var subParts = [];
+    if (tests.collected != null) subParts.push("collected " + tests.collected);
+    if (skipped) subParts.push(skipped + " skipped");
+    if (failed) subParts.push(failed + " failed");
+    if (errors) subParts.push(errors + " errors");
+    if (testsStatus === "unknown") subParts.push("status: nieznany (rozjazd/brak danych collected)");
+    var pytestSub = subParts.length ? "passed · " + subParts.join(" · ") : "passed";
+    var testsColor = { green: "var(--ok)", warning: "var(--warn)", unknown: "var(--warn)", red: "var(--crit)" }[testsStatus] || "var(--crit)";
     var tiles = [
       { l: "pytest", val: tests.passed != null ? String(tests.passed) : "—",
-        sub: "passed", c: tests.status === "green" ? "var(--ok)" : "var(--crit)" },
+        sub: pytestSub, c: testsColor },
       { l: "Core", val: "frozen", sub: "zasada sprintu (clos_brain/, clos_kernel/, genome/, birth/)", c: "var(--chA)" },
       { l: "CI", val: ci.conclusion || "—", sub: escapeHtml(ci.workflow || "reports/status.json"),
         c: ci.conclusion === "success" ? "var(--ok)" : "var(--crit)" },

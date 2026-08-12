@@ -100,10 +100,17 @@ jobs:
               sys.exit(1)
           PY
 
+      # NAPRAWA CI (zgloszenie uzytkownika 2026-08-10): tests/test_pc_001_statistics.py
+      # uzywa pytest.importorskip("scipy.stats") - scipy CELOWO nie jest w
+      # requirements.txt (decyzja CTO: zaleznosc wylacznie testowa, patrz
+      # requirements-dev.txt i docstring tego pliku testowego). Bez tego kroku
+      # importorskip cicho pomijal 60 testow walidacji statystyki reguly
+      # decyzyjnej PC-001 w CI (785 lokalnie -> 725 w CI, bez ostrzezenia).
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           pip install pytest
 
       # NAPRAWA CI: "python -m pytest" (nie bare "pytest") - "python -m" dodaje
@@ -117,6 +124,26 @@ jobs:
         run: |
           set -o pipefail
           python -m pytest -q | tee pytest_output.txt
+
+      # NAPRAWA CI-01B (zgloszenie audytora 2026-08-11): "N passed" samo w sobie
+      # nie odslania, gdy pytest.importorskip na poziomie modulu ukrywa caly
+      # plik testowy jako jedna pozycja "1 skipped" (nie "60 skipped" - patrz
+      # tests/test_pc_001_statistics.py). Niezalezny przebieg --collect-only
+      # daje "ile testow pytest w ogole zobaczyl", do porownania z sama
+      # (write_status.py). Osobny krok, PO "Run tests" (ktory juz gatekeeperuje
+      # joba) - collect-only tu jest tylko zrodlem liczby, nie druga bramka.
+      #
+      # NAPRAWA CI-01C (zgloszenie audytora 2026-08-11): if: always() - kolekcja
+      # (nie egzekucja) testow prawie zawsze sie udaje nawet gdy "Run tests"
+      # padnie (np. strażnik scipy pada w TRAKCIE testu, nie przy imporcie
+      # modulu - collect-only w ogole go nie uruchamia). Gdy mimo to padnie,
+      # write_status.py (ponizej, tez always()) i tak dostanie szanse zapisac
+      # collected: null -> status: unknown zamiast nigdy sie nie uruchomic.
+      - name: Collect test count (for status.json cross-check)
+        if: always()
+        run: |
+          set -o pipefail
+          python -m pytest --collect-only -q | tee pytest_collect_output.txt
 
       - name: Validate publication provenance
         run: python scripts/validate_publication.py
@@ -152,12 +179,30 @@ jobs:
       - name: Validate Canonical Spec PC-001 (address resolution, C-001, registry coverage)
         run: python -m scripts.validate_canonical_spec
 
-      # Zrodlo statusu testow/CI dla Panelu Badacza (SPRINT_v0.8.5.md, P3,
-      # opcja a). Dochodzi do tego kroku WYLACZNIE gdy pytest i wszystkie
-      # cztery walidatory powyzej juz przeszly (kazdy krok bez
-      # continue-on-error przerywa joba przy niezerowym exit code).
+      # NAPRAWA CI-01C (zgloszenie audytora 2026-08-11): PRZED ta zmiana ten krok
+      # (bez if:) byl pomijany, gdy "Run tests" LUB ktorykolwiek z siedmiu
+      # walidatorow powyzej padl - czyli galaz compute_tests_status() == "red"
+      # w write_status.py byla NIEOSIAGALNA w CI (job po prostu przerywal sie
+      # wczesniej, status.json zostawal stary/zielony z poprzedniego udanego
+      # runu - dokladnie ten sam rodzaj ciszy, ktory ta cala naprawa mial
+      # usunac). if: always() - krok wykonuje sie TAKZE po niezerowym kodzie
+      # kroku wczesniejszego. To NIE zamienia czerwonego joba w zielony (job
+      # nadal konczy sie porazka - "Run tests"/walidator, ktory padl, nie ma
+      # continue-on-error) - zmienia tylko to, czy ZDAZYMY zapisac, ze bylo
+      # czerwono, zanim job sie zakonczy.
+      #
+      # JOB_STATUS=${{ job.status }}: "success" TYLKO gdy WSZYSTKIE kroki do
+      # tego miejsca (Run tests + siedem walidatorow) przeszly - dokladnie ta
+      # sama gwarancja, ktora wczesniej dawala sama obecnosc w tym miejscu
+      # (patrz poprzedni komentarz, teraz nieaktualny). Gdy job.status !=
+      # success, write_status.py NIE moze juz zakladac "OK" dla walidatorow
+      # (mogly nie zdazyc sie uruchomic, albo jeden z nich faktycznie padl) -
+      # zapisuje "UNKNOWN", nie fabrykuje zielonego.
       - name: Write reports/status.json
-        run: python scripts/write_status.py pytest_output.txt reports/status.json
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: python scripts/write_status.py pytest_output.txt reports/status.json pytest_collect_output.txt
 
       # NAPRAWA LIMITU API (zgloszenie uzytkownika): panel odkrywal dokumenty/
       # piloty/bundle listowaniem katalogow GitHub API z kazdej przegladarki
@@ -173,14 +218,51 @@ jobs:
       # na push (nie na pull_request z forkow, gdzie token jest
       # tylko-do-odczytu). [skip ci] w komunikacie zapobiega petli
       # push->CI->push.
+      #
+      # NAPRAWA CI-01C: always() dopisane SWIADOMIE, po rozwazeniu (zgloszenie
+      # audytora, decyzja bez zgadywania). Bez tego "red" wyliczony przez
+      # write_status.py powyzej istnialby WYLACZNIE w efemerycznym systemie
+      # plikow zakonczonego joba - nigdy nie trafilby do repo, wiec nigdy do
+      # panelu (ktory czyta status.json przez raw.githubusercontent, nie z
+      # runnera CI) - caly ten mechanizm bylby martwym kodem. `git add`
+      # dotyczy WYLACZNIE dwoch konkretnych plikow (nie `-A`/`.`) - zaden inny
+      # brudny stan po nieudanym biegu (np. artefakty testowe) nie trafi do
+      # commita. status.json/artifacts_index.json nie sa w CRITICAL_FILES_*
+      # (generowane per-commit, nie zamrozone) - nie ma tu ryzyka hashowego.
+      # D-036 (decyzja CTO 2026-08-12, zatwierdzenie commit-backu przy czerwonym
+      # CI, trzy warunki):
+      #   a) git add dotyczy WYLACZNIE tych dwoch plikow (nie -A/.) - juz tak
+      #      bylo, niezmienione tutaj.
+      #   b) prefiks komunikatu jednoznacznie oznacza zapis STANU CI (nie
+      #      zmiany programistycznej) i jest RÓZNY dla przebiegu udanego
+      #      ("ci-status(ok):") i nieudanego ("ci-status(red):") - wybrany na
+      #      podstawie JOB_STATUS (ten sam ${{ job.status }} co w kroku "Write
+      #      reports/status.json" powyzej). Dyrektywa pominiecia CI jest tu
+      #      uzyta FUNKCJONALNIE (patrz c) - nie opisana/zacytowana w czesci
+      #      opisowej zadnego z dwoch komunikatow (BRIEF 5.1).
+      #   c) mechanizm blokujacy kolejny przebieg: naciwny "[skip ci]" GitHuba
+      #      (rozpoznawany w tresci komunikatu commita PRZEZ SAM GITHUB przy
+      #      evaluacji zdarzenia push, PRZED odpaleniem jakiegokolwiek joba -
+      #      nie jest to logika w tym pliku ani w zadnym skrypcie). Dziala
+      #      identycznie niezaleznie od tego, czy PRZEBIEG KTORY GO WPISAL byl
+      #      zielony czy czerwony - to jest wlasciwosc TRESCI commita, nie
+      #      wyniku joba. `on: push` (linia 4) nie ma dodatkowych filtrow
+      #      po statusie, ktore mogłyby to zmienic.
       - name: Commit status.json and artifacts_index.json
-        if: github.event_name == 'push' && github.ref == 'refs/heads/v0.7.2-scientific-integrity'
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/v0.7.2-scientific-integrity'
+        env:
+          JOB_STATUS: ${{ job.status }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add reports/status.json reports/artifacts_index.json
+          if [ "$JOB_STATUS" = "success" ]; then
+            COMMIT_MSG="ci-status(ok): stan po udanym przebiegu [skip ci]"
+          else
+            COMMIT_MSG="ci-status(red): stan po nieudanym przebiegu (patrz tests.status w reports/status.json) [skip ci]"
+          fi
           if ! git diff --cached --quiet; then
-            git commit -m "ci: aktualizacja reports/status.json i reports/artifacts_index.json [skip ci]"
+            git commit -m "$COMMIT_MSG"
             git push
           else
             echo "reports/status.json i reports/artifacts_index.json bez zmian, pomijam commit"

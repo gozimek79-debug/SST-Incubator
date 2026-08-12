@@ -1,0 +1,9 @@
+﻿# Zaleznosci WYLACZNIE testowe - NIGDY nie importowane przez kod produkcyjny.
+# scipy: tests/test_pc_001_statistics.py waliduje wlasna implementacje testow
+# statystycznych reguly decyzyjnej PC-001 (Wilcoxon, Kendall tau, Spearman,
+# Mann-Whitney) przeciw scipy do 1e-6 (patrz docstring tego pliku i komentarz
+# w execution_package_v0_11/validators/hard_halt.py:196). Decyzja CTO: scipy
+# zyje POZA repo produkcyjnym (nie w requirements.txt) - zeby podbicie jego
+# wersji nie moglo cicho zmienic wynikow analizy PC-001. clos_curriculum/
+# laboratory/statistics.py nigdy go nie importuje.
+scipy==1.18.0
