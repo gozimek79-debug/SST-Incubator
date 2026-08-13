@@ -1,7 +1,7 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.5
+# SPECYFIKACJA KANONICZNA PC-001 — v1.6
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-05 (v1.5)
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-13 (v1.6)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -9,6 +9,10 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.6** (po Pilocie Final, decyzja CTO):
+> §4 — nowa pozycja: „gwarancja strukturalna" K4 w W2-SPEC nie obowiązuje, wraz
+> z uzasadnieniem historycznym.
+>
 > **Zmiany w v1.5** (po nadaniu progowi Warunku B adresu w kodzie):
 > §2.9 — próg Warunku B ma adres, wiersz „brak adresu" usunięty;
 > §6.1 — znalezisko **zamknięte**, opis zachowany jako ślad.
@@ -440,6 +444,42 @@ w zamrożonym dokumencie **wygląda na obowiązujący**, a nie jest. Źródeł n
 | 16 | A1 → „Zmiana 5" | ścieżka artefaktu analizy mocy | ścieżka nadal obowiązuje; **artefakt nie istnieje** | §5 pkt 3 |
 | 17 | A2 → „Zmiana 6" i „Zmiana 7" | T7 opisane jako zagrożenie z **gałęzi awaryjnej**; K7 jako czynna diagnostyka K6 | mechanizm przypisany niewłaściwej gałęzi — gałąź awaryjna wykonuje się raz na przebieg | **A6 §2** (brzmienie T7) · **A6 §3** (status K7) |
 | 18 | A5 → „Warunek 2 K3a" | uzasadnienie: zbieżność przez średnią kroczącą wejść w gałęzi awaryjnej | **wniosek i status pozostają w mocy** — obalone jest wyłącznie **wyjaśnienie** | **A6 §4** |
+| 19 | W2-SPEC §5, wiersz K4 oraz „Uwaga do K4" | w czystym szumie `PE_red ≈ 0` **z definicji**, wszystkie przebiegi FLOOR_LIMITED, brak efektu **gwarantowany strukturalnie**, kontrola „częściowo tautologiczna" | obalone pomiarem: **zero przebiegów FLOOR_LIMITED**, `W_early_red` wielokrotnie powyżej progu | **kryterium K4 bez zmian** — A1 → „Zmiana 3"; upada wyłącznie gwarancja strukturalna, patrz uzasadnienie pod tabelą |
+
+### Uzasadnienie historyczne do pozycji 19 — dlaczego ten fragment przestał obowiązywać
+
+Twierdzenie o gwarancji strukturalnej opierało się na kroku, który wygląda niewinnie
+i jest fałszywy: *skoro w środowisku nie ma struktury do nauczenia, to system nie ma czego
+zredukować, więc jego błąd predykcji równa się podłodze.*
+
+**Podłoga jest błędem predyktora optymalnego.** Wielkość `PE_red` mierzy zatem, **o ile
+badany system jest gorszy od optymalnego** — a nie, ile struktury pozostało niewykorzystanej.
+W czystym szumie predyktorem optymalnym jest stała równa średniej rozkładu; system CLOS
+przewiduje przez filtr po przeszłych wejściach, a te w szumie białym nie niosą informacji.
+Taki filtr jest **gorszy od stałej**, bo dokłada wariancję. Stąd błąd systemu przewyższa
+podłogę **zawsze**, niezależnie od tego, czy w środowisku jest cokolwiek do nauczenia.
+
+Rozumowanie zlewało dwa różne zdania: „w środowisku nie ma struktury" (prawda o świecie)
+oraz „system osiągnął już granicę" (fałsz o systemie). To ta sama klasa błędu co przy
+podłodze analitycznej — **model uproszczony nie jest implementacją** (GOV → „D-017") —
+z tą różnicą, że tym razem idealizacji uległo zachowanie badanego systemu, a nie wzór.
+
+**Skutek jest wzmacniający, nie osłabiający.** W2-SPEC sama zastrzegała, że gwarancja
+strukturalna czyni K4 „częściowo tautologiczną" i że tautologii nie wolno prezentować jako
+wyniku. Skoro gwarancji nie ma, K4 wraca do bycia **testem empirycznym** w brzmieniu, jakie
+nadał jej A1 → „Zmiana 3": brak spełnienia warunków w czystym szumie **oraz** istotna
+separacja od środowiska inferencyjnego. Kryterium jest nienaruszone i w pełni testowalne.
+
+**Klasyfikacja:** przedmiot **METODOLOGIA** (G-005), poprawka **Typ I** (G-001) — endpoint
+mierzy hipotezę, kontrola mierzy to, co ma mierzyć, upada wyłącznie uzasadnienie pomocnicze.
+Zgodnie z GOV → „D-020" trafia do PC-002, nie do bieżącego protokołu.
+
+**Pozostaje otwarte, świadomie:** powyższy argument tłumaczy **istnienie** dodatniej wartości
+`PE_red` w czystym szumie, **nie jej wielkość** — ani tego, dlaczego stany początkowe w obu
+środowiskach są sobie tak bliskie. Hipoteza, że okno wczesne mierzy przede wszystkim tranzjent
+adaptacji, jest **niesfalsyfikowana i odłożona** do osobnego zadania badawczego (§5).
+
+---
 
 **Wzorzec wspólny dla pozycji 7–10:** wielkości wyprowadzone analitycznie zostały unieważnione
 przez D-017, ale **korekty w źródłach są umieszczone lokalnie** — pod tabelą albo na końcu

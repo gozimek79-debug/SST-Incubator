@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-08-13T05:40:19.309942+00:00",
+  "environment": "pure_noise_world",
+  "N": 100000,
+  "seed_start": 500000,
+  "seed_range": "500000-599999",
+  "n_ticks": 300,
+  "elapsed_seconds": 452.3,
+  "floor_model": "constant",
+  "floor_env": 0.236972,
+  "bias_early": 1.4e-05,
+  "bias_late": 5.7e-05,
+  "bias_roznicowy": 4.3e-05,
+  "floor_bias_tolerance": 0.002,
+  "warning": null,
+  "floor_profile_sample": null
+}

@@ -1,0 +1,5618 @@
+{
+  "purpose": "power_analysis_only",
+  "NEVER_FOR_INFERENCE": true,
+  "recorded_quantity": "W_early_red_and_spearman_early_only",
+  "seeds_used": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "confirmatory_seeds_start": 1001,
+  "environment": [
+    "noise_world",
+    "pure_noise_world"
+  ],
+  "lesson": "L1.2",
+  "w_early_tick_window": [
+    0,
+    60
+  ],
+  "spearman_early_window": [
+    0,
+    60
+  ],
+  "min_denominator": 0.02,
+  "n_genomes": 23,
+  "n_runs_total": 690,
+  "n_valid": 690,
+  "n_floor_limited": 0,
+  "n_insufficient_data": 0,
+  "by_environment": {
+    "noise_world": {
+      "floor_used": 0.09589,
+      "floor_model": "constant",
+      "n_runs_total": 345,
+      "n_valid": 345,
+      "n_floor_limited": 0,
+      "n_insufficient_data": 0,
+      "floor_limited_fraction": 0.0,
+      "floor_limited_runs": [],
+      "insufficient_data_runs": [],
+      "w_early_red_distribution_valid_only": {
+        "median": 0.15718,
+        "q1": 0.141897,
+        "q3": 0.167612,
+        "min": 0.126024,
+        "max": 0.187483
+      },
+      "spearman_early_distribution": {
+        "median": -0.090799,
+        "q1": -0.137831,
+        "q3": -0.005461,
+        "min": -0.306893,
+        "max": 0.216896
+      }
+    },
+    "pure_noise_world": {
+      "floor_used": 0.236972,
+      "floor_model": "constant",
+      "n_runs_total": 345,
+      "n_valid": 345,
+      "n_floor_limited": 0,
+      "n_insufficient_data": 0,
+      "floor_limited_fraction": 0.0,
+      "floor_limited_runs": [],
+      "insufficient_data_runs": [],
+      "w_early_red_distribution_valid_only": {
+        "median": 0.096357,
+        "q1": 0.088828,
+        "q3": 0.104289,
+        "min": 0.06276,
+        "max": 0.126022
+      },
+      "spearman_early_distribution": {
+        "median": -0.011632,
+        "q1": -0.091045,
+        "q3": 0.080477,
+        "min": -0.244779,
+        "max": 0.230689
+      }
+    }
+  },
+  "runs": [
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.135091,
+      "spearman_early_rho": -0.235252,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141921,
+      "spearman_early_rho": -0.079281,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.172774,
+      "spearman_early_rho": -0.15245,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156227,
+      "spearman_early_rho": -0.060603,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.133131,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.161267,
+      "spearman_early_rho": -0.130788,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.171252,
+      "spearman_early_rho": -0.103956,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.18092,
+      "spearman_early_rho": -0.250212,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.154603,
+      "spearman_early_rho": -0.046592,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135344,
+      "spearman_early_rho": -0.25103,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.16398,
+      "spearman_early_rho": 0.006903,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.158712,
+      "spearman_early_rho": 0.13725,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.126024,
+      "spearman_early_rho": 0.011378,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.168755,
+      "spearman_early_rho": -0.176367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.161389,
+      "spearman_early_rho": 0.076407,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148721,
+      "spearman_early_rho": -0.262405,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13765,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171289,
+      "spearman_early_rho": -0.113171,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.160772,
+      "spearman_early_rho": -0.044768,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.131302,
+      "spearman_early_rho": 0.012269,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.173779,
+      "spearman_early_rho": -0.166736,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.169163,
+      "spearman_early_rho": -0.109459,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.171212,
+      "spearman_early_rho": -0.174334,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.155022,
+      "spearman_early_rho": -0.09278,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.138403,
+      "spearman_early_rho": -0.258296,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.160693,
+      "spearman_early_rho": -0.06218,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.152364,
+      "spearman_early_rho": 0.151187,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.137204,
+      "spearman_early_rho": 0.027888,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.173028,
+      "spearman_early_rho": -0.248459,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.169831,
+      "spearman_early_rho": -0.056995,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137039,
+      "spearman_early_rho": -0.18433,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13746,
+      "spearman_early_rho": -0.039622,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.168988,
+      "spearman_early_rho": -0.108561,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.162683,
+      "spearman_early_rho": -0.021113,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.13086,
+      "spearman_early_rho": -0.004535,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.174448,
+      "spearman_early_rho": -0.097827,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167542,
+      "spearman_early_rho": -0.129134,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.165108,
+      "spearman_early_rho": -0.092126,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.15718,
+      "spearman_early_rho": -0.091568,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.14927,
+      "spearman_early_rho": -0.145518,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.164184,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.164659,
+      "spearman_early_rho": 0.049009,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.14345,
+      "spearman_early_rho": -0.095018,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.17254,
+      "spearman_early_rho": -0.234692,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.150666,
+      "spearman_early_rho": 0.019699,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.144432,
+      "spearman_early_rho": -0.291569,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137538,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169137,
+      "spearman_early_rho": -0.109864,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.154729,
+      "spearman_early_rho": 0.014453,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130937,
+      "spearman_early_rho": -0.008151,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.174516,
+      "spearman_early_rho": -0.097827,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167283,
+      "spearman_early_rho": -0.116913,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.171089,
+      "spearman_early_rho": -0.16513,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.157149,
+      "spearman_early_rho": -0.092485,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.143456,
+      "spearman_early_rho": -0.228631,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.163917,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.165197,
+      "spearman_early_rho": 0.05168,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.143364,
+      "spearman_early_rho": -0.093016,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172573,
+      "spearman_early_rho": -0.231269,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.150731,
+      "spearman_early_rho": 0.004535,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.135101,
+      "spearman_early_rho": -0.235001,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141873,
+      "spearman_early_rho": -0.079281,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.172625,
+      "spearman_early_rho": -0.152839,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156264,
+      "spearman_early_rho": -0.060603,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.133009,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.161277,
+      "spearman_early_rho": -0.131568,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.171359,
+      "spearman_early_rho": -0.106015,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.187483,
+      "spearman_early_rho": -0.304362,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.154558,
+      "spearman_early_rho": -0.044032,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135437,
+      "spearman_early_rho": -0.25064,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.164083,
+      "spearman_early_rho": 0.006792,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.14183,
+      "spearman_early_rho": 0.216896,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.126085,
+      "spearman_early_rho": 0.013924,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.168781,
+      "spearman_early_rho": -0.176367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.16889,
+      "spearman_early_rho": -0.032768,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.140216,
+      "spearman_early_rho": -0.233116,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.152007,
+      "spearman_early_rho": -0.170168,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.148087,
+      "spearman_early_rho": 0.143028,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.158935,
+      "spearman_early_rho": 0.063251,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127318,
+      "spearman_early_rho": 0.074828,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.172782,
+      "spearman_early_rho": -0.136025,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.154163,
+      "spearman_early_rho": -0.090799,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.158999,
+      "spearman_early_rho": -0.038742,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.162911,
+      "spearman_early_rho": -0.089401,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.145063,
+      "spearman_early_rho": -0.076509,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.163745,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.150146,
+      "spearman_early_rho": 0.174875,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.152717,
+      "spearman_early_rho": -0.106536,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.166627,
+      "spearman_early_rho": -0.249186,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.158685,
+      "spearman_early_rho": -0.016663,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137013,
+      "spearman_early_rho": -0.180882,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13751,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169098,
+      "spearman_early_rho": -0.108561,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147418,
+      "spearman_early_rho": 0.010547,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130909,
+      "spearman_early_rho": -0.008151,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.174491,
+      "spearman_early_rho": -0.097827,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167379,
+      "spearman_early_rho": -0.11914,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.165071,
+      "spearman_early_rho": -0.092515,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.157162,
+      "spearman_early_rho": -0.094182,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.143558,
+      "spearman_early_rho": -0.228631,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.164018,
+      "spearman_early_rho": 0.072922,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.164995,
+      "spearman_early_rho": 0.043,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.143397,
+      "spearman_early_rho": -0.093016,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172563,
+      "spearman_early_rho": -0.231269,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.150711,
+      "spearman_early_rho": -0.000807,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148826,
+      "spearman_early_rho": -0.258094,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137543,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.16913,
+      "spearman_early_rho": -0.107305,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147489,
+      "spearman_early_rho": 0.010547,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130841,
+      "spearman_early_rho": -0.008151,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.174524,
+      "spearman_early_rho": -0.097827,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167433,
+      "spearman_early_rho": -0.11914,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.174483,
+      "spearman_early_rho": -0.236526,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.154986,
+      "spearman_early_rho": -0.097737,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.143616,
+      "spearman_early_rho": -0.228631,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.164076,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.165054,
+      "spearman_early_rho": 0.05168,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.140642,
+      "spearman_early_rho": -0.075512,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172623,
+      "spearman_early_rho": -0.231269,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.15068,
+      "spearman_early_rho": -0.000807,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.140224,
+      "spearman_early_rho": -0.234228,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.152011,
+      "spearman_early_rho": -0.160375,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.148107,
+      "spearman_early_rho": 0.143028,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.158971,
+      "spearman_early_rho": 0.063251,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127361,
+      "spearman_early_rho": 0.079168,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.172775,
+      "spearman_early_rho": -0.136025,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.154238,
+      "spearman_early_rho": -0.090799,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.158968,
+      "spearman_early_rho": -0.038742,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.162954,
+      "spearman_early_rho": -0.089401,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.148574,
+      "spearman_early_rho": -0.111507,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.163807,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.150047,
+      "spearman_early_rho": 0.174875,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.15275,
+      "spearman_early_rho": -0.11079,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.166682,
+      "spearman_early_rho": -0.252775,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.158635,
+      "spearman_early_rho": -0.012407,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148798,
+      "spearman_early_rho": -0.262763,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13763,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169227,
+      "spearman_early_rho": -0.102994,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156101,
+      "spearman_early_rho": -0.060603,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.131215,
+      "spearman_early_rho": 0.016609,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.172022,
+      "spearman_early_rho": -0.120241,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.169364,
+      "spearman_early_rho": -0.125454,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.1746,
+      "spearman_early_rho": -0.244202,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.155066,
+      "spearman_early_rho": -0.095899,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135423,
+      "spearman_early_rho": -0.25064,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.158226,
+      "spearman_early_rho": -0.002629,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.152497,
+      "spearman_early_rho": 0.14618,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.133615,
+      "spearman_early_rho": 0.043302,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172989,
+      "spearman_early_rho": -0.270332,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.169562,
+      "spearman_early_rho": -0.043216,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.156934,
+      "spearman_early_rho": -0.221827,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.139411,
+      "spearman_early_rho": -0.109983,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169204,
+      "spearman_early_rho": -0.109864,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156204,
+      "spearman_early_rho": -0.060826,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132753,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.172013,
+      "spearman_early_rho": -0.120241,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.169569,
+      "spearman_early_rho": -0.13544,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.17443,
+      "spearman_early_rho": -0.241476,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.155127,
+      "spearman_early_rho": -0.101246,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135601,
+      "spearman_early_rho": -0.260741,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.158465,
+      "spearman_early_rho": -0.006386,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.148258,
+      "spearman_early_rho": 0.115318,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.133685,
+      "spearman_early_rho": 0.043414,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172961,
+      "spearman_early_rho": -0.27317,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.169307,
+      "spearman_early_rho": -0.009311,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.140212,
+      "spearman_early_rho": -0.219656,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137422,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.151969,
+      "spearman_early_rho": 0.108399,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.158918,
+      "spearman_early_rho": 0.063251,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127268,
+      "spearman_early_rho": 0.074828,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.172847,
+      "spearman_early_rho": -0.136025,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167091,
+      "spearman_early_rho": -0.116913,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.1652,
+      "spearman_early_rho": -0.088984,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.163688,
+      "spearman_early_rho": -0.127397,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.14503,
+      "spearman_early_rho": -0.076509,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.163715,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.164984,
+      "spearman_early_rho": 0.045114,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.151764,
+      "spearman_early_rho": -0.124995,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.162166,
+      "spearman_early_rho": -0.136641,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.157194,
+      "spearman_early_rho": -0.043594,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137069,
+      "spearman_early_rho": -0.18433,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137411,
+      "spearman_early_rho": -0.037314,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.165457,
+      "spearman_early_rho": -0.074537,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.162674,
+      "spearman_early_rho": -0.02384,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130803,
+      "spearman_early_rho": -0.004535,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.174406,
+      "spearman_early_rho": -0.097604,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167704,
+      "spearman_early_rho": -0.129134,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.16841,
+      "spearman_early_rho": -0.137669,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.15719,
+      "spearman_early_rho": -0.093959,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.146824,
+      "spearman_early_rho": -0.090552,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.164328,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.164355,
+      "spearman_early_rho": 0.053795,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.143494,
+      "spearman_early_rho": -0.102443,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172514,
+      "spearman_early_rho": -0.234692,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.150593,
+      "spearman_early_rho": 0.017918,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.137058,
+      "spearman_early_rho": -0.18433,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137448,
+      "spearman_early_rho": -0.039622,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.168986,
+      "spearman_early_rho": -0.108561,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.154477,
+      "spearman_early_rho": -0.017769,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.130815,
+      "spearman_early_rho": -0.004535,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.17444,
+      "spearman_early_rho": -0.097827,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167643,
+      "spearman_early_rho": -0.129134,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.168474,
+      "spearman_early_rho": -0.137669,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.157202,
+      "spearman_early_rho": -0.093959,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.149374,
+      "spearman_early_rho": -0.145518,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.164274,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.164533,
+      "spearman_early_rho": 0.051597,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.143478,
+      "spearman_early_rho": -0.101414,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.17255,
+      "spearman_early_rho": -0.234692,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.150629,
+      "spearman_early_rho": 0.019699,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148785,
+      "spearman_early_rho": -0.263434,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137626,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169225,
+      "spearman_early_rho": -0.102994,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156072,
+      "spearman_early_rho": -0.060603,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.13124,
+      "spearman_early_rho": 0.016609,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.172018,
+      "spearman_early_rho": -0.111899,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.169328,
+      "spearman_early_rho": -0.123228,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.174627,
+      "spearman_early_rho": -0.244202,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.155047,
+      "spearman_early_rho": -0.095899,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135388,
+      "spearman_early_rho": -0.25064,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.158188,
+      "spearman_early_rho": -0.002629,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.1525,
+      "spearman_early_rho": 0.14618,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.133602,
+      "spearman_early_rho": 0.043302,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172985,
+      "spearman_early_rho": -0.270332,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.169601,
+      "spearman_early_rho": -0.050898,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148838,
+      "spearman_early_rho": -0.254256,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.13762,
+      "spearman_early_rho": -0.037731,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.169209,
+      "spearman_early_rho": -0.109864,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156148,
+      "spearman_early_rho": -0.060826,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132856,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.172013,
+      "spearman_early_rho": -0.120241,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.169473,
+      "spearman_early_rho": -0.127512,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.174503,
+      "spearman_early_rho": -0.241476,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.155094,
+      "spearman_early_rho": -0.101246,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135521,
+      "spearman_early_rho": -0.260741,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.158364,
+      "spearman_early_rho": -0.003631,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.152544,
+      "spearman_early_rho": 0.143398,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.133654,
+      "spearman_early_rho": 0.041299,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.172968,
+      "spearman_early_rho": -0.27317,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.169414,
+      "spearman_early_rho": -0.042937,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.13886,
+      "spearman_early_rho": -0.246371,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.137424,
+      "spearman_early_rho": -0.028441,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.15524,
+      "spearman_early_rho": 0.051479,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.16378,
+      "spearman_early_rho": 0.034839,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.127324,
+      "spearman_early_rho": 0.079403,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.169947,
+      "spearman_early_rho": -0.131949,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.167239,
+      "spearman_early_rho": -0.116913,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.165181,
+      "spearman_early_rho": -0.089985,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.163792,
+      "spearman_early_rho": -0.126674,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.14632,
+      "spearman_early_rho": -0.090552,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.163871,
+      "spearman_early_rho": 0.072895,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.164839,
+      "spearman_early_rho": 0.046672,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.151845,
+      "spearman_early_rho": -0.125328,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.162277,
+      "spearman_early_rho": -0.136555,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.157145,
+      "spearman_early_rho": -0.045625,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.131795,
+      "spearman_early_rho": -0.148855,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141826,
+      "spearman_early_rho": -0.079281,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171356,
+      "spearman_early_rho": -0.113171,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156281,
+      "spearman_early_rho": -0.060826,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132888,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.16031,
+      "spearman_early_rho": -0.125476,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.171467,
+      "spearman_early_rho": -0.108242,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.18742,
+      "spearman_early_rho": -0.306893,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.155195,
+      "spearman_early_rho": -0.101246,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135525,
+      "spearman_early_rho": -0.25064,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.158252,
+      "spearman_early_rho": -0.002602,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.147964,
+      "spearman_early_rho": 0.125111,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.133645,
+      "spearman_early_rho": 0.041299,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.168806,
+      "spearman_early_rho": -0.176367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.168711,
+      "spearman_early_rho": -0.03249,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128907,
+      "spearman_early_rho": -0.151628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141797,
+      "spearman_early_rho": -0.090465,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.180271,
+      "spearman_early_rho": -0.251812,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147156,
+      "spearman_early_rho": -0.04047,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.13281,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.177101,
+      "spearman_early_rho": -0.175819,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.1677,
+      "spearman_early_rho": -0.134393,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.165318,
+      "spearman_early_rho": -0.152333,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.154608,
+      "spearman_early_rho": -0.046536,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.141606,
+      "spearman_early_rho": -0.137831,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.164245,
+      "spearman_early_rho": 0.006764,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.161286,
+      "spearman_early_rho": 0.036316,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.126181,
+      "spearman_early_rho": 0.012367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.162551,
+      "spearman_early_rho": -0.136156,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.161032,
+      "spearman_early_rho": 0.096034,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128868,
+      "spearman_early_rho": -0.151628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141754,
+      "spearman_early_rho": -0.090465,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.166714,
+      "spearman_early_rho": -0.068324,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147214,
+      "spearman_early_rho": -0.04047,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132696,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.161801,
+      "spearman_early_rho": -0.137405,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.172451,
+      "spearman_early_rho": -0.179448,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.175077,
+      "spearman_early_rho": -0.283066,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.153445,
+      "spearman_early_rho": -0.0473,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.14171,
+      "spearman_early_rho": -0.137831,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.16756,
+      "spearman_early_rho": -0.013487,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.153096,
+      "spearman_early_rho": 0.104972,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.126234,
+      "spearman_early_rho": -0.002267,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.160967,
+      "spearman_early_rho": -0.219847,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.161318,
+      "spearman_early_rho": 0.088981,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128862,
+      "spearman_early_rho": -0.151628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141746,
+      "spearman_early_rho": -0.090465,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171255,
+      "spearman_early_rho": -0.148075,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147225,
+      "spearman_early_rho": -0.04047,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132677,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.161765,
+      "spearman_early_rho": -0.133178,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.172469,
+      "spearman_early_rho": -0.179448,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.175069,
+      "spearman_early_rho": -0.283066,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.154659,
+      "spearman_early_rho": -0.046536,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.141728,
+      "spearman_early_rho": -0.137831,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.167581,
+      "spearman_early_rho": -0.013487,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.161262,
+      "spearman_early_rho": 0.036316,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.126243,
+      "spearman_early_rho": -0.002267,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.160958,
+      "spearman_early_rho": -0.219847,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.161309,
+      "spearman_early_rho": 0.088981,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.128862,
+      "spearman_early_rho": -0.151628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141746,
+      "spearman_early_rho": -0.090465,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.16669,
+      "spearman_early_rho": -0.068324,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.147225,
+      "spearman_early_rho": -0.04047,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132677,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.161791,
+      "spearman_early_rho": -0.133178,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.172469,
+      "spearman_early_rho": -0.179448,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.175067,
+      "spearman_early_rho": -0.283066,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.153449,
+      "spearman_early_rho": -0.0473,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.141728,
+      "spearman_early_rho": -0.137831,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.167581,
+      "spearman_early_rho": -0.013487,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.153089,
+      "spearman_early_rho": 0.104972,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.126243,
+      "spearman_early_rho": -0.002267,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.160958,
+      "spearman_early_rho": -0.219847,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.161296,
+      "spearman_early_rho": 0.088981,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 1,
+      "w_early_red": 0.148808,
+      "spearman_early_rho": -0.258094,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 2,
+      "w_early_red": 0.141852,
+      "spearman_early_rho": -0.079281,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 3,
+      "w_early_red": 0.171348,
+      "spearman_early_rho": -0.113171,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 4,
+      "w_early_red": 0.156184,
+      "spearman_early_rho": -0.060603,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 5,
+      "w_early_red": 0.132955,
+      "spearman_early_rho": -0.011438,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 6,
+      "w_early_red": 0.16031,
+      "spearman_early_rho": -0.121194,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 7,
+      "w_early_red": 0.169389,
+      "spearman_early_rho": -0.125454,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 8,
+      "w_early_red": 0.174602,
+      "spearman_early_rho": -0.246732,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 9,
+      "w_early_red": 0.155127,
+      "spearman_early_rho": -0.095899,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 10,
+      "w_early_red": 0.135459,
+      "spearman_early_rho": -0.25064,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 11,
+      "w_early_red": 0.158218,
+      "spearman_early_rho": -0.002629,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 12,
+      "w_early_red": 0.152396,
+      "spearman_early_rho": 0.149073,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 13,
+      "w_early_red": 0.133624,
+      "spearman_early_rho": 0.043302,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 14,
+      "w_early_red": 0.168792,
+      "spearman_early_rho": -0.176367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "noise_world",
+      "seed": 15,
+      "w_early_red": 0.16958,
+      "spearman_early_rho": -0.043216,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104529,
+      "spearman_early_rho": 0.056655,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.09271,
+      "spearman_early_rho": 0.094181,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.102576,
+      "spearman_early_rho": -0.054553,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089706,
+      "spearman_early_rho": 0.165569,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063825,
+      "spearman_early_rho": 0.194701,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.097111,
+      "spearman_early_rho": -0.016806,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071269,
+      "spearman_early_rho": -0.014078,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.092225,
+      "spearman_early_rho": 0.108356,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.088859,
+      "spearman_early_rho": 0.207367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065428,
+      "spearman_early_rho": 0.072114,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.106463,
+      "spearman_early_rho": -0.195444,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123186,
+      "spearman_early_rho": -0.061761,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093295,
+      "spearman_early_rho": -0.082467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111454,
+      "spearman_early_rho": -0.117254,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_000",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103427,
+      "spearman_early_rho": -0.145135,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104427,
+      "spearman_early_rho": 0.058601,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.09395,
+      "spearman_early_rho": 0.082345,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.106138,
+      "spearman_early_rho": -0.059572,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.08965,
+      "spearman_early_rho": 0.165902,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063858,
+      "spearman_early_rho": 0.194701,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.09705,
+      "spearman_early_rho": -0.021088,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071385,
+      "spearman_early_rho": -0.01519,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.096557,
+      "spearman_early_rho": 0.025471,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.088886,
+      "spearman_early_rho": 0.207478,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065453,
+      "spearman_early_rho": 0.072114,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.101722,
+      "spearman_early_rho": -0.162342,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123441,
+      "spearman_early_rho": -0.065152,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.08929,
+      "spearman_early_rho": -0.073249,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111402,
+      "spearman_early_rho": -0.114361,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_001",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103325,
+      "spearman_early_rho": -0.141661,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104263,
+      "spearman_early_rho": 0.048705,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.112453,
+      "spearman_early_rho": 0.07611,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104099,
+      "spearman_early_rho": -0.06633,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089975,
+      "spearman_early_rho": 0.165069,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.072946,
+      "spearman_early_rho": 0.054065,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.09578,
+      "spearman_early_rho": -0.088854,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071114,
+      "spearman_early_rho": -0.011632,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.096794,
+      "spearman_early_rho": 0.044099,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089443,
+      "spearman_early_rho": 0.230689,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065328,
+      "spearman_early_rho": 0.071168,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.106549,
+      "spearman_early_rho": -0.164249,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.122927,
+      "spearman_early_rho": -0.100432,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089191,
+      "spearman_early_rho": -0.065688,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.110869,
+      "spearman_early_rho": -0.11336,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_002",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.10326,
+      "spearman_early_rho": -0.14016,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104314,
+      "spearman_early_rho": 0.058601,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.093994,
+      "spearman_early_rho": 0.082345,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.103997,
+      "spearman_early_rho": -0.068416,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089754,
+      "spearman_early_rho": 0.167514,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.073018,
+      "spearman_early_rho": 0.048505,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095831,
+      "spearman_early_rho": -0.095305,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071311,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.097266,
+      "spearman_early_rho": 0.040261,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089524,
+      "spearman_early_rho": 0.225963,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065408,
+      "spearman_early_rho": 0.072114,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.10659,
+      "spearman_early_rho": -0.166613,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123154,
+      "spearman_early_rho": -0.105352,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089323,
+      "spearman_early_rho": -0.069691,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.11115,
+      "spearman_early_rho": -0.114695,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_003",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.10326,
+      "spearman_early_rho": -0.13927,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104522,
+      "spearman_early_rho": 0.052708,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.092726,
+      "spearman_early_rho": 0.094181,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.102616,
+      "spearman_early_rho": -0.055832,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089788,
+      "spearman_early_rho": 0.166903,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063776,
+      "spearman_early_rho": 0.198287,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.097045,
+      "spearman_early_rho": -0.018252,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071171,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.092151,
+      "spearman_early_rho": 0.108356,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.088824,
+      "spearman_early_rho": 0.207367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065393,
+      "spearman_early_rho": 0.072114,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.106399,
+      "spearman_early_rho": -0.196393,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123168,
+      "spearman_early_rho": -0.061761,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093216,
+      "spearman_early_rho": -0.081189,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111353,
+      "spearman_early_rho": -0.116364,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_004",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103444,
+      "spearman_early_rho": -0.145999,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.105421,
+      "spearman_early_rho": -0.003169,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.108811,
+      "spearman_early_rho": 0.105202,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104283,
+      "spearman_early_rho": -0.069862,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.086506,
+      "spearman_early_rho": 0.187273,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.074236,
+      "spearman_early_rho": 0.090696,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095865,
+      "spearman_early_rho": -0.096417,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.068755,
+      "spearman_early_rho": 0.028698,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.094808,
+      "spearman_early_rho": 0.063152,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089579,
+      "spearman_early_rho": 0.226074,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.062761,
+      "spearman_early_rho": 0.083535,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.097034,
+      "spearman_early_rho": -0.127969,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.124464,
+      "spearman_early_rho": -0.093872,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089406,
+      "spearman_early_rho": -0.069524,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.102127,
+      "spearman_early_rho": -0.087563,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_005",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103073,
+      "spearman_early_rho": -0.13927,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104295,
+      "spearman_early_rho": 0.054876,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.094006,
+      "spearman_early_rho": 0.082345,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104036,
+      "spearman_early_rho": -0.066219,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.08983,
+      "spearman_early_rho": 0.169015,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.072991,
+      "spearman_early_rho": 0.046726,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095812,
+      "spearman_early_rho": -0.095305,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071236,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.097089,
+      "spearman_early_rho": 0.043682,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089494,
+      "spearman_early_rho": 0.230689,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065378,
+      "spearman_early_rho": 0.076006,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.106574,
+      "spearman_early_rho": -0.166613,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123067,
+      "spearman_early_rho": -0.104881,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089273,
+      "spearman_early_rho": -0.069691,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111044,
+      "spearman_early_rho": -0.11336,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_006",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103261,
+      "spearman_early_rho": -0.14013,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104336,
+      "spearman_early_rho": 0.054876,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.093994,
+      "spearman_early_rho": 0.082345,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.103988,
+      "spearman_early_rho": -0.066219,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089881,
+      "spearman_early_rho": 0.167014,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063826,
+      "spearman_early_rho": 0.196008,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095801,
+      "spearman_early_rho": -0.090244,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071168,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.097089,
+      "spearman_early_rho": 0.043682,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089475,
+      "spearman_early_rho": 0.230689,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.06536,
+      "spearman_early_rho": 0.075283,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.106566,
+      "spearman_early_rho": -0.166613,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.126022,
+      "spearman_early_rho": -0.118212,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089245,
+      "spearman_early_rho": -0.068746,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111046,
+      "spearman_early_rho": -0.11336,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_007",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103305,
+      "spearman_early_rho": -0.14016,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.105401,
+      "spearman_early_rho": -0.003113,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.108836,
+      "spearman_early_rho": 0.105703,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104337,
+      "spearman_early_rho": -0.069862,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.086554,
+      "spearman_early_rho": 0.187273,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.074259,
+      "spearman_early_rho": 0.090751,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095853,
+      "spearman_early_rho": -0.096417,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.068718,
+      "spearman_early_rho": 0.028698,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.094678,
+      "spearman_early_rho": 0.065195,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.08956,
+      "spearman_early_rho": 0.225963,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.06276,
+      "spearman_early_rho": 0.080477,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.097033,
+      "spearman_early_rho": -0.127969,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.1228,
+      "spearman_early_rho": -0.095263,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089376,
+      "spearman_early_rho": -0.069691,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.102153,
+      "spearman_early_rho": -0.086117,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_008",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103089,
+      "spearman_early_rho": -0.13927,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104421,
+      "spearman_early_rho": 0.054876,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.093959,
+      "spearman_early_rho": 0.082345,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.106198,
+      "spearman_early_rho": -0.060851,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089806,
+      "spearman_early_rho": 0.169015,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063765,
+      "spearman_early_rho": 0.197787,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.097315,
+      "spearman_early_rho": -0.055127,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071199,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.096405,
+      "spearman_early_rho": 0.027836,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.088819,
+      "spearman_early_rho": 0.207367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065386,
+      "spearman_early_rho": 0.074894,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.101675,
+      "spearman_early_rho": -0.163816,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.12351,
+      "spearman_early_rho": -0.066821,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089286,
+      "spearman_early_rho": -0.069691,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111216,
+      "spearman_early_rho": -0.114806,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_009",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103363,
+      "spearman_early_rho": -0.141661,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104431,
+      "spearman_early_rho": 0.048705,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.097617,
+      "spearman_early_rho": 0.041958,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.103876,
+      "spearman_early_rho": -0.064884,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089996,
+      "spearman_early_rho": 0.165569,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.06375,
+      "spearman_early_rho": 0.193116,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.097272,
+      "spearman_early_rho": -0.048315,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071011,
+      "spearman_early_rho": -0.011632,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.09626,
+      "spearman_early_rho": 0.027836,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.088753,
+      "spearman_early_rho": 0.212093,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.06532,
+      "spearman_early_rho": 0.071168,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.10219,
+      "spearman_early_rho": -0.142351,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123617,
+      "spearman_early_rho": -0.064708,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093051,
+      "spearman_early_rho": -0.074071,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111051,
+      "spearman_early_rho": -0.11336,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_010",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103408,
+      "spearman_early_rho": -0.142551,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.105496,
+      "spearman_early_rho": -0.003169,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.108772,
+      "spearman_early_rho": 0.105202,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104169,
+      "spearman_early_rho": -0.069862,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089614,
+      "spearman_early_rho": 0.166514,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.074098,
+      "spearman_early_rho": 0.097059,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095871,
+      "spearman_early_rho": -0.096417,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.068742,
+      "spearman_early_rho": 0.028698,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.097259,
+      "spearman_early_rho": 0.040678,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089588,
+      "spearman_early_rho": 0.225574,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.062766,
+      "spearman_early_rho": 0.086315,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.110032,
+      "spearman_early_rho": -0.244779,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.12457,
+      "spearman_early_rho": -0.103073,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089421,
+      "spearman_early_rho": -0.068524,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.10204,
+      "spearman_early_rho": -0.088842,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_011",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103102,
+      "spearman_early_rho": -0.137101,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104235,
+      "spearman_early_rho": 0.048705,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.112535,
+      "spearman_early_rho": 0.076611,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104154,
+      "spearman_early_rho": -0.066108,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.087024,
+      "spearman_early_rho": 0.175961,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.072868,
+      "spearman_early_rho": 0.054843,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095753,
+      "spearman_early_rho": -0.089521,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071009,
+      "spearman_early_rho": -0.011632,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.096516,
+      "spearman_early_rho": 0.04435,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089399,
+      "spearman_early_rho": 0.2303,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065284,
+      "spearman_early_rho": 0.072002,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.106527,
+      "spearman_early_rho": -0.160996,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.122806,
+      "spearman_early_rho": -0.099628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089118,
+      "spearman_early_rho": -0.064687,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.101822,
+      "spearman_early_rho": -0.080888,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_012",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103255,
+      "spearman_early_rho": -0.13496,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104265,
+      "spearman_early_rho": 0.048705,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.112495,
+      "spearman_early_rho": 0.076611,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104108,
+      "spearman_early_rho": -0.066108,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.090055,
+      "spearman_early_rho": 0.165569,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.072905,
+      "spearman_early_rho": 0.054843,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095763,
+      "spearman_early_rho": -0.088854,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071039,
+      "spearman_early_rho": -0.011632,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.096662,
+      "spearman_early_rho": 0.04435,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089415,
+      "spearman_early_rho": 0.230689,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.0653,
+      "spearman_early_rho": 0.071168,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.106535,
+      "spearman_early_rho": -0.161441,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.12288,
+      "spearman_early_rho": -0.101573,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089146,
+      "spearman_early_rho": -0.064687,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.110795,
+      "spearman_early_rho": -0.11336,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_013",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103274,
+      "spearman_early_rho": -0.135322,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104413,
+      "spearman_early_rho": 0.054876,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.09396,
+      "spearman_early_rho": 0.082345,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.1062,
+      "spearman_early_rho": -0.060851,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089776,
+      "spearman_early_rho": 0.167514,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063782,
+      "spearman_early_rho": 0.197787,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.095824,
+      "spearman_early_rho": -0.09625,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071237,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.09643,
+      "spearman_early_rho": 0.025471,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.088831,
+      "spearman_early_rho": 0.207367,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065398,
+      "spearman_early_rho": 0.072114,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.101679,
+      "spearman_early_rho": -0.163816,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123498,
+      "spearman_early_rho": -0.066821,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089306,
+      "spearman_early_rho": -0.069691,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111239,
+      "spearman_early_rho": -0.114806,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_014",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103349,
+      "spearman_early_rho": -0.141661,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104421,
+      "spearman_early_rho": 0.053264,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.097588,
+      "spearman_early_rho": 0.038982,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.106225,
+      "spearman_early_rho": -0.060851,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089913,
+      "spearman_early_rho": 0.165069,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063752,
+      "spearman_early_rho": 0.197787,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.097291,
+      "spearman_early_rho": -0.04926,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071096,
+      "spearman_early_rho": -0.011632,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.096323,
+      "spearman_early_rho": 0.029728,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.088782,
+      "spearman_early_rho": 0.212093,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065349,
+      "spearman_early_rho": 0.075283,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.10223,
+      "spearman_early_rho": -0.147997,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123571,
+      "spearman_early_rho": -0.06582,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093117,
+      "spearman_early_rho": -0.07813,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111118,
+      "spearman_early_rho": -0.11336,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_015",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103384,
+      "spearman_early_rho": -0.142551,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104187,
+      "spearman_early_rho": 0.058601,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.108788,
+      "spearman_early_rho": 0.105647,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.104163,
+      "spearman_early_rho": -0.069862,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089722,
+      "spearman_early_rho": 0.16618,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.074103,
+      "spearman_early_rho": 0.096227,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.09584,
+      "spearman_early_rho": -0.096417,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.07141,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.097084,
+      "spearman_early_rho": 0.040678,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.089541,
+      "spearman_early_rho": 0.225963,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.062771,
+      "spearman_early_rho": 0.080477,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.109987,
+      "spearman_early_rho": -0.236603,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.122979,
+      "spearman_early_rho": -0.104881,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.089345,
+      "spearman_early_rho": -0.069691,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.101982,
+      "spearman_early_rho": -0.091846,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_016",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103146,
+      "spearman_early_rho": -0.13927,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104505,
+      "spearman_early_rho": 0.054876,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.096362,
+      "spearman_early_rho": 0.046562,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.1061,
+      "spearman_early_rho": -0.059572,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.089886,
+      "spearman_early_rho": 0.166403,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063727,
+      "spearman_early_rho": 0.197787,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.09697,
+      "spearman_early_rho": -0.018252,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.073652,
+      "spearman_early_rho": 0.007894,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.09637,
+      "spearman_early_rho": 0.029728,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.08879,
+      "spearman_early_rho": 0.212093,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065358,
+      "spearman_early_rho": 0.075283,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.10235,
+      "spearman_early_rho": -0.147997,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.12314,
+      "spearman_early_rho": -0.062984,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093137,
+      "spearman_early_rho": -0.07813,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111241,
+      "spearman_early_rho": -0.114473,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_017",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103451,
+      "spearman_early_rho": -0.142551,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104606,
+      "spearman_early_rho": 0.046759,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.096357,
+      "spearman_early_rho": 0.046562,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.102553,
+      "spearman_early_rho": -0.055943,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.086327,
+      "spearman_early_rho": 0.171128,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063697,
+      "spearman_early_rho": 0.195396,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.097036,
+      "spearman_early_rho": -0.018252,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.073574,
+      "spearman_early_rho": 0.007894,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.092132,
+      "spearman_early_rho": 0.10296,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.085079,
+      "spearman_early_rho": 0.222415,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.064336,
+      "spearman_early_rho": 0.055352,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.102539,
+      "spearman_early_rho": -0.164824,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.121565,
+      "spearman_early_rho": -0.093454,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093087,
+      "spearman_early_rho": -0.074237,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.1113,
+      "spearman_early_rho": -0.113749,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_018",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103551,
+      "spearman_early_rho": -0.148558,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104693,
+      "spearman_early_rho": 0.046814,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.096371,
+      "spearman_early_rho": 0.050929,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.102464,
+      "spearman_early_rho": -0.054442,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.086412,
+      "spearman_early_rho": 0.171628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063653,
+      "spearman_early_rho": 0.195396,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.092611,
+      "spearman_early_rho": -0.055682,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.073486,
+      "spearman_early_rho": 0.007894,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.090841,
+      "spearman_early_rho": 0.091091,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.086141,
+      "spearman_early_rho": 0.21879,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.064239,
+      "spearman_early_rho": 0.055352,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.102519,
+      "spearman_early_rho": -0.160568,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.121671,
+      "spearman_early_rho": -0.094121,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093014,
+      "spearman_early_rho": -0.074071,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.109563,
+      "spearman_early_rho": -0.100926,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "pop_019",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.104554,
+      "spearman_early_rho": -0.180283,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104662,
+      "spearman_early_rho": 0.046759,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.09639,
+      "spearman_early_rho": 0.050929,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.102511,
+      "spearman_early_rho": -0.055721,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.086426,
+      "spearman_early_rho": 0.171628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063645,
+      "spearman_early_rho": 0.196174,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.092607,
+      "spearman_early_rho": -0.059964,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.073491,
+      "spearman_early_rho": 0.007894,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.090824,
+      "spearman_early_rho": 0.091091,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.086135,
+      "spearman_early_rho": 0.21879,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.064223,
+      "spearman_early_rho": 0.055352,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.102515,
+      "spearman_early_rho": -0.160568,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.121613,
+      "spearman_early_rho": -0.094121,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093002,
+      "spearman_early_rho": -0.074071,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.108178,
+      "spearman_early_rho": -0.104013,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "default",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.10362,
+      "spearman_early_rho": -0.143719,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104692,
+      "spearman_early_rho": 0.046759,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.09559,
+      "spearman_early_rho": 0.052237,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.102471,
+      "spearman_early_rho": -0.054442,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.086426,
+      "spearman_early_rho": 0.171628,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063645,
+      "spearman_early_rho": 0.196174,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.092608,
+      "spearman_early_rho": -0.055682,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.073478,
+      "spearman_early_rho": 0.007894,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.090833,
+      "spearman_early_rho": 0.091091,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.086132,
+      "spearman_early_rho": 0.21879,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.064223,
+      "spearman_early_rho": 0.055352,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.102515,
+      "spearman_early_rho": -0.160568,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.121663,
+      "spearman_early_rho": -0.094121,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093002,
+      "spearman_early_rho": -0.074071,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.109547,
+      "spearman_early_rho": -0.099563,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "minimal",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.104562,
+      "spearman_early_rho": -0.178058,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 1,
+      "w_early_red": 0.104464,
+      "spearman_early_rho": 0.054931,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 2,
+      "w_early_red": 0.093945,
+      "spearman_early_rho": 0.082345,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 3,
+      "w_early_red": 0.106144,
+      "spearman_early_rho": -0.059572,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 4,
+      "w_early_red": 0.08983,
+      "spearman_early_rho": 0.168404,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 5,
+      "w_early_red": 0.063754,
+      "spearman_early_rho": 0.197787,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 6,
+      "w_early_red": 0.09696,
+      "spearman_early_rho": -0.018252,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 7,
+      "w_early_red": 0.071155,
+      "spearman_early_rho": -0.013467,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 8,
+      "w_early_red": 0.0964,
+      "spearman_early_rho": 0.029728,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 9,
+      "w_early_red": 0.08881,
+      "spearman_early_rho": 0.212093,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 10,
+      "w_early_red": 0.065377,
+      "spearman_early_rho": 0.076006,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 11,
+      "w_early_red": 0.102333,
+      "spearman_early_rho": -0.14388,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 12,
+      "w_early_red": 0.123516,
+      "spearman_early_rho": -0.066821,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 13,
+      "w_early_red": 0.093181,
+      "spearman_early_rho": -0.081189,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 14,
+      "w_early_red": 0.111244,
+      "spearman_early_rho": -0.11297,
+      "status": "VALID"
+    },
+    {
+      "genome_id": "highly_plastic",
+      "environment": "pure_noise_world",
+      "seed": 15,
+      "w_early_red": 0.103404,
+      "spearman_early_rho": -0.141661,
+      "status": "VALID"
+    }
+  ],
+  "supersedes": "pilot_W_early_red_noise_world.json (B4a-2, jedno srodowisko noise_world, bez Spearman[0,60))",
+  "generated_at": "2026-08-13T05:45:15.705752+00:00"
+}

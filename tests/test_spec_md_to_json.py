@@ -139,8 +139,10 @@ class TestRealDocument:
             assert expected in ids
 
     def test_section_count_matches_known_structure(self):
-        """v1.3 (uzupelniona): 35 sekcji (34 + nowa §9.3 'Trzecia wlasciwosc kontroli
-        nr 5 - ziarnistosc sekcji, nie wiersza - PRZYJETA')."""
+        """v1.6 (Pilot Final, CTO): 36 sekcji (35 + nowa sekcja 'Uzasadnienie
+        historyczne do pozycji 19' - dlaczego gwarancja strukturalna K4
+        przestala obowiazywac, Typ I -> PC-002). Poprzednio v1.3: 35 sekcji
+        (34 + §9.3 'Trzecia wlasciwosc kontroli nr 5 - PRZYJETA')."""
         md = SPEC_MD_PATH.read_text(encoding="utf-8")
         data = convert(md, SPEC_MD_PATH.name)
-        assert len(data["sections"]) == 35
+        assert len(data["sections"]) == 36

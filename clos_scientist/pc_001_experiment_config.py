@@ -115,6 +115,32 @@ FROZEN_FLOOR_NOISE_WORLD: Dict[str, object] = {
     "floor_model": "constant",
 }
 
+# Pilot Final (PF-01/PF-02, zgloszenie audytora 2026-08-12): pure_noise_world
+# (K4) nie mial zamrozonej podlogi - wyznaczona TYM SAMYM generycznym
+# mechanizmem co noise_world powyzej (select_floor_model, N=100_000,
+# seed_start=500_000 - clos_world/floor_model.py::DEFAULT_N/DEFAULT_SEED_START,
+# NIEZALEZNE od srodowiska).
+#
+# floor_model="constant" jest WYNIKIEM testu waznosci V-C dla tego srodowiska
+# (bias_roznicowy=4.3e-05 << FLOOR_BIAS_TOLERANCE=0.002), NIE zalozeniem -
+# select_floor_model() nie ma parametru pozwalajacego wymusic wynik (patrz
+# docstring clos_scientist/w2_endpoint.py::select_floor_model).
+#
+# Wyznaczona RAZ: execution_package_v0_11/runners/compute_pure_noise_world_floor.py,
+# 2026-08-13 (jednorazowy runner, CELOWO POZA CRITICAL_FILES_PC_001 - ten sam
+# scoping co compute_noise_world_floor.py). Surowy wynik:
+# reports/pilot/floor_pure_noise_world_2026-08-13.json.
+FROZEN_FLOOR_PURE_NOISE_WORLD: Dict[str, object] = {
+    "environment": "pure_noise_world",
+    "value": 0.236972,
+    "date_computed": "2026-08-13",
+    "N": 100_000,
+    "seed_start": 500_000,
+    "seed_range": "500000-599999",
+    "bias_roznicowy": 0.000043,
+    "floor_model": "constant",
+}
+
 # Tolerancja kontroli reprodukowalnosci floor_env przy starcie eksperymentu -
 # TA SAMA wartosc co kryterium precyzji SE<0.001 uzyte do wyprowadzenia
 # N=100_000 (publications/analiza_floor_model_2026-07-28.md §6). Rozjazd >=
