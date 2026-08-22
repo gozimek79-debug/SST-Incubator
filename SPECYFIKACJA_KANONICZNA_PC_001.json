@@ -935,6 +935,11 @@
               "Rola": "uruchomienie przebiegów i agregacja wyników"
             },
             {
+              "Warstwa": "Runner Eksperymentu Konfirmacyjnego PC-001",
+              "Adres": "`execution_package_v0_11/runners/pc_001_confirmatory_runner.py`",
+              "Rola": "orkiestracja i zapis surowych trajektorii `prediction_error` (uklad skrzyżowany, wspólny zestaw seedów) — BEZ analizy statystycznej reguły decyzyjnej (ewaluator, B4C-2, wstrzymany)"
+            },
+            {
               "Warstwa": "Egzekwowanie Hard Halt",
               "Adres": "HALT",
               "Rola": "rejestr, algorytm hasha, bramka wejścia"
@@ -953,7 +958,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.13 Dokumenty uzasadniające objęte rejestrem",
-      "start_line": 365,
+      "start_line": 366,
       "blocks": [
         {
           "type": "paragraph",
@@ -999,7 +1004,7 @@
       "numbered": true,
       "level": 2,
       "title": "3. Mapa aneksów — co każdy zmienił",
-      "start_line": 403,
+      "start_line": 404,
       "blocks": [
         {
           "type": "table",
@@ -1058,7 +1063,7 @@
       "numbered": true,
       "level": 2,
       "title": "4. Mapa treści nieobowiązujących w zamrożonych źródłach",
-      "start_line": 421,
+      "start_line": 422,
       "blocks": [
         {
           "type": "paragraph",
@@ -1217,7 +1222,7 @@
       "numbered": false,
       "level": 3,
       "title": "Uzasadnienie historyczne do pozycji 19 — dlaczego ten fragment przestał obowiązywać",
-      "start_line": 449,
+      "start_line": 450,
       "blocks": [
         {
           "type": "paragraph",
@@ -1259,7 +1264,7 @@
       "numbered": true,
       "level": 2,
       "title": "5. Stan otwarty",
-      "start_line": 492,
+      "start_line": 493,
       "blocks": [
         {
           "type": "table",
@@ -1341,7 +1346,7 @@
       "numbered": true,
       "level": 2,
       "title": "6. Znaleziska audytora przy konsolidacji",
-      "start_line": 522,
+      "start_line": 523,
       "blocks": [
         {
           "type": "paragraph",
@@ -1354,7 +1359,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.1 Próg Warunku B nie ma adresu w kodzie — **ZAMKNIĘTE**",
-      "start_line": 528,
+      "start_line": 529,
       "blocks": [
         {
           "type": "note",
@@ -1392,7 +1397,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.2 Uzasadnienie minimalnego mianownika opiera się na wielkości unieważnionej",
-      "start_line": 563,
+      "start_line": 564,
       "blocks": [
         {
           "type": "paragraph",
@@ -1421,7 +1426,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.3 D-020 nie ma adresu w repo — **ZAMKNIĘTE**",
-      "start_line": 583,
+      "start_line": 584,
       "blocks": [
         {
           "type": "note",
@@ -1449,7 +1454,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.4 Parametry Pilota Final nie mają artefaktu",
-      "start_line": 602,
+      "start_line": 603,
       "blocks": [
         {
           "type": "paragraph",
@@ -1482,7 +1487,7 @@
       "numbered": true,
       "level": 2,
       "title": "7. Czego ten dokument nie rozstrzyga",
-      "start_line": 632,
+      "start_line": 633,
       "blocks": [
         {
           "type": "list",
@@ -1501,7 +1506,7 @@
       "numbered": true,
       "level": 2,
       "title": "8. Warunki utrzymania",
-      "start_line": 644,
+      "start_line": 645,
       "blocks": [
         {
           "type": "paragraph",
@@ -1541,7 +1546,7 @@
       "numbered": true,
       "level": 3,
       "title": "8.1 Członkostwo w rejestrze plików krytycznych — rekomendacja: NIE",
-      "start_line": 675,
+      "start_line": 676,
       "blocks": [
         {
           "type": "paragraph",
@@ -1580,7 +1585,7 @@
       "numbered": true,
       "level": 2,
       "title": "9. Weryfikowalność",
-      "start_line": 712,
+      "start_line": 713,
       "blocks": [
         {
           "type": "paragraph",
@@ -1660,7 +1665,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.1 Znane ograniczenie walidatora — ujawnione w v1.1",
-      "start_line": 745,
+      "start_line": 746,
       "blocks": [
         {
           "type": "note",
@@ -1698,7 +1703,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.2 Drugie ograniczenie kontroli nr 5 — adres zbiorczy jako wyłącznik",
-      "start_line": 768,
+      "start_line": 769,
       "blocks": [
         {
           "type": "note",
@@ -1740,7 +1745,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.3 Trzecia właściwość kontroli nr 5 — ziarnistość sekcji, nie wiersza — PRZYJĘTA",
-      "start_line": 801,
+      "start_line": 802,
       "blocks": [
         {
           "type": "paragraph",

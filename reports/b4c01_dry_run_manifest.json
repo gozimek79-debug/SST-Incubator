@@ -1,0 +1,79 @@
+{
+  "purpose": "dowod dry-run B4C-01/03/04 (mechanika runnera konfirmacyjnego PC-001) - NIE eksperyment, NIE wynik inferencyjny",
+  "commit": "d607e4bb8fc21c9b6e351fe1895c2feb554dd839",
+  "generated_at": "2026-08-21T21:40:28.480793+00:00",
+  "dry_run": {
+    "seed_range": [
+      50000,
+      50001,
+      50002
+    ],
+    "run_count_expected": 207,
+    "run_count_completed": 207,
+    "result": "PASS"
+  },
+  "seed_disjointness_proof": {
+    "dry_run_seeds": [
+      50000,
+      50001,
+      50002
+    ],
+    "checked_against": {
+      "pilot_final_d042": [
+        1,
+        15
+      ],
+      "v0_11_production": [
+        1,
+        185
+      ],
+      "confirmatory_reserved_block": [
+        1001,
+        1050
+      ],
+      "floor_computation_mc": [
+        500000,
+        599999
+      ],
+      "floor_verification_default": [
+        600000,
+        699999
+      ],
+      "audytor_reserved": [
+        700000,
+        720000
+      ]
+    },
+    "result": "PASS - zero przeciec ze wszystkimi zakresami"
+  },
+  "resume_test": {
+    "interrupted_after": 5,
+    "resumed_from_checkpoint": 5,
+    "final_total_lines": 207,
+    "unique_records": 207,
+    "expected_total": 207,
+    "duplicates": 0,
+    "gaps": 0,
+    "result": "PASS"
+  },
+  "floor_verification": {
+    "noise_world": {
+      "config_constant": "FROZEN_FLOOR_NOISE_WORLD",
+      "frozen_value": 0.09589,
+      "recomputed_value": 0.09588357713938449,
+      "status": "OK"
+    },
+    "pure_noise_world": {
+      "config_constant": "FROZEN_FLOOR_PURE_NOISE_WORLD",
+      "frozen_value": 0.236972,
+      "recomputed_value": 0.23689711945778902,
+      "status": "OK"
+    }
+  },
+  "critical_files_pc_001_interim_hash": {
+    "algorithm": "compute_files_hash_v2",
+    "n_files": 52,
+    "value": "c9f753c41949358e52857f75209cd30d828cb250f83bd77d7c3555bceefeb071",
+    "note": "INTERIM - PC_001_BASELINE nadal TBD (B5 nastapi po evaluatorze, B4C-2). Ta wartosc to migawka stanu 52 plikow krytycznych w momencie dry-run, NIE zamrozony baseline - do wewnetrznego sledzenia, nie do porownania z niczym."
+  }
+}

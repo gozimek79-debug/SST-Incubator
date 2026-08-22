@@ -100,6 +100,66 @@ CONDITION_B_REDUCTION_THRESHOLD: float = 0.20
 # PC_001, wiec to ostatni moment na dopisanie tej stalej.
 N_OPERATIONAL_SEEDS: int = 8
 
+# Seed poczatkowy Eksperymentu Konfirmacyjnego (B4C-01, zgloszenie audytora).
+#
+# WYMOG PREREJESTRACYJNY - NIE decyzja techniczna: publications/
+# NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md (czlonek CRITICAL_FILES_PC_001),
+# §2 "Rozdzielnosc seedow": "Pilot uzywa seedow 1-5; eksperyment
+# konfirmacyjny zaczyna od seeda 1001" (linia 76) - powtorzone w tabeli
+# bramek §7 (linia 187) i pytaniu do CTO §8 (linia 198). Dotad istnial
+# WYLACZNIE jako literal 1001 lokalnie w execution_package_v0_11/runners/
+# pilot_final.py (CONFIRMATORY_SEEDS_START) - bez wspoldzielonego adresu,
+# ktorego moglby uzyc runner konfirmacyjny.
+#
+# Powod rozlacznosci: seedy pilota (1-15, D-042 - NOTATKA_B4 mowila
+# pierwotnie o 1-5, podniesione decyzja CTO) i seedy konfirmacji NIE MOGA
+# zachodzic - identyczne przebiegi wszlyby do obu zbiorow, skazajac
+# konfirmacje danymi juz widzianymi przy projektowaniu pilota.
+#
+# B4C-04 (Wariant C, decyzja CTO): CONFIG jest JEDYNYM zrodlem normatywnym
+# dla wszystkiego, co powstaje OD TERAZ. Trzy runnery pilota (pilot_final.py,
+# pilot_power_analysis.py, pilot_power_analysis_w2.py) MAJA WLASNE, historyczne
+# literaly 1001 - CELOWO NIETKNIETE (edycja ktoregokolwiek zerwalaby
+# prowieniencje zamrozonych artefaktow, ktore wyprodukowaly - zachowaniowo
+# obojetna zmiana, a mimo to niszczaca dla pliku, ktorego cala rola to bycie
+# DOKLADNIE tym, co wyprodukowalo zapisane liczby). Spojnosc miedzy CONFIG a
+# trzema literalami pilnuje tests/test_confirmatory_seeds_start_consistency.py
+# (import z kazdego zrodla, porownanie - nie konsolidacja).
+CONFIRMATORY_SEEDS_START: int = 1001
+
+# Zbior UZYWANY - seedy, na ktorych FAKTYCZNIE biegnie konfirmacja (B4C-03,
+# zgloszenie audytora). WYPROWADZONY z dwoch nazwanych stalych, zero
+# literalu gornej granicy - jesli decyzja CTO o definicji komorki (evaluator,
+# B4C-2) podniesie N_OPERATIONAL_SEEDS, ten zbior przelicza sie SAM, zamiast
+# cicho rozjechac sie z rzeczywistoscia.
+CONFIRMATORY_SEEDS: range = range(CONFIRMATORY_SEEDS_START, CONFIRMATORY_SEEDS_START + N_OPERATIONAL_SEEDS)
+
+# Blok ZAREZERWOWANY - ROZNY od zbioru UZYWANEGO powyzej. CONFIRMATORY_SEEDS
+# to seedy, ktorych konfirmacja rzeczywiscie zuzywa DZIS (8, wynik B4b);
+# CONFIRMATORY_SEEDS_RESERVED to przestrzen, ktorej NIKOMU INNEMU (dry-run,
+# przyszle narzedzia) nie wolno dotykac, bo N_OPERATIONAL_SEEDS moze jeszcze
+# WZROSNAC (decyzja CTO o definicji komorki jest wstrzymana, nie zamknieta -
+# patrz B4C-01 evaluator). Rozlacznosc innych zakresow sprawdza sie PRZECIW
+# TEMU blokowi, nie przeciw dzisiejszemu N=8 (B4C-03: odczyt "1001+" jako
+# otwartego doprowadzil do falszywego zdania o rozlacznosci w W2_completion_
+# report - domykamy oba konce na raz).
+#
+# Margines UZASADNIONY, nie zgadniety: BH-FDR najostrzejszy prog dla rodziny
+# m testow = (1/m)*alfa; przeciecie z dyskretnoscia dokladnego Wilcoxona
+# (2^(1-n)) daje wymagane n = tak, ze 2^(1-n) < (1/m)*0.05. Dla m=4 (dzisiejsza
+# rodzina: A/B/K4/K6) n=8 (patrz N_OPERATIONAL_SEEDS). Dla m=20 (rodzina 5x
+# wieksza, np. gdyby definicja komorki rozbila kazdy test per srodowisko)
+# n=10; dla m=100 (skrajnie szeroka rodzina) n=12 - wymagane n rosnie BARDZO
+# wolno wzgledem m (logarytmicznie), wiec nawet duza zmiana definicji komorki
+# nie przesunie N_operational poza "kilkanascie". Zapas do 50 (>4x dzisiejsze
+# N=8, >4x skrajny przypadek m=100 policzony wyzej) jest hojny z duzym marginesem,
+# a wciaz zaniedbywalny wzgledem nastepnego zajetego zakresu (podlogi od
+# 500_000) - 500_000-1050=498_950 wolnych seedow miedzy blokiem a Monte Carlo.
+CONFIRMATORY_SEEDS_RESERVED_MAX_N: int = 50
+CONFIRMATORY_SEEDS_RESERVED: range = range(
+    CONFIRMATORY_SEEDS_START, CONFIRMATORY_SEEDS_START + CONFIRMATORY_SEEDS_RESERVED_MAX_N
+)
+
 # Okna pomiarowe - z publications/preregistration_PC_001.json
 # primary_endpoint.condition_b_reduction.windows (niezmienione przez W2,
 # specyfikacja_W2 §6: "okien pomiarowych ta specyfikacja NIE rozstrzyga").

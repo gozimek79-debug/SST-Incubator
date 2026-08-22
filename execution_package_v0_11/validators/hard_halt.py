@@ -322,8 +322,18 @@ CRITICAL_FILES_PC_001 = [
     # pomiarowego Pilota Final (Spearman w oknie wczesnym, D-031). Bez wlasnego
     # adresu ten zakaz istnialby wylacznie jako niepisana konwencja.
     "publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md",
+    # B4C-01 (2026-08-17): runner Eksperymentu Konfirmacyjnego - generuje
+    # SUROWE dane (trajektorie prediction_error), na ktorych ewaluator (B4C-2,
+    # wstrzymany do decyzji CTO o definicji komorki) policzy regule decyzyjna.
+    # Kryterium wlaczenia spelnione wprost: zmiana tego pliku (np. inny zestaw
+    # seedow, inna struktura ukladu skrzyzowanego, inny sposob przechwytywania
+    # trajektorii) MOZE zmienic liczby, ktore wyprodukuje eksperyment PC-001 -
+    # w odroznieniu od pilot_final.py/compute_*_floor.py (dane WEJSCIOWE do
+    # decyzji projektowej, NIE wykonywane podczas konfirmacji), ten plik JEST
+    # kodem wykonywanym PRZY KAZDYM przebiegu konfirmacji.
+    "execution_package_v0_11/runners/pc_001_confirmatory_runner.py",
 ]
-assert len(CRITICAL_FILES_PC_001) == 51, f"oczekiwano 51 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 52, f"oczekiwano 52 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

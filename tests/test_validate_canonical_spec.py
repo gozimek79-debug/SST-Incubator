@@ -259,12 +259,13 @@ class TestCriticalFilesRegistryCoverage:
     def test_real_registry_fully_covered(self):
         assert check_critical_files_registry_coverage(REAL_SPEC_DATA) == []
 
-    def test_load_critical_files_returns_51_known_entries(self):
+    def test_load_critical_files_returns_52_known_entries(self):
         """D-031 (2026-08-04): +2 wzgledem 47 - SPRINT_v0.11.0.md,
         publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md, przed B5.
-        Aneks 6 (2026-08-03, po weryfikacji Z1): +2 (md+json), 49 -> 51."""
+        Aneks 6 (2026-08-03, po weryfikacji Z1): +2 (md+json), 49 -> 51.
+        B4C-01 (2026-08-17): +1 - runner Eksperymentu Konfirmacyjnego, 51 -> 52."""
         files = load_critical_files()
-        assert len(files) == 51
+        assert len(files) == 52
         assert "docs/GOVERNANCE_RULES.md" in files
         assert "clos_brain/tissue.py" in files
         assert "SPRINT_v0.11.0.md" in files

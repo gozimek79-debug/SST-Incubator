@@ -355,6 +355,7 @@ by żadna pozycja rejestru nie była chroniona, a nieopisana (test §9 nr 5).
 | Testy statystyczne | STATS | implementacje testów reguły decyzyjnej; walidowane przeciw bibliotece zewnętrznej, która **celowo pozostaje poza repo** (HALT, komentarz nad rejestrem) |
 | Protokoły lekcji | `clos_academy/lesson_L1_2.py` (Primary), `clos_academy/lesson_L1_1.py` (wspierająca) | scenariuszowo-niezależne protokoły; dowód niezależności: W2-SPEC §1 |
 | Pipeline wykonawczy | `execution_package_v0_11/runners/pipeline.py`, `execution_package_v0_11/runners/aggregate_results.py` | uruchomienie przebiegów i agregacja wyników |
+| Runner Eksperymentu Konfirmacyjnego PC-001 | `execution_package_v0_11/runners/pc_001_confirmatory_runner.py` | orkiestracja i zapis surowych trajektorii `prediction_error` (uklad skrzyżowany, wspólny zestaw seedów) — BEZ analizy statystycznej reguły decyzyjnej (ewaluator, B4C-2, wstrzymany) |
 | Egzekwowanie Hard Halt | HALT | rejestr, algorytm hasha, bramka wejścia |
 
 **Poza rejestrem celowo** (decyzja CTO, uzasadnienie: HALT, komentarz przy pozycji): runnery
