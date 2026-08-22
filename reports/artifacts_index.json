@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T20:06:24.307727+00:00",
+  "generated_at": "2026-08-22T04:25:30.206597+00:00",
   "documents": [
     {
       "path": "CHANGELOG_v0.7.2.md",
@@ -299,6 +299,12 @@
       "path": "publications/competency_profile_v0_10_1_exploratory.json",
       "title": "competency_profile_v0_10_1_exploratory.json",
       "date": "2026-07-17T05:16:23.109127",
+      "ok": true
+    },
+    {
+      "path": "publications/power_analysis_PC_001.json",
+      "title": "power_analysis_PC_001.json",
+      "date": "2026-08-17T18:41:03.595157+00:00",
       "ok": true
     },
     {
