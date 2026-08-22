@@ -1,7 +1,7 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.6
+# SPECYFIKACJA KANONICZNA PC-001 — v1.7
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-13 (v1.6)
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-22 (v1.7)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -9,6 +9,11 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.7** (B4C-01/03/04, runner konfirmacyjny PC-001):
+> §2.12 — nowy wiersz „Runner Eksperymentu Konfirmacyjnego PC-001" (rejestr
+> `CRITICAL_FILES_PC_001` 51→52); uzupełnienie wymuszone przez walidator §9 nr 5
+> (żadna pozycja rejestru nieopisana w tej podsekcji).
+>
 > **Zmiany w v1.6** (po Pilocie Final, decyzja CTO):
 > §4 — nowa pozycja: „gwarancja strukturalna" K4 w W2-SPEC nie obowiązuje, wraz
 > z uzasadnieniem historycznym.

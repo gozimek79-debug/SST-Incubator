@@ -1134,7 +1134,7 @@
     }).join("");
 
     return '<section class="card span"><header class="card-h"><span class="card-t">Dokumenty PC-001</span>' +
-      '<span class="card-s">' + docs.length + " plików .md · prerejestracja, aneksy, Specyfikacja Kanoniczna, W2" +
+      '<span class="card-s">' + docs.length + " plików (.md/.json) · prerejestracja, aneksy, Specyfikacja Kanoniczna, W2" +
       (noDate ? " · " + noDate + " bez daty" : "") + "</span></header>" +
       '<div class="card-b"><div class="reports">' +
       (rowsHtml || '<p class="prose">Brak dopasowanych dokumentów.</p>') + "</div></div></section>";
