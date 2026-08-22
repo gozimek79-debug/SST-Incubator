@@ -78,6 +78,28 @@ FLOOR_LIMITED_CELL_THRESHOLD: float = 0.30
 # implementuje porownania - to osobny, nieobjety tym zleceniem krok.
 CONDITION_B_REDUCTION_THRESHOLD: float = 0.20
 
+# Liczba seedow dla Eksperymentu Konfirmacyjnego (B4B-03, decyzja CTO).
+#
+# POCHODZENIE: NIE Monte Carlo. N_power (analiza mocy B4b, publications/
+# power_analysis_PC_001.json, pole required_seeds.n_power.value) = 6 -
+# ODREBNA liczba, pozostaje niezmieniona jako wynik symulacji (required_seeds.
+# n_power w tym samym pliku). N_OPERATIONAL_SEEDS ponizej pochodzi z
+# ROZDZIELCZOSCI dokladnego testu Wilcoxona wobec prerejestrowanej korekty
+# BH-FDR: przy n=6 lub n=7 minimalna OSIAGALNA (nie zaobserwowana) dwustronna
+# wartosc p Wilcoxona (2^(1-n): 0.03125 / 0.015625) jest POWYZEJ najostrzejszego
+# progu BH w rodzinie czterech testow A/B/K4/K6 (0.0125 = (1/4)*0.05) - test
+# formalnie NIE MOZE przejsc korekty samodzielnie, niezaleznie od wyniku
+# pozostalych trzech. Przy n=8 minimalne p (0.0078125) spada ponizej tego
+# progu. Pelna derywacja: required_seeds.n_operational.derivation w
+# power_analysis_PC_001.json.
+#
+# Ten sam blad co przy progu Warunku B (SPECYFIKACJA_KANONICZNA_PC_001.md
+# §6.1): bez adresu w kodzie ta liczba trafilaby do runnera konfirmacji jako
+# literal. Dopuszczalne WYLACZNIE dopoki PC_001_BASELINE nie jest policzony
+# (B5 jest nastepnym krokiem) - zmiana tego pliku lamie hash CRITICAL_FILES_
+# PC_001, wiec to ostatni moment na dopisanie tej stalej.
+N_OPERATIONAL_SEEDS: int = 8
+
 # Okna pomiarowe - z publications/preregistration_PC_001.json
 # primary_endpoint.condition_b_reduction.windows (niezmienione przez W2,
 # specyfikacja_W2 §6: "okien pomiarowych ta specyfikacja NIE rozstrzyga").

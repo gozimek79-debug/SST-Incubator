@@ -1,0 +1,286 @@
+{
+  "purpose": "power_analysis",
+  "prereg_path": "publications/power_analysis_PC_001.json (Aneks 1, Zmiana 5)",
+  "generated_at": "2026-08-17T18:41:03.595157+00:00",
+  "model": {
+    "description": "Y[g,s] = mu + G[g] + S[s] + (GxS)[g,s]; seed = blok/czynnik losowy, 23 genomy na wspolnym zestawie N seedow (uklad skrzyzowany). Test dostaje N srednich blokowych (nie 23*N surowych wartosci per genom).",
+    "n_genomes": 23,
+    "alpha": 0.05,
+    "target_power": 0.8,
+    "multiple_comparisons": "Benjamini-Hochberg FDR, wspolnie na p-wartosciach aktywnych testow w kazdym powtorzeniu MC (patrz interpretive_choices #2)"
+  },
+  "effect_size": {
+    "source": "clos_scientist.pc_001_experiment_config.CONDITION_B_REDUCTION_THRESHOLD",
+    "value": 0.2,
+    "note": "WYLACZNIE z prerejestracji, NIGDY z pilota (NOTATKA_B4 par. 2). Warunek B: uzyty wprost. K4: ta sama transformacja w noise_world, brak redukcji w pure_noise_world (skladnik kryterium K4). Warunek A: beta_h1 wyprowadzone z tej samej liczby (patrz beta_h1_derivation).",
+    "beta_h1_derivation": {
+      "formula": "beta = -reduction * mean(W_early_red) / window_ticks",
+      "mean_w_early_red_noise_world": 0.1551636463768116,
+      "window_ticks": 300,
+      "value": -0.00010344243091787441
+    },
+    "k6_no_prereg_effect_size": "K6 NIE MA prerejestrowanej wielkosci efektu (kryterium: korelacja istotnie rozna od zera, bez progu wielkosci - w odroznieniu od warunku B). Decyzja CTO (B4B-02): symulator NIE zaklada docelowego rho. K6 raportowany jako MDE (minimalna wykrywalna korelacja) przy N wyznaczonym przez A/B/K4, nie jako wymaganie na N."
+  },
+  "nuisance_parameters": {
+    "source_file": "reports/pilot/pilot_final.json",
+    "w_early_red_noise_world": {
+      "grand_mean": 0.1551636463768116,
+      "sigma2_between": 0.00018353229120609331,
+      "sigma2_within": 3.71459668677207e-05,
+      "sd_between": 0.013547409021879177,
+      "sd_within": 0.006094749122623563,
+      "sd_total": 0.014855243453872239,
+      "icc": 0.831673644735333
+    },
+    "w_early_red_pure_noise_world": {
+      "grand_mean": 0.09406780289855073,
+      "sigma2_between": 0.0002601550139227654,
+      "sigma2_within": 8.468242533333333e-06,
+      "sd_between": 0.016129321558043457,
+      "sd_within": 0.0029100244901604064,
+      "sd_total": 0.016389730213035806,
+      "icc": 0.9684753932140745
+    },
+    "spearman_early_rho_noise_world_PROXY": {
+      "grand_mean": -0.08004735942028986,
+      "sigma2_between": 0.009174417674643259,
+      "sigma2_within": 0.002939832397878788,
+      "sd_between": 0.09578318054148786,
+      "sd_within": 0.054220221300533146,
+      "sd_total": 0.110064753997463,
+      "icc": 0.757324441853234
+    },
+    "proxy_note": "spearman_early_rho to Spearman[0,60) (okno wczesne) - PROXY dla wariancji korelacji pelnego okna [0,300), ktorej K6 faktycznie wymaga (pilot celowo nie mierzy pelnego okna - zobaczenie tego bylby zobaczeniem wyniku K6 przed konfirmacja). Oszacowanie konserwatywne (krotsze okno -> wieksza wariancja) - publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md §3.3."
+  },
+  "icc_unmeasured_for_beta_and_rho": {
+    "note": "ICC (korelacja wewnatrzklasowa) dla bety (warunek A) i rho pelnego okna (K6) jest NIEZMIERZONE - pilot celowo nie zapisuje ani bety, ani korelacji pelnego okna (zobaczenie ujawnialoby wynik przed konfirmacja). Skala wariancji kalibrowana z licencjonowanego proxy pilota (W_early_red dla A, Spearman[0,60) dla K6), ale ICC SAMO przebadane w zakresie ponizej, nie zalozone jako pojedyncza liczba.",
+    "measured_reference_points_NOT_the_same_quantity": {
+      "icc_w_early_red_noise_world": 0.831673644735333,
+      "icc_w_early_red_pure_noise_world": 0.9684753932140745,
+      "icc_spearman_early_rho_noise_world_proxy": 0.757324441853234
+    },
+    "sensitivity_grid_tested": [
+      0.3,
+      0.5,
+      0.7,
+      0.832,
+      0.9,
+      0.95,
+      0.969,
+      0.99
+    ],
+    "decision_icc_conservative_default": 0.99
+  },
+  "required_seeds": {
+    "n_power": {
+      "value": 6,
+      "source": "Monte Carlo (B4b) - NIE ZMIENIONE od pierwszego zatwierdzenia (B4B-03, decyzja CTO pkt 1: 'wynik Monte Carlo N=6 zostaje jako poprawny wynik analizy mocy').",
+      "definition": "Pierwsze N, przy ktorym (a) osiagnieto zalozona moc >=0.80 dla A/B/K4 ORAZ (b) dokladny test Wilcoxona moze w ogole dac p<0.05 przy tym N.",
+      "per_test_at_decision_icc": {
+        "A": 0.894,
+        "B": 1.0,
+        "K4": 1.0
+      },
+      "n_power_is_max_of": ["A", "B", "K4"],
+      "note": "Maksimum z wymagan A/B/K4 (nie srednia) - K4 NIE wchodzi do tej listy jako wymog dodatkowy, jest jednym z trzech testow wyznaczajacych N.",
+      "icc_sensitivity_table_required_n_for_warunek_a": {
+        "0.3": 6, "0.5": 6, "0.7": 6, "0.832": 6, "0.9": 6, "0.95": 6, "0.969": 6, "0.99": 6
+      },
+      "icc_sensitivity_conclusion": "N wymagane przez warunek A jest STALE (=6) w calym przebadanym zakresie ICC (0.3-0.99) - decyduje dyskretnosc dokladnego testu Wilcoxona przy n=5 (minimalna osiagalna wartosc p dwustronna przy n=5 to 0.0625 > alfa=0.05, wiec test NIE MOZE odrzucic H0 przy n=5 niezaleznie od wielkosci efektu czy ICC), nie sila sygnalu wzgledem szumu. N NIE jest wrazliwe na nieznane ICC w tym zakresie - zalozenie ICC jest tu NIESZKODLIWE."
+    },
+    "n_operational": {
+      "value": 8,
+      "source": "NIE Z MONTE CARLO. Decyzja CTO (B4B-03, pkt 2), oparta na rozdzielczosci dokladnego testu Wilcoxona wobec prerejestrowanej korekty BH-FDR - nie na marginesie bezpieczenstwa ani na dodatkowej symulacji.",
+      "definition": "Pierwsze N, przy ktorym minimalna OSIAGALNA (nie zaobserwowana) dwustronna wartosc p dokladnego testu Wilcoxona spada PONIZEJ najostrzejszego progu BH w rodzinie czterech testow (A, B, K4, K6) - czyli przy ktorym pojedynczy test MOZE przejsc korekte samodzielnie, niezaleznie od tego, jak wypadna pozostale trzy.",
+      "derivation": {
+        "exact_wilcoxon_min_achievable_two_sided_p_by_n": {
+          "5": 0.0625, "6": 0.03125, "7": 0.015625, "8": 0.0078125
+        },
+        "min_p_formula": "2^(1-n) - zweryfikowane wprost wywolaniem clos_curriculum.laboratory.statistics.wilcoxon_signed_rank na parach calkowicie rozdzielonych (najbardziej ekstremalna mozliwa konfiguracja), nie wyprowadzone analitycznie bez sprawdzenia.",
+        "bh_sharpest_threshold": {
+          "m_tests": 4,
+          "q": 0.05,
+          "formula": "(1/m)*q",
+          "value": 0.0125,
+          "all_thresholds_by_rank": {"1": 0.0125, "2": 0.025, "3": 0.0375, "4": 0.05}
+        },
+        "crossing": "n=7: min p=0.015625 > 0.0125 (NIE wystarcza). n=8: min p=0.0078125 < 0.0125 (wystarcza). N_operational=8 jest najmniejszym n spelniajacym warunek.",
+        "mann_whitney_k4_check": "Mann-Whitney (K4) NIE jest tu wiazacym ograniczeniem - jego dokladny rozklad jest znacznie mniej dyskretny niz Wilcoxona przy tym samym n (min. p przy n_a=n_b=8: 0.0001554, daleko ponizej progu BH juz przy n=5: 0.00793651). Rozdzielczosc-wobec-BH jest wiazana wylacznie przez testy oparte na Wilcoxonie (A, B, K6)."
+      },
+      "supplementary_k6_mde_at_n_operational": {
+        "n_seeds": 8,
+        "mde_rho_approx": 0.14,
+        "power_at_mde_rho_0_135": 0.7993,
+        "power_at_mde_rho_0_14": 0.8113,
+        "note": "DODATKOWE (nie wymagane przez B4B-03) - policzone dla wygody kogos, kto bedzie pisal kod ewaluacji reguly decyzyjnej i uzyje N_operational, nie N_power. k6_mde_at_required_n ponizej (przy N_power=6) POZOSTAJE NIEZMIENIONE - to osobna liczba dla osobnego N."
+      }
+    },
+    "resulting_n_runs": {
+      "at_n_operational": {
+        "n_seeds": 8,
+        "n_genomes": 23,
+        "n_environments": 3,
+        "environments_named": {
+          "primary": "noise_world",
+          "K3": "shock_world",
+          "K4": "pure_noise_world",
+          "source": "clos_scientist.pc_001_experiment_config.EXPERIMENT_CONFIG['environments']"
+        },
+        "total": 552,
+        "formula": "23 x 8 x 3"
+      },
+      "note": "KONSEKWENCJA wyboru N_operational (osadzonego w decyzji CTO o rozdzielczosci testu), NIE wielkosc optymalizowana wprost. Poprzednia liczba (276) byla bledna w dwoch miejscach: uzywala N_power zamiast N_operational, i liczyla dwa srodowiska (noise_world, pure_noise_world) pomijajac shock_world (K3), w ktorym operuje aktywny warunek 1 (K3a)."
+    }
+  },
+  "k6_mde_at_required_n": {
+    "n_seeds": 6,
+    "mde_rho": 0.195,
+    "power_at_mde": 0.808,
+    "icc_rho_used": 0.99,
+    "icc_rho_sensitivity_mde": {
+      "0.3": 0.12,
+      "0.5": 0.16,
+      "0.757": 0.18,
+      "0.9": 0.19,
+      "0.96": 0.2,
+      "0.99": 0.2
+    },
+    "interpretation": "Przy N=6 seedow, K6 wykrywa |rho| >= 0.195 przy mocy >= 0.80 (BH-FDR wspolnie z A/B/K4 dzialajacymi na prawdziwym efekcie prerejestrowanym). Zakres MDE pod niepewnoscia ICC: 0.12-0.20."
+  },
+  "interpretive_choices": {
+    "note": "Kod ewaluacji reguly decyzyjnej PC-001 NIE ISTNIEJE jeszcze. Ponizsze wybory tego symulatora STANA SIE de facto wzorcem, gdy ten kod powstanie - wymagaja jawnego potwierdzenia CTO PRZED napisaniem tamtego kodu, nie sa faktami z prerejestracji.",
+    "1_aggregation_test_a_and_k6": "Agregacja warunku A i K6 w komorce: test Wilcoxona dla par (x_i, 0) na rozkladzie per-blok statystyki (srednia beta per seed dla A, srednia rho per seed dla K6) przeciw zeru. Dla A jedyny wybor spojny z prerejestracja. Dla K6 brak analogicznego zdania w jakimkolwiek dokumencie - zastosowany przez analogie do A.",
+    "2_bh_fdr_joint_scope": "Korekta BH-FDR stosowana wspolnie na p-wartosciach AKTYWNYCH testow (A, B, K4 przy wyznaczaniu N; A, B, K4, K6 przy MDE) w KAZDYM powtorzeniu MC. K1/K3a/K5 (poza zakresem tego zlecenia) NIE wchodza do tej korekty."
+  },
+  "simulator_validation": {
+    "n_sim_search": 2000,
+    "n_sim_confirm": 10000,
+    "test_a_null_hypothesis": {
+      "description": "Brak efektu (A/B/K4 wszystkie null), moc oczekiwana NIE WYZSZA niz alfa (kierunek niebezpieczny: zawyzenie).",
+      "power": {
+        "A": 0.0008,
+        "B": 0.0012,
+        "K4": 0.0163
+      },
+      "alpha": 0.05,
+      "verdict": "PASS - moc ponizej alfa (konserwatywna pod wspolna korekta BH-FDR dla m=3 testow pod globalnym null - oczekiwane zachowanie FDR, NIE zawyzenie)."
+    },
+    "test_b_large_effect": {
+      "description": "Redukcja 0.80 (4x prerejestrowana) - moc oczekiwana bliska 1.0.",
+      "power": {
+        "A": 1.0,
+        "B": 1.0,
+        "K4": 1.0
+      },
+      "verdict": "PASS"
+    },
+    "test_c_monotonic_in_n": {
+      "description": "Moc rosnaca wraz z N przy stalym efekcie (reduction=0.20 prereg).",
+      "power_by_n": {
+        "3": {
+          "A": 0.0,
+          "B": 0.0,
+          "K4": 0.0
+        },
+        "4": {
+          "A": 0.0,
+          "B": 0.0,
+          "K4": 0.0
+        },
+        "5": {
+          "A": 0.0,
+          "B": 0.0,
+          "K4": 1.0
+        },
+        "6": {
+          "A": 0.892,
+          "B": 1.0,
+          "K4": 1.0
+        },
+        "7": {
+          "A": 0.9895,
+          "B": 1.0,
+          "K4": 1.0
+        }
+      }
+    },
+    "test_d_monotonic_in_effect_size": {
+      "description": "Moc rosnaca wraz z wielkoscia efektu przy stalym N=6.",
+      "power_by_reduction": {
+        "0.01": {
+          "A": 0.02,
+          "B": 0.2105,
+          "K4": 0.3635
+        },
+        "0.02": {
+          "A": 0.0385,
+          "B": 0.907,
+          "K4": 0.9425
+        },
+        "0.04": {
+          "A": 0.083,
+          "B": 1.0,
+          "K4": 1.0
+        },
+        "0.06": {
+          "A": 0.1485,
+          "B": 1.0,
+          "K4": 1.0
+        },
+        "0.08": {
+          "A": 0.2505,
+          "B": 1.0,
+          "K4": 1.0
+        },
+        "0.1": {
+          "A": 0.3845,
+          "B": 1.0,
+          "K4": 1.0
+        },
+        "0.14": {
+          "A": 0.649,
+          "B": 1.0,
+          "K4": 1.0
+        },
+        "0.2": {
+          "A": 0.892,
+          "B": 1.0,
+          "K4": 1.0
+        }
+      }
+    },
+    "test_e_structure": {
+      "description": "Wariant BLEDNY (efekt seeda losowany niezaleznie per genom) MUSI dawac istotnie wyzsza moc/precyzje niz wariant POPRAWNY.",
+      "random_effects_mechanism_warunek_a": {
+        "correct_icc": 0.99,
+        "correct_power": 0.9,
+        "wrong_icc_0_power": 1.0,
+        "verdict": "PASS"
+      },
+      "block_bootstrap_mechanism_warunek_b_and_k4": {
+        "block_mean_variance_correct_shared_seed": 0.00017293941777085965,
+        "block_mean_variance_wrong_independent_per_genome": 9.006271464109956e-06,
+        "ratio": 19.202110269496565,
+        "note": "Bezposrednie porownanie wariancji sredniej blokowej (nie mocy testu koncowego) - w pelnym potoku B/K4 (roznica sparowana + syntetyczny szum) roznica jest rozcienczona przy malych/srednich wielkosciach efektu przez dodany szum syntezy W_late (ten sam szum niezaleznie od mechanizmu bootstrap) - bezposrednie porownanie wariancji jest jednoznacznym, nierozcienczonym dowodem, ze mechanizm bootstrap poprawnie odtwarza (lub blednie niszczy) strukture blokowa.",
+        "verdict": "PASS"
+      }
+    }
+  },
+  "excluded": {
+    "K3b": "ARCHITECTURE-LIMITED (Aneks 4) - pominiety, zgodnie ze zleceniem."
+  },
+  "critical_files_status": {
+    "status": "POZA CRITICAL_FILES_PC_001",
+    "formal_exception": true,
+    "exception_from": "NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md §4 ('Kod symulacji wchodzi do CRITICAL_FILES_PC_001'), zatwierdzone D-008. B4B-03 (decyzja CTO) ustanawia FORMALNY WYJATEK od tego zdania - nie milczaca analogia do compute_noise_world_floor.py/pilot_final.py, tylko jawnie nazwany wyjatek z wlasnym uzasadnieniem.",
+    "membership_criterion_applied": "Czy zmiana tresci tego pliku moglaby zmienic liczby produkowane przez eksperyment?",
+    "reasoning": "execution_package_v0_11/runners/power_analysis_b4b.py wyznaczyl N_power JEDNORAZOWO i NIE jest wykonywany podczas konfirmacji - eksperyment uzywa zamrozonej liczby (N_operational, patrz clos_scientist.pc_001_experiment_config.N_OPERATIONAL_SEEDS), nie ponownie odpala symulatora. Po zamrozeniu N pozniejsza zmiana tego pliku NIE zmieni zadnej liczby produkowanej przez konfirmacje. Ten sam wzorzec czlonkostwa co compute_noise_world_floor.py i pilot_final.py (rowniez POZA rejestrem, ten sam powod).",
+    "note": "N_operational sam W SOBIE jest CHRONIONY - zyje jako stala w clos_scientist/pc_001_experiment_config.py, ktory JEST czlonkiem CRITICAL_FILES_PC_001. To sedno rozroznienia: chronimy WARTOSC uzywana przez eksperyment, nie skrypt, ktory ja jednorazowo wyznaczyl."
+  },
+  "deferred_to_pc_002": {
+    "question": "Czy dla KONIUNKCYJNEJ reguly decyzyjnej PC-001 (wszystkie warunki musza zajsc jednoczesnie) wlasciwsza jest kontrola bledu wielokrotnego inna niz Benjamini-Hochberg FDR?",
+    "reasoning": "BH-FDR kontroluje oczekiwany odsetek falszywych odkryc SPOSROD ODRZUCONYCH hipotez - zaprojektowany do WYLAWIANIA CZESCI istotnych wynikow sposrod wielu niezaleznych hipotez. Regula PC-001 jest KONIUNKCYJNA (wymaga, zeby WSZYSTKIE aktywne warunki byly istotne jednoczesnie) - to inna logika kontroli bledu (blizsza kontroli FWER albo prostej koniunkcji progow), nie 'ile z wielu odkryc jest falszywych'.",
+    "why_not_changed_now": "BH jest prerejestrowane (statistical_model w EXPERIMENT_CONFIG). Zmiana procedury korekty PO Pilocie Final bylaby POWAZNIEJSZA zmiana metodologiczna niz podniesienie N z 6 do 8 - wymagalaby wlasnej analizy i uzasadnienia, nie powinna byc doklejona przy okazji tego zlecenia.",
+    "status": "ODLOZONE do PC-002, NIE rozstrzygniete tutaj."
+  }
+}
