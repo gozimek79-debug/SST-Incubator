@@ -1,4 +1,49 @@
-# PC-001 - PC_001_BASELINE
+"""Generator execution_package_v0_11/hashes/pc_001_baseline_hash.txt.
+
+PROBLEM (zgloszenie trzeciego audytora, B5-00): ten plik przechowywal WLASNA,
+recznie utrzymywana kopie listy CRITICAL_FILES_PC_001 - 51 pozycji, podczas
+gdy autorytatywna lista w execution_package_v0_11/validators/hard_halt.py ma
+52 (brakowalo execution_package_v0_11/runners/pc_001_confirmatory_runner.py,
+dodanego w B4C-01/03/04). Plik przedstawial sie w naglowku jako "51 PLIKOW
+KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu)" - czyli
+zapraszal do policzenia baseline'u B5 z TEJ listy. Gdyby ktos tak zrobil,
+PC_001_BASELINE zostalby zamrozony bez runnera, ktory faktycznie produkuje
+dane eksperymentu - dokladnie ten scenariusz, dla ktorego istnieje bramka B4c.
+
+ROZWIAZANIE: ten sam wzorzec co scripts/spec_md_to_json.py i
+scripts/generate_artifacts_index.py - plik pochodny GENEROWANY z jedynego
+zrodla prawdy (tu: CRITICAL_FILES_PC_001), nigdy edytowany recznie. Reczna
+synchronizacja dwoch list jest PRZYCZYNA tego bledu, nie lekiem na niego -
+stad generator, nie jednorazowa poprawka liczby/wiersza.
+
+CO JEST GENEROWANE, CO ZOSTAJE STATYCZNE: liczba w naglowku
+("N PLIKOW KRYTYCZNYCH") i sama lista sciezek - generowane z
+CRITICAL_FILES_PC_001. Cala reszta prozy (STATUS/POWOD/ALGORYTM/STATUS LISTY,
+w tym liczby HISTORYCZNE takie jak "47->49->51") to zapis decyzji podjetych
+w przeszlosci - opis wzrostu, nie stan biezacy - i zostaje statyczna tresc
+tego skryptu, identyczna z dotychczasowa zawartoscia pliku.
+
+KOLEJNOSC LISTY: sorted(CRITICAL_FILES_PC_001), NIE kolejnosc deklaracji w
+hard_halt.py (ktora jest chronologiczna/narracyjna, nie posortowana).
+compute_files_hash_v2() sortuje sciezki literalnie PRZED haszowaniem (patrz
+jej docstring, punkt 1) - zapis w tym pliku ma pokazywac czlowiekowi
+DOKLADNIE te kolejnosc, w ktorej hash faktycznie liczy pliki, nie kolejnosc
+deklaracji w kodzie.
+
+Uzycie: python scripts/generate_pc_001_baseline_hash_file.py
+"""
+
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
+
+from execution_package_v0_11.validators.hard_halt import CRITICAL_FILES_PC_001  # noqa: E402
+
+OUT_PATH = REPO_ROOT / "execution_package_v0_11" / "hashes" / "pc_001_baseline_hash.txt"
+
+HEADER_BLOCK = """# PC-001 - PC_001_BASELINE
 #
 # STATUS: TBD - CELOWO NIEPOLICZONY JESZCZE (decyzja CTO/audytora, 2026-07-28,
 # zmiana kolejnosci KROK B).
@@ -38,9 +83,9 @@
 # przy kazdym wpisaniu (zaobserwowane empirycznie przy pierwszej probie tego
 # baseline'u - pierwsza wpisana wartosc uniewazniala sama siebie). Wartosc
 # zyje WYLACZNIE tutaj, w pliku, ktory NIE jest czlonem CRITICAL_FILES_PC_001.
-#
-# 52 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
-# kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmienic liczby,
+#"""
+
+MID_BLOCK = """# kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmienic liczby,
 # ktore wyprodukuje eksperyment PC-001" - uzasadnienie per pozycja w
 # execution_package_v0_11/validators/hard_halt.py, komentarz nad
 # CRITICAL_FILES_PC_001. Rozszerzone 2026-07-28 o B3 (kod analizy statystycznej),
@@ -67,60 +112,9 @@
 # (B4C-01/03/04, 51->52, przed B5): runner Eksperymentu Konfirmacyjnego PC-001 -
 # kod WYKONYWANY przy kazdym przebiegu konfirmacji (generuje surowe trajektorie
 # prediction_error), w odroznieniu od pilotow/runnerow podlog (dane WEJSCIOWE
-# do decyzji projektowej, nie kod stosowany w eksperymencie):
-SPRINT_v0.11.0.md
-birth/brain.py
-birth/engine.py
-clos_academy/lesson_L1_1.py
-clos_academy/lesson_L1_2.py
-clos_brain/brain_runtime.py
-clos_brain/runtime/__init__.py
-clos_brain/runtime/perception.py
-clos_brain/runtime/plasticity.py
-clos_brain/runtime/precision.py
-clos_brain/runtime/prediction.py
-clos_brain/tissue.py
-clos_curriculum/laboratory/population.py
-clos_curriculum/laboratory/statistics.py
-clos_kernel/snapshot_engine.py
-clos_scientist/fallback_branch_diagnostic.py
-clos_scientist/pc_001_experiment_config.py
-clos_scientist/w2_endpoint.py
-clos_world/floor_model.py
-clos_world/scenarios.py
-clos_world/world_runtime.py
-docs/GOVERNANCE_RULES.md
-execution_package_v0_11/runners/aggregate_results.py
-execution_package_v0_11/runners/pc_001_confirmatory_runner.py
-execution_package_v0_11/runners/pipeline.py
-execution_package_v0_11/validators/hard_halt.py
-genome/engine.py
-genome/gene.py
-genome/genome.py
-genome/presets.py
-publications/BEZPIECZENSTWO_POMIARU_recovery_spearman.md
-publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md
-publications/W2_completion_report_2026-07-28.json
-publications/W2_completion_report_2026-07-28.md
-publications/analiza_floor_model_2026-07-28.json
-publications/analiza_floor_model_2026-07-28.md
-publications/preregistration_PC_001.json
-publications/preregistration_PC_001.md
-publications/preregistration_PC_001_ANEKS_1_2026-07-28.json
-publications/preregistration_PC_001_ANEKS_1_2026-07-28.md
-publications/preregistration_PC_001_ANEKS_2_2026-07-28.json
-publications/preregistration_PC_001_ANEKS_2_2026-07-28.md
-publications/preregistration_PC_001_ANEKS_3_2026-07-28.json
-publications/preregistration_PC_001_ANEKS_3_2026-07-28.md
-publications/preregistration_PC_001_ANEKS_4_2026-07-28.json
-publications/preregistration_PC_001_ANEKS_4_2026-07-28.md
-publications/preregistration_PC_001_ANEKS_5_2026-07-28.json
-publications/preregistration_PC_001_ANEKS_5_2026-07-28.md
-publications/preregistration_PC_001_ANEKS_6_2026-08-03.json
-publications/preregistration_PC_001_ANEKS_6_2026-08-03.md
-publications/specyfikacja_W2_2026-07-28.json
-publications/specyfikacja_W2_2026-07-28.md
-#
+# do decyzji projektowej, nie kod stosowany w eksperymencie):"""
+
+FOOTER_BLOCK = """#
 # Obliczenie WARTOSCI INTERIM (nie do porownania z niczym - baseline jest
 # TBD, to tylko podglad, ile biezacy zestaw daje DZIS, do wewnetrznego
 # sledzenia postepu, NIE do zamrozenia):
@@ -140,4 +134,24 @@ publications/specyfikacja_W2_2026-07-28.md
 # dnia. B4 (analiza mocy) NIE wymagal nowych plikow (uzywa funkcji z tego
 # samego statistics.py). B4C-01 (runner konfirmacyjny) DODAL 1 pozycje -
 # patrz uzasadnienie w hard_halt.py nad CRITICAL_FILES_PC_001 oraz
-# SPECYFIKACJA_KANONICZNA_PC_001.md §2.12.
+# SPECYFIKACJA_KANONICZNA_PC_001.md §2.12."""
+
+
+def render() -> str:
+    n = len(CRITICAL_FILES_PC_001)
+    count_line = (
+        f"# {n} PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci "
+        "uzyte w hashu),"
+    )
+    file_lines = "\n".join(sorted(CRITICAL_FILES_PC_001))
+    return "\n".join([HEADER_BLOCK, count_line, MID_BLOCK, file_lines, FOOTER_BLOCK]) + "\n"
+
+
+def main() -> int:
+    OUT_PATH.write_text(render(), encoding="utf-8")
+    print(f"zapisano: {OUT_PATH} ({len(CRITICAL_FILES_PC_001)} plikow)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

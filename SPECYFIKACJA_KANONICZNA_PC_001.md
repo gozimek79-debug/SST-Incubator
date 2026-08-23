@@ -1,7 +1,7 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.7
+# SPECYFIKACJA KANONICZNA PC-001 — v1.8
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-22 (v1.7)
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-22 (v1.8)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -9,6 +9,11 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.8** (B5-00, po znalezisku trzeciego audytora):
+> §2.11 — poprawiony adres kryterium członkostwa (wskazywał `pc_001_baseline_hash.txt`,
+> czyli powtórzenie, zamiast komentarza nad `CRITICAL_FILES_PC_001`, czyli źródła);
+> nowy wiersz nazywający jednoznacznie źródło listy wejściowej dla B5. Błąd audytora.
+>
 > **Zmiany w v1.7** (B4C-01/03/04, runner konfirmacyjny PC-001):
 > §2.12 — nowy wiersz „Runner Eksperymentu Konfirmacyjnego PC-001" (rejestr
 > `CRITICAL_FILES_PC_001` 51→52); uzupełnienie wymuszone przez walidator §9 nr 5
@@ -334,8 +339,9 @@ przyszły eksperyment może mieć inne, ale wymaga wtedy własnej prerejestracji
 | Mechanizm | Adres |
 |---|---|
 | Rejestr plików krytycznych + uzasadnienie **per pozycja** | HALT::CRITICAL_FILES_PC_001 (komentarze nad listą i przy pozycjach) |
-| Kryterium członkostwa w rejestrze | `execution_package_v0_11/hashes/pc_001_baseline_hash.txt`, nagłówek |
+| Kryterium członkostwa w rejestrze | HALT::CRITICAL_FILES_PC_001, komentarz nad listą (`pc_001_baseline_hash.txt` **powtarza** to zdanie — powtórzenie, nie źródło) |
 | Algorytm hasha i jego przypięcie | HALT::compute_files_hash_v2; `tests/test_hard_halt_hash_algorithm.py` |
+| **Źródło listy wejściowej dla `PC_001_BASELINE` (B5)** | HALT::CRITICAL_FILES_PC_001 — **nie** lista wypisana w `pc_001_baseline_hash.txt`, która jest wydrukiem generowanym z tego samego źródła (`scripts/generate_pc_001_baseline_hash_file.py`) |
 | Powód, dla którego baseline nie jest literałem w HALT | `execution_package_v0_11/hashes/pc_001_baseline_hash.txt`, nagłówek |
 | Zakaz domyślnej wartości baseline do czasu B5 | HALT::enforce_hard_halt_v2 |
 | Kontrola odtwarzalności podłogi | ENDPOINT::verify_frozen_floor_env |
