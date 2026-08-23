@@ -267,3 +267,34 @@ jobs:
           else
             echo "reports/status.json i reports/artifacts_index.json bez zmian, pomijam commit"
           fi
+
+      # Historia laboratorium CLOS (zlecenie uzytkownika, 2026-08-22; przepiete na
+      # blokujace i przeniesione na koniec joba zleceniem B5-03): reports/history.json
+      # jest recznie utrzymywana kronika (proza dla zwyklego obserwatora, nie da sie
+      # bezpiecznie generowac z technicznych commit message) - ale bez zadnego sygnalu
+      # automatycznego moze cicho rozjechac sie z rzeczywistym stanem prac (i tak sie
+      # stalo: 26 dni, cztery kamienie milowe, zero wpisow, zero ostrzezenia).
+      #
+      # BRAK continue-on-error TUTAJ, W ODROZNIENIU OD "Check reports/status.json
+      # freshness" POWYZEJ - to jest CELOWA ROZNICA, nie przeoczenie (zgloszenie
+      # audytora, B5-03): status.json ma mechanizm SAMONAPRAWY WEWNATRZ TEGO SAMEGO
+      # JOBA ("Write reports/status.json" + "Commit status.json..." powyzej) - twarde
+      # przerwanie na jego trip-wire zaglodzilbyw wlasnie te kroki, ktore go naprawiaja,
+      # stad continue-on-error jest tam KONIECZNE. history.json NIE MA takiego
+      # mechanizmu - CI nigdy go nie zapisuje ani nie commituje (sprawdzone: zero
+      # wystapien poza tym krokiem), naprawa (dopisanie wpisu) dzieje sie WYLACZNIE
+      # recznie, PRZED pushem. Nieblokujacy krok bez samonaprawy staje sie trwale
+      # czerwony i po kilku dniach przestaje byc sygnalem - to DOKLADNIE mechanizm,
+      # ktory wytworzyl 26-dniowa luke, ktora ten krok ma wykrywac. Stad: blokujacy.
+      #
+      # DLACZEGO NA KONCU JOBA, NIE NA POCZATKU (jak status.json powyzej): gdyby ten
+      # krok blokujacy stal na poczatku (przed "Run tests"), jego porazka przerwalaby
+      # joba PRZED zapisem reports/status.json - status.json zrobilby sie nieswiezy,
+      # jego WLASNY trip-wire odpalilby sie przy NASTEPNYM przebiegu, i mielibysmy dwa
+      # czerwone kroki z jednej przyczyny. Na koncu joba (po "Commit status.json...")
+      # blokuje build (job.status = failure, widoczne w GitHub Actions i w
+      # reports/status.json poprzez job.status uzyty wczesniej w tym samym biegu),
+      # ale niczego nie glodzi - status.json i artifacts_index.json juz sa zapisane
+      # i zacommitowane, zanim ten krok w ogole sie wykona.
+      - name: Check reports/history.json freshness
+        run: python scripts/validate_history_freshness.py
