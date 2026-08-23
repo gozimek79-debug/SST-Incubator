@@ -1,8 +1,36 @@
 {
   "title": "Historia laboratorium CLOS",
   "note": "Recznie utrzymywana kronika (jak spis tresci w sekcji Raporty) - daty i fakty pochodza z git log oraz artefaktow repo, nie sa generowane automatycznie (proza ma byc zrozumiala dla obserwatora, nie transkrypcja zargonu commit message). Swiezosc pilnowana automatycznie przez scripts/validate_history_freshness.py (CI, widoczny nieblokujacy krok) - kazdy commit poza jednym strukturalnym wyjatkiem (tym, ktory wlasnie dopisuje nowy wpis) musi miec tu swoj odpowiednik, inaczej krok CI zglasza to jawnie. Wpisy najnowsze na gorze. Panel dodatkowo pokazuje zywy strumien commitow z GitHub API obok tej kroniki.",
-  "updated": "2026-08-22",
+  "updated": "2026-08-23",
   "entries": [
+    {
+      "date": "2026-08-23",
+      "sprint": "PC-001",
+      "title": "Rodzina testow reguly decyzyjnej zamrozona - rejestr chroniony hashem urosl do 53 plikow",
+      "body": "Powstal nowy dokument (publications/pc_001_bh_family.json), ktory wymienia z gory KAZDY test statystyczny wchodzacy w sklad reguly decyzyjnej PC-001 - 11 pozycji razem, z adresem definicji kazdej z nich i uzasadnieniem, dlaczego akurat te. Liczba 11 zostaje ZAMROZONA: po starcie docelowego eksperymentu nikt juz nie moze po cichu dopisac ani usunac pozycji, co zmienioby prog istotnosci statystycznej dla wszystkich pozostalych. Jedna z 11 pozycji (reakcja na wstrzas w srodowisku) uzywa testu jednostronnego zamiast dwustronnego - bo hipoteza z gory mowila, w ktora strone spodziewamy sie zmiany, wiec test dwustronny bylby niepotrzebnie mniej czuly; uzasadnienie tego wyboru zostalo zapisane wprost w dokumencie, zeby za pol roku nie wygladalo na naciaganie wyniku. Ten nowy dokument dolaczyl do listy plikow, ktorych tresc jest chroniona przed niezauwazona zmiana (51 -> 53, licza sie dwie zmiany razem z ponizszym wpisem).",
+      "commit": "765dc6d"
+    },
+    {
+      "date": "2026-08-23",
+      "sprint": "PC-001",
+      "title": "Test statystyczny nauczony liczyc wynik 'w jedna strone', gdy hipoteza tego wymaga",
+      "body": "Test Wilcoxona (jeden z glownych narzedzi statystycznych tego projektu) dotad potrafil odpowiadac tylko na pytanie 'czy dwie rzeczy sa rozne', nigdy 'czy jedna jest WIEKSZA od drugiej'. Dopisano mu ta druga umiejetnosc jako opcje - domyslne zachowanie zostalo nietkniete, sprawdzone na 13 rzeczywistych sposobach, w jaki ten test jest dzis wywolywany w calym projekcie, z identycznym wynikiem co przed zmiana. Nowa umiejetnosc zostala tez porownana z niezalezna, gotowa biblioteka naukowa (scipy) na setkach losowych probek i zgadza sie z nia co do osmego miejsca po przecinku. Przy okazji: sposob liczenia 'sredniej z 23 wariantow' (uzywany wczesniej wylacznie w jednorazowym narzedziu do planowania eksperymentu) zostal przeniesiony do glownego, na stale chronionego pliku ze statystyka - zeby ten sam przepis liczenia sredniej obowiazywal wszedzie, nie tylko w miejscu, gdzie akurat powstal.",
+      "commit": "6e71ee5"
+    },
+    {
+      "date": "2026-08-23",
+      "sprint": "PC-001",
+      "title": "Audytor zglosil: walidator Specyfikacji mogl milczec, gdy nie mial czego sprawdzic",
+      "body": "Audytor zniszczyl celowo (na roboczej kopii, nie w prawdziwym dokumencie) sposob zapisu odnosnikow w Specyfikacji Kanonicznej PC-001 i zauwazyl, ze walidator mimo to pokazal 'wszystko w porzadku' - bo pusta lista bledow wygladala identycznie niezaleznie od tego, czy naprawde wszystko sprawdzil, czy nie mial juz czego sprawdzac. Poprawiono: kazda z trzech kontroli, ktore licza dopasowania wzorca w tekscie, teraz jawnie zglasza blad, jesli znalazla zero dopasowan - i przy okazji zawsze pokazuje, ile dopasowan faktycznie znalazla, tak zeby nagly spadek byl widoczny na pierwszy rzut oka, nawet gdy formalnie wynik nadal jest pozytywny. Poprawiony test odtwarza dokladnie eksperyment audytora i potwierdza, ze teraz konczy sie on jawnym bledem, nie cichym 'OK'.",
+      "commit": "a93694f"
+    },
+    {
+      "date": "2026-08-23",
+      "sprint": "PC-001",
+      "title": "Plik z lista chronionych plikow sam mial przestarzala kopie tej listy",
+      "body": "Plik opisujacy, ktore pliki projektu maja byc chronione przed niezauwazona zmiana, przechowywal wlasna, recznie wpisana kopie tej listy - i ta kopia byla nieaktualna (brakowalo w niej jednego pliku, ktory formalnie juz nalezal do chronionego zbioru). Teraz ten plik jest generowany automatycznie na podstawie jedynego, prawdziwego zrodla listy - reczne przepisywanie zostalo usuniete jako przyczyna problemu, nie tylko naprawiony sam blad. Dodatkowo poprawiono jedno zdanie w Specyfikacji Kanonicznej PC-001, ktore wskazywalo na ta sama, nieaktualna kopie jako na miejsce, skad nalezy brac liste - teraz wskazuje wprost na jedyne prawdziwe zrodlo.",
+      "commit": "e47b737"
+    },
     {
       "date": "2026-08-22",
       "sprint": "PC-001",

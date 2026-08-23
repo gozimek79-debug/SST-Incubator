@@ -19,31 +19,57 @@ krok, NIE blokujacy - naprawa (dopisanie wpisu do kroniki) i tak dzieje sie
 PRZED pushem, w osobnym commicie, wiec twarde zablokowanie tego joba nie
 naprawia niczego, tylko zatrzymuje kod, ktory jest juz gotowy.
 
-TOLERANCJA "gap <= 1", NIE "gap == 0": entries[0]["commit"] wskazuje na
-commit PRACY, ktory dany wpis opisuje - a sam wpis moze zostac dopisany
-WYLACZNIE w NASTEPNYM, ODREBNYM commicie (nie mozna odwolac sie do wlasnego,
-jeszcze nieistniejacego hasha - dokladnie ten sam powod, dla ktorego
-PC_001_BASELINE nie moze byc literalem wewnatrz hard_halt.py, patrz
-execution_package_v0_11/hashes/pc_001_baseline_hash.txt). Jeden commit
-"spoznienia" (ten, ktory dopisuje wpis) jest wiec STRUKTURALNIE nieunikniony
-i oczekiwany - identyczna tolerancja jak dla bota "ci-status(ok)...[skip ci]"
-przy reports/status.json. Commity "[skip ci]" sa wykluczone z liczenia z
-tego samego powodu co tam (wlasne auto-commity CI nie licza sie jako "praca
-bez wpisu").
+TOLERANCJA JEST ROZMIAREM PUSHU, NIE STALYM "gap<=1" (B4C-05 v10, znalezisko
+CTO): entries[0]["commit"] wskazuje na commit PRACY, ktory dany wpis opisuje -
+a sam wpis moze zostac dopisany WYLACZNIE w NASTEPNYM, ODREBNYM commicie (nie
+mozna odwolac sie do wlasnego, jeszcze nieistniejacego hasha - ten sam powod,
+dla ktorego PC_001_BASELINE nie moze byc literalem wewnatrz hard_halt.py).
+Jeden commit "spoznienia" jest wiec STRUKTURALNIE nieunikniony.
+
+SPRZECZNOSC ZGLOSZONA PRZEZ CTO: sztywne "gap<=1" zaklada CICHO jeden entry
+na JEDEN commit - a ten projekt regularnie dzieli jedna prace na kilka
+commitow (B4b/B4C-01 rozdzielone, B4C-05 v9 rozdzielone na trzy), bo kronika
+ma dokumentowac PRACE, nie commity. Odpowiedz NIE jest przypieta wieksza
+liczba (np. "3", bo dzisiejszy split mial 3 commity) - to bylby dokladnie ten
+sam blad co progi Z9C (liczba dobrana pod dzisiejszy przypadek zamiast pod
+zasade). Odpowiedzia jest ROZMIAR OSTATNIEGO PUSHU, wyliczony, nie zgadywany:
+
+  tolerancja = 1 (commit dopisujacy wpis) + liczba realnych commitow
+               WPROWADZONYCH przez OSTATNI PUSH (github.event.before w CI,
+               upstream branch @{u} lokalnie)
+
+  ...ALE WYLACZNIE jesli kronika byla juz aktualna (gap<=1) na POCZATKU tego
+  pushu - w przeciwnym razie tolerancja spada z powrotem do 1, zeby nie
+  ukrywac zaleglosci SPRZED biezacego pushu pod plaszczykiem "to jest jeden
+  push". Bez tego warunku ROSNACY dlug moglby sie kumulowac bez konca -
+  wystarczyloby nigdy nie pushowac kroniki, a kazdy kolejny push
+  "dziedziczylby" cala historie jako "swoj rozmiar".
+
+Push-boundary: w CI ustawiane jako zmienna GITHUB_EVENT_BEFORE (patrz
+ci.yml, github.event.before) - GitHub wysyla 40 zer przy pierwszym pushu
+nowej galezi, traktowane jak "brak informacji". Lokalnie (poza CI) - branch
+upstream (@{u}). Gdy zadne zrodlo niedostepne: bezpieczny fallback do
+starej tolerancji (1), nie zgadywanie rozmiaru pushu.
+
+Commity "[skip ci]" wykluczone z liczenia (wlasne auto-commity CI nie licza
+sie jako "praca bez wpisu") - identyczny wzorzec co reports/status.json.
 
 Uzycie:
     python scripts/validate_history_freshness.py
-Kod wyjscia: 0 = kronika swieza (gap <= 1) lub brak historii do sprawdzenia,
-1 = co najmniej jeden commit "roboczy" bez odpowiadajacego wpisu w kronice.
+Kod wyjscia: 0 = kronika swieza (gap <= tolerancja) lub brak historii do
+sprawdzenia, 1 = co najmniej jeden commit "roboczy" bez odpowiadajacego
+wpisu w kronice, ponad dopuszczalna tolerancje.
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 HISTORY_PATH = REPO_ROOT / "reports" / "history.json"
+ZERO_SHA = "0" * 40
 
 
 def load_history(path: Path) -> dict:
@@ -60,25 +86,71 @@ def newest_recorded_commit(history: dict) -> str:
     return commit
 
 
-def count_real_commits_since(repo_root: Path, recorded_commit: str) -> int:
-    """Liczy commity NIE-[skip ci] od recorded_commit (wylacznie) do HEAD
-    (wlacznie) - identyczny wzorzec co krok "Check reports/status.json
-    freshness" w ci.yml."""
+def count_real_commits_since(repo_root: Path, recorded_commit: str, until: str = "HEAD") -> int:
+    """Liczy commity NIE-[skip ci] od recorded_commit (wylacznie) do `until`
+    (wlacznie, domyslnie HEAD) - identyczny wzorzec co krok "Check
+    reports/status.json freshness" w ci.yml. Parametr `until` (B4C-05 v10)
+    pozwala zmierzyc dystans do dowolnego punktu w historii (np. do
+    poczatku biezacego pushu), nie tylko do HEAD."""
     ancestor_check = subprocess.run(
-        ["git", "merge-base", "--is-ancestor", recorded_commit, "HEAD"],
+        ["git", "merge-base", "--is-ancestor", recorded_commit, until],
         cwd=repo_root,
     )
     if ancestor_check.returncode != 0:
         raise ValueError(
             f"commit {recorded_commit} zapisany w reports/history.json nie jest "
-            "przodkiem HEAD (przepisana historia?) - nie moge policzyc dystansu"
+            f"przodkiem {until} (przepisana historia?) - nie moge policzyc dystansu"
         )
     result = subprocess.run(
         ["git", "rev-list", "--count", "--invert-grep", "--fixed-strings",
-         "--grep=[skip ci]", f"{recorded_commit}..HEAD"],
+         "--grep=[skip ci]", f"{recorded_commit}..{until}"],
         cwd=repo_root, capture_output=True, text=True, check=True,
     )
     return int(result.stdout.strip())
+
+
+def push_before_ref(repo_root: Path) -> str:
+    """SHA sprzed biezacego pushu, jesli da sie je ustalic - GITHUB_EVENT_BEFORE
+    (github.event.before, ustawiane w ci.yml) w CI, upstream branch @{u}
+    lokalnie. None gdy niedostepne (pierwszy push nowej galezi - GitHub
+    wysyla wtedy 40 zer - albo brak zdalnego trackingu lokalnie)."""
+    env_before = os.environ.get("GITHUB_EVENT_BEFORE")
+    if env_before and env_before != ZERO_SHA:
+        check = subprocess.run(
+            ["git", "cat-file", "-e", env_before + "^{commit}"],
+            cwd=repo_root, capture_output=True,
+        )
+        if check.returncode == 0:
+            return env_before
+
+    upstream = subprocess.run(
+        ["git", "rev-parse", "@{u}"],
+        cwd=repo_root, capture_output=True, text=True,
+    )
+    if upstream.returncode == 0:
+        return upstream.stdout.strip()
+    return None
+
+
+def effective_tolerance(repo_root: Path, recorded_commit: str) -> int:
+    """1 + rozmiar biezacego pushu (realne commity), o ile kronika byla juz
+    aktualna (gap<=1) NA POCZATKU tego pushu - inaczej wraca do sztywnego 1,
+    zeby nie ukrywac zaleglosci sprzed biezacego pushu. Patrz uzasadnienie
+    w docstringu modulu (B4C-05 v10)."""
+    before = push_before_ref(repo_root)
+    if before is None:
+        return 1
+    try:
+        gap_before_push = count_real_commits_since(repo_root, recorded_commit, until=before)
+    except ValueError:
+        return 1
+    if gap_before_push > 1:
+        return 1
+    try:
+        push_size = count_real_commits_since(repo_root, before, until="HEAD")
+    except ValueError:
+        return 1
+    return 1 + push_size
 
 
 def offending_commits(repo_root: Path, recorded_commit: str) -> list:
@@ -110,16 +182,18 @@ def main() -> int:
         print(f"VALIDATE_HISTORY_FRESHNESS: {exc} - pomijam sprawdzenie.")
         return 0
 
+    tolerance = effective_tolerance(REPO_ROOT, recorded_commit)
+
     print(
         f"VALIDATE_HISTORY_FRESHNESS: najnowszy wpis kroniki wskazuje commit "
         f"{recorded_commit}; od tego czasu {gap} realny(ch) (nie-[skip ci]) "
-        f"commit(ow) do HEAD wlacznie."
+        f"commit(ow) do HEAD wlacznie (tolerancja: {tolerance})."
     )
-    if gap > 1:
+    if gap > tolerance:
         print(
             f"VALIDATE_HISTORY_FRESHNESS: UWAGA: kronika (reports/history.json) jest "
-            f"w tyle o {gap} realnych commitow (oczekiwano <= 1, patrz docstring modulu "
-            "o strukturalnym jednym commicie spoznienia). Commity bez wpisu:"
+            f"w tyle o {gap} realnych commitow (oczekiwano <= {tolerance} - 1 za commit "
+            "spoznienia + rozmiar biezacego pushu, patrz docstring modulu). Commity bez wpisu:"
         )
         for line in offending_commits(REPO_ROOT, recorded_commit):
             print(f"  {line}")

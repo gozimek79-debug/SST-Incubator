@@ -179,6 +179,41 @@ jobs:
       - name: Validate Canonical Spec PC-001 (address resolution, C-001, registry coverage)
         run: python -m scripts.validate_canonical_spec
 
+      # Historia laboratorium CLOS (zlecenie uzytkownika, 2026-08-22; przepiete na
+      # blokujace zleceniem B5-03; PRZESUNIETE PRZED "Write reports/status.json"
+      # zleceniem B4C-05 v10 - POPRAWKA WLASNEGO BLEDU): reports/history.json jest
+      # recznie utrzymywana kronika (proza dla zwyklego obserwatora) - bez sygnalu
+      # automatycznego moze cicho rozjechac sie z rzeczywistym stanem prac (26 dni,
+      # cztery kamienie milowe, zero wpisow, zero ostrzezenia - powod, dla ktorego
+      # ten krok w ogole istnieje).
+      #
+      # ZNALEZISKO (B4C-05 v10, audyt CTO): gdy ten krok stal PO "Commit
+      # status.json..." (jak w B5-03), bot zapisywal "ci-status(ok)" DLA
+      # PRZEBIEGU, KTORY FAKTYCZNIE PADL na tym wlasnie kroku - bo w momencie
+      # zapisu status.json ($JOB_STATUS = ${{ job.status }}) ten krok jeszcze
+      # sie nie wykonal, wiec job.status widzialy przez "Write reports/status.json"
+      # i "Commit status.json..." bylo wciaz "success". DOKLADNIE ten sam
+      # mechanizm ciszy, ktory ta cala kontrola miala wykrywac, odtworzony
+      # wlasna decyzja o kolejnosci krokow.
+      #
+      # UZASADNIENIE B5-03 ZA UMIESZCZENIEM NA KONCU BYLO BEZPODSTAWNE: mowilo,
+      # ze krok na poczatku "zaglodzilby" samonaprawe status.json, przerywajac
+      # joba przed jego zapisem. To zalozenie nie uwzglednialo, ze "Write
+      # reports/status.json" i "Commit status.json..." JUZ MAJA if: always() -
+      # wykonaja sie NIEZALEZNIE od tego, czy jakikolwiek wczesniejszy krok
+      # (ten wlacznie) padnie. Zadnego glodzenia nie ma i nigdy nie bylo -
+      # zalozenie nie zostalo sprawdzone przed wdrozeniem.
+      #
+      # KOLEJNOSC TERAZ: PRZED zapisem statusu, PO walidatorach. job.status
+      # w momencie "Write reports/status.json"/"Commit status.json..." jest
+      # JUZ "failure", jesli ten krok padnie - status.json i commit bota
+      # poprawnie odzwierciedlaja PRAWDZIWY wynik calego joba, nie tylko
+      # tego, co zdazylo sie wykonac przed nim.
+      - name: Check reports/history.json freshness
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        run: python scripts/validate_history_freshness.py
+
       # NAPRAWA CI-01C (zgloszenie audytora 2026-08-11): PRZED ta zmiana ten krok
       # (bez if:) byl pomijany, gdy "Run tests" LUB ktorykolwiek z siedmiu
       # walidatorow powyzej padl - czyli galaz compute_tests_status() == "red"
@@ -192,12 +227,13 @@ jobs:
       # czerwono, zanim job sie zakonczy.
       #
       # JOB_STATUS=${{ job.status }}: "success" TYLKO gdy WSZYSTKIE kroki do
-      # tego miejsca (Run tests + siedem walidatorow) przeszly - dokladnie ta
-      # sama gwarancja, ktora wczesniej dawala sama obecnosc w tym miejscu
-      # (patrz poprzedni komentarz, teraz nieaktualny). Gdy job.status !=
-      # success, write_status.py NIE moze juz zakladac "OK" dla walidatorow
-      # (mogly nie zdazyc sie uruchomic, albo jeden z nich faktycznie padl) -
-      # zapisuje "UNKNOWN", nie fabrykuje zielonego.
+      # tego miejsca (Run tests + siedem walidatorow + kontrola swiezosci
+      # kroniki) przeszly - dokladnie ta sama gwarancja, ktora wczesniej dawala
+      # sama obecnosc w tym miejscu (patrz poprzedni komentarz, teraz
+      # nieaktualny). Gdy job.status != success, write_status.py NIE moze juz
+      # zakladac "OK" dla walidatorow (mogly nie zdazyc sie uruchomic, albo
+      # jeden z nich faktycznie padl) - zapisuje "UNKNOWN", nie fabrykuje
+      # zielonego.
       - name: Write reports/status.json
         if: always()
         env:
@@ -267,34 +303,3 @@ jobs:
           else
             echo "reports/status.json i reports/artifacts_index.json bez zmian, pomijam commit"
           fi
-
-      # Historia laboratorium CLOS (zlecenie uzytkownika, 2026-08-22; przepiete na
-      # blokujace i przeniesione na koniec joba zleceniem B5-03): reports/history.json
-      # jest recznie utrzymywana kronika (proza dla zwyklego obserwatora, nie da sie
-      # bezpiecznie generowac z technicznych commit message) - ale bez zadnego sygnalu
-      # automatycznego moze cicho rozjechac sie z rzeczywistym stanem prac (i tak sie
-      # stalo: 26 dni, cztery kamienie milowe, zero wpisow, zero ostrzezenia).
-      #
-      # BRAK continue-on-error TUTAJ, W ODROZNIENIU OD "Check reports/status.json
-      # freshness" POWYZEJ - to jest CELOWA ROZNICA, nie przeoczenie (zgloszenie
-      # audytora, B5-03): status.json ma mechanizm SAMONAPRAWY WEWNATRZ TEGO SAMEGO
-      # JOBA ("Write reports/status.json" + "Commit status.json..." powyzej) - twarde
-      # przerwanie na jego trip-wire zaglodzilbyw wlasnie te kroki, ktore go naprawiaja,
-      # stad continue-on-error jest tam KONIECZNE. history.json NIE MA takiego
-      # mechanizmu - CI nigdy go nie zapisuje ani nie commituje (sprawdzone: zero
-      # wystapien poza tym krokiem), naprawa (dopisanie wpisu) dzieje sie WYLACZNIE
-      # recznie, PRZED pushem. Nieblokujacy krok bez samonaprawy staje sie trwale
-      # czerwony i po kilku dniach przestaje byc sygnalem - to DOKLADNIE mechanizm,
-      # ktory wytworzyl 26-dniowa luke, ktora ten krok ma wykrywac. Stad: blokujacy.
-      #
-      # DLACZEGO NA KONCU JOBA, NIE NA POCZATKU (jak status.json powyzej): gdyby ten
-      # krok blokujacy stal na poczatku (przed "Run tests"), jego porazka przerwalaby
-      # joba PRZED zapisem reports/status.json - status.json zrobilby sie nieswiezy,
-      # jego WLASNY trip-wire odpalilby sie przy NASTEPNYM przebiegu, i mielibysmy dwa
-      # czerwone kroki z jednej przyczyny. Na koncu joba (po "Commit status.json...")
-      # blokuje build (job.status = failure, widoczne w GitHub Actions i w
-      # reports/status.json poprzez job.status uzyty wczesniej w tym samym biegu),
-      # ale niczego nie glodzi - status.json i artifacts_index.json juz sa zapisane
-      # i zacommitowane, zanim ten krok w ogole sie wykona.
-      - name: Check reports/history.json freshness
-        run: python scripts/validate_history_freshness.py
