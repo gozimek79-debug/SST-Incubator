@@ -332,8 +332,19 @@ CRITICAL_FILES_PC_001 = [
     # decyzji projektowej, NIE wykonywane podczas konfirmacji), ten plik JEST
     # kodem wykonywanym PRZY KAZDYM przebiegu konfirmacji.
     "execution_package_v0_11/runners/pc_001_confirmatory_runner.py",
+    # B4C-05 (2026-08-23, decyzja CTO v2 pkt 4, ratyfikacja K3a-1 v6):
+    # deklaratywny rejestr komorek rodziny BH-FDR (srodowisko, test, adres
+    # kryterium per komorka - publications/pc_001_bh_family.json). Kryterium
+    # wlaczenia spelnione wprost: to jest KONTRAKT INFERENCYJNY reguly
+    # decyzyjnej - zmiana tresci (np. inny test przypisany komorce, inna
+    # liczba komorek aktywnych m, inne srodowisko) zmienilaby liczby, ktore
+    # ewaluator (B4C-2) wyprodukuje z tych samych surowych danych, bez
+    # dotykania samych danych. Plik jest DEKLARATYWNY (status kazdej komorki
+    # wynika z zamrozonego protokolu, nie z wynikow po eksperymencie) -
+    # ta sama logika czlonkostwa co dokumenty prerejestracji, nie kod.
+    "publications/pc_001_bh_family.json",
 ]
-assert len(CRITICAL_FILES_PC_001) == 52, f"oczekiwano 52 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 53, f"oczekiwano 53 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

@@ -1,0 +1,249 @@
+{
+  "title": "Rodzina BH-FDR PC-001 - komorki aktywne reguly decyzyjnej",
+  "purpose": "Deklaratywny rejestr komorek (srodowisko, warunek/test) wchodzacych do wspolnej korekty Benjamini-Hochberg PC-001, wraz z tabela osiagalnosci p (B4C-05 v1-v8). Status kazdej pozycji wynika z ZAMROZONEGO PROTOKOLU (adresy nizej), nie z tego, czy test po eksperymencie mial dosc danych - decyzja CTO (B4C-05 v2 pkt 4). Plik NIE jest generowany z wynikow eksperymentu konfirmacyjnego; K4-B i K5-B sa potwierdzone pomiarem DIAGNOSTYCZNYM na seedach pilota/dry-run (NIGDY konfirmacyjnych), wykonanym PRZED uruchomieniem eksperymentu.",
+  "generated_at": "2026-08-23",
+  "m": 11,
+  "N_operational": 9,
+  "agregacja_blokowa_kanoniczna": {
+    "adres": "STATS::block_means (clos_curriculum/laboratory/statistics.py) - CZLONEK CRITICAL_FILES_PC_001",
+    "definicja": "Srednia po wszystkich genomach w obrebie kazdego bloku seedowego - kolumna wejsciowa -> jedna liczba wyjsciowa. Test dostaje N wartosci (jedna na seed), nie 23*N surowych wartosci per-genom.",
+    "zastosowanie": "Wszystkie 11 komorek operuja na 'wartosc per blok seedowy' (patrz pole 'test'/'jednostka_i_n' kazdej komorki) - ta JEDNA definicja jest wspolnym kontraktem wejsciowym dla calej rodziny, nie tylko K3a-warunek1.",
+    "historia": "Wzorzec ustalony podczas analizy mocy B4b jako execution_package_v0_11/runners/power_analysis_b4b.py::_block_means (plik POZA rejestrem - jednorazowy symulator, wykluczony formalnie B4B-03 pkt 5). Sprowadzone do rejestru B4C-05 v8 (ZNALEZISKO CTO) - funkcja decydujaca o jednostce analizy calej rodziny nie moze lezec poza Hard-Halt. Rownowaznosc dwoch niezaleznych implementacji dowiedziona testem spojnosci (200 przypadkow losowych + negatyw mediana), power_analysis_b4b.py NIETKNIETY (Wariant C)."
+  },
+  "history": [
+    {"version": "v1", "note": "9 warunkow regulaminowych przejrzanych, K3a-w2 i K3b wykluczone (status protokolu)."},
+    {"version": "v2", "note": "Uzupelnienie o tabele osiagalnosci p i wymog EXACT/APPROX z kodu. Bledny wyciek m=11 przez audytora - anulowany, wyliczenie mialo byc niezalezne."},
+    {"version": "v3", "note": "K4-B PRZYWROCONA: wykluczenie strukturalne (W2-SPEC par.5) bylo OBALONE POMIAREM, nieobowiazujace (SPECYFIKACJA_KANONICZNA_PC_001.md par.4, wiersz 19), potwierdzone z reports/pilot/pilot_final.json. K5-B sprawdzona pomiarem (dry-run seeds 50000-50002) - NIE floor-limited. Wynik: 6 SOLID + 5 PENDING = 11 kandydatow - zbieznosc z wczesniejszym wyciekiem audytora jest WYNIKIEM niezaleznego przeliczenia, nie dociagnieciem."},
+    {"version": "v4", "note": "DECYZJE CTO: (1) K1 i K5 definiowane WYLACZNIE w kontekscie Primary (noise_world) - nie replikowane do K3/K4. (2) m=11, rodzina ZAMROZONA, nie rosnie po starcie. (3) N_operational=9 potwierdzone. K1-A/K1-B/K5-A/K5-B przeniesione z PENDING do SOLID. K3a-warunek1 pozostaje jedyna pozycja oczekujaca - audytor zapisuje REKOMENDACJE testu do ratyfikacji CTO, nie ustalenie. Rejestr CRITICAL_FILES_PC_001 NIE zmieniony w tej turze - czeka na ratyfikacje K3a-1 (zakaz wprost, B4C-05 v4)."},
+    {"version": "v5", "note": "ZNALEZISKO CTO: walidatory zgodnosci (validate_canonical_spec.py i validate_bh_family.py) mialy luke 'zero dopasowan = ciche PASS' - zademonstrowane eksperymentem (187x znak paragrafu -> 'par.', kontrole 2/3 dawaly PASS mimo zera adresow). Naprawione: kazda kontrola iterujaca po dopasowaniach wzorca teraz FAILuje na resolved_count=0, raportuje resolved_count nawet przy PASS. Zero zmian w tym artefakcie - naprawiono narzedzie, nie dokument."},
+    {"version": "v6", "note": "K3a-warunek1 RATYFIKOWANE przez CTO: JEDNOSTRONNY Wilcoxon signed-rank na roznicach blokowych (post_shock - pre_shock), H1: mediana(delta)>0, agregacja przez _block_means (ta sama funkcja co B4b - kontrakt inferencyjny z analiza mocy zachowany). Jedna komorka w shock_world, nie 23 i nie dwie. K3a warunek 2 nadal SUSPENDED, nie tworzy komorki. Warunek CTO o adresie agregacji SPELNIONY (_block_means istnieje i jest jednoznaczny - warunek STOP niespelniony, kontynuowano)."},
+    {"version": "v7", "note": "Tryb jednostronny (alternative='greater'/'less') dodany do STATS::wilcoxon_signed_rank jako PARAMETR z domyslna wartoscia 'two-sided' - zero zmiany zachowania dla istniejacych wywolujacych (13 wzorcow wywolan sprawdzonych bit-w-bit, tests/test_pc_001_statistics.py::TestWilcoxonAlternativeRegression). Walidacja przeciw scipy do 1e-6: dane BEZ remisow, method='exact', alternative='greater'/'two-sided' - PASS. Remisy: scipy method='exact' PO CICHU je ignoruje (zmierzone, udokumentowane w docstringu testu, NIE naprawiane pod scipy). Min. osiagalne p jednostronne @ n=9 = 1/512 = 0.001953125 (z wywolania, margines wobec progu m=11: 0.00259233 - 4.1x wiekszy niz dwustronny 0.00063920, ktory nadal jest ograniczeniem wiazacym dla pozostalych 10 komorek)."},
+    {"version": "v8", "note": "ZNALEZISKO CTO: instrukcja v6 ('uzyj _block_means') wskazywala funkcje w execution_package_v0_11/runners/power_analysis_b4b.py - pliku POZA CRITICAL_FILES_PC_001 (wykluczony formalnie, B4B-03 pkt 5). Funkcja ustalajaca jednostke analizy CALEJ rodziny (23 genomy -> 1 wartosc per seed) lezalaby poza Hard-Halt. Naprawione Wariantem C (jak przy runnerach pilota): kanoniczna kopia STATS::block_means dodana do clos_curriculum/laboratory/statistics.py (CZLONEK rejestru), power_analysis_b4b.py NIETKNIETY, rownowaznosc dowiedziona testem spojnosci (200 przypadkow losowych + negatyw mediana, tests/test_pc_001_statistics.py::TestBlockMeansConsistency). Przy okazji audytu (polecenie CTO) poprawiono TAKZE komorki 'A' i 'K6', ktorych 'adres_testu_w_kodzie'/'uwaga_exact_approx' bledie wskazywaly funkcje symulacyjne z power_analysis_b4b.py jako implementacje dla evaluatora - poprawione na STATS::wilcoxon_signed_rank (wlasciwa, juz obecna w polu 'test'), symulator zdegradowany do jawnie oznaczonego zrodla historycznego. Zaden inny adres w tym pliku nie wskazuje poza rejestr (przeglad pelny, patrz raport w czacie)."}
+  ],
+
+  "cells_active": [
+    {
+      "id": "A",
+      "warunek": "Warunek A (kierunek trendu, beta<0)",
+      "status": "SOLID",
+      "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary'])",
+      "test": "STATS::wilcoxon_signed_rank (jedna wartosc beta per blok seedowy vs 0)",
+      "adres_kryterium": "W2-SPEC §2.3 (definicja Warunku A); PC-001 §2.2 (test statystyczny: test znakow/Wilcoxona przeciw beta=0)",
+      "adres_testu_w_kodzie": "STATS::wilcoxon_signed_rank (pole 'test' powyzej - implementacja obowiazujaca dla evaluatora). Historyczne zrodlo wzorca (wejscie=srednie blokowe, nie 23*N surowych): execution_package_v0_11/runners/power_analysis_b4b.py::pvalue_random_effects_vs_zero (wzorzec zatwierdzony CTO, B4B-02) - funkcja symulacyjna POZA rejestrem, nie wersja dla evaluatora (B4C-05 v8)."
+    },
+    {
+      "id": "B",
+      "warunek": "Warunek B (wielkosc redukcji, redukcja_W2 >= 0.20)",
+      "status": "SOLID",
+      "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary'])",
+      "test": "STATS::wilcoxon_signed_rank (pary W_early_red/W_late_red per blok seedowy)",
+      "adres_kryterium": "W2-SPEC §2.3; PC-001 §2.2",
+      "adres_testu_w_kodzie": "clos_curriculum/laboratory/statistics.py:741 (komentarz: 'warunek B: W_early vs W_late per seed/genom')"
+    },
+    {
+      "id": "K1-A",
+      "warunek": "K1 (surogat z przetasowaniem) - czesc A",
+      "status": "SOLID (srodowisko rozstrzygniete B4C-05 v4)",
+      "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary'])",
+      "srodowisko_decyzja": "B4C-05 v4, decyzja CTO pkt 1: 'K1 i K5 sa definiowane WYLACZNIE w kontekscie Primary Endpoint (noise_world). NIE sa replikowane jako osobne komorki w K3 ani K4' - uzasadnienie: surogaty analityczne NA DANYCH Primary, nie osobne przebiegi.",
+      "test": "STATS::wilcoxon_signed_rank (jedna wartosc beta_shuffled per blok seedowy vs 0)",
+      "adres_kryterium": "PC-001 §5 → \"K1\" ('identyczny pipeline analityczny, warunki A i B')"
+    },
+    {
+      "id": "K1-B",
+      "warunek": "K1 (surogat z przetasowaniem) - czesc B",
+      "status": "SOLID (srodowisko rozstrzygniete B4C-05 v4)",
+      "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary'])",
+      "srodowisko_decyzja": "jak K1-A - ta sama decyzja CTO dotyczy obu czesci K1.",
+      "test": "STATS::wilcoxon_signed_rank (pary W_early_red_shuffled/W_late_red_shuffled per blok seedowy)",
+      "adres_kryterium": "PC-001 §5 → \"K1\""
+    },
+    {
+      "id": "K4-A",
+      "warunek": "K4 (brak efektu w czystym szumie) - czesc A",
+      "status": "SOLID",
+      "srodowisko": "pure_noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['K4'])",
+      "test": "STATS::wilcoxon_signed_rank (jedna wartosc beta per blok seedowy vs 0, w pure_noise_world)",
+      "adres_kryterium": "PC-001 §5 → \"K4\" ('nie wolno uzyskac spelnienia A ani B'); W2-SPEC §5 (wzmocnienie)",
+      "uwaga": "Warunek A liczony takze dla przebiegow FLOOR_LIMITED (W2-SPEC §3.4: nachylenie nie ma mianownika) - obliczalny niezaleznie od statusu FLOOR_LIMITED reszty komorki."
+    },
+    {
+      "id": "K4-B",
+      "warunek": "K4 (brak efektu w czystym szumie) - czesc B",
+      "status": "SOLID - PRZYWROCONA w v3",
+      "srodowisko": "pure_noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['K4'])",
+      "test": "STATS::wilcoxon_signed_rank (pary W_early_red/W_late_red per blok seedowy, w pure_noise_world)",
+      "adres_kryterium": "PC-001 §5 → \"K4\"; W2-SPEC §5",
+      "historia_wykluczenia_i_przywrocenia": "B4C-05 v1/v2 wykluczaly te komorke, cytujac W2-SPEC §5 ('wszystkie przebiegi pure_noise_world FLOOR_LIMITED z definicji'). To zdanie jest NIEOBOWIAZUJACE - SPECYFIKACJA_KANONICZNA_PC_001.md §4, wiersz 19 ('gwarancja strukturalna K4 w W2-SPEC nie obowiazuje'), znalezisko Pilota Final (Typ I, do PC-002). Powod bledu zalozenia: podloga to blad predyktora OPTYMALNEGO; PE_red mierzy, o ile system jest gorszy od optymalnego - w czystym szumie CLOS jest gorszy od stalej niezaleznie od tego, czy jest sie czego uczyc, wiec mianownik W_early_red NIE jest strukturalnie bliski zera.",
+      "evidence": {
+        "source": "reports/pilot/pilot_final.json (NEVER_FOR_INFERENCE - dowod obliczalnosci mianownika, NIE dowod wielkosci efektu; seedy pilota, nie konfirmacyjne)",
+        "by_environment.pure_noise_world.n_runs_total": 345,
+        "by_environment.pure_noise_world.n_floor_limited": 0,
+        "by_environment.pure_noise_world.floor_limited_fraction": 0.0,
+        "by_environment.pure_noise_world.w_early_red_distribution_valid_only.median": 0.096357,
+        "by_environment.pure_noise_world.w_early_red_distribution_valid_only.min": 0.06276,
+        "MIN_DENOMINATOR": 0.02,
+        "wniosek": "najgorszy z 345 przebiegow (0.06276) jest >3x powyzej progu FLOOR_LIMITED - mianownik Warunku B jest zdrowy w pure_noise_world, test jest obliczalny"
+      }
+    },
+    {
+      "id": "K4-separacja",
+      "warunek": "K4 (separacja shock_world vs pure_noise_world)",
+      "status": "SOLID",
+      "srodowisko": "shock_world (CONFIG::EXPERIMENT_CONFIG['environments']['K3']) vs pure_noise_world (['K4']) - test MIEDZY-srodowiskowy",
+      "test": "STATS::mann_whitney_u (redukcja per blok seedowy, dwie proby niezalezne)",
+      "adres_kryterium": "A1 → \"Zmiana 3\"",
+      "adres_testu_w_kodzie": "clos_curriculum/laboratory/statistics.py:946 (komentarz: 'Mann-Whitney U (K4: separacja shock_world vs pure_noise_world)')"
+    },
+    {
+      "id": "K5-A",
+      "warunek": "K5 (ablacja surogatowa) - czesc A",
+      "status": "SOLID (srodowisko rozstrzygniete B4C-05 v4)",
+      "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary'])",
+      "srodowisko_decyzja": "jak K1 (B4C-05 v4 pkt 1) - K5 rowniez surogat analityczny NA DANYCH Primary.",
+      "test": "STATS::wilcoxon_signed_rank (jedna wartosc beta_ablated per blok seedowy vs 0)",
+      "adres_kryterium": "PC-001 §5 → \"K5\" ('identyczny pipeline analityczny')"
+    },
+    {
+      "id": "K5-B",
+      "warunek": "K5 (ablacja surogatowa) - czesc B",
+      "status": "SOLID (srodowisko rozstrzygniete B4C-05 v4, obliczalnosc potwierdzona pomiarem)",
+      "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary'])",
+      "srodowisko_decyzja": "jak K1/K5-A (B4C-05 v4 pkt 1).",
+      "test": "STATS::wilcoxon_signed_rank (pary W_early_red_ablated/W_late_red_ablated per blok seedowy)",
+      "adres_kryterium": "PC-001 §5 → \"K5\"",
+      "evidence": {
+        "source": "pomiar diagnostyczny wykonawcy, DRY-RUN seeds 50000-50002 (execution_package_v0_11/runners/pc_001_confirmatory_runner.py::DRY_RUN_SEED_START), genom 'default', srodowisko noise_world - NIGDY seedy konfirmacyjne",
+        "procedura": "input(t) przechwycone z SnapshotEngine.create_snapshot (kwarg 'input'), PE_ablated(t)=|0.5-input(t)|, znormalizowane clos_scientist.w2_endpoint.compute_pe_reducible z FROZEN_FLOOR_NOISE_WORLD (floor_env=0.09589, model 'constant'), zredukowane clos_scientist.w2_endpoint.compute_w2_reduction",
+        "wyniki_per_seed": [
+          {"seed": 50000, "w_early_red": 0.129804, "classification": "VALID"},
+          {"seed": 50001, "w_early_red": 0.109346, "classification": "VALID"},
+          {"seed": 50002, "w_early_red": 0.134146, "classification": "VALID"}
+        ],
+        "n_floor_limited": 0,
+        "n_total": 3,
+        "sanity_check_niezaleznosci_od_genomu": "input(t) identyczny miedzy genomami 'default' i 'highly_plastic' na tym samym seedzie (potwierdzone) - test niezalezny od genomu, wystarczy jeden genom per seed"
+      }
+    },
+    {
+      "id": "K6",
+      "warunek": "K6 (sprzezenie predykcji z wejsciem, korelacja istotnie rozna od zera)",
+      "status": "SOLID",
+      "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary']) - K6 dzieli kontekst wariancji z A W ANALIZIE MOCY (execution_package_v0_11/runners/power_analysis_b4b.py::mc_power) - to jest kontekst projektowania N, NIE zrodlo dla evaluatora (plik poza rejestrem, B4C-05 v8).",
+      "test": "STATS::wilcoxon_signed_rank (jedna wartosc rho per blok seedowy vs 0) - NIE spearman_rho bezposrednio",
+      "adres_kryterium": "A1 → \"Zmiana 2\"",
+      "uwaga_exact_approx": "spearman_rho (clos_curriculum/laboratory/statistics.py:910) liczy WYLACZNIE surowa wartosc rho per przebieg - jej wlasne p-value jest PRZYBLIZENIEM t-rozkladem (docstring: 'ta sama metoda co scipy.stats.spearmanr domyslnie'), nie wchodzi do rodziny BH. Testem, ktory faktycznie wchodzi do korekty, jest STATS::wilcoxon_signed_rank na N wartosciach rho (ten sam wzorzec co Warunek A - patrz pole 'test' powyzej; historyczne zrodlo wzorca w power_analysis_b4b.py::pvalue_random_effects_vs_zero, plik poza rejestrem, nie wersja dla evaluatora) - EXACT."
+    },
+    {
+      "id": "K3a-warunek1",
+      "warunek": "K3a warunek 1 (wzrost PE po wstrzasie)",
+      "status": "SOLID - RATYFIKOWANA (B4C-05 v6 pkt 2)",
+      "srodowisko": "shock_world (CONFIG::EXPERIMENT_CONFIG['environments']['K3'])",
+      "adres_kryterium": "A5 → \"Warunek 1 K3a\" ('16/16 przebiegow spelnia, strukturalnie gwarantowany')",
+      "test": "STATS::wilcoxon_signed_rank(alternative='greater') na roznicach blokowych (post_shock - pre_shock), H1: mediana(delta) > 0. JEDNOSTRONNY, nie dwustronny - decyzja CTO ratyfikowana B4C-05 v6.",
+      "jednostka_agregacji": "SEED (blok) - ZAKAZ podawania 23 (genomy) x N (seedy) roznic jako niezaleznych obserwacji. Agregacja srednia po 23 genomach w obrebie kazdego bloku seedowego - KANONICZNA definicja, patrz 'agregacja_blokowa_kanoniczna' na poziomie glownym tego pliku.",
+      "adres_agregacji_blokowej": "STATS::block_means (clos_curriculum/laboratory/statistics.py - CZLONEK rejestru, B4C-05 v8). Historyczne zrodlo wzorca: execution_package_v0_11/runners/power_analysis_b4b.py::_block_means (POZA rejestrem - jednorazowy symulator analizy mocy, wykluczony formalnie B4B-03 pkt 5) - NIE wersja obowiazujaca dla evaluatora, wylacznie miejsce, gdzie ten kontrakt zostal pierwotnie ustalony podczas B4b. Rownowaznosc obu implementacji dowiedziona testem spojnosci (200 przypadkow losowych + negatyw), nie zalozeniem.",
+      "liczba_komorek_tworzonych": "JEDNA komorka w shock_world. Nie 23 (per genom), nie dwie (kierunek+wielkosc jak K3b) - decyzja CTO wprost (B4C-05 v6 pkt 2).",
+      "uzasadnienie_kierunkowosci_doslowne_polecenie_cto": "jednostronnosc wynika z PREREJESTROWANEJ HIPOTEZY KIERUNKOWEJ (\"po wstrzasie PE rosnie\"), NIE z tego, ze daje mniejsze p. Zapisane wprost, zeby za kilka miesiecy nie wygladalo na optymalizacje testu pod prog BH.",
+      "k3a_warunek2_nie_tworzy_komorki": "K3a warunek 2 pozostaje SUSPENDED (patrz cells_excluded) - nie tworzy komorki, niezaleznie od ratyfikacji warunku 1."
+    }
+  ],
+
+  "cells_pending_cto_decision": [],
+
+  "cells_excluded": [
+    {
+      "id": "K3a-warunek2",
+      "powod": "SUSPENDED PENDING WINDOW REDEFINITION - okna pomiarowe nie pasuja do skali czasowej zjawiska (adaptacja konczy sie w ~3-5 tickow, okna maja 20-tickowa rozdzielczosc)",
+      "adres_statusu": "A5 → \"Status\""
+    },
+    {
+      "id": "K3b",
+      "powod": "ARCHITECTURE-LIMITED - zdefiniowana, niewykonywana, nieusunieta, wraca po CLOS v0.12 (wlasciwosc Core, prediction_depth=3 dla wszystkich genomow)",
+      "adres_statusu": "A4 → \"Jeden temat\"; SPECYFIKACJA_KANONICZNA_PC_001.md §2.6"
+    },
+    {
+      "id": "K2",
+      "powod": "Poza inferencja statystyczna - srodowisko referencyjne/opisowe (stable_world, zdegenerowane, n_effective=1). Wchodzi jako przeslanka opisowa, NIE warunek formalny reguly decyzyjnej.",
+      "adres_statusu": "PC-001 §5 → \"K2\"; PC-001 §6 ('K2 wchodzi jako przeslanka opisowa, nie warunek formalny')"
+    }
+  ],
+
+  "not_a_cell": [
+    {
+      "id": "FDR",
+      "powod": "Nie jest testowalna hipoteza - to procedura korekty (Benjamini-Hochberg q=0.05) stosowana WSPOLNIE do wszystkich komorek aktywnych powyzej. m w korekcie = 11 (ZAMROZONE, B4C-05 v4 pkt 2 - nie rosnie po starcie eksperymentu).",
+      "adres": "publications/preregistration_PC_001.md §2.2"
+    }
+  ],
+
+  "liczba_komorek": {
+    "aktywne": 11,
+    "oczekujace": 0,
+    "wykluczone": 3,
+    "uwaga": "m=11 ZAMROZONE (decyzja CTO, B4C-05 v4 pkt 2) - rodzina nie rosnie po starcie eksperymentu. Wszystkie 11 komorek MAJA ustalony, ratyfikowany test (K3a-warunek1 ratyfikowana B4C-05 v6 - zero pozycji oczekujacych)."
+  },
+
+  "prog_bh_najostrzejszy": {
+    "wzor": "(1/m) * q, q=0.05, m=11 (STATS::benjamini_hochberg)",
+    "wartosc_dokladna": 0.004545454545454546
+  },
+
+  "tabela_osiagalnosci_p": {
+    "metoda": "Wywolanie STATS::wilcoxon_signed_rank / STATS::mann_whitney_u na ukladzie SKRAJNYM (maksymalnie separujacym) dla N=9 - nie formula (D-017). Prog: (1/11)*0.05 = 0.004545454545454546.",
+    "wiersze": [
+      {
+        "komorki": ["A", "B", "K1-A", "K1-B", "K4-A", "K4-B", "K5-A", "K5-B", "K6"],
+        "test": "wilcoxon_signed_rank",
+        "jednostka_i_n": "1 wartosc per blok seedowy, n=9 (N_operational)",
+        "exact_approx": "EXACT (kod zwraca method='exact': n<=25, brak remisow w ukladzie skrajnym)",
+        "n8_min_p": 0.0078125,
+        "n9_min_p": 0.00390625,
+        "prog_m11": 0.004545454545454546,
+        "margines_n9": 0.0006392045454545461,
+        "n8_pass_fail": "FAIL",
+        "n9_pass_fail": "PASS"
+      },
+      {
+        "komorki": ["K4-separacja"],
+        "test": "mann_whitney_u",
+        "jednostka_i_n": "1 wartosc (redukcja) per blok seedowy, n_a=n_b=9",
+        "exact_approx": "EXACT (kod zwraca method='exact': n_a*n_b<=1000, brak remisow w ukladzie skrajnym)",
+        "n8_min_p": 0.0001554,
+        "n9_min_p": 0.00004114,
+        "prog_m11": 0.004545454545454546,
+        "margines_n9": 0.0045043145,
+        "n8_pass_fail": "PASS",
+        "n9_pass_fail": "PASS"
+      },
+      {
+        "komorki": ["K3a-warunek1"],
+        "test": "wilcoxon_signed_rank(alternative='greater') - RATYFIKOWANY, JEDNOSTRONNY (B4C-05 v6)",
+        "jednostka_i_n": "1 wartosc (roznica blokowa post_shock-pre_shock, srednia po 23 genomach przez _block_means) per blok seedowy, n=9",
+        "exact_approx": "EXACT (kod zwraca method='exact': n<=25, brak remisow w ukladzie skrajnym) - zwalidowane wprost przeciw scipy.stats.wilcoxon(alternative='greater', mode='exact') do 1e-6, patrz tests/test_pc_001_statistics.py::TestWilcoxonOneSided",
+        "n8_min_p": 0.00390625,
+        "n9_min_p": 0.00195312,
+        "prog_m11": 0.004545454545454546,
+        "margines_n9": 0.002592334545454546,
+        "n8_pass_fail": "PASS (jednostronnie K3a-1 przeszlaby juz przy N=8 - bez wplywu na N_operational, ktory wyznaczaja pozostale 10 komorek dwustronnych)",
+        "n9_pass_fail": "PASS"
+      }
+    ],
+    "wniosek": "Wiazacym ograniczeniem jest wilcoxon_signed_rank DWUSTRONNY (dyskretnosc dokladnego rozkladu przy malym n) - dotyczy 10 z 11 komorek (wszystkie oprocz K3a-warunek1) i TO ONE wyznaczaja N_operational, nie K3a-1. Przy N=8 te 10 komorek NIE osiaga progu m=11 (0.0078125 > 0.004545) - N=8 niewystarczajace. Przy N=9 osiagaja prog (0.00390625 <= 0.004545, margines 0.00063920) - N=9 wystarczajace. K3a-warunek1 (jedyna komorka jednostronna) ma margines 4.1x wiekszy (0.00259233 vs 0.00063920) dzieki jednostronnosci ratyfikowanej w B4C-05 v6 - PASS z duzym zapasem, ale NIE ona ustala N=9. mann_whitney_u (K4-separacja) przechodzi z najwiekszym zapasem ze wszystkich."
+  },
+
+  "N_operational_szczegoly": {
+    "N_power": 6,
+    "N_operational_previous": 8,
+    "N_operational_final": 9,
+    "status": "POTWIERDZONE (decyzja CTO, B4C-05 v4 pkt 3, ponownie B4C-05 v6 pkt 3 po ratyfikacji K3a-1) - m=11, prog rangi 1 = 0.05/11 = 0.004545454545454546. Wyznaczajace ograniczenie: 10 komorek dwustronnych, min p @ n=9 = 0.00390625, margines 0.00063920 (maly, ale realny). K3a-warunek1 (jedyna jednostronna) ma margines 0.00259233 (4.1x wiekszy) - NIE zmienia N_operational, bo pozostale 10 juz go wyznaczaja.",
+    "uzasadnienie": "Dyskretnosc dokladnego testu Wilcoxona wobec najostrzejszego progu BH - NIE moc statystyczna ani margines bezpieczenstwa (decyzja CTO, B4C-05 v1 pkt 2)."
+  },
+
+  "adnotacje_procesowe": {
+    "wyciek_liczby_11": "B4C-05 v2 zawieral (dwukrotnie, mechanicznie) liczbe 11 jako wlasne wyliczenie audytora - zaprzeczajac zasadzie niezaleznosci z v1. Wyliczenie wykonawcy dalo 6 SOLID + 5 PENDING = 11 kandydatow NIEZALEZNIE, bez dociagania - potwierdzone jako wynik, nie zbieg okolicznosci.",
+    "commit_bez_CI": "Commit 14c45f7 wszedl na origin/v0.7.2-scientific-integrity BEZ niezaleznego potwierdzenia CI. Stan sprawdzany ponownie w kazdej turze - patrz raport w czacie.",
+    "walidator_zero_dopasowan": "B4C-05 v5: znalezisko CTO - validate_canonical_spec.py i validate_bh_family.py mialy luke 'zero dopasowan wzorca = ciche PASS'. Naprawione w obu (resolved_count>=1 wymagany per kontrola, raportowany nawet przy PASS). Ten artefakt sam jest teraz sprawdzany przez naprawiony validate_bh_family.py.",
+    "jednostronny_wilcoxon_scipy_remisy": "B4C-05 v7: scipy.stats.wilcoxon(method='exact') PO CICHU ignoruje remisy (roznica 0.09 wobec repo na danych testowych z remisami) - udokumentowane w tests/test_pc_001_statistics.py::TestWilcoxonOneSided, NIE naprawiane pod scipy w tym regime (zakaz CTO wprost)."
+  }
+}

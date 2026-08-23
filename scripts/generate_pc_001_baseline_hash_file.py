@@ -112,7 +112,12 @@ MID_BLOCK = """# kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmie
 # (B4C-01/03/04, 51->52, przed B5): runner Eksperymentu Konfirmacyjnego PC-001 -
 # kod WYKONYWANY przy kazdym przebiegu konfirmacji (generuje surowe trajektorie
 # prediction_error), w odroznieniu od pilotow/runnerow podlog (dane WEJSCIOWE
-# do decyzji projektowej, nie kod stosowany w eksperymencie):"""
+# do decyzji projektowej, nie kod stosowany w eksperymencie). Rozszerzone
+# 2026-08-23 (B4C-05, 52->53, po ratyfikacji testu K3a-warunek1, przed B5):
+# publications/pc_001_bh_family.json - deklaratywny kontrakt inferencyjny
+# reguly decyzyjnej (11 komorek aktywnych rodziny BH-FDR, srodowisko/test/
+# adres kryterium per komorka) - kryteria/definicje nie moga sie zmienic bez
+# zlamania hasha, tym samym uzasadnieniem co dokumenty prerejestracji:"""
 
 FOOTER_BLOCK = """#
 # Obliczenie WARTOSCI INTERIM (nie do porownania z niczym - baseline jest
@@ -134,7 +139,9 @@ FOOTER_BLOCK = """#
 # dnia. B4 (analiza mocy) NIE wymagal nowych plikow (uzywa funkcji z tego
 # samego statistics.py). B4C-01 (runner konfirmacyjny) DODAL 1 pozycje -
 # patrz uzasadnienie w hard_halt.py nad CRITICAL_FILES_PC_001 oraz
-# SPECYFIKACJA_KANONICZNA_PC_001.md §2.12."""
+# SPECYFIKACJA_KANONICZNA_PC_001.md §2.12. B4C-05 (rodzina BH-FDR, po
+# ratyfikacji testu K3a-warunek1) DODAL 1 pozycje - publications/
+# pc_001_bh_family.json - patrz to samo uzasadnienie."""
 
 
 def render() -> str:

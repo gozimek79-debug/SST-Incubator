@@ -1,7 +1,7 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.8
+# SPECYFIKACJA KANONICZNA PC-001 — v1.9
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-22 (v1.8)
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-23 (v1.9)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -9,6 +9,11 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.9** (B4C-05, rodzina BH-FDR ratyfikowana):
+> §2.12 — nowy wiersz „Rodzina BH-FDR (kontrakt inferencyjny)" (rejestr
+> `CRITICAL_FILES_PC_001` 52→53); dodane po ratyfikacji testu K3a-warunek1
+> (jednostronny Wilcoxon signed-rank, agregacja blokowa) i zamrożeniu m=11.
+>
 > **Zmiany w v1.8** (B5-00, po znalezisku trzeciego audytora):
 > §2.11 — poprawiony adres kryterium członkostwa (wskazywał `pc_001_baseline_hash.txt`,
 > czyli powtórzenie, zamiast komentarza nad `CRITICAL_FILES_PC_001`, czyli źródła);
@@ -367,6 +372,7 @@ by żadna pozycja rejestru nie była chroniona, a nieopisana (test §9 nr 5).
 | Protokoły lekcji | `clos_academy/lesson_L1_2.py` (Primary), `clos_academy/lesson_L1_1.py` (wspierająca) | scenariuszowo-niezależne protokoły; dowód niezależności: W2-SPEC §1 |
 | Pipeline wykonawczy | `execution_package_v0_11/runners/pipeline.py`, `execution_package_v0_11/runners/aggregate_results.py` | uruchomienie przebiegów i agregacja wyników |
 | Runner Eksperymentu Konfirmacyjnego PC-001 | `execution_package_v0_11/runners/pc_001_confirmatory_runner.py` | orkiestracja i zapis surowych trajektorii `prediction_error` (uklad skrzyżowany, wspólny zestaw seedów) — BEZ analizy statystycznej reguły decyzyjnej (ewaluator, B4C-2, wstrzymany) |
+| Rodzina BH-FDR (kontrakt inferencyjny) | `publications/pc_001_bh_family.json` | deklaratywny rejestr komórek (środowisko/test/adres kryterium) wchodzących do wspólnej korekty Benjamini-Hochberg; status per komórka wynika z zamrożonego protokołu, nie z wyników po eksperymencie (B4C-05) |
 | Egzekwowanie Hard Halt | HALT | rejestr, algorytm hasha, bramka wejścia |
 
 **Poza rejestrem celowo** (decyzja CTO, uzasadnienie: HALT, komentarz przy pozycji): runnery

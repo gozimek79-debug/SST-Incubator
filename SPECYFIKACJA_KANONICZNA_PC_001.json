@@ -3,11 +3,11 @@
   "generator": "scripts/spec_md_to_json.py",
   "generated_from": "SPECYFIKACJA_KANONICZNA_PC_001.md",
   "note": "JSON jest mechanicznym odwzorowaniem markdowna kanonicznego, bez interpretacji tresci. Przy rozbieznosci rozstrzyga markdown, nastepnie adres, na ktory markdown wskazuje (SPECYFIKACJA_KANONICZNA_PC_001.md §0.3). Ten plik nie jest recznie edytowalny - regenerowac przez `python scripts/spec_md_to_json.py SPECYFIKACJA_KANONICZNA_PC_001.md`. Zgodnosc z markdownem sprawdza scripts/validate_canonical_spec.py (test 7) przez regeneracje w pamieci, nie przez porownanie hasha.",
-  "title": "SPECYFIKACJA KANONICZNA PC-001 — v1.8",
+  "title": "SPECYFIKACJA KANONICZNA PC-001 — v1.9",
   "meta": {
     "od": "audytor niezależny",
     "dla": "CTO",
-    "data": "2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-22 (v1.8) \") to **2026-08-02**, data",
+    "data": "2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-23 (v1.9) \") to **2026-08-02**, data",
     "przedmiot_(g-005)": "INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system",
     "status": "obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.",
     "podstawa": "kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny",
@@ -19,7 +19,7 @@
       "numbered": true,
       "level": 2,
       "title": "0. Czym ten dokument jest — i czym celowo nie jest",
-      "start_line": 73,
+      "start_line": 78,
       "blocks": []
     },
     {
@@ -27,7 +27,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.1 Rola",
-      "start_line": 75,
+      "start_line": 80,
       "blocks": [
         {
           "type": "paragraph",
@@ -57,7 +57,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.2 Zasada C-001 — Specyfikacja Kanoniczna nie przechowuje wartości",
-      "start_line": 95,
+      "start_line": 100,
       "blocks": [
         {
           "type": "note",
@@ -90,7 +90,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.3 Reguła rozstrzygania sporu",
-      "start_line": 118,
+      "start_line": 123,
       "blocks": [
         {
           "type": "note",
@@ -107,7 +107,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.4 Artefakt towarzyszący — Canonical Parameters Report",
-      "start_line": 127,
+      "start_line": 132,
       "blocks": [
         {
           "type": "paragraph",
@@ -128,7 +128,7 @@
       "numbered": true,
       "level": 2,
       "title": "1. Notacja adresów",
-      "start_line": 141,
+      "start_line": 146,
       "blocks": [
         {
           "type": "table",
@@ -256,7 +256,7 @@
       "numbered": true,
       "level": 2,
       "title": "2. Rejestr normatywny",
-      "start_line": 187,
+      "start_line": 192,
       "blocks": []
     },
     {
@@ -264,7 +264,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.1 Tożsamość eksperymentu",
-      "start_line": 189,
+      "start_line": 194,
       "blocks": [
         {
           "type": "table",
@@ -302,7 +302,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.2 Protokół",
-      "start_line": 199,
+      "start_line": 204,
       "blocks": [
         {
           "type": "table",
@@ -344,7 +344,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.3 Primary Endpoint (W2)",
-      "start_line": 210,
+      "start_line": 215,
       "blocks": [
         {
           "type": "table",
@@ -398,7 +398,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.4 Podłoga nieredukowalna i procedura V-C",
-      "start_line": 226,
+      "start_line": 231,
       "blocks": [
         {
           "type": "table",
@@ -448,7 +448,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.5 Mały mianownik",
-      "start_line": 239,
+      "start_line": 244,
       "blocks": [
         {
           "type": "table",
@@ -486,7 +486,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.6 Reguła decyzyjna",
-      "start_line": 249,
+      "start_line": 254,
       "blocks": [
         {
           "type": "paragraph",
@@ -601,7 +601,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.7 Poza regułą decyzyjną",
-      "start_line": 276,
+      "start_line": 281,
       "blocks": [
         {
           "type": "table",
@@ -655,7 +655,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.8 Klasyfikacja wyniku",
-      "start_line": 288,
+      "start_line": 293,
       "blocks": [
         {
           "type": "table",
@@ -697,7 +697,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.9 Parametry prerejestrowane",
-      "start_line": 299,
+      "start_line": 304,
       "blocks": [
         {
           "type": "paragraph",
@@ -765,7 +765,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.10 Governance obowiązujące PC-001",
-      "start_line": 316,
+      "start_line": 321,
       "blocks": [
         {
           "type": "table",
@@ -827,7 +827,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.11 Mechanizmy ochronne",
-      "start_line": 337,
+      "start_line": 342,
       "blocks": [
         {
           "type": "table",
@@ -889,7 +889,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.12 Powierzchnia wykonawcza objęta rejestrem plików krytycznych",
-      "start_line": 353,
+      "start_line": 358,
       "blocks": [
         {
           "type": "paragraph",
@@ -944,6 +944,11 @@
               "Rola": "orkiestracja i zapis surowych trajektorii `prediction_error` (uklad skrzyżowany, wspólny zestaw seedów) — BEZ analizy statystycznej reguły decyzyjnej (ewaluator, B4C-2, wstrzymany)"
             },
             {
+              "Warstwa": "Rodzina BH-FDR (kontrakt inferencyjny)",
+              "Adres": "`publications/pc_001_bh_family.json`",
+              "Rola": "deklaratywny rejestr komórek (środowisko/test/adres kryterium) wchodzących do wspólnej korekty Benjamini-Hochberg; status per komórka wynika z zamrożonego protokołu, nie z wyników po eksperymencie (B4C-05)"
+            },
+            {
               "Warstwa": "Egzekwowanie Hard Halt",
               "Adres": "HALT",
               "Rola": "rejestr, algorytm hasha, bramka wejścia"
@@ -962,7 +967,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.13 Dokumenty uzasadniające objęte rejestrem",
-      "start_line": 377,
+      "start_line": 383,
       "blocks": [
         {
           "type": "paragraph",
@@ -1008,7 +1013,7 @@
       "numbered": true,
       "level": 2,
       "title": "3. Mapa aneksów — co każdy zmienił",
-      "start_line": 415,
+      "start_line": 421,
       "blocks": [
         {
           "type": "table",
@@ -1067,7 +1072,7 @@
       "numbered": true,
       "level": 2,
       "title": "4. Mapa treści nieobowiązujących w zamrożonych źródłach",
-      "start_line": 433,
+      "start_line": 439,
       "blocks": [
         {
           "type": "paragraph",
@@ -1226,7 +1231,7 @@
       "numbered": false,
       "level": 3,
       "title": "Uzasadnienie historyczne do pozycji 19 — dlaczego ten fragment przestał obowiązywać",
-      "start_line": 461,
+      "start_line": 467,
       "blocks": [
         {
           "type": "paragraph",
@@ -1268,7 +1273,7 @@
       "numbered": true,
       "level": 2,
       "title": "5. Stan otwarty",
-      "start_line": 504,
+      "start_line": 510,
       "blocks": [
         {
           "type": "table",
@@ -1350,7 +1355,7 @@
       "numbered": true,
       "level": 2,
       "title": "6. Znaleziska audytora przy konsolidacji",
-      "start_line": 534,
+      "start_line": 540,
       "blocks": [
         {
           "type": "paragraph",
@@ -1363,7 +1368,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.1 Próg Warunku B nie ma adresu w kodzie — **ZAMKNIĘTE**",
-      "start_line": 540,
+      "start_line": 546,
       "blocks": [
         {
           "type": "note",
@@ -1401,7 +1406,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.2 Uzasadnienie minimalnego mianownika opiera się na wielkości unieważnionej",
-      "start_line": 575,
+      "start_line": 581,
       "blocks": [
         {
           "type": "paragraph",
@@ -1430,7 +1435,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.3 D-020 nie ma adresu w repo — **ZAMKNIĘTE**",
-      "start_line": 595,
+      "start_line": 601,
       "blocks": [
         {
           "type": "note",
@@ -1458,7 +1463,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.4 Parametry Pilota Final nie mają artefaktu",
-      "start_line": 614,
+      "start_line": 620,
       "blocks": [
         {
           "type": "paragraph",
@@ -1491,7 +1496,7 @@
       "numbered": true,
       "level": 2,
       "title": "7. Czego ten dokument nie rozstrzyga",
-      "start_line": 644,
+      "start_line": 650,
       "blocks": [
         {
           "type": "list",
@@ -1510,7 +1515,7 @@
       "numbered": true,
       "level": 2,
       "title": "8. Warunki utrzymania",
-      "start_line": 656,
+      "start_line": 662,
       "blocks": [
         {
           "type": "paragraph",
@@ -1550,7 +1555,7 @@
       "numbered": true,
       "level": 3,
       "title": "8.1 Członkostwo w rejestrze plików krytycznych — rekomendacja: NIE",
-      "start_line": 687,
+      "start_line": 693,
       "blocks": [
         {
           "type": "paragraph",
@@ -1589,7 +1594,7 @@
       "numbered": true,
       "level": 2,
       "title": "9. Weryfikowalność",
-      "start_line": 724,
+      "start_line": 730,
       "blocks": [
         {
           "type": "paragraph",
@@ -1669,7 +1674,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.1 Znane ograniczenie walidatora — ujawnione w v1.1",
-      "start_line": 757,
+      "start_line": 763,
       "blocks": [
         {
           "type": "note",
@@ -1707,7 +1712,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.2 Drugie ograniczenie kontroli nr 5 — adres zbiorczy jako wyłącznik",
-      "start_line": 780,
+      "start_line": 786,
       "blocks": [
         {
           "type": "note",
@@ -1749,7 +1754,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.3 Trzecia właściwość kontroli nr 5 — ziarnistość sekcji, nie wiersza — PRZYJĘTA",
-      "start_line": 813,
+      "start_line": 819,
       "blocks": [
         {
           "type": "paragraph",

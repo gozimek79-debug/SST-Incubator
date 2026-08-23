@@ -114,7 +114,7 @@ class TestRegistryLengthAssertion:
         from scripts.validate_canonical_spec import load_critical_files
 
         files = load_critical_files()
-        assert n == len(files) == 52
+        assert n == len(files) == 53
 
     def test_missing_assert_is_missing_sentinel(self):
         assert registry_length_assertion_in_text("CRITICAL_FILES_PC_001 = ['a.py']\n") is MISSING
