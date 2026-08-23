@@ -150,6 +150,14 @@ def iter_texts(spec_data):
 
 
 def check_file_addresses(spec_data):
+    """UWAGA (B4C-05 v5/v6, znalezisko CTO): pusta lista problemow ze skrotow
+    (SHORTCUTS) NIGDY nie moze wynikac z 'nic nie sprawdzono' - SHORTCUTS jest
+    stalym, niepustym slownikiem (len()>0 zawsze), wiec ta czesc kontroli jest
+    ODPORNA na wektor 'zero dopasowan = ciche PASS' z definicji. Druga czesc
+    (adresy plikow w odwrotnych apostrofach w PROZIE dokumentu) NIE jest
+    odporna - zniszczenie notacji (albo usuniecie wszystkich adresow z prozy)
+    dalyby zero kandydatow i ciche PASS. Stad jawny prog: co najmniej jeden
+    adres pliku w prozie musi zostac znaleziony, inaczej FAIL (nie PASS)."""
     problems = []
     for shortcut, rel_path in SHORTCUTS.items():
         if not (REPO_ROOT / rel_path).exists():
@@ -173,7 +181,28 @@ def check_file_addresses(spec_data):
                         problems.append(f"wzorzec {expanded} nie pasuje do zadnego pliku")
                 elif not (REPO_ROOT / expanded).exists():
                     problems.append(f"adres pliku {expanded} nie istnieje w repo")
+    if not seen:
+        problems.append(
+            "ZERO adresow plikow w odwrotnych apostrofach znalezionych w prozie "
+            "dokumentu - dokument jest albo pusty, albo notacja adresow zostala "
+            "zniszczona (B4C-05 v5: pusta lista problemow z tego powodu NIE "
+            "oznacza poprawnosci, tylko brak czegokolwiek do sprawdzenia)"
+        )
     return problems
+
+
+def count_file_address_candidates(spec_data):
+    """Do raportowania resolved_count w main() - nie zmienia kontraktu
+    check_file_addresses (lista problemow, bez zmian sygnatury dla
+    istniejacych wywolujacych)."""
+    seen = set()
+    for _sec, _blk, text, _col in iter_texts(spec_data):
+        for m in BACKTICK_RE.finditer(text):
+            candidate = m.group(1)
+            if not candidate.endswith("/") and not _looks_like_file_path(candidate):
+                continue
+            seen.add(candidate)
+    return len(SHORTCUTS), len(seen)
 
 
 # --- test 2: adresy sekcji i fragmentow ---
@@ -211,25 +240,54 @@ def resolve_fragment_in_file(path, fragment):
 
 
 def check_section_addresses(spec_data):
+    """B4C-05 v5/v6: zniszczenie notacji '§' (np. zamiana na 'par.') daje ZERO
+    dopasowan SECTION_ADDR_RE - petla nizej po prostu nie wykonuje sie ani razu,
+    a pusta lista problemow wygladalaby identycznie jak 'wszystko sie rozwiazalo'.
+    Prog >=1 dopasowanie (BEZ przypinania konkretnej liczby - kryterium to
+    'co najmniej jeden', nie 'dokladnie N', wzorem Z9C) odroznia te dwa stany."""
     problems = []
+    n_matches = 0
     for _sec, _blk, text, _col in iter_texts(spec_data):
         for m in SECTION_ADDR_RE.finditer(text):
+            n_matches += 1
             token, num = m.group(1), m.group(2)
             path = _file_for_token(token)
             if not resolve_section_in_file(path, num):
                 problems.append(f"{token} §{num} nie rozwiazuje sie do sekcji w {path.name}")
+    if n_matches == 0:
+        problems.append(
+            "ZERO adresow sekcji (PLIK §N) znalezionych w dokumencie - notacja "
+            "adresow jest albo zniszczona, albo dokument jest pusty (B4C-05 v5)"
+        )
     return problems
 
 
 def check_fragment_addresses(spec_data):
+    """Ta sama podatnosc i to samo zabezpieczenie co check_section_addresses -
+    dla notacji 'PLIK → "fragment"'."""
     problems = []
+    n_matches = 0
     for _sec, _blk, text, _col in iter_texts(spec_data):
         for m in FRAGMENT_ADDR_RE.finditer(text):
+            n_matches += 1
             token, fragment = m.group(1), m.group(2)
             path = _file_for_token(token)
             if not resolve_fragment_in_file(path, fragment):
                 problems.append(f'{token} → "{fragment}" nie rozwiazuje sie w {path.name}')
+    if n_matches == 0:
+        problems.append(
+            "ZERO adresow fragmentow (PLIK → \"fragment\") znalezionych w dokumencie "
+            "- notacja adresow jest albo zniszczona, albo dokument jest pusty (B4C-05 v5)"
+        )
     return problems
+
+
+def count_section_matches(spec_data):
+    return sum(1 for _s, _b, text, _c in iter_texts(spec_data) for _ in SECTION_ADDR_RE.finditer(text))
+
+
+def count_fragment_matches(spec_data):
+    return sum(1 for _s, _b, text, _c in iter_texts(spec_data) for _ in FRAGMENT_ADDR_RE.finditer(text))
 
 
 # --- test 3: adresy symboli ---
@@ -258,14 +316,27 @@ def resolve_symbol_in_file(path, symbol):
 
 
 def check_symbol_addresses(spec_data):
+    """Ta sama podatnosc i to samo zabezpieczenie co check_section_addresses -
+    dla notacji 'PLIK::SYMBOL' (B4C-05 v5/v6)."""
     problems = []
+    n_matches = 0
     for _sec, _blk, text, _col in iter_texts(spec_data):
         for m in SYMBOL_ADDR_RE.finditer(text):
+            n_matches += 1
             token, symbol = m.group(1), m.group(2)
             path = _file_for_token(token)
             if not resolve_symbol_in_file(path, symbol):
                 problems.append(f"{token}::{symbol} nie rozwiazuje sie w {path.name}")
+    if n_matches == 0:
+        problems.append(
+            "ZERO adresow symboli (PLIK::SYMBOL) znalezionych w dokumencie - "
+            "notacja adresow jest albo zniszczona, albo dokument jest pusty (B4C-05 v5)"
+        )
     return problems
+
+
+def count_symbol_matches(spec_data):
+    return sum(1 for _s, _b, text, _c in iter_texts(spec_data) for _ in SYMBOL_ADDR_RE.finditer(text))
 
 
 # --- test 4: C-001 (zero wartosci) ---
@@ -336,12 +407,29 @@ def find_c001_violations_in_text(text, column=None):
 
 
 def check_c001(spec_data):
+    """B4C-05 v5: ZERO naruszen jest tu ZAMIERZONYM, poprawnym wynikiem (C-001
+    mowi, ze dokument nie powinien niesc wartosci) - w odroznieniu od kontroli
+    2/3, gdzie zero dopasowan jest podejrzane. Ale zero PRZESKANOWANYCH
+    fragmentow tekstu (n_scanned) to INNY sygnal - dokument pusty albo
+    nie sparsowal sie w ogole - i TO jest sprawdzane osobno, zeby nie pomylic
+    'sprawdzilem i jest czysto' z 'nie mialem czego sprawdzac'."""
     problems = []
+    n_scanned = 0
     for section, _blk, text, col in iter_texts(spec_data):
+        n_scanned += 1
         for start, token in find_c001_violations_in_text(text, column=col):
             snippet = text[max(0, start - 20) : start + 20].strip()
             problems.append(f"§{section['id']}: liczba '{token}' w kontekscie wartosci: ...{snippet}...")
+    if n_scanned == 0:
+        problems.append(
+            "ZERO fragmentow tekstu przeskanowanych - dokument jest pusty albo "
+            "nie sparsowal sie poprawnie (B4C-05 v5)"
+        )
     return problems
+
+
+def count_scanned_text_fragments(spec_data):
+    return sum(1 for _ in iter_texts(spec_data))
 
 
 # --- test 5: pokrycie rejestru plikow krytycznych ---
@@ -389,7 +477,17 @@ def _collect_covered_paths_and_prefixes(spec_data):
 
 
 def check_critical_files_registry_coverage(spec_data):
+    """B4C-05 v5: NIE podatna na 'zero dopasowan = ciche PASS' w tym samym
+    sensie co kontrole 2/3 - ta kontrola iteruje po CRITICAL_FILES_PC_001
+    (staly, niepusty rejestr - licznosc rosnie w czasie, patrz hard_halt.py),
+    nie po dopasowaniach regex w prozie. Gdyby cale pokrycie (covered_paths/
+    covered_prefixes) znikneło, KAZDY plik z rejestru trafilby na liste
+    'missing' - kontrola FAILUJE glosno, nie PASSuje cicho. Guard na pusty
+    rejestr ponizej to obrona defensywna, nie naprawa
+    tej samej luki - rejestr pusty oznaczalby zepsuty HALT, inny rodzaj bledu."""
     critical_files = load_critical_files()
+    if not critical_files:
+        return ["CRITICAL_FILES_PC_001 jest pusta - rejestr, od ktorego zalezy ta kontrola, nie istnieje"]
     covered_paths, covered_prefixes = _collect_covered_paths_and_prefixes(spec_data)
     missing = []
     for cf in critical_files:
@@ -438,6 +536,29 @@ def run_all_checks(spec_data):
     return {name: fn(spec_data) for name, fn in CHECKS}
 
 
+def resolved_count_label(name, spec_data):
+    """B4C-05 v5/v6 pkt 3: liczba rozwiazanych/przeskanowanych elementow per
+    kontrola, wypisywana NAWET przy PASS - nagly spadek (np. 25 -> 3) ma byc
+    widoczny dla czlowieka, mimo ze formalnie nadal przechodzi prog >=1."""
+    if name == "1_adresy_plikow":
+        n_shortcuts, n_paths = count_file_address_candidates(spec_data)
+        return f"resolved={n_shortcuts + n_paths} ({n_shortcuts} skrotow + {n_paths} adresow plikow w prozie)"
+    if name == "2_adresy_sekcji_i_fragmentow":
+        n_sec = count_section_matches(spec_data)
+        n_frag = count_fragment_matches(spec_data)
+        return f"resolved={n_sec + n_frag} ({n_sec} sekcji + {n_frag} fragmentow)"
+    if name == "3_adresy_symboli":
+        return f"resolved={count_symbol_matches(spec_data)}"
+    if name == "4_C001_zero_wartosci":
+        return f"przeskanowano={count_scanned_text_fragments(spec_data)} fragmentow"
+    if name == "5_pokrycie_rejestru_plikow_krytycznych":
+        n = len(load_critical_files())
+        return f"resolved={n}/{n} plikow krytycznych"
+    if name == "6_json_zgodny_z_markdownem":
+        return "resolved=1 (pelne porownanie strukturalne JSON<->markdown)"
+    return ""
+
+
 def main():
     if not SPEC_MD.exists():
         print(f"BRAK: {SPEC_MD}")
@@ -446,13 +567,14 @@ def main():
     results = run_all_checks(spec_data)
     all_ok = True
     for name, problems in results.items():
+        label = resolved_count_label(name, spec_data)
         if problems:
             all_ok = False
-            print(f"FAIL {name} ({len(problems)}):")
+            print(f"FAIL {name} ({len(problems)}) {label}:")
             for p in problems[:30]:
                 print(f"  - {p}")
         else:
-            print(f"PASS {name}")
+            print(f"PASS {name} - {label}")
     return 0 if all_ok else 1
 
 

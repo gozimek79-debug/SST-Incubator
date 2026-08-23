@@ -343,3 +343,105 @@ class TestJsonMatchesMarkdown:
         md_path.write_text(REAL_MD, encoding="utf-8")
         problems = check_json_matches_markdown(md_path=md_path, json_path=tmp_path / "missing.json")
         assert problems != []
+
+
+class TestZeroMatchesIsNeverSilentPass:
+    """B4C-05 v5/v6 (zgloszenie trzeciego audytora, potwierdzone eksperymentem
+    CTO): pusta lista problemow z kontroli 1/2/3 wygladala identycznie
+    niezaleznie od tego, czy WSZYSTKO sie rozwiazalo, czy NIC nie bylo do
+    sprawdzenia (notacja zniszczona). CTO zniszczyl 187 wystapien znaku
+    paragrafu (zamiana na 'par.') w calej Specyfikacji i dostal PASS na
+    kontrolach 2 i 3, mimo zero dopasowan. Ponizej DOKLADNA reprodukcja tego
+    eksperymentu na naprawionym kodzie - PRZED i PO widoczne w nazwach
+    testow (before = na oryginalnym dokumencie, after = na zniszczonej
+    kopii)."""
+
+    def test_before_real_document_has_nonzero_matches_of_every_kind(self):
+        """PRZED zniszczeniem: dowod, ze kontrole faktycznie maja co liczyc -
+        bez tego 'FAIL po zniszczeniu' nie dowodziloby niczego."""
+        from scripts.validate_canonical_spec import (
+            count_file_address_candidates,
+            count_section_matches,
+            count_fragment_matches,
+            count_symbol_matches,
+        )
+        n_shortcuts, n_paths = count_file_address_candidates(REAL_SPEC_DATA)
+        assert n_shortcuts > 0 and n_paths > 0
+        assert count_section_matches(REAL_SPEC_DATA) > 0
+        assert count_fragment_matches(REAL_SPEC_DATA) > 0
+        assert count_symbol_matches(REAL_SPEC_DATA) > 0
+
+    def test_after_destroying_section_sign_notation_check_section_fails(self):
+        """Reprodukcja eksperymentu CTO: wszystkie wystapienia '§' -> 'par.'.
+
+        B4C-05 v5/v6 zakaz wprost: NIE przypinac konkretnej liczby dopasowan
+        (nauczka z Z9C) - stad '> 0', nie '== 187' (liczba wystapien '§' w
+        dokumencie rosnie z kazda kolejna rewizja Specyfikacji; test ma
+        dowodzic MECHANIZMU odpornosci, nie zamrazac liczby paragrafow)."""
+        assert REAL_MD.count("§") > 0
+        mangled = REAL_MD.replace("§", "par.")
+        data = convert(mangled, SPEC_MD.name)
+        problems = check_section_addresses(data)
+        assert problems != [], "check_section_addresses dal PASS mimo zniszczonej notacji - regresja"
+        assert any("ZERO" in p for p in problems)
+
+    def test_after_destroying_section_sign_combined_check_2_fails(self):
+        """Dokladnie ten check, ktory jest wpiety do CI jako '2_adresy_sekcji_i_fragmentow'."""
+        mangled = REAL_MD.replace("§", "par.")
+        data = convert(mangled, SPEC_MD.name)
+        combined = check_section_addresses(data) + check_fragment_addresses(data)
+        assert combined != [], "kontrola 2 (jak wpieta w CHECKS) dala PASS mimo zniszczonej notacji sekcji"
+
+    def test_after_destroying_double_colon_notation_check_symbol_fails(self):
+        mangled = REAL_MD.replace("::", ":")
+        data = convert(mangled, SPEC_MD.name)
+        problems = check_symbol_addresses(data)
+        assert problems != [], "check_symbol_addresses dal PASS mimo zniszczonej notacji ::"
+        assert any("ZERO" in p for p in problems)
+
+    def test_after_removing_all_backticks_check_file_addresses_fails(self):
+        mangled = REAL_MD.replace("`", "")
+        data = convert(mangled, SPEC_MD.name)
+        problems = check_file_addresses(data)
+        assert problems != [], "check_file_addresses dal PASS mimo usuniecia wszystkich adresow w prozie"
+        assert any("ZERO" in p for p in problems)
+
+    def test_c001_fails_on_completely_empty_document(self):
+        problems = check_c001({"sections": []})
+        assert problems != []
+        assert any("ZERO" in p for p in problems)
+
+    def test_registry_coverage_fails_on_empty_critical_files_list(self, monkeypatch):
+        import scripts.validate_canonical_spec as mod
+        monkeypatch.setattr(mod, "load_critical_files", lambda: [])
+        problems = mod.check_critical_files_registry_coverage(REAL_SPEC_DATA)
+        assert problems != []
+
+    def test_negative_of_negative_real_document_still_passes_after_fix(self):
+        """Sanity: naprawa nie zepsula prawdziwego dokumentu - wszystkie
+        kontrole nadal PASS na nietknietej Specyfikacji."""
+        assert check_file_addresses(REAL_SPEC_DATA) == []
+        assert check_section_addresses(REAL_SPEC_DATA) == []
+        assert check_fragment_addresses(REAL_SPEC_DATA) == []
+        assert check_symbol_addresses(REAL_SPEC_DATA) == []
+        assert check_c001(REAL_SPEC_DATA) == []
+        assert check_critical_files_registry_coverage(REAL_SPEC_DATA) == []
+
+
+class TestResolvedCountReporting:
+    """B4C-05 v6 pkt 1: resolved_count widoczny NAWET przy PASS."""
+
+    def test_resolved_count_label_reports_nonzero_on_real_document(self):
+        import re
+        from scripts.validate_canonical_spec import resolved_count_label
+
+        for name in (
+            "1_adresy_plikow", "2_adresy_sekcji_i_fragmentow", "3_adresy_symboli",
+            "4_C001_zero_wartosci", "5_pokrycie_rejestru_plikow_krytycznych",
+            "6_json_zgodny_z_markdownem",
+        ):
+            label = resolved_count_label(name, REAL_SPEC_DATA)
+            assert label != ""
+            m = re.search(r"(?:resolved|przeskanowano)=(\d+)", label)
+            assert m is not None, f"{name}: brak liczby w etykiecie {label!r}"
+            assert int(m.group(1)) > 0, f"{name}: liczba w etykiecie jest 0 ({label!r})"
