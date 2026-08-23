@@ -23,7 +23,9 @@ from clos_curriculum.laboratory.statistics import (
     kendall_tau,
     spearman_rho,
     mann_whitney_u,
+    block_means,
 )
+from execution_package_v0_11.runners.power_analysis_b4b import _block_means as _simulator_block_means
 from clos_scientist.fallback_branch_diagnostic import (
     k7_fallback_branch_fraction,
     interpret_k7_fraction,
@@ -90,6 +92,315 @@ class TestWilcoxonSignedRank:
         assert result["method"] == "exact"
         # z jednym elementem: 2 permutacje, |diff| zawsze rangi 1 -> p=2*(1/2)=1
         assert abs(result["p_value"] - 1.0) < TOL
+
+
+def _reference_wilcoxon_two_sided_pre_v7(pairs, exact_max_n=25):
+    """Kopia NIEZALEZNA (nie import) implementacji wilcoxon_signed_rank
+    SPRZED B4C-05 v7 (dodanie parametru 'alternative') - wylacznie do dowodu
+    regresji ponizej. Jesli kiedys trzeba bedzie ja zmienic, znaczy to, ze
+    domyslne (dwustronne) zachowanie funkcji faktycznie sie zmienilo - co
+    ten test ma properly wykryc, nie przemilczec przez import tego samego
+    kodu, ktory testuje."""
+    from clos_curriculum.laboratory.statistics import _std_normal_cdf
+
+    diffs = [a - b for a, b in pairs]
+    nonzero = [d for d in diffs if d != 0]
+    n_zero = len(diffs) - len(nonzero)
+    n = len(nonzero)
+    if n == 0:
+        return {"computable": False, "p_value": None, "statistic": None,
+                "n": 0, "n_zero_dropped": n_zero}
+
+    abs_d = [abs(d) for d in nonzero]
+    order = sorted(range(n), key=lambda i: abs_d[i])
+    ranks = [0.0] * n
+    tie_sizes = []
+    i = 0
+    while i < n:
+        j = i
+        while j + 1 < n and abs_d[order[j + 1]] == abs_d[order[i]]:
+            j += 1
+        avg_rank = (i + 1 + j + 1) / 2
+        for k in range(i, j + 1):
+            ranks[order[k]] = avg_rank
+        if j > i:
+            tie_sizes.append(j - i + 1)
+        i = j + 1
+
+    w_plus = sum(r for r, d in zip(ranks, nonzero) if d > 0)
+    w_minus = sum(r for r, d in zip(ranks, nonzero) if d < 0)
+    statistic = min(w_plus, w_minus)
+    has_ties = len(tie_sizes) > 0
+
+    if n <= exact_max_n and not has_ties:
+        max_sum = n * (n + 1) // 2
+        counts = [0] * (max_sum + 1)
+        counts[0] = 1
+        running = 0
+        for r in range(1, n + 1):
+            running += r
+            for s in range(min(running, max_sum), r - 1, -1):
+                counts[s] += counts[s - r]
+        total = 2 ** n
+        wpi = int(round(w_plus))
+        p_le = sum(counts[:wpi + 1]) / total
+        p_ge = sum(counts[wpi:]) / total
+        p_value = min(1.0, 2 * min(p_le, p_ge))
+        method = "exact"
+    else:
+        mean = n * (n + 1) / 4
+        var = n * (n + 1) * (2 * n + 1) / 24 - sum(t ** 3 - t for t in tie_sizes) / 48
+        if var <= 0:
+            return {"computable": False, "p_value": None, "statistic": round(statistic, 6),
+                    "n": n, "n_zero_dropped": n_zero}
+        z = (w_plus - mean) / math.sqrt(var)
+        p_value = max(0.0, min(1.0, 2 * (1 - _std_normal_cdf(abs(z)))))
+        method = "normal_approx"
+
+    return {"statistic": round(statistic, 6), "w_plus": round(w_plus, 6),
+            "w_minus": round(w_minus, 6), "p_value": round(p_value, 8),
+            "computable": True, "n": n, "n_zero_dropped": n_zero,
+            "method": method, "has_ties": has_ties}
+
+
+class TestWilcoxonAlternativeRegression:
+    """B4C-05 v7 ZAKRES pkt 1-2: dodanie parametru 'alternative' (domyslnie
+    'two-sided') NIE MOZE zmienic wyniku dla zadnego istniejacego
+    wywolujacego. Dowod: NIEZALEZNA kopia starej implementacji (powyzej,
+    _reference_wilcoxon_two_sided_pre_v7) porownana BIT W BIT z biezaca
+    funkcja wywolana domyslnie (bez podania alternative), na kompletcie
+    wzorcow wywolan realnie obecnych w repo:
+
+      - 5 x parametrized (n,seed) z TestWilcoxonSignedRank.test_matches_scipy_exact_no_ties
+      - 1 x dane z remisami (test_matches_scipy_approx_with_ties)
+      - 2 x duze n bez remisow, approx (test_matches_scipy_approx_large_n_no_ties)
+      - wszystkie roznice zerowe, pusta lista, n=1 (3 przypadki brzegowe)
+      - ksztalt execution_package_v0_11/runners/power_analysis_b4b.py:219
+        (pary (early_mean, late_mean))
+      - ksztalt power_analysis_b4b.py:260 (pary (wartosc, 0.0) - test
+        przeciw zeru, uzywany przez Warunek A i K6)
+
+    Razem: 5 + 1 + 2 + 3 + 2 = 13 wzorcow wywolan sprawdzonych, kazdy
+    porownany PO WSZYSTKICH kluczach obecnych w obu wynikach (nie tylko
+    p_value)."""
+
+    def _assert_bit_identical(self, pairs, exact_max_n=25):
+        expected = _reference_wilcoxon_two_sided_pre_v7(pairs, exact_max_n)
+        actual = wilcoxon_signed_rank(pairs, exact_max_n)
+        assert actual["alternative"] == "two-sided"
+        for key in expected:
+            assert actual[key] == expected[key], f"klucz {key!r}: {actual[key]!r} != {expected[key]!r}"
+
+    @pytest.mark.parametrize("n,seed", [(5, 1), (8, 2), (12, 3), (20, 4), (25, 5)])
+    def test_exact_no_ties_bit_identical(self, n, seed):
+        self._assert_bit_identical(_random_pairs(n, seed))
+
+    def test_approx_with_ties_bit_identical(self):
+        pairs = [(1.0, 1.0), (2.0, 1.5), (2.0, 1.5), (3.0, 2.0), (3.0, 2.0),
+                 (4.0, 3.5), (1.5, 1.0), (2.5, 2.0), (3.5, 3.0), (4.5, 4.0)]
+        self._assert_bit_identical(pairs)
+
+    @pytest.mark.parametrize("n,seed", [(30, 10), (40, 11)])
+    def test_approx_large_n_bit_identical(self, n, seed):
+        self._assert_bit_identical(_random_pairs(n, seed), exact_max_n=25)
+
+    def test_all_zero_differences_bit_identical(self):
+        self._assert_bit_identical([(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])
+
+    def test_empty_input_bit_identical(self):
+        self._assert_bit_identical([])
+
+    def test_n_1_bit_identical(self):
+        self._assert_bit_identical([(5.0, 2.0)])
+
+    @pytest.mark.parametrize("n,seed", [(6, 100), (9, 101), (15, 102)])
+    def test_paired_early_late_shape_bit_identical(self, n, seed):
+        """Ksztalt power_analysis_b4b.py:219 - pary (early_mean, late_mean)."""
+        rng = random.Random(seed)
+        pairs = [(rng.uniform(0.05, 0.3), rng.uniform(0.02, 0.25)) for _ in range(n)]
+        self._assert_bit_identical(pairs)
+
+    @pytest.mark.parametrize("n,seed", [(6, 200), (9, 201), (15, 202)])
+    def test_value_vs_zero_shape_bit_identical(self, n, seed):
+        """Ksztalt power_analysis_b4b.py:260 - pary (wartosc, 0.0), test
+        Warunku A/K6 przeciw zeru."""
+        rng = random.Random(seed)
+        block_avgs = [rng.gauss(0.0, 1.0) for _ in range(n)]
+        pairs = [(v, 0.0) for v in block_avgs]
+        self._assert_bit_identical(pairs)
+
+
+class TestWilcoxonOneSided:
+    """B4C-05 v6/v7: tryb jednostronny (K3a-warunek1, decyzja CTO ratyfikowana
+    v6 pkt 2 - JEDNOSTRONNY Wilcoxon, H1: mediana(post_shock-pre_shock) > 0).
+
+    ZAKRES WALIDACJI - dokladnie jak zazadano (mirror B3): OBOWIAZKOWO dane
+    BEZ REMISOW, method='exact', zero_method='wilcox', alternative='greater'
+    i 'two-sided', tolerancja 1e-6 - to jest jedyny regime, w ktorym repo i
+    scipy licza TA SAMA wielkosc. ZAKAZANE: walidacja przeciw scipy
+    method='exact' NA DANYCH Z REMISAMI - zmierzone bezposrednio (patrz
+    dowod nizej w tym docstringu) i POTWIERDZONE jako niewlasciwe:
+
+        roznice = [1.0, 1.0, -1.0, 2.0, 2.0, -3.0, 3.0, 0.5]  (remisy: 1.0x2, 2.0x2)
+        repo (wlasna implementacja, normal_approx)         = 0.29004704
+        scipy method='exact'  (BEZ OSTRZEZENIA o remisach)  = 0.3828125
+        scipy method='approx'                                = 0.32340549
+
+    scipy 1.15.3 przy method='exact' PO CICHU IGNORUJE remisy - roznica
+    0.09 wobec repo nie jest bledem zadnej ze stron, tylko dowodem, ze te
+    dwa narzedzia licza wtedy INNA wielkosc. Test negatywny ponizej
+    (test_ties_regime_scipy_exact_silently_ignores_ties_do_not_validate_here)
+    odtwarza to bezposrednio, zeby ta wiedza nie zniknela z kodu."""
+
+    TOL = 1e-6
+
+    @pytest.mark.parametrize("n,seed", [(5, 1), (8, 2), (12, 3), (20, 4), (25, 5), (9, 42)])
+    def test_matches_scipy_exact_no_ties_greater(self, n, seed):
+        pairs = _random_pairs(n, seed)
+        mine = wilcoxon_signed_rank(pairs, alternative="greater")
+        x = [p[0] for p in pairs]
+        y = [p[1] for p in pairs]
+        sp = scipy_stats.wilcoxon(x, y, zero_method="wilcox", mode="exact", alternative="greater")
+        assert mine["method"] == "exact"
+        assert abs(mine["statistic"] - sp.statistic) < TOL
+        assert abs(mine["p_value"] - sp.pvalue) < TOL
+
+    @pytest.mark.parametrize("n,seed", [(5, 1), (8, 2), (12, 3), (20, 4), (25, 5), (9, 42)])
+    def test_matches_scipy_exact_no_ties_less(self, n, seed):
+        pairs = _random_pairs(n, seed)
+        mine = wilcoxon_signed_rank(pairs, alternative="less")
+        x = [p[0] for p in pairs]
+        y = [p[1] for p in pairs]
+        sp = scipy_stats.wilcoxon(x, y, zero_method="wilcox", mode="exact", alternative="less")
+        assert mine["method"] == "exact"
+        assert abs(mine["statistic"] - sp.statistic) < TOL
+        assert abs(mine["p_value"] - sp.pvalue) < TOL
+
+    @pytest.mark.parametrize("n,seed", [(5, 1), (8, 2), (12, 3), (20, 4), (25, 5)])
+    def test_matches_scipy_exact_no_ties_two_sided_still_matches(self, n, seed):
+        """Re-potwierdzenie dwustronnego trybu PO refaktoryzacji na wspolne
+        _wilcoxon_null_distribution - nie tylko regresja wewnetrzna, tez
+        wciaz zgodny ze scipy."""
+        pairs = _random_pairs(n, seed)
+        mine = wilcoxon_signed_rank(pairs, alternative="two-sided")
+        x = [p[0] for p in pairs]
+        y = [p[1] for p in pairs]
+        sp = scipy_stats.wilcoxon(x, y, zero_method="wilcox", mode="exact", alternative="two-sided")
+        assert abs(mine["statistic"] - sp.statistic) < TOL
+        assert abs(mine["p_value"] - sp.pvalue) < TOL
+
+    def test_ties_regime_scipy_exact_silently_ignores_ties_do_not_validate_here(self):
+        """DOWOD (nie test poprawnosci repo) - reprodukcja pomiaru z
+        docstringu klasy: scipy method='exact' na danych z remisami daje
+        WYNIK NIEZGODNY z repo, bo scipy po cichu ignoruje remisy w tym
+        trybie. Ten test dokumentuje ROZBIEZNOSC jako oczekiwana, NIE
+        naprawia jej i NIE dostraja repo do scipy w tym regime (B4C-05 v7,
+        wprost zakazane)."""
+        diffs = [1.0, 1.0, -1.0, 2.0, 2.0, -3.0, 3.0, 0.5]
+        pairs = [(d, 0.0) for d in diffs]
+        mine = wilcoxon_signed_rank(pairs)
+        assert mine["has_ties"] is True
+        assert mine["method"] == "normal_approx"
+        x = [p[0] for p in pairs]
+        y = [p[1] for p in pairs]
+        sp_exact = scipy_stats.wilcoxon(x, y, zero_method="wilcox", mode="exact")
+        sp_approx = scipy_stats.wilcoxon(x, y, zero_method="wilcox", mode="approx")
+        # repo zgadza sie z approx (poprawny regime dla remisow)...
+        assert abs(mine["p_value"] - sp_approx.pvalue) < TOL
+        # ...i NIE zgadza sie z exact (scipy po cichu ignoruje remisy tam) -
+        # rozbieznosc jest OCZEKIWANA, nie regresja.
+        assert abs(mine["p_value"] - sp_exact.pvalue) > 0.01
+
+    def test_resolution_at_n9_one_sided_is_1_over_2_pow_9(self):
+        """B4C-05 v7 ZAKRES pkt 4: min. osiagalne p jednostronne przy n=9,
+        LICZONE WYWOLANIEM (uklad skrajny: wszystkie roznice dodatnie,
+        maksymalnie separujacy), nie wzorem."""
+        pairs = [(float(i + 1), 0.0) for i in range(9)]
+        result = wilcoxon_signed_rank(pairs, alternative="greater")
+        assert result["method"] == "exact"
+        # p_value zaokraglane do 8 miejsc w funkcji (round(p_value, 8)) -
+        # tolerancja musi to uwzgledniac, nie porownywac bit-w-bit z surowa
+        # wartoscia 1/512.
+        assert abs(result["p_value"] - (1 / 512)) < 1e-8
+
+    def test_resolution_at_n9_two_sided_is_2_over_2_pow_9(self):
+        """Kontrast: to samo skrajne ulozenie, tryb dwustronny daje 2x
+        wiecej (2/512), NIE 1/512 - dowod, ze margines jednostronny/dwustronny
+        rozni sie dokladnie czynnikiem 2 w tym skrajnym przypadku."""
+        pairs = [(float(i + 1), 0.0) for i in range(9)]
+        result = wilcoxon_signed_rank(pairs, alternative="two-sided")
+        assert abs(result["p_value"] - (2 / 512)) < 1e-8
+
+    def test_invalid_alternative_raises(self):
+        with pytest.raises(ValueError):
+            wilcoxon_signed_rank([(1.0, 0.0)], alternative="sideways")
+
+
+class TestBlockMeansConsistency:
+    """B4C-05 v8: block_means (clos_curriculum/laboratory/statistics.py,
+    CZLONEK rejestru) MUSI dawac identyczny wynik co _block_means
+    (execution_package_v0_11/runners/power_analysis_b4b.py, POZA rejestrem,
+    Wariant C - plik wyprodukowal juz artefakt B4b, nietykany). Test spojnosci,
+    NIE konsolidacja - dwie niezalezne implementacje tej samej, jednej
+    definicji (srednia po kolumnie), porownywane na danych losowych."""
+
+    N_CASES = 200
+
+    def _random_columns(self, seed):
+        rng = random.Random(seed)
+        n_cols = rng.randint(1, 12)
+        col_len = rng.randint(1, 23)
+        return [[rng.uniform(-10, 10) for _ in range(col_len)] for _ in range(n_cols)]
+
+    def test_identical_on_random_data(self):
+        """200 losowych ukladow kolumn (rozna liczba kolumn, rozna dlugosc) -
+        obie implementacje musza dac IDENTYCZNY wynik na kazdym."""
+        checked = 0
+        for seed in range(self.N_CASES):
+            columns = self._random_columns(seed)
+            mine = block_means(columns)
+            simulator = _simulator_block_means(columns)
+            assert mine == simulator, f"seed={seed}: {mine} != {simulator}"
+            checked += 1
+        assert checked == self.N_CASES
+
+    def test_identical_on_23_genome_shape(self):
+        """Ksztalt faktycznie uzywany przez rodzine BH-FDR: 23 genomy (wiersze)
+        x N seedow (kolumny) - patrz publications/pc_001_bh_family.json."""
+        for seed, n_seeds in [(1, 6), (2, 8), (3, 9), (4, 15)]:
+            rng = random.Random(seed)
+            columns = [[rng.uniform(0.0, 0.3) for _ in range(23)] for _ in range(n_seeds)]
+            assert block_means(columns) == _simulator_block_means(columns)
+
+    def test_negative_median_instead_of_mean_is_caught(self):
+        """Dowod, ze test faktycznie porownuje WARTOSCI, nie tylko ksztalt
+        wyniku - podmiana sredniej na mediane w jednej z dwoch 'implementacji'
+        MUSI zostac zlapana."""
+        def _median_variant(columns):
+            result = []
+            for col in columns:
+                s = sorted(col)
+                n = len(s)
+                mid = n // 2
+                result.append(s[mid] if n % 2 else (s[mid - 1] + s[mid]) / 2)
+            return result
+
+        columns = [[1.0, 2.0, 100.0], [5.0, 5.0, 5.0, 1.0]]
+        mine = block_means(columns)
+        median_variant = _median_variant(columns)
+        assert mine != median_variant, "przypadek testowy nie roznicuje sredniej od mediany"
+
+    def test_power_analysis_b4b_module_is_untouched(self):
+        """B4C-05 v8 zakaz wprost: NIE edytuj power_analysis_b4b.py. Ten test
+        nie dowodzi tego mechanicznie (to robi git diff, patrz raport), ale
+        potwierdza, ze _block_means nadal istnieje pod swoim oryginalnym,
+        prywatnym (podkreslnikowym) nazwiskiem w tym pliku - import powyzej
+        (import _block_means as _simulator_block_means) nie wymagal zadnej
+        zmiany sygnatury ani eksportu."""
+        import inspect
+        from execution_package_v0_11.runners import power_analysis_b4b as sim
+        assert hasattr(sim, "_block_means")
+        assert "sum(col) / len(col)" in inspect.getsource(sim._block_means)
 
 
 class TestKendallTau:

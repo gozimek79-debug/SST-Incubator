@@ -711,6 +711,36 @@ def kruskal_wallis(groups: List[List[float]]) -> Dict[str, Any]:
 # ciaglosci (ten sam poziom rygoru co juz istniejace w tym pliku funkcje
 # oparte na _noncentral_t_cdf/_chi2_cdf).
 
+# --- Agregacja blokowa (B4C-05 v8): jednostka analizy = 1 wartosc per seed ---
+# ZNALEZISKO CTO: identyczna agregacja (23 genomy -> 1 srednia per blok
+# seedowy) istniala DOTAD wylacznie jako execution_package_v0_11/runners/
+# power_analysis_b4b.py::_block_means - plik POZA CRITICAL_FILES_PC_001
+# (wykluczony formalnie, B4B-03 pkt 5: jednorazowy symulator analizy mocy,
+# nie kod stosowany przy kazdym przebiegu). Funkcja, ktora ustala JEDNOSTKE
+# ANALIZY calej rodziny testow (kazda komorka BH-FDR operuje na "1 wartosc
+# per blok seedowy", nie na 23*N surowych wartosciach - patrz publications/
+# pc_001_bh_family.json), lezala poza zasiegiem Hard-Halt: zamiana sum/len
+# na mediane zmienilaby wejscie KAZDEGO testu w rodzinie bez zmiany
+# PC_001_BASELINE. Ta sama klasa bledu co lista 51/52 (B5-00) i K4 (B4C-05
+# v3) - tym razem we WLASNEJ instrukcji CTO ("uzyj _block_means").
+#
+# WARIANT C (ten sam wzorzec co trzy runnery pilota, B4C-01): power_analysis_
+# b4b.py NIE jest edytowany - wyprodukowal juz zacommitowany artefakt B4b,
+# edycja (nawet czysto importowa) zerwalaby prowieniencje. Ta funkcja jest
+# NIEZALEZNA, KANONICZNA kopia w pliku nalezacym do rejestru - test spojnosci
+# (tests/test_pc_001_statistics.py::TestBlockMeansConsistency) dowodzi
+# rownowaznosci na danych losowych, nie konsolidacja.
+def block_means(columns: List[List[float]]) -> List[float]:
+    """Srednia w obrebie kazdej kolumny (bloku seeda) po wszystkich genomach
+    w bloku. KRYTYCZNE: zaden test w rodzinie BH-FDR nie dostaje surowych
+    23*N wartosci per-genom wprost - to bylaby pseudo-replikacja (23
+    skorelowane obserwacje w bloku wygladajace dla testu jak 23 niezalezne).
+    Test dostaje N wartosci - po jednej na blok/seed, ktora JEST jednostka
+    analizy (patrz power_analysis_b4b.py::_block_means, docstring, ktory
+    ustalil ten kontrakt podczas analizy mocy B4b)."""
+    return [sum(col) / len(col) for col in columns]
+
+
 def _rank_with_ties(values: List[float]) -> Tuple[List[float], List[int]]:
     """Rangi (srednia dla remisow) + rozmiary grup remisowych.
 
@@ -740,11 +770,12 @@ def _rank_with_ties(values: List[float]) -> Tuple[List[float], List[int]]:
 
 # --- Wilcoxon signed-rank (warunek B: W_early vs W_late per seed/genom) ---
 
-def _wilcoxon_exact_p(w_plus: float, n: int) -> float:
-    """Rozklad zerowy W+ (suma rang ze znakiem dodatnim) przy BRAKU remisow -
-    kazda z 2^n kombinacji znakow rownie prawdopodobna pod H0. DP: counts[s] =
-    liczba kombinacji znakow dajacych sume rang dodatnich = s. Bez remisow
-    rangi to dokladnie calkowite 1..n, wiec DP jest po sumach calkowitych."""
+def _wilcoxon_null_distribution(n: int) -> Tuple[List[int], int]:
+    """DP: counts[s] = liczba kombinacji znakow (z 2^n) dajacych sume rang
+    dodatnich = s, przy BRAKU remisow (rangi = calkowite 1..n). Wydzielone
+    z _wilcoxon_exact_p (B4C-05 v7, tryb jednostronny) - JEDNA implementacja
+    DP, uzywana przez dwustronny i jednostronny wariant, zeby nie duplikowac
+    logiki rozkladu zerowego."""
     max_sum = n * (n + 1) // 2
     counts = [0] * (max_sum + 1)
     counts[0] = 1
@@ -753,14 +784,30 @@ def _wilcoxon_exact_p(w_plus: float, n: int) -> float:
         running_total += r
         for s in range(min(running_total, max_sum), r - 1, -1):
             counts[s] += counts[s - r]
-    total_perms = 2 ** n
+    return counts, 2 ** n
+
+
+def _wilcoxon_exact_p(w_plus: float, n: int, alternative: str = "two-sided") -> float:
+    """p-value dokladne (rozklad zerowy W+ przy braku remisow).
+
+    'two-sided' (domyslne, ZACHOWANIE BEZ ZMIAN wzgledem wersji sprzed B4C-05
+    v7): 2*min(p_le, p_ge). 'greater' (H1: mediana roznic > 0): p_ge = P(W+ >=
+    obserwowane). 'less' (H1: mediana roznic < 0): p_le = P(W+ <= obserwowane).
+    Potwierdzone empirycznie przeciw scipy.stats.wilcoxon(alternative=...) -
+    patrz tests/test_pc_001_statistics.py."""
+    counts, total_perms = _wilcoxon_null_distribution(n)
     w_plus_int = int(round(w_plus))
     p_le = sum(counts[:w_plus_int + 1]) / total_perms
     p_ge = sum(counts[w_plus_int:]) / total_perms
+    if alternative == "greater":
+        return min(1.0, p_ge)
+    if alternative == "less":
+        return min(1.0, p_le)
     return min(1.0, 2 * min(p_le, p_ge))
 
 
-def wilcoxon_signed_rank(pairs: List[Tuple[float, float]], exact_max_n: int = 25) -> Dict[str, Any]:
+def wilcoxon_signed_rank(pairs: List[Tuple[float, float]], exact_max_n: int = 25,
+                          alternative: str = "two-sided") -> Dict[str, Any]:
     """Test Wilcoxona dla par (warunek B, Aneks 1: W_early vs W_late per
     seed/genom). Rozniece zerowe (pary identyczne) ODRZUCANE przed rankingiem
     - konwencja 'wilcox' (standardowa, domyslna w scipy.stats.wilcoxon).
@@ -768,8 +815,23 @@ def wilcoxon_signed_rank(pairs: List[Tuple[float, float]], exact_max_n: int = 25
     Rozklad DOKLADNY (DP) gdy n<=exact_max_n i brak remisow; inaczej
     przyblizenie normalne z korekta na remisy i korekta ciaglosci.
 
-    Zwraca statistic=min(W+,W-) (konwencja scipy), p_value dwustronne.
+    alternative (B4C-05 v7, dodane PRZED B5 - domyslna wartosc 'two-sided'
+    zachowuje BIT W BIT poprzednie zachowanie dla kazdego istniejacego
+    wywolujacego, patrz tests/test_pc_001_statistics.py::TestWilcoxonAlternativeRegression):
+      'two-sided' (domyslne) - statistic=min(W+,W-), p dwustronne.
+      'greater'  - H1: mediana roznic (a-b) > 0. Uzycie: K3a-warunek1
+                   (publications/pc_001_bh_family.json) - kierunkowosc wynika
+                   z PREREJESTROWANEJ hipotezy ("po wstrzasie PE rosnie"),
+                   NIE z tego, ze jednostronny test daje mniejsze p.
+      'less'     - H1: mediana roznic (a-b) < 0.
+    Dla 'greater'/'less' statistic=W+ (konwencja scipy - zweryfikowane
+    empirycznie: scipy.stats.wilcoxon(..., alternative='greater'/'less')
+    zwraca to samo 'statistic', rozne 'pvalue' - inaczej niz przy 'two-sided',
+    gdzie statistic=min(W+,W-)).
     """
+    if alternative not in ("two-sided", "greater", "less"):
+        raise ValueError(f"alternative musi byc 'two-sided', 'greater' lub 'less', dostano {alternative!r}")
+
     diffs = [a - b for a, b in pairs]
     nonzero = [d for d in diffs if d != 0]
     n_zero = len(diffs) - len(nonzero)
@@ -777,17 +839,17 @@ def wilcoxon_signed_rank(pairs: List[Tuple[float, float]], exact_max_n: int = 25
     if n == 0:
         return {"statistic": None, "p_value": None, "computable": False,
                 "reason": "wszystkie roznice sa zerowe (lub brak par)",
-                "n_zero_dropped": n_zero, "n": 0}
+                "n_zero_dropped": n_zero, "n": 0, "alternative": alternative}
 
     abs_d = [abs(d) for d in nonzero]
     ranks, tie_group_sizes = _rank_with_ties(abs_d)
     w_plus = sum(r for r, d in zip(ranks, nonzero) if d > 0)
     w_minus = sum(r for r, d in zip(ranks, nonzero) if d < 0)
-    statistic = min(w_plus, w_minus)
+    statistic = w_plus if alternative in ("greater", "less") else min(w_plus, w_minus)
     has_ties = len(tie_group_sizes) > 0
 
     if n <= exact_max_n and not has_ties:
-        p_value = _wilcoxon_exact_p(w_plus, n)
+        p_value = _wilcoxon_exact_p(w_plus, n, alternative)
         method = "exact"
     else:
         mean = n * (n + 1) / 4
@@ -795,22 +857,30 @@ def wilcoxon_signed_rank(pairs: List[Tuple[float, float]], exact_max_n: int = 25
         if var <= 0:
             return {"statistic": round(statistic, 6), "p_value": None, "computable": False,
                     "reason": "wariancja <=0 (zbyt duzo remisow wzgledem n)",
-                    "n_zero_dropped": n_zero, "n": n}
+                    "n_zero_dropped": n_zero, "n": n, "alternative": alternative}
         # BEZ korekty ciaglosci - zweryfikowane wprost przeciwko
         # scipy.stats.wilcoxon(mode='approx'): domyslny tryb scipy NIE
         # stosuje korekty ciaglosci (correction=False domyslnie), w
         # odroznieniu od Manna-Whitneya ponizej (scipy uzywa correction
         # domyslnie TAM). Zgodnosc do 1e-6 wymaga podazania za scipy per
         # test, nie jednolitej wlasnej konwencji - patrz
-        # tests/test_pc_001_statistics.py.
+        # tests/test_pc_001_statistics.py. Jednostronne p (greater/less)
+        # NIE walidowane przeciw scipy przy remisach (B4C-05 v7 ZAKAZ:
+        # remisy sa oddzielnym regime'em, gdzie scipy method="exact" po
+        # cichu ignoruje remisy - patrz docstring TestWilcoxonAlternativeRegression).
         z = (w_plus - mean) / math.sqrt(var)
-        p_value = max(0.0, min(1.0, 2 * (1 - _std_normal_cdf(abs(z)))))
+        if alternative == "greater":
+            p_value = max(0.0, min(1.0, 1 - _std_normal_cdf(z)))
+        elif alternative == "less":
+            p_value = max(0.0, min(1.0, _std_normal_cdf(z)))
+        else:
+            p_value = max(0.0, min(1.0, 2 * (1 - _std_normal_cdf(abs(z)))))
         method = "normal_approx"
 
     return {"statistic": round(statistic, 6), "w_plus": round(w_plus, 6),
             "w_minus": round(w_minus, 6), "p_value": round(p_value, 8),
             "computable": True, "n": n, "n_zero_dropped": n_zero,
-            "method": method, "has_ties": has_ties}
+            "method": method, "has_ties": has_ties, "alternative": alternative}
 
 
 # --- Kendall tau-b (K3b-1: trend recovery_i przez kolejne wstrzasy) ---
