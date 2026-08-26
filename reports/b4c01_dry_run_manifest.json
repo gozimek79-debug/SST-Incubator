@@ -1,7 +1,8 @@
 {
-  "purpose": "dowod dry-run B4C-01/03/04 (mechanika runnera konfirmacyjnego PC-001) - NIE eksperyment, NIE wynik inferencyjny",
-  "commit": "d607e4bb8fc21c9b6e351fe1895c2feb554dd839",
-  "generated_at": "2026-08-21T21:40:28.480793+00:00",
+  "purpose": "dowod dry-run B4C-01/03/04 + B4C-1 (02) (mechanika runnera konfirmacyjnego PC-001, rozszerzenie kanalu obserwacyjnego) - NIE eksperyment, NIE wynik inferencyjny",
+  "commit": "341319b916a7970f88bfe062482f6a6919677e42",
+  "generated_at": "2026-08-23T22:15:00+00:00",
+  "note_b4c1_02": "Zaktualizowano PO rozszerzeniu kanalu obserwacyjnego (B4C-1 (02)): runner zapisuje teraz prediction/input/prediction_error per tick (nie sama prediction_error) - patrz observation_channel_extension nizej. Dry-run powtorzony w calosci na nowym formacie, nie tylko na przyrostowej zmianie. B4C-07 (generator manifestu) nadal wstrzymane - ten plik zaktualizowany recznie, tak jak zostal pierwotnie napisany, nie generatorem (ktory nie istnieje).",
   "dry_run": {
     "seed_range": [
       50000,
@@ -10,7 +11,16 @@
     ],
     "run_count_expected": 207,
     "run_count_completed": 207,
+    "trajectory_schema_version": 2,
     "result": "PASS"
+  },
+  "observation_channel_extension": {
+    "purpose": "B4C-1 (02), decyzja CTO: prediction i input zapisywane osobno, obok prediction_error - trzy komorki rodziny BH (K1-A, K1-B, K6) potrzebuja ich osobno, nie da sie ich odtworzyc z samej prediction_error (znak roznicy prediction-input zmienia sie prawie co tick)",
+    "guarantee_1_field_consistency": "PASS - wszystkie 207 przebiegow, prediction/input/prediction_error obecne razem na kazdym zapisanym ticku (L1.2 ma PERCEIVE zawsze wlaczony, wiec brak tickow None w praktyce - zero_ticks_none we wszystkich 207 rekordach)",
+    "guarantee_2_prediction_error_formula": "PASS - wszystkie 207 przebiegow, prediction_error == abs(prediction-input) w granicach tolerancji 1e-12, sprawdzone przez verify_trajectory_field_consistency wywolane INLINE w pipeline (nie tylko post-hoc) przed zapisem kazdego rekordu",
+    "guarantee_3_input_provenance": "PASS - wszystkie 207 przebiegow, zapisany input(t) zgadza sie z WorldRuntime.step(tick, seed, environment) w granicach tolerancji 1e-12, sprawdzone przez verify_input_provenance INLINE przed zapisem kazdego rekordu",
+    "guarantee_4_negative_tests": "PASS (w tests/test_pc_001_confirmatory_runner_guarantee.py::TestObservationChannelExtension, nie w tym manifescie - manifest dokumentuje przebiegi PRAWDZIWE, negatyw dziala na SYNTETYCZNIE popsutej kopii prawdziwej trajektorii): podmieniony input -> obie kontrole (spojnosc pol, prowieniencja) FAIL; podmieniona prediction -> kontrola spojnosci pol FAIL, kontrola prowieniencji poprawnie NIE reaguje (sprawdza wylacznie input)",
+    "rounding": "brak - wszystkie trzy pola zapisywane surowo (bez round()), pelna precyzja float, zweryfikowane bezposrednio w pliku wynikowym"
   },
   "seed_disjointness_proof": {
     "dry_run_seeds": [
@@ -72,8 +82,8 @@
   },
   "critical_files_pc_001_interim_hash": {
     "algorithm": "compute_files_hash_v2",
-    "n_files": 52,
-    "value": "c9f753c41949358e52857f75209cd30d828cb250f83bd77d7c3555bceefeb071",
-    "note": "INTERIM - PC_001_BASELINE nadal TBD (B5 nastapi po evaluatorze, B4C-2). Ta wartosc to migawka stanu 52 plikow krytycznych w momencie dry-run, NIE zamrozony baseline - do wewnetrznego sledzenia, nie do porownania z niczym."
+    "n_files": 53,
+    "value": "c499d7ac30af3ec87ba6efbb7663748ce1e110a3fbff6082578c547d13e13ba7",
+    "note": "INTERIM - PC_001_BASELINE nadal TBD (B5 nastapi po evaluatorze, B4C-2). Ta wartosc to migawka stanu 53 plikow krytycznych PO rozszerzeniu kanalu obserwacyjnego (B4C-1 (02) zmienia tresc execution_package_v0_11/runners/pc_001_confirmatory_runner.py, czlonka rejestru) - stad wartosc INNA niz poprzednia migawka (52 pliki, sprzed tej zmiany). NIE zamrozony baseline - do wewnetrznego sledzenia, nie do porownania z niczym."
   }
 }

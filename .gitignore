@@ -18,3 +18,19 @@ CANONICAL_PARAMETERS_REPORT.md
 
 # v0.8.5: lokalna konfiguracja narzedzia (Claude Code), nie kod projektu
 .claude/
+
+# B4C-1 (03), zgloszenie CTO: surowe wyjscia runnera konfirmacyjnego PC-001
+# (execution_package_v0_11/runners/pc_001_confirmatory_runner.py) - dry-run
+# ORAZ docelowy przebieg konfirmacyjny (B6+). Decyzja CTO: dowodem
+# wykonalnosci ma byc TEST i reczny manifest (reports/b4c01_dry_run_manifest.json),
+# NIGDY surowe pliki wynikowe w repo - 207 przebiegow x 300 tickow x 3 pola
+# (prediction/input/prediction_error) to juz dziesiatki MB z samego dry-run,
+# docelowy przebieg (552 x 300 x 3) bylby wiekszy o rzad wielkosci. Bez tego
+# wpisu "git add -A"/"git add ." wciaga je do commita bez ostrzezenia.
+# Dziesiec plikow v0.11 (checkpointy dry_run/full_rerun, dry_run_results.jsonl)
+# JUZ SLEDZONYCH pod tymi sciezkami zostaje w repo bez zmian - .gitignore nie
+# odsledza tego, co juz jest dodane. To jest GRANICA CZASOWA (v0.11 commitowal
+# je PRZED ta decyzja CTO), nie niekonsekwencja - nowe pliki pod tymi samymi
+# katalogami nie beda juz dolaczane, stare zostaja jako zapis historyczny.
+execution_package_v0_11/results/
+execution_package_v0_11/logs/

@@ -50,21 +50,47 @@ sposob, by ZAGWARANTOWAC bitowo identyczny zestaw 23 genomow co w pilocie
 juz zamraza, i wprowadza zbedne ryzyko rozjazdu).
 
 ============================================================================
-CO RUNNER ZAPISUJE
+CO RUNNER ZAPISUJE (rozszerzone B4C-1 (02), decyzja CTO)
 ============================================================================
-Dla kazdego przebiegu (srodowisko, genom, seed): PELNA trajektoria
-prediction_error po WSZYSTKICH tickach (nie tylko oknie wczesnym jak pilot -
-ten runner mierzy CALY protokol, bo produkuje dane WEJSCIOWE dla wszystkich
-czterech testow reguly decyzyjnej, nie tylko parametry uciazliwe). Ticki bez
-wartosci zapisane jako None (PC-001 §2.1: wykluczane, nie zerowane) - ten
-sam mechanizm przechwytywania w pamieci (monkeypatch SnapshotEngine.
+Dla kazdego przebiegu (srodowisko, genom, seed): PELNA trajektoria, PER TICK,
+TRZECH wielkosci - prediction, input, prediction_error (nie samej
+prediction_error jak w pierwszej wersji tego runnera). Ticki bez wartosci
+zapisane jako None (PC-001 §2.1: wykluczane, nie zerowane) - ten sam
+mechanizm przechwytywania w pamieci (monkeypatch SnapshotEngine.
 create_snapshot) co execution_package_v0_11/runners/pilot_final.py, ale BEZ
-filtra "tick < W_EARLY_TICKS".
+filtra "tick < W_EARLY_TICKS". ZADNE z trzech pol nie jest zaokraglane -
+zapisywane surowo, pelna precyzja (round() zmienilby tolerancje kontroli
+prowieniencji nizej z 1e-12 na ~1e-6, co jest za luzne, by cokolwiek
+wykryc - patrz test_pc_001_confirmatory_runner_guarantee.py).
+
+POWOD ROZSZERZENIA: pierwsza wersja zapisywala WYLACZNIE prediction_error,
+zakladajac (blednie), ze evaluator jakos sobie poradzi bez surowych
+skladnikow. Nie da sie: prediction_error = |prediction - input| nie da sie
+odwrocic na dwie oddzielne wielkosci (znak roznicy prediction-input zmienia
+sie prawie co tick - zmierzone: 150/300 dodatnich, 149/300 ujemnych).
+Trzy komorki rodziny BH (K1-A, K1-B, K6 - patrz publications/
+pc_001_bh_family.json) potrzebuja prediction(t) i input(t) OSOBNO: K1
+przetasowuje prediction i liczy PE_shuffled = |prediction_shuffled - input|
+(PC-001 §5 -> "K1"), K6 liczy korelacje prediction(t) z input(t) bezposrednio
+(A1 -> "Zmiana 2"). K5 (ablacja) potrzebuje wylacznie input(t) - JEST
+odtwarzalny z WorldRuntime.step (bezstanowy, deterministyczny, zweryfikowane
+zero rozbieznosci na 300 tickach), ale CTO zdecydowal zapisywac go WPROST
+zamiast polegac na rekonstrukcji: zapisany input jest DANYMI dla evaluatora,
+replay generatora slyzy WYLACZNIE jako niezalezna kontrola prowieniencji
+(ponizej) - inaczej wynik eksperymentu zalezalby od tego, czy plik
+generatora scenariusza zmienil sie PO przebiegu, nie w trakcie.
+
+TRAJECTORY_SCHEMA_VERSION_PRODUCED (ponizej) deklaruje, JAKI format ten
+runner produkuje - PRODUCENT i KONSUMENT (przyszly evaluator, osobne
+zlecenie) maja SWOJE WLASNE, ODREBNE stale, porownywane przy wczytaniu.
+Nie konsolidowac w jedna - rozjazd miedzy nimi jest informacja, nie
+niedogodnoscia do ukrycia.
 
 Runner NIE liczy: W_early_red, W_late_red, redukcji, bety trendu, rho
 Spearmana pelnego okna, ani zadnej innej wielkosci reguly decyzyjnej -
 zero importu funkcji analizy statystycznej (clos_curriculum.laboratory.
-statistics) w tym pliku.
+statistics) w tym pliku. Kontrola prowieniencji ponizej (WorldRuntime.step)
+NIE jest analiza statystyczna - to porownanie dwoch liczb, nie test.
 
 ============================================================================
 WERYFIKACJA PODLOGI PRZED URUCHOMIENIEM
@@ -125,6 +151,7 @@ sys.path.insert(0, str(PACKAGE_ROOT))
 from clos_academy.lesson_L1_2 import run_shock_recovery
 from clos_kernel.snapshot_engine import SnapshotEngine
 from clos_world.scenarios import get_scenario
+from clos_world.world_runtime import WorldRuntime
 from clos_scientist import pc_001_experiment_config as config
 from clos_scientist.pc_001_experiment_config import (
     EXPERIMENT_CONFIG, N_OPERATIONAL_SEEDS, CONFIRMATORY_SEEDS_START,
@@ -133,6 +160,41 @@ from clos_scientist.pc_001_experiment_config import (
 from clos_scientist.w2_endpoint import verify_frozen_floor_env
 
 GENOMES_PATH = REPO_ROOT / "execution_package_v0_11" / "genomes" / "population.json"
+
+# B4C-1 (02): PRODUCENT deklaruje wersje schematu, ktory produkuje. Przyszly
+# evaluator (osobne zlecenie) bedzie mial WLASNA, ODREBNA stala okreslajaca
+# wersje, ktorej WYMAGA - porownanie przy wczytaniu, niezgodnosc = BLAD,
+# nigdy proba adaptacji/uzupelnienia starego formatu. "1" = pierwsza wersja
+# (wylacznie prediction_error, TERAZ NIEOBOWIAZUJACA - zaden zapisany plik w
+# tym repo jej nie uzywa, dry-run zawsze byl uruchamiany na zywo, nigdy
+# zapisany na stale). "2" = ta wersja (prediction + input + prediction_error).
+TRAJECTORY_SCHEMA_VERSION_PRODUCED = 2
+
+# Tolerancja kontroli prowieniencji (gwarancje 2 i 3 - B4C-1 (02) v2, decyzja
+# CTO): zmierzone bezposrednio - 300 tickow, pelna precyzja (BEZ round()),
+# zero rozbieznosci przy 1e-9. NIE LUZOWAC ponizej potrzeby - poluzowanie
+# oznaczaloby, ze gdzies po drodze cos jest zaokraglane (ZGLOSIC, nie
+# dostrajac tolerancji pod zaokraglenie).
+TRAJECTORY_INTEGRITY_TOLERANCE = 1e-12
+
+
+class InputProvenanceMismatchError(Exception):
+    """HALT (B4C-1 (02) v2, decyzja CTO pkt 2/3): zapisany input(t) nie
+    zgadza sie z WorldRuntime.step(tick, seed, scenario) dla TEGO SAMEGO
+    przebiegu. Replay generatora sluzy WYLACZNIE jako kontrola
+    prowieniencji (dowod, ze zapisane dane pochodza z generatora, ktory
+    dzialal w momencie przebiegu) - NIE jako zrodlo danych dla evaluatora
+    (to jest zapisany input, patrz docstring modulu). Niezgodnosc oznacza,
+    ze generator scenariusza zmienil sie PO przebiegu, albo zapis jest
+    uszkodzony - HALT, nigdy cicha kontynuacja."""
+
+
+class TrajectoryFieldConsistencyError(Exception):
+    """HALT: dla danego ticka prediction/input/prediction_error nie sa ze
+    soba spojne - albo pole brakuje tam, gdzie pozostale dwa istnieja
+    (naruszenie gwarancji 1: wszystkie trzy razem, albo None razem, nigdy
+    mieszanka), albo prediction_error != abs(prediction - input) w granicach
+    TRAJECTORY_INTEGRITY_TOLERANCE (naruszenie gwarancji 2)."""
 
 # Harmonogram checkpointow dla 552 przebiegow (23 x 8 x 3) - analogicznie do
 # CHECKPOINT_INTERVALS w pipeline.py (skalowany dol dla mniejszego N_total).
@@ -258,12 +320,15 @@ def verify_floors_before_run() -> Dict[str, Any]:
 
 
 def _capture_full_trajectory(lesson: str, environment: str, genome: Dict[str, Any],
-                              seed: int) -> Dict[int, Optional[float]]:
-    """Przechwytuje prediction_error z KAZDEGO ticka (wszystkie ticki okna,
-    nie tylko wczesne) - ten sam wzorzec monkeypatch co pilot_final.py, bez
-    filtra tick<W_EARLY_TICKS. None gdzie brak wartosci (NIE zero) -
-    porzucona trajektoria typu prediction/input (runner nie liczy Spearmana -
-    zadanie evaluatora).
+                              seed: int) -> Dict[int, Dict[str, Optional[float]]]:
+    """Przechwytuje prediction, input, prediction_error z KAZDEGO ticka
+    (wszystkie ticki okna, nie tylko wczesne) - ten sam wzorzec monkeypatch
+    co pilot_final.py, bez filtra tick<W_EARLY_TICKS. Kazdy tick ->
+    {"prediction":.., "input":.., "prediction_error":..}, wartosci None
+    gdzie brak (NIE zero) - B4C-1 (02), decyzja CTO: pierwsza wersja tego
+    runnera zapisywala WYLACZNIE prediction_error, co okazalo sie
+    niewystarczajace dla trzech komorek rodziny BH (K1-A/B, K6) - patrz
+    docstring modulu.
 
     Zero literalu nazwy lekcji: porownanie WYLACZNIE przeciw CONFIG (_lesson()),
     nie przeciw wpisanej na sztywno wartosci - ten runner strukturalnie zna
@@ -276,14 +341,21 @@ def _capture_full_trajectory(lesson: str, environment: str, genome: Dict[str, An
             "obsluzyc innej lekcji"
         )
 
-    trajectory: Dict[int, Optional[float]] = {}
+    trajectory: Dict[int, Dict[str, Optional[float]]] = {}
     original = SnapshotEngine.create_snapshot
 
     def spy(self, *args, **kwargs):
         snapshot = original(self, *args, **kwargs)
         tick = kwargs.get("tick")
         if tick is not None:
-            trajectory[tick] = kwargs.get("prediction_error")
+            # BEZ round() - surowo, patrz TRAJECTORY_INTEGRITY_TOLERANCE
+            # w docstringu modulu (zaokraglenie poluzowaloby kontrole
+            # prowieniencji z 1e-12 do bezuzytecznej ~1e-6).
+            trajectory[tick] = {
+                "prediction": kwargs.get("prediction"),
+                "input": kwargs.get("input"),
+                "prediction_error": kwargs.get("prediction_error"),
+            }
         return snapshot
 
     SnapshotEngine.create_snapshot = spy
@@ -298,16 +370,84 @@ def _capture_full_trajectory(lesson: str, environment: str, genome: Dict[str, An
     return trajectory
 
 
+def verify_trajectory_field_consistency(
+    trajectory: Dict[int, Dict[str, Optional[float]]],
+    tolerance: float = TRAJECTORY_INTEGRITY_TOLERANCE,
+) -> None:
+    """Gwarancje 1 i 2 (B4C-1 (02)/(03) v2):
+      1. prediction/input/prediction_error istnieja RAZEM albo sa None
+         RAZEM - NONE DOPUSZCZALNY JEST WYLACZNIE LACZNIE, nigdy dla
+         pojedynczego pola. Powod fizyczny (B4C-1 (03), zadanie CTO):
+         prediction_error = abs(prediction - input) - bez ktoregos ze
+         skladnikow nie da sie go policzyc, wiec CZESCIOWY None (jedno
+         pole obecne, inne brakujace) jest niespojnoscia zapisu, NIE
+         brakiem pomiaru. Trzy przypadki sprawdzone osobno w
+         tests/test_pc_001_confirmatory_runner_guarantee.py::
+         TestObservationChannelExtension (input=None, prediction=None,
+         prediction_error=None - kazdy z pozostalymi dwoma obecnymi).
+      2. Gdy obecne: prediction_error == abs(prediction - input), w
+         granicach `tolerance`.
+    HALT (TrajectoryFieldConsistencyError), nie ciche pominiecie ticka."""
+    for tick, values in sorted(trajectory.items()):
+        p, i, pe = values["prediction"], values["input"], values["prediction_error"]
+        present = [v is not None for v in (p, i, pe)]
+        if any(present) and not all(present):
+            raise TrajectoryFieldConsistencyError(
+                f"tick={tick}: prediction={p!r}, input={i!r}, "
+                f"prediction_error={pe!r} - pola musza byc None RAZEM albo "
+                "obecne RAZEM, nie mieszanka (gwarancja 1)"
+            )
+        if not all(present):
+            continue
+        expected = abs(p - i)
+        diff = abs(pe - expected)
+        if diff > tolerance:
+            raise TrajectoryFieldConsistencyError(
+                f"tick={tick}: prediction_error={pe!r} != abs(prediction-input)="
+                f"{expected!r} (prediction={p!r}, input={i!r}), roznica {diff!r} "
+                f"> tolerancja {tolerance!r} (gwarancja 2)"
+            )
+
+
+def verify_input_provenance(
+    trajectory: Dict[int, Dict[str, Optional[float]]],
+    environment: str, seed: int,
+    tolerance: float = TRAJECTORY_INTEGRITY_TOLERANCE,
+) -> None:
+    """Gwarancja 3 (B4C-1 (02) v2, decyzja CTO pkt 2/3): zapisany input(t)
+    musi zgadzac sie z WorldRuntime.step(tick, seed, environment) dla TEGO
+    SAMEGO przebiegu - WYLACZNIE kontrola prowieniencji (dowod, ze dane
+    pochodza z generatora dzialajacego w momencie przebiegu), NIE zrodlo
+    danych (evaluator czyta zapisany input, nigdy nie rekonstruuje go z
+    WorldRuntime - patrz docstring modulu). HALT (InputProvenanceMismatchError)
+    na niezgodnosc."""
+    for tick, values in sorted(trajectory.items()):
+        recorded_input = values["input"]
+        if recorded_input is None:
+            continue
+        recomputed = WorldRuntime.step(tick, seed, environment)
+        diff = abs(recorded_input - recomputed)
+        if diff > tolerance:
+            raise InputProvenanceMismatchError(
+                f"tick={tick} seed={seed} environment={environment}: zapisany "
+                f"input={recorded_input!r}, odtworzony WorldRuntime.step="
+                f"{recomputed!r}, roznica {diff!r} > tolerancja {tolerance!r}"
+            )
+
+
 def _record(lesson: str, environment: str, genome_id: str, seed: int,
-            trajectory: Dict[int, Optional[float]]) -> Dict[str, Any]:
+            trajectory: Dict[int, Dict[str, Optional[float]]]) -> Dict[str, Any]:
     """Schemat wzorowany na BUILD-006 (pipeline.py::_record): run_id/genome/
-    environment/lesson/seed/timestamp/metrics/output_hash. metrics = PELNA
-    trajektoria prediction_error per tick (klucze jako string - wymog JSON),
-    None gdzie brak - nie zerowane."""
+    environment/lesson/seed/timestamp/metrics/output_hash/
+    trajectory_schema_version. metrics = PELNA trajektoria prediction/input/
+    prediction_error per tick (klucze jako string - wymog JSON), None gdzie
+    brak - nie zerowane, nie zaokraglane (B4C-1 (02))."""
     metrics = {
-        "prediction_error_by_tick": {str(t): v for t, v in sorted(trajectory.items())},
+        "prediction_by_tick": {str(t): v["prediction"] for t, v in sorted(trajectory.items())},
+        "input_by_tick": {str(t): v["input"] for t, v in sorted(trajectory.items())},
+        "prediction_error_by_tick": {str(t): v["prediction_error"] for t, v in sorted(trajectory.items())},
         "n_ticks_total": len(trajectory),
-        "n_ticks_none": sum(1 for v in trajectory.values() if v is None),
+        "n_ticks_none": sum(1 for v in trajectory.values() if v["prediction_error"] is None),
     }
     metrics_json = json.dumps(metrics, sort_keys=True, default=str)
     return {
@@ -317,6 +457,7 @@ def _record(lesson: str, environment: str, genome_id: str, seed: int,
         "lesson": lesson,
         "seed": seed,
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "trajectory_schema_version": TRAJECTORY_SCHEMA_VERSION_PRODUCED,
         "metrics": metrics,
         "output_hash": hashlib.sha256(metrics_json.encode("utf-8")).hexdigest(),
     }
@@ -369,6 +510,11 @@ def run_confirmatory_pipeline(specs: List[Tuple[str, str, str, int]], results_pa
         for i, (lesson, environment, genome_id, seed) in enumerate(specs[start_index:], start=start_index):
             genome = genomes_by_id[genome_id]
             trajectory = _capture_full_trajectory(lesson, environment, genome, seed)
+            # B4C-1 (02) v2, gwarancje 1-3: HALT przed zapisem, nie po -
+            # zapisany rekord ma byc juz zweryfikowany, nie zweryfikowany
+            # pozniej przez kogos innego.
+            verify_trajectory_field_consistency(trajectory)
+            verify_input_provenance(trajectory, environment, seed)
             record = _record(lesson, environment, genome_id, seed, trajectory)
             out.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
             completed = i + 1

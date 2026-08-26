@@ -26,7 +26,10 @@ from runners.pc_001_confirmatory_runner import (  # noqa: E402
     build_confirmatory_run_specs, build_dry_run_specs,
     assert_dry_run_seeds_disjoint, DOCUMENTED_SEED_RANGES_CLOSED,
     DRY_RUN_SEED_START, DRY_RUN_N_SEEDS,
-    _genomes, _environments, _record,
+    _genomes, _environments, _record, _capture_full_trajectory,
+    verify_trajectory_field_consistency, verify_input_provenance,
+    TrajectoryFieldConsistencyError, InputProvenanceMismatchError,
+    TRAJECTORY_SCHEMA_VERSION_PRODUCED,
 )
 from clos_scientist.pc_001_experiment_config import (  # noqa: E402
     EXPERIMENT_CONFIG, N_OPERATIONAL_SEEDS, CONFIRMATORY_SEEDS_START,
@@ -263,18 +266,162 @@ class TestNoneTicksPreservedNotZeroed:
     empiryczny (207 przebiegow) nie wyprodukowal ani jednego None ticka (brak
     okazji do sprawdzenia na prawdziwych danych) - test bezposredni na
     _record() z syntetyczna trajektoria dowodzi mechanizmu niezaleznie od
-    tego, czy real dane akurat go cwicza."""
+    tego, czy real dane akurat go cwicza. Ksztalt trajektorii (B4C-1 (02)):
+    kazdy tick -> {"prediction":.., "input":.., "prediction_error":..}."""
 
     def test_none_tick_preserved_as_json_null_not_zero(self):
-        record = _record("L1.2", "noise_world", "pop_000", 50000, {0: 0.5, 1: None, 2: 0.3})
-        traj = record["metrics"]["prediction_error_by_tick"]
-        assert traj["1"] is None
-        assert traj["1"] != 0
-        assert traj["1"] != 0.0
+        trajectory = {
+            0: {"prediction": 0.4, "input": 0.1, "prediction_error": 0.5},
+            1: {"prediction": None, "input": None, "prediction_error": None},
+            2: {"prediction": 0.2, "input": 0.1, "prediction_error": 0.3},
+        }
+        record = _record("L1.2", "noise_world", "pop_000", 50000, trajectory)
+        pe_traj = record["metrics"]["prediction_error_by_tick"]
+        assert pe_traj["1"] is None
+        assert pe_traj["1"] != 0
+        assert pe_traj["1"] != 0.0
+        assert record["metrics"]["prediction_by_tick"]["1"] is None
+        assert record["metrics"]["input_by_tick"]["1"] is None
         assert record["metrics"]["n_ticks_none"] == 1
         assert record["metrics"]["n_ticks_total"] == 3
 
     def test_none_tick_survives_json_roundtrip(self):
-        record = _record("L1.2", "noise_world", "pop_000", 50000, {0: None})
+        trajectory = {0: {"prediction": None, "input": None, "prediction_error": None}}
+        record = _record("L1.2", "noise_world", "pop_000", 50000, trajectory)
         roundtripped = json.loads(json.dumps(record, ensure_ascii=False, default=str))
         assert roundtripped["metrics"]["prediction_error_by_tick"]["0"] is None
+        assert roundtripped["metrics"]["prediction_by_tick"]["0"] is None
+        assert roundtripped["metrics"]["input_by_tick"]["0"] is None
+
+
+class TestObservationChannelExtension:
+    """B4C-1 (02), decyzja CTO: prediction/input/prediction_error zapisywane
+    RAZEM per tick (nie sama prediction_error - patrz docstring modulu, K1/
+    K5/K6 z publications/pc_001_bh_family.json tego potrzebuja). Cztery
+    gwarancje, sprawdzone na PRAWDZIWYM przebiegu (seed dry-run, NIGDY
+    konfirmacyjny - zakaz wprost B4C-1 (02))."""
+
+    DRY_SEED = DRY_RUN_SEED_START  # 50000 - szczelina bezpieczna, nigdy konfirmacyjna
+    ENV = "noise_world"
+
+    @classmethod
+    def _real_trajectory(cls):
+        genome = next(g for g in _genomes() if g["genome_id"] == "default")
+        return _capture_full_trajectory("L1.2", cls.ENV, genome, cls.DRY_SEED)
+
+    def test_dry_seed_is_not_confirmatory(self):
+        """Warunek wstepny dla calej klasy: dowod, ze DRY_SEED faktycznie
+        NIE jest z bloku konfirmacyjnego (uzywanego ani zarezerwowanego) -
+        zakaz B4C-1 (02) egzekwowany, nie tylko deklarowany."""
+        assert self.DRY_SEED not in set(CONFIRMATORY_SEEDS)
+        assert self.DRY_SEED not in set(CONFIRMATORY_SEEDS_RESERVED)
+
+    def test_guarantees_1_and_2_hold_on_real_run(self):
+        """Gwarancje 1 (pola razem/None razem) i 2 (prediction_error ==
+        abs(prediction-input)) - na prawdziwym przebiegu."""
+        trajectory = self._real_trajectory()
+        assert len(trajectory) > 0
+        verify_trajectory_field_consistency(trajectory)  # nie podnosi
+
+    def test_guarantee_3_holds_on_real_run(self):
+        """Gwarancja 3: zapisany input zgadza sie z WorldRuntime.step dla
+        tego samego (tick, seed, environment) - kontrola prowieniencji."""
+        trajectory = self._real_trajectory()
+        verify_input_provenance(trajectory, self.ENV, self.DRY_SEED)  # nie podnosi
+
+    def test_negative_tampered_input_fails_both_checks(self):
+        """Gwarancja 4 (test negatywny obowiazkowy): podmieniony JEDEN input
+        -> OBIE kontrole (spojnosc pol i prowieniencja) daja FAIL - pokazane
+        osobno, oba wyniki. Tampering psuje ROWNOCZESNIE gwarancje 2
+        (prediction_error przestaje zgadzac sie z |prediction-input|) i
+        gwarancje 3 (input przestaje zgadzac sie z WorldRuntime.step)."""
+        trajectory = self._real_trajectory()
+        tick = next(iter(trajectory))
+        tampered = {t: dict(v) for t, v in trajectory.items()}
+        original_input = tampered[tick]["input"]
+        tampered[tick]["input"] = (original_input if original_input is not None else 0.0) + 0.5
+
+        with pytest.raises(TrajectoryFieldConsistencyError):
+            verify_trajectory_field_consistency(tampered)
+        with pytest.raises(InputProvenanceMismatchError):
+            verify_input_provenance(tampered, self.ENV, self.DRY_SEED)
+
+    def test_negative_tampered_prediction_fails_field_consistency_only(self):
+        """Gwarancja 4, druga polowa: podmieniona JEDNA prediction -> kontrola
+        spojnosci pol (gwarancja 2) daje FAIL. Kontrola prowieniencji
+        (gwarancja 3, sprawdza WYLACZNIE input) poprawnie NIE reaguje -
+        sprawdzone jawnie, zeby to byla udowodniona granica odpowiedzialnosci,
+        nie niezauwazona luka."""
+        trajectory = self._real_trajectory()
+        tick = next(iter(trajectory))
+        tampered = {t: dict(v) for t, v in trajectory.items()}
+        original_pred = tampered[tick]["prediction"]
+        tampered[tick]["prediction"] = (original_pred if original_pred is not None else 0.0) + 0.5
+
+        with pytest.raises(TrajectoryFieldConsistencyError):
+            verify_trajectory_field_consistency(tampered)
+        verify_input_provenance(tampered, self.ENV, self.DRY_SEED)  # nie podnosi - poprawnie
+
+    def test_negative_input_none_others_present_is_caught(self):
+        """Gwarancja 1, przypadek 1/3 (B4C-1 (03), zadanie CTO): input=None,
+        prediction i prediction_error obecne -> FAIL. Fizycznie niemozliwe
+        (bez input nie da sie policzyc prediction_error), wiec MUSI byc
+        zlapane jako niespojnosc, nie brak pomiaru."""
+        broken = {0: {"prediction": 0.4, "input": None, "prediction_error": 0.5}}
+        with pytest.raises(TrajectoryFieldConsistencyError):
+            verify_trajectory_field_consistency(broken)
+
+    def test_negative_prediction_none_others_present_is_caught(self):
+        """Gwarancja 1, przypadek 2/3: prediction=None, input i
+        prediction_error obecne -> FAIL. Ten sam powod fizyczny jak wyzej,
+        odwrotne pole."""
+        broken = {0: {"prediction": None, "input": 0.1, "prediction_error": 0.5}}
+        with pytest.raises(TrajectoryFieldConsistencyError):
+            verify_trajectory_field_consistency(broken)
+
+    def test_negative_prediction_error_none_others_present_is_caught(self):
+        """Gwarancja 1, przypadek 3/3: prediction_error=None, prediction i
+        input obecne -> FAIL. Nawet gdy obie skladowe sa znane, brakujaca
+        prediction_error jest niespojnoscia zapisu, nie brakiem pomiaru -
+        powinna byc obliczalna z pozostalych dwoch."""
+        broken = {0: {"prediction": 0.4, "input": 0.1, "prediction_error": None}}
+        with pytest.raises(TrajectoryFieldConsistencyError):
+            verify_trajectory_field_consistency(broken)
+
+    def test_negative_of_negative_all_none_together_is_valid(self):
+        """Sanity: wszystkie trzy None RAZEM (brak obserwacji) jest
+        POPRAWNYM stanem, nie bledem - dowod, ze test powyzej lapie
+        MIESZANKE pol, nie sama obecnosc None."""
+        clean = {0: {"prediction": None, "input": None, "prediction_error": None}}
+        verify_trajectory_field_consistency(clean)  # nie podnosi
+
+    def test_negative_of_negative_matching_input_does_not_raise(self):
+        """Sanity odwrotny do testu prowieniencji: NIEZMIENIONY zapisany
+        input (prawdziwy przebieg) zgadza sie z WorldRuntime.step - dowod, ze
+        test powyzej lapie NIEZGODNOSC, nie jest zawsze-FAIL."""
+        trajectory = self._real_trajectory()
+        verify_input_provenance(trajectory, self.ENV, self.DRY_SEED)
+
+
+class TestTrajectorySchemaVersion:
+    """B4C-1 (02): PRODUCENT deklaruje wersje, ktora produkuje - stala
+    ODREBNA od przyszlej stalej KONSUMENTA (evaluator, osobne zlecenie,
+    jeszcze nie istnieje). Nie konsolidowac w jedna - rozjazd miedzy nimi
+    ma byc widoczny, nie ukryty wspolna stala."""
+
+    def test_version_is_declared_and_recorded_in_output(self):
+        record = _record("L1.2", "noise_world", "pop_000", 50000,
+                          {0: {"prediction": 0.1, "input": 0.2, "prediction_error": 0.1}})
+        assert record["trajectory_schema_version"] == TRAJECTORY_SCHEMA_VERSION_PRODUCED
+
+    def test_version_survives_json_roundtrip(self):
+        record = _record("L1.2", "noise_world", "pop_000", 50000,
+                          {0: {"prediction": 0.1, "input": 0.2, "prediction_error": 0.1}})
+        roundtripped = json.loads(json.dumps(record, ensure_ascii=False, default=str))
+        assert roundtripped["trajectory_schema_version"] == TRAJECTORY_SCHEMA_VERSION_PRODUCED
+
+    def test_version_is_not_the_string_1_leftover_from_first_format(self):
+        """Sanity: wersja MUSI odzwierciedlac rozszerzony format (2), nie
+        zostac przypadkiem na wartosci pierwszej wersji (sama
+        prediction_error) po tej zmianie."""
+        assert TRAJECTORY_SCHEMA_VERSION_PRODUCED != 1
