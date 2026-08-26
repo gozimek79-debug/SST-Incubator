@@ -741,6 +741,51 @@ def block_means(columns: List[List[float]]) -> List[float]:
     return [sum(col) / len(col) for col in columns]
 
 
+# --- Nachylenie liniowe (B4C-2 (03): Warunek A/K1-A/K4-A/K5-A - beta trendu) ---
+
+
+class DegenerateInputError(Exception):
+    """Podniesiony przez linear_slope(), gdy var(t) == 0 (wszystkie ticki
+    identyczne) - nachylenie jest matematycznie niezdefiniowane (dzielenie
+    przez zero). WYJATEK, nigdy NaN ani None przepuszczone dalej do testu
+    statystycznego (B4C-2 (03), decyzja CTO pkt 4)."""
+
+
+def linear_slope(ticks: List[float], values: List[float]) -> float:
+    """beta = cov(t, y) / var(t) - zwykle OLS, WYLACZNIE nachylenie (B4C-2
+    (03), decyzja CTO). Celowo WEZSZY kontrakt niz pelna regresja: bez
+    interceptu, R^2, p-value - Warunek A (i K1-A/K4-A/K5-A, ta sama funkcja)
+    potrzebuje wylacznie nachylenia, nic wiecej. Nazwa 'linear_slope', NIE
+    'linear_regression' - mniej powierzchni do niezamierzonej interpretacji.
+
+    FUNKCJA MATEMATYCZNA OGOLNA - bez wiedzy o PC-001, bez wymogu kompletnej/
+    identycznej siatki tickow. Ten wymog (semantyka protokolu: komorka
+    nieobliczalna przy niepelnej siatce -> INCONCLUSIVE) mieszka w warstwie
+    protokolu (w2_endpoint/evaluator), NIE tutaj - statistics.py jest
+    biblioteka ogolna, tak jak reszta funkcji w tym pliku.
+
+    Jedyny warunek, jaki ta funkcja egzekwuje: var(t) != 0. Zdegenerowane t
+    (wszystkie wartosci identyczne) -> DegenerateInputError, nigdy NaN.
+    Wymaga len(ticks) == len(values) >= 2 (dwa punkty to minimum, by
+    nachylenie mialo sens; przy n<2 var(t) i tak wyszlaby z jednego punktu
+    lub bledu dlugosci - sprawdzone jawnie dla czytelnego komunikatu)."""
+    if len(ticks) != len(values):
+        raise ValueError(f"len(ticks)={len(ticks)} != len(values)={len(values)}")
+    n = len(ticks)
+    if n < 2:
+        raise DegenerateInputError(f"n={n} < 2 - nachylenie wymaga co najmniej dwoch punktow")
+    mean_t = sum(ticks) / n
+    mean_y = sum(values) / n
+    cov_ty = sum((t - mean_t) * (y - mean_y) for t, y in zip(ticks, values)) / n
+    var_t = sum((t - mean_t) ** 2 for t in ticks) / n
+    if var_t == 0:
+        raise DegenerateInputError(
+            f"var(t) == 0 (wszystkie {n} tickow identyczne, t={ticks[0]!r}) - "
+            "nachylenie niezdefiniowane (dzielenie przez zero)"
+        )
+    return cov_ty / var_t
+
+
 def _rank_with_ties(values: List[float]) -> Tuple[List[float], List[int]]:
     """Rangi (srednia dla remisow) + rozmiary grup remisowych.
 

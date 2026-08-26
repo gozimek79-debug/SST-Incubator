@@ -13,6 +13,7 @@ rangowych), n=0, n=1, wszystkie wartosci identyczne.
 
 import math
 import random
+import warnings
 
 import pytest
 
@@ -24,6 +25,8 @@ from clos_curriculum.laboratory.statistics import (
     spearman_rho,
     mann_whitney_u,
     block_means,
+    linear_slope,
+    DegenerateInputError,
 )
 from execution_package_v0_11.runners.power_analysis_b4b import _block_means as _simulator_block_means
 from clos_scientist.fallback_branch_diagnostic import (
@@ -401,6 +404,128 @@ class TestBlockMeansConsistency:
         from execution_package_v0_11.runners import power_analysis_b4b as sim
         assert hasattr(sim, "_block_means")
         assert "sum(col) / len(col)" in inspect.getsource(sim._block_means)
+
+
+class TestLinearSlope:
+    """B4C-2 (03): brakujaca definicja Warunku A - beta = cov(t,y)/var(t),
+    zwykle OLS, WYLACZNIE nachylenie (bez interceptu/R^2/p-value - kontrakt
+    celowo wezszy niz pelna regresja, decyzja CTO). Jedna wspolna
+    implementacja dla A, K1-A, K4-A, K5-A."""
+
+    TOL = 1e-6
+
+    def test_signature_returns_plain_float_not_full_regression(self):
+        """Zakaz wprost: bez interceptu, R^2, p-value - sama liczba."""
+        result = linear_slope([0.0, 1.0, 2.0], [1.0, 2.0, 3.0])
+        assert isinstance(result, float)
+
+    def test_positive_trend_matches_scipy(self):
+        rng = random.Random(1)
+        t = list(range(300))
+        y = [0.5 + 0.001 * ti + rng.gauss(0, 0.01) for ti in t]
+        mine = linear_slope(t, y)
+        sp = scipy_stats.linregress(t, y)
+        assert abs(mine - sp.slope) < self.TOL
+
+    def test_negative_trend_matches_scipy(self):
+        rng = random.Random(2)
+        t = list(range(300))
+        y = [0.5 - 0.002 * ti + rng.gauss(0, 0.01) for ti in t]
+        mine = linear_slope(t, y)
+        sp = scipy_stats.linregress(t, y)
+        assert abs(mine - sp.slope) < self.TOL
+
+    def test_near_zero_trend_matches_scipy(self):
+        rng = random.Random(3)
+        t = list(range(300))
+        y = [0.5 + 0.00001 * ti + rng.gauss(0, 0.01) for ti in t]
+        mine = linear_slope(t, y)
+        sp = scipy_stats.linregress(t, y)
+        assert abs(mine - sp.slope) < self.TOL
+
+    def test_noisy_data_matches_scipy(self):
+        rng = random.Random(4)
+        t = list(range(300))
+        y = [0.5 - 0.0005 * ti + rng.gauss(0, 0.5) for ti in t]
+        mine = linear_slope(t, y)
+        sp = scipy_stats.linregress(t, y)
+        assert abs(mine - sp.slope) < self.TOL
+
+    def test_constant_y_gives_zero_slope_matches_scipy(self):
+        t = list(range(300))
+        y = [0.5 for _ in t]
+        mine = linear_slope(t, y)
+        sp = scipy_stats.linregress(t, y)
+        assert abs(mine - sp.slope) < self.TOL
+        assert mine == 0.0
+
+    def test_degenerate_t_raises_explicit_exception_not_nan(self):
+        """B4C-2 (03) pkt 4/6: zdegenerowane t -> WYJATEK, nigdy NaN.
+        Zmierzone bezposrednio PRZED napisaniem tej asercji (zgodnie z
+        ostrzezeniem CTO): scipy.stats.linregress na tych samych danych
+        NIE rzuca - zwraca slope=nan z RuntimeWarning. Ta asymetria jest
+        udokumentowana, nie ukrywana pod porownaniem 1e-6 (ktore byloby
+        bez sensu dla NaN)."""
+        degenerate_t = [5.0] * 10
+        y = list(range(10))
+        with pytest.raises(DegenerateInputError):
+            linear_slope(degenerate_t, y)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            sp = scipy_stats.linregress(degenerate_t, y)
+        assert math.isnan(sp.slope), (
+            "sanity: scipy przestal zwracac NaN na zdegenerowanym t - "
+            "asymetria opisana w docstringu tego testu juz nie zachodzi, "
+            "trzeba ponownie ocenic uzasadnienie"
+        )
+
+    def test_negative_of_negative_nondegenerate_t_does_not_raise(self):
+        assert linear_slope([0.0, 1.0, 2.0], [1.0, 1.0, 1.0]) == 0.0
+
+    def test_mismatched_lengths_raises_value_error(self):
+        with pytest.raises(ValueError):
+            linear_slope([0.0, 1.0, 2.0], [1.0, 2.0])
+
+    def test_fewer_than_two_points_raises_degenerate_input_error(self):
+        with pytest.raises(DegenerateInputError):
+            linear_slope([0.0], [1.0])
+
+    def test_repeated_calls_are_deterministic(self):
+        """Test DETERMINIZMU, nie pokrycia wymogu CTO o jednej wspolnej
+        implementacji dla A/K1-A/K4-A/K5-A (patrz test pominiety ponizej,
+        B4C-2 (04) - zgloszenie CTO: wywolanie TEJ SAMEJ funkcji cztery razy
+        z tymi samymi argumentami MUSI dac ten sam wynik, niezaleznie od
+        tego, czy w kodzie jest jedna implementacja czy cztery identyczne
+        kopie - CTO zmierzyl to wprost (cztery osobne kopie tej samej
+        logiki tez przechodza to kryterium) i pokazal, ze poprzednia nazwa
+        tego testu ('...used_identically_across_four_cell_contexts')
+        sugerowala pokrycie, ktorego test nie daje. Wart zachowania jako
+        dowod braku ukrytego stanu (np. cache'u psujacego kolejne wywolania
+        na tych samych danych), NIE jako dowod na jedna implementacje."""
+        rng = random.Random(42)
+        t = list(range(9))
+        y = [0.3 - 0.01 * ti + rng.gauss(0, 0.02) for ti in t]
+        results = [linear_slope(t, y) for _ in range(4)]
+        assert len(set(results)) == 1, f"wywolania z identycznymi argumentami dały rozne wyniki: {results}"
+
+    @pytest.mark.skip(
+        reason=(
+            "B4C-2 (04): wlasciwe kryterium wymaga istnienia evaluatora "
+            "(clos_scientist/pc_001_evaluator.py) i musi sprawdzac TOZSAMOSC "
+            "OBIEKTU funkcji uzytej dla komorek A/K1-A/K4-A/K5-A (np. "
+            "'evaluator._compute_beta_for_cell.__code__ is linear_slope.__code__' "
+            "dla kazdej z czterech, albo skan AST modulu evaluatora pokazujacy "
+            "DOKLADNIE JEDNO miejsce wywolania linear_slope uzywane przez "
+            "wszystkie cztery komorki, nie cztery osobne wywolania czterech "
+            "roznych funkcji) - nie zgodnosc WYNIKOW (ktora jest tautologia dla "
+            "funkcji czystej/deterministycznej, patrz test_repeated_calls_are_"
+            "deterministic powyzej i zgloszenie CTO, ktore to wykazalo "
+            "eksperymentalnie na czterech recznie skopiowanych implementacjach)."
+        )
+    )
+    def test_evaluator_uses_single_linear_slope_object_for_all_four_cells(self):
+        pass
 
 
 class TestKendallTau:
