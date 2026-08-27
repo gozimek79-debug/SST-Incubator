@@ -1,8 +1,43 @@
 {
   "title": "Historia laboratorium CLOS",
   "note": "Recznie utrzymywana kronika (jak spis tresci w sekcji Raporty) - daty i fakty pochodza z git log oraz artefaktow repo, nie sa generowane automatycznie (proza ma byc zrozumiala dla obserwatora, nie transkrypcja zargonu commit message). Swiezosc pilnowana automatycznie przez scripts/validate_history_freshness.py (CI, widoczny nieblokujacy krok) - kazdy commit poza jednym strukturalnym wyjatkiem (tym, ktory wlasnie dopisuje nowy wpis) musi miec tu swoj odpowiednik, inaczej krok CI zglasza to jawnie. Wpisy najnowsze na gorze. Panel dodatkowo pokazuje zywy strumien commitow z GitHub API obok tej kroniki.",
-  "updated": "2026-08-23",
+  "updated": "2026-08-27",
   "entries": [
+    {
+      "date": "2026-08-27",
+      "sprint": "PC-001",
+      "title": "Runner konfirmacyjny: chwila wstrzasu teraz zapisywana i niezaleznie sprawdzana",
+      "body": "Dla srodowiska ze wstrzasem brakowalo zapisu, KIEDY (na ktorym ticku) ten wstrzas nastapil - a bez tego jedna z zaplanowanych analiz nie da sie policzyc. Zrodlem zapisywanej wartosci jest wylacznie to, co faktycznie zwrocil prawdziwy przebieg symulacji - zero osobnego przeliczania tej samej liczby innym kodem. Niezalezna kontrola: koniec 'plaskiego' poczatku zapisanego sygnalu wejsciowego (bez znajomosci z gory, jaka to konkretnie wartosc) musi wypasc dokladnie na tym samym ticku, co zapisana chwila wstrzasu - sprawdzone na wszystkich 69 rzeczywistych przebiegach ze wstrzasem z probnego uruchomienia, zero rozbieznosci. Test celowo podmieniajacy zapisana chwile o jeden tick w dowolna strone poprawnie wypada negatywnie.",
+      "commit": "f79a704"
+    },
+    {
+      "date": "2026-08-27",
+      "sprint": "PC-001",
+      "title": "Brakujacy element kontroli surogatowej: sposob losowego przetasowania ustalony i zapisany w kodzie",
+      "body": "Jedna z zaplanowanych analiz statystycznych (kontrola typu 'a gdyby przewidywania byly poprzetasowywane losowo') wymagala odtwarzalnego tasowania - takiego, ktore da dokladnie ten sam wynik przy powtornym policzeniu na tym samym materiale. Zanim ten kod powstal, ten element byl calkowicie niezdefiniowany. Dwie decyzje inzynierskie, ktore normalnie moglyby zapasc po cichu, zostaly zamiast tego jawnie wybrane i uzasadnione wprost w kodzie: jak zamienic skrot kryptograficzny na liczbe (wybrano najprostsza mozliwa regule - caly skrot, bez obcinania) oraz czy polegac na wbudowanym generatorze liczb losowych Pythona (odrzucone - jego zachowanie nie jest gwarantowane pomiedzy roznymi wersjami Pythona, a projekt zadnej wersji nie przypina). Zamiast tego powstala wlasna, w pelni jawna metoda tasowania.",
+      "commit": "e9a7ccc"
+    },
+    {
+      "date": "2026-08-27",
+      "sprint": "PC-001",
+      "title": "Brakujacy element reguly decyzyjnej: liczenie kierunku trendu",
+      "body": "Jeden z warunkow reguly decyzyjnej PC-001 (uzywany w czterech roznych miejscach) opisywal 'trend' bledu w czasie, ale zaden kod w projekcie faktycznie nie liczyl nachylenia takiego trendu - istnial wylacznie jako zdanie w tekscie prerejestracji. Dodano jedna, wspolna funkcje liczaca wylacznie nachylenie prostej dopasowanej do punktow (bez pozostalych elementow pelnej regresji, ktore nie sa tu potrzebne). Przypadek zdegenerowany (wszystkie punkty w tym samym momencie w czasie, nachylenie matematycznie niezdefiniowane) konczy sie jawnym, czytelnym bledem - w odroznieniu od gotowej biblioteki naukowej uzywanej gdzie indziej w projekcie, ktora w tej samej sytuacji cicho zwraca 'brak wartosci' z ostrzezeniem.",
+      "commit": "7d73669"
+    },
+    {
+      "date": "2026-08-26",
+      "sprint": "PC-001",
+      "title": "Runner konfirmacyjny zaczal zapisywac przewidywanie i sygnal wejsciowy osobno, nie tylko ich roznice",
+      "body": "Pierwsza wersja runnera zapisywala wylacznie sam blad przewidywania (roznice miedzy przewidywaniem a rzeczywistoscia), zakladajac, ze to wystarczy. Okazalo sie, ze nie - trzy z zaplanowanych analiz statystycznych potrzebuja przewidywania i sygnalu wejsciowego jako dwoch OSOBNYCH liczb, a nie da sie ich odzyskac z samej roznicy (znak tej roznicy zmienia sie niemal na kazdym kroku czasowym, zmierzone bezposrednio: 150 razy dodatni, 149 razy ujemny na 300 krokach). Runner zapisuje teraz wszystkie trzy wielkosci osobno, bez zaokraglania, oraz sprawdza - zanim cokolwiek zapisze - czy sygnal wejsciowy zgadza sie z tym, co niezaleznie wyprodukowalby generator swiata dla tych samych parametrow. (Wpis dopisany z opoznieniem, kilka dni po commicie - nie powstal razem z nim.)",
+      "commit": "40c5e32"
+    },
+    {
+      "date": "2026-08-23",
+      "sprint": "PC-001",
+      "title": "Kronika: sygnal sprawdzany PRZED zapisem statusu, nie po - plus tolerancja rosnaca z rozmiarem pushu",
+      "body": "Audyt wykazal, ze przy poprzednim ukladzie krokow automatyczny zapis 'wszystko OK' mogl nastapic dla przebiegu, ktory FAKTYCZNIE zakonczyl sie bledem na kroku sprawdzajacym swiezosc tej wlasnie kroniki - bo w momencie zapisu ten krok jeszcze sie nie wykonal. Kolejnosc krokow zmieniona tak, by sprawdzenie kroniki wypadalo przed zapisem statusu, nie po. Dodatkowo: sztywna zasada 'kronika moze byc w tyle o najwyzej jeden commit' nie liczyla sie z tym, ze jedna logiczna zmiana bywa w tym projekcie dzielona na kilka commitow - tolerancja jest teraz WYLICZANA (jeden plus rozmiar biezacego pushu), ale tylko wtedy, gdy kronika byla juz aktualna PRZED tym pushem - w przeciwnym razie wraca do jednego, zeby nie ukrywac zaleglosci sprzed pushu. (Wpis dopisany z opoznieniem, nie powstal razem z commitem.) Fakt, nie ocena: cztery dni po tej zmianie mechanizm zadzialal pierwszy raz w prawdziwej porazce (nie w tescie) - przebieg zwiazany z commitem f79a704 faktycznie zawiodl na kroku swiezosci kroniki, a bot zapisal 'ci-status(red)', nie 'ok'. Przed ta zmiana zapisalby 'ok' dla tego samego czerwonego przebiegu.",
+      "commit": "341319b"
+    },
     {
       "date": "2026-08-23",
       "sprint": "PC-001",
