@@ -27,10 +27,13 @@ CANONICAL_PARAMETERS_REPORT.md
 # (prediction/input/prediction_error) to juz dziesiatki MB z samego dry-run,
 # docelowy przebieg (552 x 300 x 3) bylby wiekszy o rzad wielkosci. Bez tego
 # wpisu "git add -A"/"git add ." wciaga je do commita bez ostrzezenia.
-# Dziesiec plikow v0.11 (checkpointy dry_run/full_rerun, dry_run_results.jsonl)
-# JUZ SLEDZONYCH pod tymi sciezkami zostaje w repo bez zmian - .gitignore nie
-# odsledza tego, co juz jest dodane. To jest GRANICA CZASOWA (v0.11 commitowal
-# je PRZED ta decyzja CTO), nie niekonsekwencja - nowe pliki pod tymi samymi
-# katalogami nie beda juz dolaczane, stare zostaja jako zapis historyczny.
+# Pliki v0.11 JUZ SLEDZONE pod tymi sciezkami (patrz git ls-files) zostaja w
+# repo bez zmian - .gitignore nie odsledza tego, co juz jest dodane. To jest
+# GRANICA CZASOWA (v0.11 commitowal je PRZED ta decyzja CTO), nie
+# niekonsekwencja - nowe pliki pod tymi samymi katalogami nie beda juz
+# dolaczane, stare zostaja jako zapis historyczny. (Celowo bez liczby -
+# wpisana recznie do prozy nie niesie informacji, ktorej nie da "git
+# ls-files", a jest dokladnie tym rodzajem literalu, ktory wielokrotnie byl
+# tu zrodlem rozjazdu - B4C-1 (02) sam podal "dziesiec", obciete przez "| head".)
 execution_package_v0_11/results/
 execution_package_v0_11/logs/

@@ -10,6 +10,7 @@ jakiegokolwiek odwolania do wielkosci reguly decyzyjnej w zrodle.
 """
 
 import ast
+import inspect
 import json
 import re
 import sys
@@ -275,7 +276,7 @@ class TestNoneTicksPreservedNotZeroed:
             1: {"prediction": None, "input": None, "prediction_error": None},
             2: {"prediction": 0.2, "input": 0.1, "prediction_error": 0.3},
         }
-        record = _record("L1.2", "noise_world", "pop_000", 50000, trajectory)
+        record = _record("L1.2", "noise_world", "pop_000", 50000, trajectory, shock_tick=None)
         pe_traj = record["metrics"]["prediction_error_by_tick"]
         assert pe_traj["1"] is None
         assert pe_traj["1"] != 0
@@ -287,7 +288,7 @@ class TestNoneTicksPreservedNotZeroed:
 
     def test_none_tick_survives_json_roundtrip(self):
         trajectory = {0: {"prediction": None, "input": None, "prediction_error": None}}
-        record = _record("L1.2", "noise_world", "pop_000", 50000, trajectory)
+        record = _record("L1.2", "noise_world", "pop_000", 50000, trajectory, shock_tick=None)
         roundtripped = json.loads(json.dumps(record, ensure_ascii=False, default=str))
         assert roundtripped["metrics"]["prediction_error_by_tick"]["0"] is None
         assert roundtripped["metrics"]["prediction_by_tick"]["0"] is None
@@ -307,7 +308,8 @@ class TestObservationChannelExtension:
     @classmethod
     def _real_trajectory(cls):
         genome = next(g for g in _genomes() if g["genome_id"] == "default")
-        return _capture_full_trajectory("L1.2", cls.ENV, genome, cls.DRY_SEED)
+        trajectory, _shock_tick = _capture_full_trajectory("L1.2", cls.ENV, genome, cls.DRY_SEED)
+        return trajectory
 
     def test_dry_seed_is_not_confirmatory(self):
         """Warunek wstepny dla calej klasy: dowod, ze DRY_SEED faktycznie
@@ -411,17 +413,174 @@ class TestTrajectorySchemaVersion:
 
     def test_version_is_declared_and_recorded_in_output(self):
         record = _record("L1.2", "noise_world", "pop_000", 50000,
-                          {0: {"prediction": 0.1, "input": 0.2, "prediction_error": 0.1}})
+                          {0: {"prediction": 0.1, "input": 0.2, "prediction_error": 0.1}},
+                          shock_tick=None)
         assert record["trajectory_schema_version"] == TRAJECTORY_SCHEMA_VERSION_PRODUCED
 
     def test_version_survives_json_roundtrip(self):
         record = _record("L1.2", "noise_world", "pop_000", 50000,
-                          {0: {"prediction": 0.1, "input": 0.2, "prediction_error": 0.1}})
+                          {0: {"prediction": 0.1, "input": 0.2, "prediction_error": 0.1}},
+                          shock_tick=None)
         roundtripped = json.loads(json.dumps(record, ensure_ascii=False, default=str))
         assert roundtripped["trajectory_schema_version"] == TRAJECTORY_SCHEMA_VERSION_PRODUCED
 
     def test_version_is_not_the_string_1_leftover_from_first_format(self):
-        """Sanity: wersja MUSI odzwierciedlac rozszerzony format (2), nie
+        """Sanity: wersja MUSI odzwierciedlac rozszerzony format (>=2), nie
         zostac przypadkiem na wartosci pierwszej wersji (sama
         prediction_error) po tej zmianie."""
         assert TRAJECTORY_SCHEMA_VERSION_PRODUCED != 1
+
+    def test_version_is_not_leftover_from_second_format(self):
+        """Sanity (B4C-1 (07)): wersja MUSI odzwierciedlac rozszerzenie o
+        shock_tick (3), nie zostac przypadkiem na wartosci drugiej wersji
+        (prediction+input+prediction_error, bez shock_tick)."""
+        assert TRAJECTORY_SCHEMA_VERSION_PRODUCED != 2
+
+
+class ShockTickTrajectoryMismatchError(Exception):
+    """Test gwarancji (B4C-1 (07)), OSOBNY OD RUNNERA (decyzja CTO pkt 3:
+    'Runner NIE rekonstruuje shock_tick') - zyje wylacznie tutaj, nie w
+    kodzie produkcyjnym runnera. Podniesiony, gdy koniec stalego prefiksu
+    zapisanej trajektorii input(t) nie zgadza sie z zapisanym shock_tick,
+    ALBO gdy zaden koniec prefiksu nie jest wykrywalny (niezalezna
+    walidacja niemozliwa) - w obu przypadkach FAIL, nigdy ciche pominiecie."""
+
+
+def _detect_input_prefix_end(input_by_tick):
+    """Koniec stalego prefiksu zapisanego input(t): pierwszy (chronologicznie)
+    tick, ktorego wartosc rozni sie od wartosci PIERWSZEGO zarejestrowanego
+    ticka - BEZ znajomosci KONKRETNEJ wartosci tego prefiksu (dziala dla
+    kazdej stalej wartosci, nie tylko 0.2 shock_world - korekta CTO wobec
+    pierwotnego sformulowania przez "odchylenie od wartosci przedwstrzasowej",
+    ktore po cichu zakladalo znajomosc tej wartosci). Ticki None (PC-001
+    §2.1: wykluczane) pomijane przy szukaniu referencji i przejscia. Brak
+    wykrywalnego przejscia -> None (niezalezna walidacja niemozliwa)."""
+    ticks = sorted(int(t) for t, v in input_by_tick.items() if v is not None)
+    if not ticks:
+        return None
+    ref = input_by_tick[str(ticks[0])]
+    for t in ticks[1:]:
+        if input_by_tick[str(t)] != ref:
+            return t
+    return None
+
+
+def _assert_shock_tick_matches_trajectory(record):
+    """Kontrola prowieniencji shock_tick (B4C-1 (07)): koniec stalego
+    prefiksu zapisanego input(t) musi zgadzac sie z zapisanym shock_tick.
+    Porownuje METADANE (shock_tick) z FAKTYCZNYM zachowaniem swiata
+    (zarejestrowana trajektoria) - dwa niezalezne zrodla danych z TEGO
+    SAMEGO przebiegu, nie kod z kodem."""
+    input_by_tick = record["metrics"]["input_by_tick"]
+    recorded_shock_tick = record["shock_tick"]
+    detected = _detect_input_prefix_end(input_by_tick)
+    if detected is None:
+        raise ShockTickTrajectoryMismatchError(
+            "brak wykrywalnego przejscia w zarejestrowanym input(t) - "
+            "niezalezna walidacja shock_tick niemozliwa"
+        )
+    if detected != recorded_shock_tick:
+        raise ShockTickTrajectoryMismatchError(
+            f"koniec stalego prefiksu zapisanego input(t)={detected} != "
+            f"zapisany shock_tick={recorded_shock_tick!r}"
+        )
+
+
+class TestShockTickGuarantee:
+    """B4C-1 (07): shock_tick zrodlem run_shock_recovery() (nie osobne
+    wyliczenie, nie rekonstrukcja w runnerze - decyzje CTO pkt 2/3). Test
+    gwarancji tutaj, OSOBNY OD RUNNERA (decyzja CTO), porownuje zapisany
+    shock_tick z zarejestrowana trajektoria input(t), bez literalu
+    wartosci prefiksu (decyzja CTO pkt 6)."""
+
+    ENV_K3 = "shock_world"
+    ENV_PRIMARY = "noise_world"
+    DRY_SEED = DRY_RUN_SEED_START  # 50000 - szczelina bezpieczna, nigdy konfirmacyjna
+
+    @classmethod
+    def _real_record(cls, environment, genome_id="default"):
+        genome = next(g for g in _genomes() if g["genome_id"] == genome_id)
+        trajectory, shock_tick = _capture_full_trajectory("L1.2", environment, genome, cls.DRY_SEED)
+        return _record("L1.2", environment, genome_id, cls.DRY_SEED, trajectory, shock_tick)
+
+    def test_detection_function_has_no_literal_prefix_value(self):
+        """Decyzja CTO pkt 6: detekcja NIE zna konkretnej wartosci prefiksu
+        (np. 0.2 shock_world) - dowod na zrodle funkcji, nie tylko
+        deklaracja w docstringu."""
+        source = inspect.getsource(_detect_input_prefix_end)
+        no_docstring = re.sub(r'"""[\s\S]*?"""', "", source)
+        assert "0.2" not in no_docstring
+        assert "0,2" not in no_docstring
+
+    def test_shock_tick_is_recorded_for_k3(self):
+        record = self._real_record(self.ENV_K3)
+        assert record["shock_tick"] is not None
+        assert isinstance(record["shock_tick"], int)
+
+    def test_shock_tick_is_none_for_primary_environment(self):
+        """Srodowiska bez pojedynczej perturbacji - run_shock_recovery() nie
+        zwraca "t_shock" - shock_tick zapisany jako None, nie zerowany."""
+        record = self._real_record(self.ENV_PRIMARY)
+        assert record["shock_tick"] is None
+
+    def test_shock_tick_matches_prefix_end_on_real_run(self):
+        """Weryfikacja pkt 1-2: kontrola gwarancji na PRAWDZIWYM przebiegu
+        K3 - nie podnosi wyjatku."""
+        record = self._real_record(self.ENV_K3)
+        _assert_shock_tick_matches_trajectory(record)  # nie podnosi
+
+    def test_shock_tick_matches_prefix_end_across_multiple_genomes(self):
+        """Ten sam sprawdzian na kilku genomach - dowod, ze zgodnosc nie
+        jest przypadkiem jednego genomu (CTO zmierzyl 30/30 na 30 seedach;
+        tutaj sprawdzone na kilku genomach tego samego dry-run seeda,
+        jedynych realnie dostepnych w tym repo bez uruchamiania konfirmacji)."""
+        genome_ids = [g["genome_id"] for g in _genomes()[:5]]
+        for genome_id in genome_ids:
+            record = self._real_record(self.ENV_K3, genome_id=genome_id)
+            _assert_shock_tick_matches_trajectory(record)  # nie podnosi
+
+    def test_negative_shifted_shock_tick_raises(self):
+        """Weryfikacja pkt 3 (test negatywny obowiazkowy): zapisany
+        shock_tick przesuniety o jeden tick -> FAIL."""
+        record = self._real_record(self.ENV_K3)
+        tampered = dict(record)
+        tampered["shock_tick"] = record["shock_tick"] + 1
+        with pytest.raises(ShockTickTrajectoryMismatchError):
+            _assert_shock_tick_matches_trajectory(tampered)
+
+    def test_negative_shifted_the_other_direction_also_raises(self):
+        record = self._real_record(self.ENV_K3)
+        tampered = dict(record)
+        tampered["shock_tick"] = record["shock_tick"] - 1
+        with pytest.raises(ShockTickTrajectoryMismatchError):
+            _assert_shock_tick_matches_trajectory(tampered)
+
+    def test_no_detectable_transition_raises_not_silently_skips(self):
+        """Weryfikacja pkt 4: brak przejscia w trajektorii -> FAIL, nie
+        pominiecie testu ani ciche True."""
+        constant_input = {str(t): 0.5 for t in range(10)}
+        fake_record = {
+            "metrics": {"input_by_tick": constant_input},
+            "shock_tick": 5,
+        }
+        with pytest.raises(ShockTickTrajectoryMismatchError, match="niezalezna walidacja"):
+            _assert_shock_tick_matches_trajectory(fake_record)
+
+    def test_detect_prefix_end_ignores_none_ticks(self):
+        input_by_tick = {"0": None, "1": 0.7, "2": 0.7, "3": 0.9}
+        assert _detect_input_prefix_end(input_by_tick) == 3
+
+    def test_detect_prefix_end_returns_none_when_all_constant(self):
+        input_by_tick = {"0": 0.5, "1": 0.5, "2": 0.5}
+        assert _detect_input_prefix_end(input_by_tick) is None
+
+    def test_detect_prefix_end_returns_none_when_all_none(self):
+        input_by_tick = {"0": None, "1": None}
+        assert _detect_input_prefix_end(input_by_tick) is None
+
+    def test_detect_prefix_end_works_for_arbitrary_constant_value(self):
+        """Dowod, ze detekcja dziala dla DOWOLNEJ stalej wartosci prefiksu,
+        nie tylko 0.2 - zero wiedzy o konkretnej liczbie (decyzja CTO pkt 6)."""
+        for ref_value in (-3.7, 0.0, 1.0, 42.123456):
+            input_by_tick = {"0": ref_value, "1": ref_value, "2": ref_value + 0.001}
+            assert _detect_input_prefix_end(input_by_tick) == 2

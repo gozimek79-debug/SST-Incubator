@@ -93,6 +93,49 @@ statistics) w tym pliku. Kontrola prowieniencji ponizej (WorldRuntime.step)
 NIE jest analiza statystyczna - to porownanie dwoch liczb, nie test.
 
 ============================================================================
+shock_tick (B4C-1 (07), decyzje CTO WIAZACE - patrz historia zlecen (05)/(06)/(07))
+============================================================================
+Dla srodowiska K3 (shock_world) runner zapisuje shock_tick jako pole
+NAJWYZSZEGO POZIOMU rekordu (WLASCIWOSC calego przebiegu, nie trajektorii
+per-tick - w odroznieniu od prediction/input/prediction_error powyzej).
+
+ZRODLO (decyzja CTO, wiazaca): WYLACZNIE wartosc "t_shock" zwracana przez
+RZECZYWISTY przebieg run_shock_recovery() (clos_academy/lesson_L1_2.py) -
+NIE osobne wyliczenie. Ten runner NIE rekonstruuje shock_tick i NIE wola
+clos_world.scenarios.single_perturbation_tick() ani zadnej innej funkcji
+w tym celu - scenarios.py pozostaje NIETKNIETY (decyzja CTO, B4C-1 (07)).
+
+POWOD odrzucenia wzorca WorldRuntime.step/input(t): zbadano empirycznie
+(B4C-1 (06)) - run_shock_recovery() samo w sobie liczy t_shock wolajac
+single_perturbation_tick(scenario, seed), czysta funkcje (seed,scenario)->
+int BEZ stanu symulacji. Druga, "niezalezna" rekonstrukcja dostepna w tym
+pliku bylaby wywolaniem TEJ SAMEJ funkcji drugi raz - sprawdzeniem, ze
+czysta funkcja zwraca to samo dwa razy z tymi samymi argumentami, nie
+kontrola prowieniencji (ten sam blad klasy co tautologiczny test wykryty
+w B4C-2 (04)). Prawdziwa druga sciezka istnieje w kodzie (shock_world()
+samo liczy rng.randint(20,80) jako osobny literal wobec
+SINGLE_PERTURBATION_SCENARIOS["shock_world"]), ale dotkniecie
+clos_world/scenarios.py wylacznie po to, by stworzyc drugi tor kontrolny,
+zostalo odrzucone przez CTO jako "zmienianie badanego instrumentu, zeby
+latwiej bylo go testowac".
+
+KONTROLA PROWIENIENCJI ZAMIAST TEGO: test gwarancji, OSOBNY OD RUNNERA
+(tests/test_pc_001_confirmatory_runner_guarantee.py::TestShockTickGuarantee),
+porownuje zapisany shock_tick z KONCEM STALEGO PREFIKSU zapisanej
+trajektorii input(t) - bez znajomosci KONKRETNEJ wartosci tego prefiksu
+(zero literalu np. 0.2 w tescie). To porownuje METADANE z FAKTYCZNYM
+zachowaniem swiata (dwa niezalezne zrodla danych), nie kod z kodem (dwa
+wywolania tej samej funkcji) - silniejsza kontrola niz pierwotnie
+zaproponowany wzorzec WorldRuntime.step. Brak wykrywalnego przejscia w
+trajektorii -> test FAIL (niezalezna walidacja niemozliwa), nie ciche
+pominiecie.
+
+Dla srodowisk primary (noise_world) i K4 (pure_noise_world) - BEZ
+pojedynczej perturbacji (has_single_perturbation()==False) -
+run_shock_recovery() nie zwraca klucza "t_shock" - shock_tick zapisany
+jako None.
+
+============================================================================
 WERYFIKACJA PODLOGI PRZED URUCHOMIENIEM
 ============================================================================
 verify_floors_before_run() iteruje PO WSZYSTKICH atrybutach CONFIG
@@ -161,14 +204,15 @@ from clos_scientist.w2_endpoint import verify_frozen_floor_env
 
 GENOMES_PATH = REPO_ROOT / "execution_package_v0_11" / "genomes" / "population.json"
 
-# B4C-1 (02): PRODUCENT deklaruje wersje schematu, ktory produkuje. Przyszly
-# evaluator (osobne zlecenie) bedzie mial WLASNA, ODREBNA stala okreslajaca
-# wersje, ktorej WYMAGA - porownanie przy wczytaniu, niezgodnosc = BLAD,
-# nigdy proba adaptacji/uzupelnienia starego formatu. "1" = pierwsza wersja
-# (wylacznie prediction_error, TERAZ NIEOBOWIAZUJACA - zaden zapisany plik w
-# tym repo jej nie uzywa, dry-run zawsze byl uruchamiany na zywo, nigdy
-# zapisany na stale). "2" = ta wersja (prediction + input + prediction_error).
-TRAJECTORY_SCHEMA_VERSION_PRODUCED = 2
+# B4C-1 (02)/(07): PRODUCENT deklaruje wersje schematu, ktory produkuje.
+# Przyszly evaluator (osobne zlecenie) bedzie mial WLASNA, ODREBNA stala
+# okreslajaca wersje, ktorej WYMAGA - porownanie przy wczytaniu, niezgodnosc
+# = BLAD, nigdy proba adaptacji/uzupelnienia starego formatu. "1" = pierwsza
+# wersja (wylacznie prediction_error, TERAZ NIEOBOWIAZUJACA - zaden zapisany
+# plik w tym repo jej nie uzywa). "2" = prediction + input + prediction_error
+# (B4C-1 (02), TERAZ NIEOBOWIAZUJACA - ten sam powod). "3" = ta wersja (2 +
+# shock_tick, top-level, K3 wylacznie - B4C-1 (07)).
+TRAJECTORY_SCHEMA_VERSION_PRODUCED = 3
 
 # Tolerancja kontroli prowieniencji (gwarancje 2 i 3 - B4C-1 (02) v2, decyzja
 # CTO): zmierzone bezposrednio - 300 tickow, pelna precyzja (BEZ round()),
@@ -320,7 +364,7 @@ def verify_floors_before_run() -> Dict[str, Any]:
 
 
 def _capture_full_trajectory(lesson: str, environment: str, genome: Dict[str, Any],
-                              seed: int) -> Dict[int, Dict[str, Optional[float]]]:
+                              seed: int) -> Tuple[Dict[int, Dict[str, Optional[float]]], Optional[int]]:
     """Przechwytuje prediction, input, prediction_error z KAZDEGO ticka
     (wszystkie ticki okna, nie tylko wczesne) - ten sam wzorzec monkeypatch
     co pilot_final.py, bez filtra tick<W_EARLY_TICKS. Kazdy tick ->
@@ -329,6 +373,13 @@ def _capture_full_trajectory(lesson: str, environment: str, genome: Dict[str, An
     runnera zapisywala WYLACZNIE prediction_error, co okazalo sie
     niewystarczajace dla trzech komorek rodziny BH (K1-A/B, K6) - patrz
     docstring modulu.
+
+    Zwraca rowniez shock_tick (B4C-1 (07), decyzja CTO wiazaca): WYLACZNIE
+    wartosc "t_shock" zwrocona przez RZECZYWISTY przebieg run_shock_recovery()
+    ponizej - None, gdy klucz nieobecny (srodowiska bez pojedynczej
+    perturbacji - primary/K4). Zero osobnego wyliczenia, zero wywolania
+    single_perturbation_tick() w tym pliku - patrz sekcja "shock_tick" w
+    docstringu modulu.
 
     Zero literalu nazwy lekcji: porownanie WYLACZNIE przeciw CONFIG (_lesson()),
     nie przeciw wpisanej na sztywno wartosci - ten runner strukturalnie zna
@@ -360,14 +411,15 @@ def _capture_full_trajectory(lesson: str, environment: str, genome: Dict[str, An
 
     SnapshotEngine.create_snapshot = spy
     try:
-        run_shock_recovery(
+        result = run_shock_recovery(
             genome_preset=genome["genome_preset"], seed=seed, scenario=environment,
             ticks_total=_ticks_total(), genome_params=genome["genome_params"],
             genome_label=genome["genome_id"], observe=True,
         )
     finally:
         SnapshotEngine.create_snapshot = original
-    return trajectory
+    shock_tick = result.get("t_shock")
+    return trajectory, shock_tick
 
 
 def verify_trajectory_field_consistency(
@@ -436,12 +488,16 @@ def verify_input_provenance(
 
 
 def _record(lesson: str, environment: str, genome_id: str, seed: int,
-            trajectory: Dict[int, Dict[str, Optional[float]]]) -> Dict[str, Any]:
+            trajectory: Dict[int, Dict[str, Optional[float]]],
+            shock_tick: Optional[int]) -> Dict[str, Any]:
     """Schemat wzorowany na BUILD-006 (pipeline.py::_record): run_id/genome/
     environment/lesson/seed/timestamp/metrics/output_hash/
-    trajectory_schema_version. metrics = PELNA trajektoria prediction/input/
-    prediction_error per tick (klucze jako string - wymog JSON), None gdzie
-    brak - nie zerowane, nie zaokraglane (B4C-1 (02))."""
+    trajectory_schema_version/shock_tick. metrics = PELNA trajektoria
+    prediction/input/prediction_error per tick (klucze jako string - wymog
+    JSON), None gdzie brak - nie zerowane, nie zaokraglane (B4C-1 (02)).
+    shock_tick (B4C-1 (07)) jest polem NAJWYZSZEGO POZIOMU (wlasciwosc calego
+    przebiegu, nie trajektorii per-tick) - None dla srodowisk bez pojedynczej
+    perturbacji, patrz docstring modulu."""
     metrics = {
         "prediction_by_tick": {str(t): v["prediction"] for t, v in sorted(trajectory.items())},
         "input_by_tick": {str(t): v["input"] for t, v in sorted(trajectory.items())},
@@ -458,6 +514,7 @@ def _record(lesson: str, environment: str, genome_id: str, seed: int,
         "seed": seed,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "trajectory_schema_version": TRAJECTORY_SCHEMA_VERSION_PRODUCED,
+        "shock_tick": shock_tick,
         "metrics": metrics,
         "output_hash": hashlib.sha256(metrics_json.encode("utf-8")).hexdigest(),
     }
@@ -509,13 +566,16 @@ def run_confirmatory_pipeline(specs: List[Tuple[str, str, str, int]], results_pa
     with open(results_path, mode, encoding="utf-8") as out:
         for i, (lesson, environment, genome_id, seed) in enumerate(specs[start_index:], start=start_index):
             genome = genomes_by_id[genome_id]
-            trajectory = _capture_full_trajectory(lesson, environment, genome, seed)
+            trajectory, shock_tick = _capture_full_trajectory(lesson, environment, genome, seed)
             # B4C-1 (02) v2, gwarancje 1-3: HALT przed zapisem, nie po -
             # zapisany rekord ma byc juz zweryfikowany, nie zweryfikowany
-            # pozniej przez kogos innego.
+            # pozniej przez kogos innego. shock_tick (B4C-1 (07)) NIE ma
+            # tu odpowiednika - kontrola prowieniencji zyje w tescie
+            # gwarancji, osobno od runnera (decyzja CTO, patrz docstring
+            # modulu, sekcja "shock_tick").
             verify_trajectory_field_consistency(trajectory)
             verify_input_provenance(trajectory, environment, seed)
-            record = _record(lesson, environment, genome_id, seed, trajectory)
+            record = _record(lesson, environment, genome_id, seed, trajectory, shock_tick)
             out.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
             completed = i + 1
 

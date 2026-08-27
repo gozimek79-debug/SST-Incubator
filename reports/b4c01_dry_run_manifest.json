@@ -1,8 +1,9 @@
 {
-  "purpose": "dowod dry-run B4C-01/03/04 + B4C-1 (02) (mechanika runnera konfirmacyjnego PC-001, rozszerzenie kanalu obserwacyjnego) - NIE eksperyment, NIE wynik inferencyjny",
-  "commit": "341319b916a7970f88bfe062482f6a6919677e42",
-  "generated_at": "2026-08-23T22:15:00+00:00",
+  "purpose": "dowod dry-run B4C-01/03/04 + B4C-1 (02)/(07) (mechanika runnera konfirmacyjnego PC-001, rozszerzenie kanalu obserwacyjnego + shock_tick) - NIE eksperyment, NIE wynik inferencyjny",
+  "commit": "TBD - aktualizowane przed commitem B4C-1 (07), nie zacommitowane",
+  "generated_at": "2026-08-26T21:41:00+00:00",
   "note_b4c1_02": "Zaktualizowano PO rozszerzeniu kanalu obserwacyjnego (B4C-1 (02)): runner zapisuje teraz prediction/input/prediction_error per tick (nie sama prediction_error) - patrz observation_channel_extension nizej. Dry-run powtorzony w calosci na nowym formacie, nie tylko na przyrostowej zmianie. B4C-07 (generator manifestu) nadal wstrzymane - ten plik zaktualizowany recznie, tak jak zostal pierwotnie napisany, nie generatorem (ktory nie istnieje).",
+  "note_b4c1_07": "Zaktualizowano PO dodaniu shock_tick (B4C-1 (07), decyzje CTO wiazace): runner zapisuje teraz shock_tick jako pole najwyzszego poziomu (K3=shock_world wylacznie, None dla primary/K4), zrodlem WYLACZNIE t_shock zwracane przez RZECZYWISTY przebieg run_shock_recovery() - zero rekonstrukcji w runnerze. trajectory_schema_version podniesiona 2->3. Dry-run powtorzony W CALOSCI (resume=False w run_dry_run() - zawsze od zera, nie tylko dla tej zmiany), zero mieszania rekordow schematu 2 i 3 w wynikowym pliku - patrz shock_tick_extension nizej.",
   "dry_run": {
     "seed_range": [
       50000,
@@ -11,8 +12,20 @@
     ],
     "run_count_expected": 207,
     "run_count_completed": 207,
-    "trajectory_schema_version": 2,
+    "trajectory_schema_version": 3,
     "result": "PASS"
+  },
+  "shock_tick_extension": {
+    "purpose": "B4C-1 (07), decyzje CTO wiazace: shock_tick zrodlem WYLACZNIE run_shock_recovery() (nie osobne wyliczenie), runner NIE rekonstruuje, kontrola prowieniencji jako test gwarancji OSOBNY od runnera (tests/test_pc_001_confirmatory_runner_guarantee.py::TestShockTickGuarantee) - koniec stalego prefiksu zapisanego input(t), bez znajomosci konkretnej wartosci prefiksu",
+    "schema_version_all_records": 3,
+    "shock_world_records": 69,
+    "shock_world_shock_tick_none_count": 0,
+    "shock_world_provenance_mismatches": 0,
+    "provenance_check_note": "zweryfikowano PROGRAMOWO na WSZYSTKICH 69 rekordach K3 pelnego dry-run (nie tylko probce z testu jednostkowego) - koniec stalego prefiksu input(t) == zapisany shock_tick dla kazdego z 69, zero rozbieznosci",
+    "noise_world_shock_tick": "None dla wszystkich 69 rekordow (brak pojedynczej perturbacji)",
+    "pure_noise_world_shock_tick": "None dla wszystkich 69 rekordow (brak pojedynczej perturbacji)",
+    "negative_test": "PASS (w tests/test_pc_001_confirmatory_runner_guarantee.py, nie w tym manifescie): zapisany shock_tick przesuniety o +-1 tick -> ShockTickTrajectoryMismatchError; trajektoria bez wykrywalnego przejscia -> ShockTickTrajectoryMismatchError (niezalezna walidacja niemozliwa), nie ciche pominiecie",
+    "scenarios_py_touched": false
   },
   "observation_channel_extension": {
     "purpose": "B4C-1 (02), decyzja CTO: prediction i input zapisywane osobno, obok prediction_error - trzy komorki rodziny BH (K1-A, K1-B, K6) potrzebuja ich osobno, nie da sie ich odtworzyc z samej prediction_error (znak roznicy prediction-input zmienia sie prawie co tick)",
@@ -57,6 +70,7 @@
     "result": "PASS - zero przeciec ze wszystkimi zakresami"
   },
   "resume_test": {
+    "note_b4c1_07": "Powtorzone od zera po podniesieniu schematu (B4C-1 (07), weryfikacja pkt 6/9) - nie przeniesione z poprzedniej migawki. Fizyczne przerwanie procesu zasymulowane run_confirmatory_pipeline() na pierwszych 5 specow (resume=False), potem WZNOWIENIE tego samego wywolania z PELNA lista 207 specow (resume=True) - resume_from_checkpoint() czyta wylacznie plik checkpointu, nie rozroznia, czy piszacy proces byl ten sam.",
     "interrupted_after": 5,
     "resumed_from_checkpoint": 5,
     "final_total_lines": 207,
@@ -64,6 +78,8 @@
     "expected_total": 207,
     "duplicates": 0,
     "gaps": 0,
+    "all_records_schema_version_3": true,
+    "all_records_have_shock_tick_key": true,
     "result": "PASS"
   },
   "floor_verification": {
@@ -83,7 +99,7 @@
   "critical_files_pc_001_interim_hash": {
     "algorithm": "compute_files_hash_v2",
     "n_files": 53,
-    "value": "c499d7ac30af3ec87ba6efbb7663748ce1e110a3fbff6082578c547d13e13ba7",
-    "note": "INTERIM - PC_001_BASELINE nadal TBD (B5 nastapi po evaluatorze, B4C-2). Ta wartosc to migawka stanu 53 plikow krytycznych PO rozszerzeniu kanalu obserwacyjnego (B4C-1 (02) zmienia tresc execution_package_v0_11/runners/pc_001_confirmatory_runner.py, czlonka rejestru) - stad wartosc INNA niz poprzednia migawka (52 pliki, sprzed tej zmiany). NIE zamrozony baseline - do wewnetrznego sledzenia, nie do porownania z niczym."
+    "value": "f26432fba5c022c5e96abcb9c615f9617ed1a21081a3f46050974b41e0c35208",
+    "note": "INTERIM - PC_001_BASELINE nadal TBD (B5 nastapi po evaluatorze, B4C-2). Ta wartosc to migawka stanu 53 plikow krytycznych PO dodaniu shock_tick (B4C-1 (07) zmienia tresc execution_package_v0_11/runners/pc_001_confirmatory_runner.py, czlonka rejestru) - stad wartosc INNA niz poprzednia migawka (sprzed tej zmiany, B4C-1 (02) era). NIE zamrozony baseline - do wewnetrznego sledzenia, nie do porownania z niczym. Licznosc rejestru (53) NIEZMIENIONA - clos_scientist/pc_001_k1_shuffle.py (nowy plik, B4C-1 (05)/(07)) swiadomie NIE dodany do rejestru w tym kroku, patrz opinia w raporcie do CTO (pytanie otwarte z (06))."
   }
 }
