@@ -92,8 +92,11 @@ class TestFileListMatchesRegistryContentAndOrder:
         assert problems == []
 
     def test_positive_count_equals_len_critical_files(self):
+        """Celowo BEZ literalu liczby (B4C-2 (10)) - licznosc rejestru jest
+        zadeklarowana WYLACZNIE w hard_halt.py:347; kazdy inny test ja
+        wyprowadza, nigdy nie powtarza."""
         file_list = parse_file_list(BASELINE_FILE.read_text(encoding="utf-8"))
-        assert len(file_list) == len(CRITICAL_FILES_PC_001) == 53
+        assert len(file_list) == len(CRITICAL_FILES_PC_001)
 
     def test_negative_a_missing_entry_is_caught(self):
         expected = sorted(CRITICAL_FILES_PC_001)
@@ -129,6 +132,8 @@ class TestHeaderCountIsComputedNotWritten:
         import scripts.generate_pc_001_baseline_hash_file as gen
         source = inspect.getsource(gen.render)
         assert "len(CRITICAL_FILES_PC_001)" in source
+        assert "55" not in source
+        assert "54" not in source
         assert "53" not in source
         assert "52" not in source
         assert "51" not in source

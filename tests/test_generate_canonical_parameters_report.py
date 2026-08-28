@@ -114,7 +114,13 @@ class TestRegistryLengthAssertion:
         from scripts.validate_canonical_spec import load_critical_files
 
         files = load_critical_files()
-        assert n == len(files) == 53
+        # Celowo BEZ literalu liczby (B4C-2 (09), znalezisko przy rozszerzeniu
+        # rejestru 53->55): ten test ma byc zielony PO OBU STRONACH kazdego
+        # commita zmieniajacego licznosc, wiec porownuje wylacznie assert w
+        # pliku z faktyczna dlugoscia listy - wpisanie tu sztywnej liczby
+        # zniweczyloby dokladnie ten cel, ktory docstring wyzej opisuje.
+        assert n == len(files)
+        assert n > 0
 
     def test_missing_assert_is_missing_sentinel(self):
         assert registry_length_assertion_in_text("CRITICAL_FILES_PC_001 = ['a.py']\n") is MISSING

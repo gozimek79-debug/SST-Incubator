@@ -59,8 +59,11 @@ HARD_HALT_PY = REPO_ROOT / "execution_package_v0_11" / "validators" / "hard_halt
 
 class TestCriticalFilesPC001Exist:
 
-    def test_all_53_files_exist(self):
-        assert len(CRITICAL_FILES_PC_001) == 53
+    def test_all_registered_files_exist(self):
+        """Celowo BEZ literalu licznosci (B4C-2 (10)) - licznosc jest
+        zadeklarowana WYLACZNIE w hard_halt.py:347 (assert przy imporcie
+        CRITICAL_FILES_PC_001 juz to sprawdza); ten test sprawdza TRESC
+        (kazdy wpisany plik faktycznie istnieje), nie licznosc."""
         missing = [f for f in CRITICAL_FILES_PC_001 if not (REPO_ROOT / f).exists()]
         assert not missing, f"pliki z CRITICAL_FILES_PC_001 nie istnieja: {missing}"
 
