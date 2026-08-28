@@ -1,8 +1,22 @@
 {
   "title": "Historia laboratorium CLOS",
   "note": "Recznie utrzymywana kronika (jak spis tresci w sekcji Raporty) - daty i fakty pochodza z git log oraz artefaktow repo, nie sa generowane automatycznie (proza ma byc zrozumiala dla obserwatora, nie transkrypcja zargonu commit message). Swiezosc pilnowana automatycznie przez scripts/validate_history_freshness.py (CI, widoczny nieblokujacy krok) - kazdy commit poza jednym strukturalnym wyjatkiem (tym, ktory wlasnie dopisuje nowy wpis) musi miec tu swoj odpowiednik, inaczej krok CI zglasza to jawnie. Wpisy najnowsze na gorze. Panel dodatkowo pokazuje zywy strumien commitow z GitHub API obok tej kroniki.",
-  "updated": "2026-08-28",
+  "updated": "2026-08-29",
   "entries": [
+    {
+      "date": "2026-08-29",
+      "sprint": "PC-001",
+      "title": "Kontrola sprawdzajaca cytaty zaczela porownywac je z prawdziwym zrodlem, nie tylko z druga kopia",
+      "body": "Wczesniejsza kontrola dowodzila, ze dwie kopie tego samego dokumentu poprawkowego (wersja czytelna dla czlowieka i wersja danowa) mowia to samo miedzy soba - ale nie sprawdzala, czy ktorakolwiek z nich zgadza sie z oryginalnym dokumentem, ktory rzekomo cytuje doslownie. Sposob porownywania dwoch kopii ze soba (upraszczanie formatowania przed porownaniem) przypadkiem zacieral wlasnie te roznice, ktore odrozniaja obie kopie od oryginalu - test przechodzil na zielono, mimo ze zaden z dwoch plikow nie byl doslowny wobec zrodla. Nowa kontrola porownuje teraz cytat wprost z surowa trescia oryginalnego dokumentu. Przy jej pisaniu znaleziona zostala trzecia, wczesniej niezauwazona drobna niezgodnosc (brakujacy specjalny znak myslnika) - poprawiona.",
+      "commit": "d74d88e"
+    },
+    {
+      "date": "2026-08-29",
+      "sprint": "PC-001",
+      "title": "Liczba seedow eksperymentu konfirmacyjnego podniesiona z 8 do 9 - stara wartosc juz nie wystarczala",
+      "body": "Audyt wykazal, ze konfiguracja projektu i zamrozony dokument opisujacy jedenascie kontroli statystycznych mowily rozne liczby wymaganych powtorzen eksperymentu (8 wobec 9) - i test, ktory mial to pilnowac, byl zielony, bo sprawdzal zgodnosc z zewnetrznym dokumentem, ktory sam byl juz nieaktualny (policzony dla wczesniejszej, mniejszej rodziny kontroli). Przy 8 powtorzeniach dziesiec z jedenastu kontroli formalnie nie moglyby wykazac istotnosci statystycznej, niezaleznie od wynikow - uruchomienie eksperymentu skonczyloby sie z gory przesadzonym wynikiem negatywnym, zuzywajac przy tym bezpowrotnie osiem zarezerwowanych numerow losowania. Powstal formalny dokument korygujacy, liczba podniesiona do 9, a test pilnujacy zgodnosci przepiety na wlasciwe, aktualne zrodlo. Historyczna wartosc 8 zostaje tam, gdzie powstala, oznaczona jako przeszlosc, nie usuwana.",
+      "commit": "dba803d"
+    },
     {
       "date": "2026-08-28",
       "sprint": "PC-001",
