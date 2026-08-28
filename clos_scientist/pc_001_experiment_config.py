@@ -13,7 +13,7 @@ generyczny, uzywalny przez przyszle eksperymenty z WLASNYMI wartosciami tych
 parametrow, wlasna prerejestracja).
 """
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 # --- Deklaratywny opis eksperymentu (D-012) ---
 EXPERIMENT_CONFIG: Dict[str, object] = {
@@ -172,6 +172,37 @@ W_LATE_TICKS: List[int] = list(range(240, 300))   # ticki 240-299, ostatnie 20%
 # jest mierzalny na CALYM przebiegu, nie tylko w podoknach - w odroznieniu od
 # L1.1, gdzie faza ciszy jest niemierzalna (CURRENT_SCIENTIFIC_LIMITS.md §8).
 MEASURABLE_WINDOW_TICKS: List[int] = list(range(0, 300))
+
+# Okna K3a warunek 1 (wzrost PE po wstrzasie) - publications/preregistration_PC_001.md
+# §5 -> "K3", doslownie: "Wzrost: srednia PE w [shock_tick, shock_tick+20] >
+# srednia w [shock_tick-20, shock_tick-1]." Dwie stale ROZNE od W_EARLY_TICKS/
+# W_LATE_TICKS powyzej (te sa wzgledem tick=0 na cala populacje; K3a jest
+# WZGLEDEM shock_tick, ktory jest inny dla kazdego seeda - patrz
+# clos_world.scenarios.single_perturbation_tick). Asymetria dlugosci okien w
+# doslownym tekscie (przedzial domkniety obustronnie: pre ma 20 tickow
+# [shock_tick-20 .. shock_tick-1], post ma 21 tickow [shock_tick ..
+# shock_tick+20]) jest CYTOWANA, nie poprawiona - zmiana granicy bez decyzji
+# CTO bylaby dokladnie tym bledem "zmiana progu po zobaczeniu danych", ktorego
+# ANEKS 1 Zmiana 4 zakazuje dla progu 20% Warunku B.
+K3A_PRE_SHOCK_OFFSET_TICKS: int = 20
+K3A_POST_SHOCK_OFFSET_TICKS: int = 20
+
+
+def k3a_pre_post_shock_windows(shock_tick: int) -> Tuple[List[int], List[int]]:
+    """(pre_window, post_window) wzgledem shock_tick - patrz komentarz nad
+    stalymi powyzej dla doslownego cytatu i uzasadnienia asymetrii dlugosci."""
+    pre_window = list(range(shock_tick - K3A_PRE_SHOCK_OFFSET_TICKS, shock_tick))
+    post_window = list(range(shock_tick, shock_tick + K3A_POST_SHOCK_OFFSET_TICKS + 1))
+    return pre_window, post_window
+
+
+# Stala ablacji K5 (surogatowa kontrola analityczna) - publications/
+# preregistration_PC_001.md §5 -> "K5": "zastapic prediction stala 0.5
+# (wartosc neutralnej predykcji Core, clos_brain/runtime/prediction.py:20)".
+# Zweryfikowane wprost w zrodle (clos_brain/runtime/prediction.py, linia
+# 'brain.last_prediction = 0.5  # Neutralna predykcja') - nie przepisane z
+# prozy prerejestracji bez sprawdzenia, czy Core nadal uzywa tej wartosci.
+K5_ABLATED_PREDICTION_CONSTANT: float = 0.5
 
 # --- floor_env jako WARTOSC PREREJESTROWANA (D-018) ---
 #
