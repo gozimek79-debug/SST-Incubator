@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-27T19:54:33.615424+00:00",
+  "generated_at": "2026-08-28T20:33:06.267381+00:00",
   "documents": [
     {
       "path": "CHANGELOG_v0.7.2.md",
@@ -69,7 +69,7 @@
     },
     {
       "path": "SPECYFIKACJA_KANONICZNA_PC_001.md",
-      "title": "SPECYFIKACJA KANONICZNA PC-001 — v1.9",
+      "title": "SPECYFIKACJA KANONICZNA PC-001 — v1.10",
       "date": "2026-08-03",
       "ok": true
     },
@@ -266,6 +266,12 @@
       "ok": true
     },
     {
+      "path": "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md",
+      "title": "ERRATUM 1 do ANEKSU 1 (PREREJESTRACJA PC-001)",
+      "date": "2026-08-27",
+      "ok": true
+    },
+    {
       "path": "publications/specyfikacja_W2_2026-07-28.md",
       "title": "SPECYFIKACJA W2 — Primary Endpoint znormalizowany podłogą nieredukowalną",
       "date": "2026-07-28",
@@ -378,6 +384,12 @@
       "path": "publications/preregistration_PC_001_ANEKS_6_2026-08-03.json",
       "title": "mechanizm predykcji: korekta wyjaśnienia, nie wniosku",
       "date": "2026-08-03",
+      "ok": true
+    },
+    {
+      "path": "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.json",
+      "title": "preregistration_PC_001_ERRATUM_1_2026-08-27.json",
+      "date": "2026-08-27",
       "ok": true
     },
     {
