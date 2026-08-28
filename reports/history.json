@@ -1,8 +1,43 @@
 {
   "title": "Historia laboratorium CLOS",
   "note": "Recznie utrzymywana kronika (jak spis tresci w sekcji Raporty) - daty i fakty pochodza z git log oraz artefaktow repo, nie sa generowane automatycznie (proza ma byc zrozumiala dla obserwatora, nie transkrypcja zargonu commit message). Swiezosc pilnowana automatycznie przez scripts/validate_history_freshness.py (CI, widoczny nieblokujacy krok) - kazdy commit poza jednym strukturalnym wyjatkiem (tym, ktory wlasnie dopisuje nowy wpis) musi miec tu swoj odpowiednik, inaczej krok CI zglasza to jawnie. Wpisy najnowsze na gorze. Panel dodatkowo pokazuje zywy strumien commitow z GitHub API obok tej kroniki.",
-  "updated": "2026-08-27",
+  "updated": "2026-08-28",
   "entries": [
+    {
+      "date": "2026-08-28",
+      "sprint": "PC-001",
+      "title": "Zaczyna powstawac evaluator - i od razu z wbudowana blokada",
+      "body": "Pierwszy kawalek kodu, ktory faktycznie liczy wynik jednej z jedenastu kontrol reguly decyzyjnej PC-001 (separacja miedzy srodowiskiem realnym a czystym szumem) - reszta zaczeka na kolejne kroki. Wazniejsze od samej liczby jest to, czego ten plik jeszcze NIE robi: nie potrafi zlozyc ostatecznego wyniku eksperymentu. Kazda proba to zrobic konczy sie natychmiastowym, jawnym bledem, ktory wymienia z nazwy, ktore kontrole sa wstrzymane i dlaczego (patrz wpis o kierunku wsparcia nizej) - blokada jest wpisana w kod, nie w dokumentacje, wiec nie da sie jej przypadkiem ominac. Plik na razie zyje w repozytorium bez dodatkowej ochrony przed niezauwazona zmiana - dostanie ja, gdy bedzie kompletny.",
+      "commit": "701f0e4"
+    },
+    {
+      "date": "2026-08-28",
+      "sprint": "PC-001",
+      "title": "Prerejestracja: dla kazdej z jedenastu kontroli jasne juz, w ktora strone wspiera hipoteze",
+      "body": "Piec z jedenastu kontroli PC-001 wspiera hipoteze, gdy WYKRYWA efekt (np. spadek bledu przewidywania). Ale szesc innych - kontrole surogatowe, sprawdzajace, czy wynik nie jest artefaktem procedury - wspiera hipoteze DOKLADNIE ODWROTNIE: gdy efekt znika po przetasowaniu danych albo po usunieciu mechanizmu przewidywania. Ten podzial istnial dotad tylko jako proza w tekscie prerejestracji - teraz kazda z jedenastu kontroli ma wprost zapisane, do ktorej grupy nalezy, wraz z dokladnym cytatem z dokumentu uzasadniajacym ten wybor. Sprawdzono programowo, ze nie dalo sie tego wywnioskowac automatycznie z samej nazwy kontroli - proba taka pomylilaby polowe przypadkow. Przy okazji: te szesc kontroli 'odwrotnych' czeka jeszcze na osobny, waskoprzedmiotowy przeglad metodologiczny, zanim ostateczny wynik eksperymentu bedzie mozna w ogole policzyc (patrz wpis powyzej).",
+      "commit": "a253f3c"
+    },
+    {
+      "date": "2026-08-28",
+      "sprint": "PC-001",
+      "title": "Poprawka do prerejestracji: jedna z kontroli porownywala nie to srodowisko, co trzeba",
+      "body": "Jedna z jedenastu kontroli (separacja miedzy srodowiskiem realnym a czystym szumem) mialy w dokumencie prerejestracji dwa zdania, ktore nie moga byc jednoczesnie prawdziwe - jedno mowilo o jednym srodowisku, drugie o innym, a ta druga wersja okazala sie w ogole niemozliwa do policzenia (brakuje jej niezbednego punktu odniesienia, ktorego nikt nigdy nie wyznaczyl). Powstal formalny dokument korygujacy - nie cicha zmiana zdania, tylko jawna poprawka z podanym powodem i cytatami obu spornych fragmentow obok siebie. Korekta jest dopuszczalna wylacznie dlatego, ze eksperyment konfirmacyjny jeszcze sie nie zaczal - zadne dane, na podstawie ktorych mozna by cokolwiek naciagnac, nie istnieja. Przy okazji dopisano dwa automatyczne testy pilnujace, zeby dwie pary dokumentow, ktore od teraz musza mowic to samo (skrocone nazwy odnosnikow i sama tresc poprawki), nigdy sie nie rozjechaly bez ostrzezenia.",
+      "commit": "a253f3c"
+    },
+    {
+      "date": "2026-08-28",
+      "sprint": "PC-001",
+      "title": "Okna czasowe jednej z kontroli dostaly wreszcie adres, nie tylko opis slowny",
+      "body": "Jedna z kontroli zwiazanych z reakcja na wstrzas byla zdefiniowana w dokumencie prerejestracji wylacznie jako opis w prozie ('20 tickow przed i po wstrzasie') - bez zadnego miejsca w kodzie, do ktorego mozna by sie odwolac. Teraz te dwie liczby maja wlasny, nazwany adres w konfiguracji eksperymentu, z dopisanym testem pilnujacym, ze okno przed wstrzasem i okno po nim maja dokladnie tyle tickow, ile powinny (jedno z nich - z powodu sposobu zapisu w oryginalnym dokumencie - jest o jeden tick dluzsze niz drugie; test to potwierdza, zamiast po cichu wyrownywac).",
+      "commit": "e7749d6"
+    },
+    {
+      "date": "2026-08-28",
+      "sprint": "PC-001",
+      "title": "Cztery testy przestaly zakladac, ile plikow jest dzis chronionych przed zmiana",
+      "body": "Cztery testy w projekcie sprawdzaly, ile plikow jest wpisanych na liste chronionych przed niezauwazona zmiana, wpisujac ta liczbe wprost do samego testu - w tym jeden test, ktorego wlasny opis obiecywal, ze bedzie dzialal niezaleznie od tej liczby, a mimo to jej pilnowal. Wszystkie cztery poprawione tak, by liczba pochodzila z jednego, jedynego miejsca (tam, gdzie lista jest naprawde zdefiniowana), zamiast byc powtarzana w kazdym miejscu z osobna.",
+      "commit": "b0af65e"
+    },
     {
       "date": "2026-08-27",
       "sprint": "PC-001",
