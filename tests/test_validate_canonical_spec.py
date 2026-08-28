@@ -15,14 +15,17 @@ gdy wstrzykniety fragment sasiaduje ze slowem-wyzwalaczem.
 
 import copy
 import json
+import re
 
 import pytest
 
 from scripts.spec_md_to_json import convert
 from scripts.validate_canonical_spec import (
     REPO_ROOT,
+    SHORTCUTS,
     SPEC_JSON,
     SPEC_MD,
+    _file_for_token,
     check_c001,
     check_critical_files_registry_coverage,
     check_file_addresses,
@@ -39,6 +42,31 @@ from scripts.validate_canonical_spec import (
 
 REAL_MD = SPEC_MD.read_text(encoding="utf-8")
 REAL_SPEC_DATA = convert(REAL_MD, SPEC_MD.name)
+
+_SHORTCUT_TABLE_ROW_RE = re.compile(r"^\|\s*\*\*([^*]+)\*\*\s*\|\s*`([^`]+)`\s*\|\s*$", re.MULTILINE)
+_SHORTCUT_RANGE_KEY_RE = re.compile(r"^([A-Za-z]+)(\d+)\s*…\s*\1(\d+)$")
+_SHORTCUT_RANGE_PATH_RE = re.compile(r"\{(\d+)\.\.(\d+)\}")
+
+
+def parse_shortcuts_table_from_markdown(text: str) -> dict:
+    """B4C-2 (10): parsuje tabele skrotow z §1 Specyfikacji ('| **KEY** |
+    `PATH` |' wiersze) - JEDYNE inne miejsce, gdzie ta tabela zyje, poza
+    slownikiem SHORTCUTS w validate_canonical_spec.py. Obsluguje notacje
+    zakresu ('A1 … A5' + '...ANEKS_{1..5}...') przez rozwiniecie do
+    pojedynczych kluczy - bez tego rownosc z SHORTCUTS nigdy by nie wyszla,
+    bo Python nie ma zadnego wpisu 'A1 … A5'."""
+    result = {}
+    for key_raw, path_raw in _SHORTCUT_TABLE_ROW_RE.findall(text):
+        key_raw = key_raw.strip()
+        range_match = _SHORTCUT_RANGE_KEY_RE.match(key_raw)
+        path_range_match = _SHORTCUT_RANGE_PATH_RE.search(path_raw)
+        if range_match and path_range_match:
+            prefix, lo, hi = range_match.group(1), int(range_match.group(2)), int(range_match.group(3))
+            for n in range(lo, hi + 1):
+                result[f"{prefix}{n}"] = _SHORTCUT_RANGE_PATH_RE.sub(str(n), path_raw)
+        else:
+            result[key_raw] = path_raw
+    return result
 
 
 def _spec_data_copy():
@@ -57,6 +85,77 @@ class TestRealDocumentIsClean:
         assert check_c001(REAL_SPEC_DATA) == []
         assert check_critical_files_registry_coverage(REAL_SPEC_DATA) == []
         assert check_json_matches_markdown() == []
+
+
+class TestShortcutsMirrorConsistency:
+    """B4C-2 (10), znalezisko CTO: tabela skrotow zyje w DWOCH miejscach
+    (slownik SHORTCUTS w Pythonie i tabela w markdownie Specyfikacji §1) -
+    kontrola 1 (check_file_addresses) sprawdza WYLACZNIE, ze kazdy plik z
+    SHORTCUTS istnieje, NIGDY nie porownuje slownika z tabela. Gdyby E1 w
+    markdownie wskazywalo INNY istniejacy plik niz E1 w Pythonie, obie
+    kontrole przeszlyby na zielono - to jest luka, ktora ten test zamyka."""
+
+    def test_markdown_table_equals_python_shortcuts_dict(self):
+        parsed = parse_shortcuts_table_from_markdown(REAL_MD)
+        assert parsed == SHORTCUTS
+
+    def test_negative_swapped_to_different_existing_file_is_caught(self):
+        """Podmiana JEDNEJ sciezki w kopii markdownu na INNY ISTNIEJACY plik
+        z repo (nie zmyslony - zmyslony zlapalaby juz kontrola 1, i nie
+        dowiodlbys niczego nowego o tej konkretnej luce)."""
+        assert (REPO_ROOT / "docs/GOVERNANCE_RULES.md").exists()  # dowod: cel podmiany istnieje naprawde
+        tampered_md = REAL_MD.replace(
+            "| **E1** | `publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md` |",
+            "| **E1** | `docs/GOVERNANCE_RULES.md` |",
+        )
+        assert tampered_md != REAL_MD, "podmiana nie zaszla - dopasuj literalny tekst wiersza E1"
+        parsed = parse_shortcuts_table_from_markdown(tampered_md)
+        assert parsed != SHORTCUTS
+        assert parsed["E1"] == "docs/GOVERNANCE_RULES.md"
+        assert SHORTCUTS["E1"] != "docs/GOVERNANCE_RULES.md"
+
+    def test_range_notation_expands_correctly(self):
+        """Sanity na mechanizmie rozwijania 'A1 … A5' - bez tego rownosc
+        nigdy by nie wyszla (Python nie ma klucza 'A1 … A5')."""
+        parsed = parse_shortcuts_table_from_markdown(REAL_MD)
+        for n in range(1, 6):
+            assert parsed[f"A{n}"] == f"publications/preregistration_PC_001_ANEKS_{n}_2026-07-28.md"
+
+    def test_scanner_actually_finds_rows(self):
+        """Dowod, ze parser faktycznie cos znalazl, nie ze rownosc wyszla
+        przez dwa puste zbiory."""
+        parsed = parse_shortcuts_table_from_markdown(REAL_MD)
+        assert len(parsed) > 0
+        assert len(SHORTCUTS) > 0
+
+
+class TestE1ErratumShortcut:
+    """B4C-2 (09): nowy token skrotu E1 (ERRATUM 1 do ANEKS 1, K4-separacja).
+    Sprawdzone WYKONANIEM - adres rzeczywiscie sie rozwiazuje, celowo zepsuty
+    NIE (FAIL, nie ciche PASS)."""
+
+    def test_e1_is_in_shortcuts(self):
+        assert "E1" in SHORTCUTS
+        assert SHORTCUTS["E1"] == "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md"
+
+    def test_e1_target_file_exists(self):
+        assert (REPO_ROOT / SHORTCUTS["E1"]).exists()
+
+    def test_real_fragment_resolves(self):
+        path = _file_for_token("E1")
+        assert resolve_fragment_in_file(path, "Poprawka") is True
+
+    def test_negative_broken_fragment_does_not_resolve(self):
+        """Weryfikacja pkt 5 (B4C-2 (09)): adres nierozwiazujacy sie -> FAIL,
+        nie ciche PASS."""
+        path = _file_for_token("E1")
+        assert resolve_fragment_in_file(path, "TenNaglowekNieIstniejeCelowoZepsuty") is False
+
+    def test_real_document_cites_e1_and_it_resolves(self):
+        """Dowod, ze E1 jest faktycznie UZYTY w Specyfikacji (nie tylko
+        zadeklarowany w SHORTCUTS), i ze uzycie sie rozwiazuje."""
+        assert "E1" in REAL_MD
+        assert check_fragment_addresses(REAL_SPEC_DATA) == []
 
 
 class TestFileAddressResolution:
@@ -271,7 +370,9 @@ class TestCriticalFilesRegistryCoverage:
         Aneks 6 (2026-08-03, po weryfikacji Z1): +2 (md+json), 49 -> 51.
         B4C-01 (2026-08-17): +1 - runner Eksperymentu Konfirmacyjnego, 51 -> 52.
         B4C-05 (2026-08-23): +1 - rodzina BH-FDR (pc_001_bh_family.json),
-        po ratyfikacji testu K3a-warunek1, 52 -> 53."""
+        po ratyfikacji testu K3a-warunek1, 52 -> 53.
+        B4C-2 (09) (2026-08-27): +2 (md+json) - ERRATUM 1 do ANEKS 1
+        (poprawka srodowiska K4-separacja, shock_world -> noise_world), 53 -> 55."""
         files = load_critical_files()
         assert "docs/GOVERNANCE_RULES.md" in files
         assert "clos_brain/tissue.py" in files

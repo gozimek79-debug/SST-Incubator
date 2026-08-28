@@ -3,11 +3,11 @@
   "generator": "scripts/spec_md_to_json.py",
   "generated_from": "SPECYFIKACJA_KANONICZNA_PC_001.md",
   "note": "JSON jest mechanicznym odwzorowaniem markdowna kanonicznego, bez interpretacji tresci. Przy rozbieznosci rozstrzyga markdown, nastepnie adres, na ktory markdown wskazuje (SPECYFIKACJA_KANONICZNA_PC_001.md §0.3). Ten plik nie jest recznie edytowalny - regenerowac przez `python scripts/spec_md_to_json.py SPECYFIKACJA_KANONICZNA_PC_001.md`. Zgodnosc z markdownem sprawdza scripts/validate_canonical_spec.py (test 7) przez regeneracje w pamieci, nie przez porownanie hasha.",
-  "title": "SPECYFIKACJA KANONICZNA PC-001 — v1.9",
+  "title": "SPECYFIKACJA KANONICZNA PC-001 — v1.10",
   "meta": {
     "od": "audytor niezależny",
     "dla": "CTO",
-    "data": "2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-23 (v1.9) \") to **2026-08-02**, data",
+    "data": "2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-27 (v1.10) \") to **2026-08-02**, data",
     "przedmiot_(g-005)": "INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system",
     "status": "obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.",
     "podstawa": "kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny",
@@ -19,7 +19,7 @@
       "numbered": true,
       "level": 2,
       "title": "0. Czym ten dokument jest — i czym celowo nie jest",
-      "start_line": 78,
+      "start_line": 87,
       "blocks": []
     },
     {
@@ -27,7 +27,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.1 Rola",
-      "start_line": 80,
+      "start_line": 89,
       "blocks": [
         {
           "type": "paragraph",
@@ -57,7 +57,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.2 Zasada C-001 — Specyfikacja Kanoniczna nie przechowuje wartości",
-      "start_line": 100,
+      "start_line": 109,
       "blocks": [
         {
           "type": "note",
@@ -90,7 +90,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.3 Reguła rozstrzygania sporu",
-      "start_line": 123,
+      "start_line": 132,
       "blocks": [
         {
           "type": "note",
@@ -107,7 +107,7 @@
       "numbered": true,
       "level": 3,
       "title": "0.4 Artefakt towarzyszący — Canonical Parameters Report",
-      "start_line": 132,
+      "start_line": 141,
       "blocks": [
         {
           "type": "paragraph",
@@ -128,7 +128,7 @@
       "numbered": true,
       "level": 2,
       "title": "1. Notacja adresów",
-      "start_line": 146,
+      "start_line": 155,
       "blocks": [
         {
           "type": "table",
@@ -185,6 +185,10 @@
             {
               "Skrót": "**A6**",
               "Ścieżka": "`publications/preregistration_PC_001_ANEKS_6_2026-08-03.md`"
+            },
+            {
+              "Skrót": "**E1**",
+              "Ścieżka": "`publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md`"
             },
             {
               "Skrót": "**W2-SPEC**",
@@ -256,7 +260,7 @@
       "numbered": true,
       "level": 2,
       "title": "2. Rejestr normatywny",
-      "start_line": 192,
+      "start_line": 202,
       "blocks": []
     },
     {
@@ -264,7 +268,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.1 Tożsamość eksperymentu",
-      "start_line": 194,
+      "start_line": 204,
       "blocks": [
         {
           "type": "table",
@@ -302,7 +306,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.2 Protokół",
-      "start_line": 204,
+      "start_line": 214,
       "blocks": [
         {
           "type": "table",
@@ -344,7 +348,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.3 Primary Endpoint (W2)",
-      "start_line": 215,
+      "start_line": 225,
       "blocks": [
         {
           "type": "table",
@@ -398,7 +402,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.4 Podłoga nieredukowalna i procedura V-C",
-      "start_line": 231,
+      "start_line": 241,
       "blocks": [
         {
           "type": "table",
@@ -448,7 +452,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.5 Mały mianownik",
-      "start_line": 244,
+      "start_line": 254,
       "blocks": [
         {
           "type": "table",
@@ -486,7 +490,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.6 Reguła decyzyjna",
-      "start_line": 254,
+      "start_line": 264,
       "blocks": [
         {
           "type": "paragraph",
@@ -546,7 +550,7 @@
             },
             {
               "Warunek": "**K4** — brak efektu w czystym szumie **oraz** separacja",
-              "Definicja pod adresem": "A1 → „Zmiana 3\"; wzmocnienie przez W2: W2-SPEC §5",
+              "Definicja pod adresem": "E1 → „Poprawka\" (brzmienie obowiązujące — środowisko separacji: `noise_world` vs `pure_noise_world`); historia: A1 → „Zmiana 3\" (brzmienie zastąpione); wzmocnienie przez W2: W2-SPEC §5",
               "Status": "aktywny",
               "Adres statusu": "—"
             },
@@ -601,7 +605,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.7 Poza regułą decyzyjną",
-      "start_line": 281,
+      "start_line": 291,
       "blocks": [
         {
           "type": "table",
@@ -655,7 +659,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.8 Klasyfikacja wyniku",
-      "start_line": 293,
+      "start_line": 303,
       "blocks": [
         {
           "type": "table",
@@ -697,7 +701,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.9 Parametry prerejestrowane",
-      "start_line": 304,
+      "start_line": 314,
       "blocks": [
         {
           "type": "paragraph",
@@ -765,7 +769,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.10 Governance obowiązujące PC-001",
-      "start_line": 321,
+      "start_line": 331,
       "blocks": [
         {
           "type": "table",
@@ -827,7 +831,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.11 Mechanizmy ochronne",
-      "start_line": 342,
+      "start_line": 352,
       "blocks": [
         {
           "type": "table",
@@ -889,7 +893,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.12 Powierzchnia wykonawcza objęta rejestrem plików krytycznych",
-      "start_line": 358,
+      "start_line": 368,
       "blocks": [
         {
           "type": "paragraph",
@@ -967,7 +971,7 @@
       "numbered": true,
       "level": 3,
       "title": "2.13 Dokumenty uzasadniające objęte rejestrem",
-      "start_line": 383,
+      "start_line": 393,
       "blocks": [
         {
           "type": "paragraph",
@@ -1013,7 +1017,7 @@
       "numbered": true,
       "level": 2,
       "title": "3. Mapa aneksów — co każdy zmienił",
-      "start_line": 421,
+      "start_line": 431,
       "blocks": [
         {
           "type": "table",
@@ -1072,7 +1076,7 @@
       "numbered": true,
       "level": 2,
       "title": "4. Mapa treści nieobowiązujących w zamrożonych źródłach",
-      "start_line": 439,
+      "start_line": 449,
       "blocks": [
         {
           "type": "paragraph",
@@ -1114,8 +1118,8 @@
               "#": "4",
               "Adres": "PC-001 §5 → „K4\"",
               "Co tam stoi": "brak wymogu separacji",
-              "Dlaczego nie obowiązuje": "wzmocnione o separację statystyczną",
-              "Co obowiązuje zamiast": "A1 → „Zmiana 3\""
+              "Dlaczego nie obowiązuje": "wzmocnione o separację statystyczną; środowisko separacji poprawione erratum E1 (`shock_world`→`noise_world`)",
+              "Co obowiązuje zamiast": "E1 → „Poprawka\" (obowiązujące); historia: A1 → „Zmiana 3\""
             },
             {
               "#": "5",
@@ -1220,7 +1224,7 @@
               "Adres": "W2-SPEC §5, wiersz K4 oraz „Uwaga do K4\"",
               "Co tam stoi": "w czystym szumie `PE_red ≈ 0` **z definicji**, wszystkie przebiegi FLOOR_LIMITED, brak efektu **gwarantowany strukturalnie**, kontrola „częściowo tautologiczna\"",
               "Dlaczego nie obowiązuje": "obalone pomiarem: **zero przebiegów FLOOR_LIMITED**, `W_early_red` wielokrotnie powyżej progu",
-              "Co obowiązuje zamiast": "**kryterium K4 bez zmian** — A1 → „Zmiana 3\"; upada wyłącznie gwarancja strukturalna, patrz uzasadnienie pod tabelą"
+              "Co obowiązuje zamiast": "**kryterium K4 bez zmian** — E1 → „Poprawka\" (obowiązujące; historia: A1 → „Zmiana 3\"); upada wyłącznie gwarancja strukturalna, patrz uzasadnienie pod tabelą"
             }
           ]
         }
@@ -1231,7 +1235,7 @@
       "numbered": false,
       "level": 3,
       "title": "Uzasadnienie historyczne do pozycji 19 — dlaczego ten fragment przestał obowiązywać",
-      "start_line": 467,
+      "start_line": 477,
       "blocks": [
         {
           "type": "paragraph",
@@ -1248,7 +1252,7 @@
         },
         {
           "type": "paragraph",
-          "text": "**Skutek jest wzmacniający, nie osłabiający.** W2-SPEC sama zastrzegała, że gwarancja strukturalna czyni K4 „częściowo tautologiczną\" i że tautologii nie wolno prezentować jako wyniku. Skoro gwarancji nie ma, K4 wraca do bycia **testem empirycznym** w brzmieniu, jakie nadał jej A1 → „Zmiana 3\": brak spełnienia warunków w czystym szumie **oraz** istotna separacja od środowiska inferencyjnego. Kryterium jest nienaruszone i w pełni testowalne.",
+          "text": "**Skutek jest wzmacniający, nie osłabiający.** W2-SPEC sama zastrzegała, że gwarancja strukturalna czyni K4 „częściowo tautologiczną\" i że tautologii nie wolno prezentować jako wyniku. Skoro gwarancji nie ma, K4 wraca do bycia **testem empirycznym** w brzmieniu, jakie nadaje jej E1 → „Poprawka\" (brzmienie obowiązujące; historia: A1 → „Zmiana 3\"): brak spełnienia warunków w czystym szumie **oraz** istotna separacja od środowiska Primary (`noise_world`) — poprawione względem pierwotnego „środowiska inferencyjnego\" (`shock_world` w brzmieniu A1), które okazało się niewykonalne technicznie (brak zamrożonej podłogi dla `shock_world`) i sprzeczne z akapitem uzasadniającym samą Zmianę 3, patrz E1 dla pełnego wywodu. Kryterium jest nienaruszone i w pełni testowalne.",
           "lead": "Skutek jest wzmacniający, nie osłabiający."
         },
         {
@@ -1273,7 +1277,7 @@
       "numbered": true,
       "level": 2,
       "title": "5. Stan otwarty",
-      "start_line": 510,
+      "start_line": 524,
       "blocks": [
         {
           "type": "table",
@@ -1355,7 +1359,7 @@
       "numbered": true,
       "level": 2,
       "title": "6. Znaleziska audytora przy konsolidacji",
-      "start_line": 540,
+      "start_line": 554,
       "blocks": [
         {
           "type": "paragraph",
@@ -1368,7 +1372,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.1 Próg Warunku B nie ma adresu w kodzie — **ZAMKNIĘTE**",
-      "start_line": 546,
+      "start_line": 560,
       "blocks": [
         {
           "type": "note",
@@ -1406,7 +1410,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.2 Uzasadnienie minimalnego mianownika opiera się na wielkości unieważnionej",
-      "start_line": 581,
+      "start_line": 595,
       "blocks": [
         {
           "type": "paragraph",
@@ -1435,7 +1439,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.3 D-020 nie ma adresu w repo — **ZAMKNIĘTE**",
-      "start_line": 601,
+      "start_line": 615,
       "blocks": [
         {
           "type": "note",
@@ -1463,7 +1467,7 @@
       "numbered": true,
       "level": 3,
       "title": "6.4 Parametry Pilota Final nie mają artefaktu",
-      "start_line": 620,
+      "start_line": 634,
       "blocks": [
         {
           "type": "paragraph",
@@ -1496,7 +1500,7 @@
       "numbered": true,
       "level": 2,
       "title": "7. Czego ten dokument nie rozstrzyga",
-      "start_line": 650,
+      "start_line": 664,
       "blocks": [
         {
           "type": "list",
@@ -1515,7 +1519,7 @@
       "numbered": true,
       "level": 2,
       "title": "8. Warunki utrzymania",
-      "start_line": 662,
+      "start_line": 676,
       "blocks": [
         {
           "type": "paragraph",
@@ -1555,7 +1559,7 @@
       "numbered": true,
       "level": 3,
       "title": "8.1 Członkostwo w rejestrze plików krytycznych — rekomendacja: NIE",
-      "start_line": 693,
+      "start_line": 707,
       "blocks": [
         {
           "type": "paragraph",
@@ -1594,7 +1598,7 @@
       "numbered": true,
       "level": 2,
       "title": "9. Weryfikowalność",
-      "start_line": 730,
+      "start_line": 744,
       "blocks": [
         {
           "type": "paragraph",
@@ -1674,7 +1678,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.1 Znane ograniczenie walidatora — ujawnione w v1.1",
-      "start_line": 763,
+      "start_line": 777,
       "blocks": [
         {
           "type": "note",
@@ -1712,7 +1716,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.2 Drugie ograniczenie kontroli nr 5 — adres zbiorczy jako wyłącznik",
-      "start_line": 786,
+      "start_line": 800,
       "blocks": [
         {
           "type": "note",
@@ -1754,7 +1758,7 @@
       "numbered": true,
       "level": 3,
       "title": "9.3 Trzecia właściwość kontroli nr 5 — ziarnistość sekcji, nie wiersza — PRZYJĘTA",
-      "start_line": 819,
+      "start_line": 833,
       "blocks": [
         {
           "type": "paragraph",

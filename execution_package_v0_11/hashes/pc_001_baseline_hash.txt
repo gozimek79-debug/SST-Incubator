@@ -39,7 +39,7 @@
 # baseline'u - pierwsza wpisana wartosc uniewazniala sama siebie). Wartosc
 # zyje WYLACZNIE tutaj, w pliku, ktory NIE jest czlonem CRITICAL_FILES_PC_001.
 #
-# 53 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
+# 55 PLIKOW KRYTYCZNYCH (posortowane, dokladnie w tej kolejnosci uzyte w hashu),
 # kryterium wlaczenia: "czy zmiana tresci tego pliku moglaby zmienic liczby,
 # ktore wyprodukuje eksperyment PC-001" - uzasadnienie per pozycja w
 # execution_package_v0_11/validators/hard_halt.py, komentarz nad
@@ -124,6 +124,8 @@ publications/preregistration_PC_001_ANEKS_5_2026-07-28.json
 publications/preregistration_PC_001_ANEKS_5_2026-07-28.md
 publications/preregistration_PC_001_ANEKS_6_2026-08-03.json
 publications/preregistration_PC_001_ANEKS_6_2026-08-03.md
+publications/preregistration_PC_001_ERRATUM_1_2026-08-27.json
+publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md
 publications/specyfikacja_W2_2026-07-28.json
 publications/specyfikacja_W2_2026-07-28.md
 #

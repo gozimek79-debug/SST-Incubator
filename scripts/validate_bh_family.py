@@ -206,6 +206,63 @@ def check_no_excluded_among_active(family: dict) -> list:
     return []
 
 
+VALID_KIERUNEK_WSPARCIA = {"ODRZUCENIE_H0", "BRAK_ODRZUCENIA_H0"}
+
+
+def check_kierunek_wsparcia(family: dict) -> list:
+    """(f) B4C-2 (07), decyzja CTO: kazda komorka aktywna MUSI miec pole
+    'kierunek_wsparcia' (wartosc w VALID_KIERUNEK_WSPARCIA) i niepuste
+    'kierunek_wsparcia_zrodlo' - brak pola/pusty zrodlo/wartosc spoza zbioru
+    to FAIL, nie wartosc domyslna (ten sam blad klasy, ktorego evaluator ma
+    unikac - zero domyslnych wartosci dla kierunku, patrz clos_scientist/
+    pc_001_evaluator.py). Liczby zadeklarowane na poziomie glownym artefaktu
+    (kierunek_ODRZUCENIE_H0/kierunek_BRAK_ODRZUCENIA_H0) musza zgadzac sie z
+    faktycznym rozkladem pol per komorka - rozjazd oznacza, ze artefakt sam
+    sobie zaprzecza."""
+    problems = []
+    active = family.get("cells_active", [])
+    if not active:
+        return ["ZERO komorek aktywnych - brak przedmiotu kontroli (ten sam wzorzec co b/d/e)"]
+
+    counts = {"ODRZUCENIE_H0": 0, "BRAK_ODRZUCENIA_H0": 0}
+    for cell in active:
+        cell_id = cell.get("id", "<brak id>")
+        kierunek = cell.get("kierunek_wsparcia")
+        if kierunek is None:
+            problems.append(f"komorka {cell_id}: brak pola 'kierunek_wsparcia'")
+            continue
+        if kierunek not in VALID_KIERUNEK_WSPARCIA:
+            problems.append(
+                f"komorka {cell_id}: 'kierunek_wsparcia'={kierunek!r} spoza "
+                f"dozwolonego zbioru {sorted(VALID_KIERUNEK_WSPARCIA)}"
+            )
+            continue
+        counts[kierunek] += 1
+        zrodlo = cell.get("kierunek_wsparcia_zrodlo")
+        if not zrodlo or not str(zrodlo).strip():
+            problems.append(f"komorka {cell_id}: puste lub brakujace 'kierunek_wsparcia_zrodlo'")
+
+    declared_odrzucenie = family.get("kierunek_ODRZUCENIE_H0")
+    declared_brak = family.get("kierunek_BRAK_ODRZUCENIA_H0")
+    if declared_odrzucenie is None or declared_brak is None:
+        problems.append(
+            "brak zadeklarowanych liczb na poziomie glownym artefaktu "
+            "('kierunek_ODRZUCENIE_H0'/'kierunek_BRAK_ODRZUCENIA_H0')"
+        )
+    else:
+        if counts["ODRZUCENIE_H0"] != declared_odrzucenie:
+            problems.append(
+                f"faktyczna liczba komorek ODRZUCENIE_H0 ({counts['ODRZUCENIE_H0']}) != "
+                f"zadeklarowana (kierunek_ODRZUCENIE_H0={declared_odrzucenie})"
+            )
+        if counts["BRAK_ODRZUCENIA_H0"] != declared_brak:
+            problems.append(
+                f"faktyczna liczba komorek BRAK_ODRZUCENIA_H0 ({counts['BRAK_ODRZUCENIA_H0']}) != "
+                f"zadeklarowana (kierunek_BRAK_ODRZUCENIA_H0={declared_brak})"
+            )
+    return problems
+
+
 def check_primary_environment_matches_config(family: dict) -> list:
     """Dodatkowa kontrola (nie literal, sprawdzone przeciw CONFIG): kazda
     komorka twierdzaca, ze jej srodowisko to Primary, musi zgadzac sie z
@@ -244,6 +301,7 @@ def run_all_checks(family: dict) -> dict:
         "c_licznosc_rowna_m": check_count_matches_m(family),
         "d_brak_wykluczonych_wsrod_aktywnych": check_no_excluded_among_active(family),
         "e_srodowisko_primary_zgodne_z_config": check_primary_environment_matches_config(family),
+        "f_kierunek_wsparcia": check_kierunek_wsparcia(family),
     }
 
 
@@ -266,6 +324,9 @@ def resolved_count_label(name: str, family: dict) -> str:
             if "primary" in c.get("srodowisko", "").lower() or "['primary']" in c.get("srodowisko", "")
         )
         return f"resolved={n} (deklarujacych Primary='{primary}')"
+    if name == "f_kierunek_wsparcia":
+        n_with_field = sum(1 for c in family.get("cells_active", []) if c.get("kierunek_wsparcia") is not None)
+        return f"resolved={n_with_field}/{n_active} komorek z kierunek_wsparcia"
     return ""
 
 

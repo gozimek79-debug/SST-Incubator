@@ -61,6 +61,10 @@ SHORTCUTS = {
     # A6 ma inna date w nazwie niz A1-A5, wiec {1..5} (SHORTCUTS-tabela §1) go nie
     # obejmuje - osobny wpis, wzorem A1-A5.
     "A6": "publications/preregistration_PC_001_ANEKS_6_2026-08-03.md",
+    # E1 (B4C-2 (09)): ERRATUM, nie ANEKS - poprawka do zamrozonego A1 (K4-separacja,
+    # sciezka shock_world/noise_world), nie doprecyzowanie. A1 pozostaje NIETKNIETY;
+    # E1 nadpisuje go normatywnie (adresy w §2 kieruja tu jako brzmienie obowiazujace).
+    "E1": "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md",
     "W2-SPEC": "publications/specyfikacja_W2_2026-07-28.md",
     "FLOOR": "publications/analiza_floor_model_2026-07-28.md",
     "B4": "publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md",

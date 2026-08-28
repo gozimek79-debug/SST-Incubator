@@ -1,0 +1,55 @@
+{
+  "document_type": "erratum",
+  "amends": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.json",
+  "erratum_id": "PC-001-ERRATUM-1",
+  "date": "2026-08-27",
+  "status": "ZATWIERDZONY - decyzja CTO, B4C-2 (09)",
+  "basis": [
+    "znalezisko wykonawcy podczas pisania evaluatora (B4C-2 (06)-(08))",
+    "wewnętrzna sprzeczność w ANEKS 1 -> change_3, potwierdzona przez CTO"
+  ],
+  "author": "CTO (rozstrzygnięcie), wykonawca (znalezisko i szkic techniczny)",
+  "document_kind_note": "ERRATUM - poprawka do zamrożonego brzmienia ANEKS 1, nie doprecyzowanie. ANEKS 1 pozostaje NIETKNIĘTY w swoim pierwotnym brzmieniu (plik się nie zmienia); to erratum nadpisuje go NORMATYWNIE (co obowiązuje dziś), nie TEKSTOWO.",
+
+  "admissibility": {
+    "rule": "D-006 pkt 3 zakazuje zmian w kryteriach po rozpoczęciu zbierania danych.",
+    "justification": "Pilotaże techniczne i analiza mocy ISTNIEJĄ, ale NIE SĄ danymi konfirmacyjnymi używanymi do oceny hipotezy PC-001: seedy pilota (pilot_final.py, zakres 1-15, D-042) i dry-run (pc_001_confirmatory_runner.py::DRY_RUN_SEED_START=50000, 3 seedy) służą wyłącznie weryfikacji mechaniki i obliczalności podłogi/mianownika - żaden z nich nie wchodzi do rodziny BH-FDR ani do werdyktu. Blok seedów konfirmacyjnych (1001-1050, CONFIRMATORY_SEEDS_RESERVED) pozostaje NIETKNIĘTY - żaden przebieg na tych seedach nie został wykonany. PC_001_BASELINE pozostaje TBD (B5 wstrzymane, decyzja CTO). Erratum jest więc dopuszczalne DZIŚ, tą samą zasadą co ANEKS 1 sam."
+  },
+
+  "reason_for_erratum": "Podczas implementacji evaluatora (B4C-2) wykonawca znalazł, że ANEKS 1 -> change_3 zawiera dwa zdania, które nie mogą być jednocześnie prawdziwe, oba w obrębie tej samej zmiany.",
+
+  "conflicting_sentences": {
+    "sentence_1_problem_justification": "Problem (wskazany przez recenzenta): przy 22% w środowisku realnym i 19% w czystym szumie kryterium formalnie przechodzi, choć nie różnicuje niczego. (ANEKS 1 -> change_3, pole 'problem')",
+    "sentence_2_new_wording": "Efekt w środowisku inferencyjnym (shock_world) musi istotnie przewyższać efekt w pure_noise_world - porównanie rozkładów redukcja między środowiskami (Mann-Whitney U, p<0.05 po FDR), OPRÓCZ pierwotnego wymogu, że pure_noise_world nie spełnia A ani B. (ANEKS 1 -> change_3, pole 'new_wording')"
+  },
+
+  "contradiction": {
+    "part_a_numeric_mismatch": "Liczby 22% i 19% w Zdaniu 1 są wartościami redukcja_W2 wobec progu Warunku B (20%, CONFIG::CONDITION_B_REDUCTION_THRESHOLD). Warunek B jest zdefiniowany i mierzony WYŁĄCZNIE w noise_world (Primary Endpoint, W2-SPEC §2.3); pure_noise_world ma WŁASNĄ wersję tego samego testu jako K4-B. 'Środowisko realne' w Zdaniu 1 odnosi się więc do noise_world - ale Zdanie 2 nazywa drugą stronę porównania shock_world. noise_world i shock_world to różne pozycje w CONFIG::EXPERIMENT_CONFIG['environments'] (primary vs K3) - Zdania 1 i 2 nie mogą opisywać tej samej pary środowisk.",
+    "part_b_technical_infeasibility": "redukcja_W2 wymaga zamrożonej podłogi środowiska (W2-SPEC §2.2: PE_red(t) = max(0, PE(t) - floor_env)). Zamrożone podłogi istnieją wyłącznie dla noise_world (CONFIG::FROZEN_FLOOR_NOISE_WORLD=0.09589) i pure_noise_world (CONFIG::FROZEN_FLOOR_PURE_NOISE_WORLD=0.236972). shock_world NIE MA zamrożonej podłogi - nigdy nie została wyznaczona (pc_001_confirmatory_runner.py::verify_floors_before_run() explicite pomija shock_world). Historycznie potwierdzone: pilot_final.py (FLOOR_BY_ENVIRONMENT) ma dokładnie dwa wpisy - shock_world nigdy w nim nie występował.",
+    "why_k3a_is_unaffected": "K3a porównuje ŚREDNIE PE przed i po wstrząsie - stała podłoga (gdyby istniała) skróciłaby się w RÓŻNICY średnich. K4-separacja porównuje ILORAZ (redukcja_W2 jest ilorazem, nie różnicą) - podłoga w ilorazie się NIE skraca, tylko wprost przesądza o wyniku. Dlatego W2-SPEC §5 ('K3a/K3b: bez zmian') jest wewnętrznie spójne, a Zdanie 2 ANEKS 1 w brzmieniu dosłownym - nie jest."
+  },
+
+  "correction": {
+    "replacement": "Obowiązujący tekst 'shock_world' w kryterium K4-separacja (Zdanie 2) zostaje ZASTĄPIONY przez 'noise_world'.",
+    "environment_replaced": "shock_world",
+    "environment_replacing": "noise_world",
+    "new_wording": "Efekt w środowisku Primary (noise_world, CONFIG::EXPERIMENT_CONFIG['environments']['primary']) musi istotnie przewyższać efekt w pure_noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['K4']) - porównanie rozkładów redukcja_W2 między środowiskami (STATS::mann_whitney_u, p<0.05 po FDR), OPRÓCZ pierwotnego wymogu, że pure_noise_world nie spełnia A ani B.",
+    "measurement_windows": "CONFIG::W_EARLY_TICKS / CONFIG::W_LATE_TICKS - te same, którymi liczy się Warunek A/B w noise_world i K4-A/K4-B w pure_noise_world. NIE okna zakotwiczone w shock_tick (te należą wyłącznie do K3a). Uzasadnienie CTO: gdyby jedna strona porównania używała okien Primary, a druga okien szokowych, kontrola przestałaby być separacją ŚRODOWISK i zaczęłaby mieszać dwa różne endpointy w jednym teście.",
+    "identical_function_requirement": "Metoda liczenia redukcja_W2 musi być IDENTYCZNA (to samo wywołanie tej samej funkcji) po obu stronach porównania - inaczej test Manna-Whitneya porównywałby dwie różne wielkości pod jedną nazwą.",
+    "no_new_floor": "Nie wyznacza się nowej zamrożonej podłogi dla shock_world. Rozważano jako wariant dosłowny (nowy pomiar Monte Carlo, 100000 realizacji, test ważności V-C) i ODRZUCONO - CTO wybrał wariant zgodny z uzasadnieniem (ten dokument), bo nie wymaga żadnych nowych obliczeń i usuwa sprzeczność u źródła."
+  },
+
+  "k3a_unaffected": "To erratum dotyczy WYŁĄCZNIE K4-separacja. K3a (warunek 1) NIE ZMIENIA SIĘ - środowisko (shock_world), okna ([shock_tick-20, shock_tick-1] / [shock_tick, shock_tick+20], PC-001 §5 -> 'K3') i test (STATS::wilcoxon_signed_rank(alternative='greater')) pozostają dokładnie takie, jak w ANEKS 1 i publications/pc_001_bh_family.json.",
+
+  "k4_a_b_unaffected": "K4-A i K4-B (obie strony 'brak efektu w czystym szumie') nie są przedmiotem tego erratum - pozostają pod otwartym Negative-Control Inference Review (B4C-2 (06), decyzja CTO pkt 7/8), tak samo jak K1-A, K1-B, K5-A, K5-B.",
+
+  "family_size_unchanged": "m=11 i N_operational=9 BEZ ZMIAN. To erratum nie zmienia liczby komórek ani liczby seedów - koryguje wyłącznie które środowisko jest drugą stroną porównania w JEDNEJ z jedenastu już istniejących komórek.",
+
+  "freezing": {
+    "statement": "Po zatwierdzeniu erratum zostaje zamrożone jako publications/preregistration_PC_001_ERRATUM_1_2026-08-27.json, z hashem w rejestrze (CRITICAL_FILES_PC_001, razem z odpowiadającym .md). Korekta wykonana PRZED pierwszym przebiegiem konfirmacyjnym PC-001 i PRZED policzeniem PC_001_BASELINE (B5)."
+  },
+
+  "feasibility_verified_in_code": "CONFIG::FROZEN_FLOOR_NOISE_WORLD i CONFIG::FROZEN_FLOOR_PURE_NOISE_WORLD istnieją i są używane przez clos_scientist/w2_endpoint.py::compute_pe_reducible; brak analogicznej stałej dla shock_world zweryfikowany przeglądem clos_scientist/pc_001_experiment_config.py i execution_package_v0_11/runners/pc_001_confirmatory_runner.py::verify_floors_before_run.",
+
+  "integral_part_of_preregistration": "Erratum jest INTEGRALNĄ częścią prerejestracji (tym samym uzasadnieniem co ANEKS 1, D-007 pkt 1) - nie jest odrębnym, opcjonalnym dokumentem."
+}

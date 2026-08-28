@@ -343,8 +343,20 @@ CRITICAL_FILES_PC_001 = [
     # wynika z zamrozonego protokolu, nie z wynikow po eksperymencie) -
     # ta sama logika czlonkostwa co dokumenty prerejestracji, nie kod.
     "publications/pc_001_bh_family.json",
+    # ERRATUM 1 (2026-08-27, B4C-2 (09), decyzja CTO): poprawka do zamrozonego
+    # ANEKS 1 -> "Zmiana 3" - srodowisko komorki K4-separacja shock_world ->
+    # noise_world (ANEKS 1 zawieral dwa zdania wewnetrznie sprzeczne: zdanie
+    # uzasadniajace mowilo o "srodowisku realnym" = noise_world, nowe brzmienie
+    # nazywalo druga strone "shock_world" - dodatkowo niewykonalne technicznie,
+    # bo shock_world nigdy nie mial zamrozonej podlogi). Ten sam status co
+    # kazdy aneks (12 plikow aneksowych juz w tym rejestrze) - ERRATUM
+    # NADPISUJE brzmienie normatywnie, nie tekstowo (ANEKS 1 NIETKNIETY);
+    # kryterium czlonkostwa spelnione wprost: zmiana tresci erratum zmienilaby
+    # ktore srodowisko evaluator porownuje w K4-separacja.
+    "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.json",
+    "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 53, f"oczekiwano 53 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 55, f"oczekiwano 55 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

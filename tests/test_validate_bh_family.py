@@ -20,6 +20,7 @@ from scripts.validate_bh_family import (
     check_count_matches_m,
     check_no_excluded_among_active,
     check_primary_environment_matches_config,
+    check_kierunek_wsparcia,
     run_all_checks,
 )
 
@@ -53,10 +54,24 @@ class TestRealArtifactPassesAllChecks:
         assert len(REAL_FAMILY["cells_active"]) == 11
         assert REAL_FAMILY["m"] == 11
 
-    def test_real_family_passes_all_five_checks(self):
+    def test_real_family_passes_all_checks(self):
+        """Nazwa celowo bez liczby kontroli - liczba rosla juz raz (4->5,
+        B4C-05 v5; 5->6, B4C-2 (07)) i literal w nazwie testu rozjechalby sie
+        z run_all_checks() przy kolejnym dodaniu (ten sam blad klasy co
+        '52 wobec 53')."""
         results = run_all_checks(REAL_FAMILY)
         failing = {name: probs for name, probs in results.items() if probs}
         assert failing == {}, failing
+
+    def test_real_family_has_exactly_six_checks_registered(self):
+        assert sorted(run_all_checks(REAL_FAMILY).keys()) == [
+            "a_adresy_rozwiazuja_sie",
+            "b_komorki_w_spec_2_6",
+            "c_licznosc_rowna_m",
+            "d_brak_wykluczonych_wsrod_aktywnych",
+            "e_srodowisko_primary_zgodne_z_config",
+            "f_kierunek_wsparcia",
+        ]
 
 
 class TestNegativeA_UnresolvableAddress:
@@ -162,6 +177,78 @@ class TestEnvironmentProvenanceAgainstConfig:
         problems = check_primary_environment_matches_config(family)
         assert problems != []
         assert "K1-A" in problems[0]
+
+
+class TestKierunekWsparcia:
+    """B4C-2 (07), decyzja CTO: kontrola f - kazda komorka aktywna MA
+    'kierunek_wsparcia' (wartosc z dwuelementowego zbioru) i niepuste
+    'kierunek_wsparcia_zrodlo'; liczby zadeklarowane na poziomie glownym
+    zgadzaja sie z faktycznym rozkladem."""
+
+    def test_positive_real_family_passes(self):
+        assert check_kierunek_wsparcia(REAL_FAMILY) == []
+
+    def test_positive_real_family_has_5_6_split(self):
+        counts = {"ODRZUCENIE_H0": 0, "BRAK_ODRZUCENIA_H0": 0}
+        for cell in REAL_FAMILY["cells_active"]:
+            counts[cell["kierunek_wsparcia"]] += 1
+        assert counts == {"ODRZUCENIE_H0": 5, "BRAK_ODRZUCENIA_H0": 6}
+
+    def test_negative_missing_field_on_one_cell_is_caught(self):
+        """Weryfikacja pkt 4 (06): usuniete pole jednej komorki -> FAIL."""
+        family = copy.deepcopy(REAL_FAMILY)
+        del family["cells_active"][0]["kierunek_wsparcia"]
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("brak pola" in p and family["cells_active"][0]["id"] in p for p in problems)
+
+    def test_negative_missing_field_on_every_cell_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        for cell in family["cells_active"]:
+            del cell["kierunek_wsparcia"]
+        problems = check_kierunek_wsparcia(family)
+        assert len(problems) >= 11
+
+    def test_negative_value_outside_allowed_set_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        family["cells_active"][0]["kierunek_wsparcia"] = "MOZE_TAK_MOZE_NIE"
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("spoza dozwolonego zbioru" in p for p in problems)
+
+    def test_negative_empty_source_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        family["cells_active"][0]["kierunek_wsparcia_zrodlo"] = ""
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("puste lub brakujace" in p for p in problems)
+
+    def test_negative_missing_source_key_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        del family["cells_active"][0]["kierunek_wsparcia_zrodlo"]
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("puste lub brakujace" in p for p in problems)
+
+    def test_negative_declared_counts_mismatch_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        family["kierunek_ODRZUCENIE_H0"] = 4
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("!= zadeklarowana" in p for p in problems)
+
+    def test_negative_missing_declared_counts_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        del family["kierunek_ODRZUCENIE_H0"]
+        del family["kierunek_BRAK_ODRZUCENIA_H0"]
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("brak zadeklarowanych liczb" in p for p in problems)
+
+    def test_zero_cells_fails_not_silent_pass(self):
+        problems = check_kierunek_wsparcia({"cells_active": []})
+        assert problems != []
+        assert any("ZERO" in p for p in problems)
 
 
 class TestZeroMatchesIsNeverSilentPass:

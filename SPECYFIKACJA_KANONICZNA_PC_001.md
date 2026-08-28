@@ -1,7 +1,7 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.9
+# SPECYFIKACJA KANONICZNA PC-001 — v1.10
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-23 (v1.9)
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-27 (v1.10)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -9,6 +9,15 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.10** (E1, B4C-2 — środowisko K4-separacja):
+> §2.6 — cztery miejsca cytujące `A1 → „Zmiana 3"` (K4-separacja) przekierowane na
+> `E1 → „Poprawka"` jako brzmienie obowiązujące, `A1` zachowane jako historia (nie
+> nadpisane tekstowo, tylko normatywnie) — środowisko separacji poprawione z
+> `shock_world` na `noise_world` (ERRATUM usuwa wewnętrzną sprzeczność w A1 → „Zmiana 3":
+> zdanie uzasadniające mówiło o „środowisku realnym" = `noise_world`, nowe brzmienie
+> nazywało je `shock_world`; `shock_world` nie ma zamrożonej podłogi, więc `redukcja_W2`
+> tam nigdy nie była wykonalna). Nowy token skrótu `E1` w §1 (SHORTCUTS).
+>
 > **Zmiany w v1.9** (B4C-05, rodzina BH-FDR ratyfikowana):
 > §2.12 — nowy wiersz „Rodzina BH-FDR (kontrakt inferencyjny)" (rejestr
 > `CRITICAL_FILES_PC_001` 52→53); dodane po ratyfikacji testu K3a-warunek1
@@ -166,6 +175,7 @@ Skróty nazw plików używane dalej — pełne ścieżki względem katalogu gł�
 | **PC-001** | `publications/preregistration_PC_001.md` |
 | **A1 … A5** | `publications/preregistration_PC_001_ANEKS_{1..5}_2026-07-28.md` |
 | **A6** | `publications/preregistration_PC_001_ANEKS_6_2026-08-03.md` |
+| **E1** | `publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md` |
 | **W2-SPEC** | `publications/specyfikacja_W2_2026-07-28.md` |
 | **FLOOR** | `publications/analiza_floor_model_2026-07-28.md` |
 | **B4** | `publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md` |
@@ -265,7 +275,7 @@ z A4 i A5. Pierwotne, **nieobowiązujące** brzmienie: PC-001 §6 (patrz §4).
 | **K3a** warunek 1 — wzrost PE po wstrząsie | PC-001 §5 → „K3" | **aktywny** | A5 → „Warunek 1 K3a" |
 | **K3a** warunek 2 — ponowna adaptacja | PC-001 §5 → „K3" | **SUSPENDED PENDING WINDOW REDEFINITION** | A5 → „Status" |
 | **K3b** — skracanie czasu readaptacji | A1 → „Zmiana 1" | **ARCHITECTURE-LIMITED** — zdefiniowana, niewykonywana, nieusunięta, wraca po CLOS v0.12 | A4 → „Jeden temat" |
-| **K4** — brak efektu w czystym szumie **oraz** separacja | A1 → „Zmiana 3"; wzmocnienie przez W2: W2-SPEC §5 | aktywny | — |
+| **K4** — brak efektu w czystym szumie **oraz** separacja | E1 → „Poprawka" (brzmienie obowiązujące — środowisko separacji: `noise_world` vs `pure_noise_world`); historia: A1 → „Zmiana 3" (brzmienie zastąpione); wzmocnienie przez W2: W2-SPEC §5 | aktywny | — |
 | **K5** — ablacja surogatowa | PC-001 §5 → „K5"; na `PE_red`: W2-SPEC §5 | aktywny | — |
 | **K6** — sprzężenie predykcji z wejściem | A1 → „Zmiana 2" | aktywny | — |
 
@@ -447,7 +457,7 @@ w zamrożonym dokumencie **wygląda na obowiązujący**, a nie jest. Źródeł n
 | 1 | PC-001 §2.1 | Primary Endpoint zdefiniowany na **surowym** `PE` | zastąpione wariantem W2 | W2-SPEC §2.2–2.3 |
 | 2 | PC-001 §2.3 | środowiska inferencyjne bez środowiska stacjonarnego | Primary przeniesiony do środowiska stacjonarnego | A3 §5; CONFIG::EXPERIMENT_CONFIG |
 | 3 | PC-001 §5 → „K3" warunek 2 | kryterium ponownej adaptacji jako aktywne | zawieszone (Typ M, błąd projektu pomiaru) | A5 → „Status" |
-| 4 | PC-001 §5 → „K4" | brak wymogu separacji | wzmocnione o separację statystyczną | A1 → „Zmiana 3" |
+| 4 | PC-001 §5 → „K4" | brak wymogu separacji | wzmocnione o separację statystyczną; środowisko separacji poprawione erratum E1 (`shock_world`→`noise_world`) | E1 → „Poprawka" (obowiązujące); historia: A1 → „Zmiana 3" |
 | 5 | PC-001 §6 | reguła decyzyjna w brzmieniu pierwotnym | rozszerzona, następnie zmodyfikowana statusami | A1 → „Zaktualizowana reguła decyzyjna" + A4 + A5 |
 | 6 | PC-001 §3 | tabela zagrożeń bez T6 i T7 | uzupełniona dwukrotnie | A1 → „Zaktualizowana tabela Threats"; A2 → „Zmiana 6" |
 | 7 | A3 §1.1 | podłoga fazy powstrząsowej wyprowadzona **analitycznie** | założenie nieobciętego rozkładu fałszywe (D-017) | wyprowadzenie numeryczne: FLOOR-MOD; **uwaga: dla tego środowiska podłoga numeryczna nie została wyznaczona** — §6.2 |
@@ -462,7 +472,7 @@ w zamrożonym dokumencie **wygląda na obowiązujący**, a nie jest. Źródeł n
 | 16 | A1 → „Zmiana 5" | ścieżka artefaktu analizy mocy | ścieżka nadal obowiązuje; **artefakt nie istnieje** | §5 pkt 3 |
 | 17 | A2 → „Zmiana 6" i „Zmiana 7" | T7 opisane jako zagrożenie z **gałęzi awaryjnej**; K7 jako czynna diagnostyka K6 | mechanizm przypisany niewłaściwej gałęzi — gałąź awaryjna wykonuje się raz na przebieg | **A6 §2** (brzmienie T7) · **A6 §3** (status K7) |
 | 18 | A5 → „Warunek 2 K3a" | uzasadnienie: zbieżność przez średnią kroczącą wejść w gałęzi awaryjnej | **wniosek i status pozostają w mocy** — obalone jest wyłącznie **wyjaśnienie** | **A6 §4** |
-| 19 | W2-SPEC §5, wiersz K4 oraz „Uwaga do K4" | w czystym szumie `PE_red ≈ 0` **z definicji**, wszystkie przebiegi FLOOR_LIMITED, brak efektu **gwarantowany strukturalnie**, kontrola „częściowo tautologiczna" | obalone pomiarem: **zero przebiegów FLOOR_LIMITED**, `W_early_red` wielokrotnie powyżej progu | **kryterium K4 bez zmian** — A1 → „Zmiana 3"; upada wyłącznie gwarancja strukturalna, patrz uzasadnienie pod tabelą |
+| 19 | W2-SPEC §5, wiersz K4 oraz „Uwaga do K4" | w czystym szumie `PE_red ≈ 0` **z definicji**, wszystkie przebiegi FLOOR_LIMITED, brak efektu **gwarantowany strukturalnie**, kontrola „częściowo tautologiczna" | obalone pomiarem: **zero przebiegów FLOOR_LIMITED**, `W_early_red` wielokrotnie powyżej progu | **kryterium K4 bez zmian** — E1 → „Poprawka" (obowiązujące; historia: A1 → „Zmiana 3"); upada wyłącznie gwarancja strukturalna, patrz uzasadnienie pod tabelą |
 
 ### Uzasadnienie historyczne do pozycji 19 — dlaczego ten fragment przestał obowiązywać
 
@@ -485,8 +495,12 @@ z tą różnicą, że tym razem idealizacji uległo zachowanie badanego systemu,
 **Skutek jest wzmacniający, nie osłabiający.** W2-SPEC sama zastrzegała, że gwarancja
 strukturalna czyni K4 „częściowo tautologiczną" i że tautologii nie wolno prezentować jako
 wyniku. Skoro gwarancji nie ma, K4 wraca do bycia **testem empirycznym** w brzmieniu, jakie
-nadał jej A1 → „Zmiana 3": brak spełnienia warunków w czystym szumie **oraz** istotna
-separacja od środowiska inferencyjnego. Kryterium jest nienaruszone i w pełni testowalne.
+nadaje jej E1 → „Poprawka" (brzmienie obowiązujące; historia: A1 → „Zmiana 3"):
+brak spełnienia warunków w czystym szumie **oraz** istotna separacja od środowiska Primary
+(`noise_world`) — poprawione względem pierwotnego „środowiska inferencyjnego" (`shock_world`
+w brzmieniu A1), które okazało się niewykonalne technicznie (brak zamrożonej podłogi dla
+`shock_world`) i sprzeczne z akapitem uzasadniającym samą Zmianę 3, patrz E1 dla pełnego
+wywodu. Kryterium jest nienaruszone i w pełni testowalne.
 
 **Klasyfikacja:** przedmiot **METODOLOGIA** (G-005), poprawka **Typ I** (G-001) — endpoint
 mierzy hipotezę, kontrola mierzy to, co ma mierzyć, upada wyłącznie uzasadnienie pomocnicze.

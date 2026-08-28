@@ -1058,7 +1058,9 @@ def spearman_rho(x: List[float], y: List[float]) -> Dict[str, Any]:
     return {"rho": round(rho, 6), "p_value": round(p_value, 8), "computable": True, "n": n}
 
 
-# --- Mann-Whitney U (K4: separacja shock_world vs pure_noise_world) ---
+# --- Mann-Whitney U (K4: separacja - ERRATUM 1, 2026-08-27: noise_world vs
+# pure_noise_world, NIE shock_world - shock_world nigdy nie mial zamrozonej
+# podlogi, patrz publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md) ---
 
 def _subset_sum_with_count_distribution(n_total: int, subset_size: int) -> Dict[int, int]:
     """{suma: liczba podzbiorow} rozmiaru subset_size z {1,...,n_total} -
@@ -1081,7 +1083,7 @@ def _subset_sum_with_count_distribution(n_total: int, subset_size: int) -> Dict[
 
 def mann_whitney_u(a: List[float], b: List[float], exact_max_product: int = 1000) -> Dict[str, Any]:
     """Test Manna-Whitneya (rank-sum, dwie proby niezalezne) - K4: separacja
-    shock_world vs pure_noise_world.
+    (ERRATUM 1, 2026-08-27: noise_world vs pure_noise_world).
 
     Rozklad DOKLADNY (DP na sumach podzbiorow rang) gdy n_a*n_b<=
     exact_max_product i brak remisow; inaczej przyblizenie normalne z korekta
