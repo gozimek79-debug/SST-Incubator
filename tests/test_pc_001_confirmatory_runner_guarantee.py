@@ -109,13 +109,22 @@ class TestCrossedDesignSameSeedsEverywhere:
 
 
 class TestSpecCount:
-    """(3) Liczba wygenerowanych specyfikacji = 23 x N_OPERATIONAL_SEEDS x 3."""
+    """(3) Liczba wygenerowanych specyfikacji = 23 x N_OPERATIONAL_SEEDS x 3.
+
+    B4C-2 (12), znalezisko CTO: ta klasa mialaby wczesniej literal
+    '23 * 8 * 3 == 552' - N_OPERATIONAL_SEEDS zmienil sie juz raz (8->9);
+    hardkodowanie go tutaj byloby dokladnie tym bledem klasy, ktory CTO
+    znalazl w CONFIG. 23 (liczba genomow) i 3 (liczba srodowisk) SA
+    stabilnymi faktami strukturalnymi (zamrozona populacja, CONFIG::
+    EXPERIMENT_CONFIG.environments) - N_OPERATIONAL_SEEDS nie jest, wiec
+    NIE wchodzi do iloczynu jako literal."""
 
     def test_confirmatory_spec_count(self):
         specs = build_confirmatory_run_specs()
         expected = len(_genomes()) * N_OPERATIONAL_SEEDS * len(_environments())
-        assert expected == 23 * 8 * 3 == 552
         assert len(specs) == expected
+        assert len(_genomes()) == 23  # populacja zamrozona, execution_package_v0_11/genomes/population.json
+        assert len(_environments()) == 3  # primary/K3/K4, CONFIG::EXPERIMENT_CONFIG
 
 
 class TestSeedsStartFromConfirmatoryConstant:

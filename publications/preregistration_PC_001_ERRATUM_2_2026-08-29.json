@@ -1,0 +1,67 @@
+{
+  "document_type": "erratum",
+  "amends": "publications/power_analysis_PC_001.json",
+  "erratum_id": "PC-001-ERRATUM-2",
+  "date": "2026-08-29",
+  "status": "ZATWIERDZONY - decyzja CTO, B4C-2 (12)",
+  "basis": [
+    "audyt CTO po pushu B4C-2 (11)",
+    "CONFIG::N_OPERATIONAL_SEEDS (8) rozjechany z pc_001_bh_family.json::N_operational (9), zamrozonym m=11"
+  ],
+  "author": "CTO (rozstrzygniecie i audyt), wykonawca (szkic techniczny)",
+  "document_kind_note": "ERRATUM - poprawka do WARTOSCI WYKONAWCZEJ zapisanej w publications/power_analysis_PC_001.json, nie doprecyzowanie. Ten plik pozostaje NIETKNIETY w pierwotnym brzmieniu (nie edytowany w miejscu - historia liczenia mocy dla m=4 ma zostac prawdziwa); erratum nadpisuje wartosc wykonawcza NORMATYWNIE, nie tekstowo.",
+
+  "admissibility": {
+    "rule": "D-006 pkt 3 zakazuje zmian w kryteriach po rozpoczeciu zbierania danych.",
+    "justification": "Blok seedow konfirmacyjnych (1001-1050, CONFIRMATORY_SEEDS_RESERVED) pozostaje NIETKNIETY - zaden przebieg na tych seedach nie zostal wykonany. PC_001_BASELINE pozostaje TBD (B5 wstrzymane). Erratum jest wiec dopuszczalne DZIS."
+  },
+
+  "reason_for_erratum": "Podczas audytu pushu B4C-2 (11) CTO znalazl, ze CONFIG::N_OPERATIONAL_SEEDS (8) i pc_001_bh_family.json::N_operational (9) mowia rozne liczby. Test proweniencji byl zielony, ale wiazal CONFIG z power_analysis_PC_001.json - zrodlem, ktore przestalo obowiazywac w momencie zamrozenia rodziny BH na m=11 (B4C-05). Test nie przeoczyl rozjazdu - poswiadczyl go, bo porownywal dwie rzeczy, z ktorych jedna byla juz historia.",
+
+  "source_quotes": {
+    "value": {
+      "text": "8",
+      "source": "publications/power_analysis_PC_001.json -> required_seeds.n_operational.value (doslowne, liczba jako wartosc pola JSON)"
+    },
+    "source_field": {
+      "text": "NIE Z MONTE CARLO. Decyzja CTO (B4B-03, pkt 2), oparta na rozdzielczosci dokladnego testu Wilcoxona wobec prerejestrowanej korekty BH-FDR - nie na marginesie bezpieczenstwa ani na dodatkowej symulacji.",
+      "source": "publications/power_analysis_PC_001.json -> required_seeds.n_operational.source (doslowne)"
+    },
+    "definition_field": {
+      "text": "Pierwsze N, przy ktorym minimalna OSIAGALNA (nie zaobserwowana) dwustronna wartosc p dokladnego testu Wilcoxona spada PONIZEJ najostrzejszego progu BH w rodzinie czterech testow (A, B, K4, K6) - czyli przy ktorym pojedynczy test MOZE przejsc korekte samodzielnie, niezaleznie od tego, jak wypadna pozostale trzy.",
+      "source": "publications/power_analysis_PC_001.json -> required_seeds.n_operational.definition (doslowne)"
+    },
+    "crossing_field": {
+      "text": "n=7: min p=0.015625 > 0.0125 (NIE wystarcza). n=8: min p=0.0078125 < 0.0125 (wystarcza). N_operational=8 jest najmniejszym n spelniajacym warunek.",
+      "source": "publications/power_analysis_PC_001.json -> required_seeds.n_operational.derivation.crossing (doslowne)"
+    }
+  },
+
+  "why_8_is_no_longer_sufficient": {
+    "old_family_size": "power_analysis_PC_001.json wyprowadzilo N_operational=8 dla rodziny CZTERECH testow (A, B, K4, K6, m_tests=4 w polu bh_sharpest_threshold), najostrzejszy prog BH = (1/4)*0.05 = 0.0125.",
+    "new_family_size": "Rodzina BH zamrozona od tego czasu na m=11 (B4C-05, decyzja CTO). Najostrzejszy prog BH = (1/11)*0.05 = 0.004545454545454546.",
+    "conclusion": "Definicja n_operational (patrz source_quotes.definition_field) jest wciaz poprawna - liczba testow w mianowniku (m_tests=4) przestala byc prawdziwa. Przy n=8, min p dwustronne = 0.0078125 > 0.004545454545454546 (dzisiejszy prog m=11) - test formalnie NIE MOZE przejsc korekty. Dziesiec z jedenastu komorek (wszystkie oprocz K3a-warunek1, jedynej jednostronnej) nie moga osiagnac istotnosci niezaleznie od danych. Eksperyment na n=8 zwrocilby NIE WSPARTA z konstrukcji, spalajac osiem seedow z bloku zarezerwowanego bez mozliwosci pozytywnego wyniku."
+  },
+
+  "correction": {
+    "replacement": "Wartosc wykonawcza required_seeds.n_operational.value=8 z publications/power_analysis_PC_001.json zostaje NORMATYWNIE ZASTAPIONA przez N_operational=9, na podstawie finalnej rodziny BH m=11 (publications/pc_001_bh_family.json::N_operational).",
+    "value_replaced": 8,
+    "value_replacing": 9,
+    "new_derivation": "Przy n=9: minimalne osiagalne dwustronne p Wilcoxona = 0.00390625, prog BH przy m=11 = 0.004545454545454546 - 0.00390625 <= 0.004545454545454546, margines 0.00063920. n=9 jest najmniejszym n spelniajacym warunek dla dzisiejszej rodziny (pelna tabela: publications/pc_001_bh_family.json::tabela_osiagalnosci_p).",
+    "executive_source_going_forward": "Zrodlem wykonawczym dla N jest odtad WYLACZNIE publications/pc_001_bh_family.json::N_operational. CONFIG::N_OPERATIONAL_SEEDS czyta te wartosc (przepisana recznie, z adresem w komentarzu - pc_001_bh_family.json nie jest importowalnym modulem Pythona); CONFIG::CONFIRMATORY_SEEDS jest WYPROWADZONY z niej automatycznie (range(START, START+N)), zakres 1001-1009 powstaje sam."
+  },
+
+  "historical_value_preserved": "Historyczna wartosc 8 POZOSTAJE elementem proweniencji B4b i NIE JEST juz wartoscia wykonawcza PC-001. publications/power_analysis_PC_001.json NIE jest edytowany w miejscu - nadpisanie starego JSON-a zatarloby fakt, ze analiza mocy B4b PROWADZILA WTEDY do 8, a dopiero pozniejsza analiza rodziny m=11 pokazala, ze 8 juz nie wystarcza. Ten fakt historyczny (n=8 byl poprawnym wynikiem dla m=4 w chwili policzenia) ma zostac PRAWDZIWY i CZYTELNY, nie zastapiony po cichu.",
+
+  "m_and_reserved_block_unaffected": "m=11 BEZ ZMIAN - to erratum nie otwiera ponownie decyzji o skladzie rodziny BH, koryguje wylacznie liczbe seedow wymagana przez juz zamrozona rodzine. Blok zarezerwowany (1001-1050) BEZ ZMIAN, w tym gorna granica - CONFIRMATORY_SEEDS_RESERVED_MAX_N=50 ma zapas znacznie wiekszy niz wymagany wzrost 8->9.",
+
+  "power_analysis_stays_outside_registry": "publications/power_analysis_PC_001.json POZA rejestrem CRITICAL_FILES_PC_001 pozostaje - nie zmienia zadnej liczby produkowanej przez eksperyment (to erratum, zarejestrowane, robi to zamiast niego).",
+
+  "freezing": {
+    "statement": "Po zatwierdzeniu erratum zostaje zamrozone jako publications/preregistration_PC_001_ERRATUM_2_2026-08-29.json, z hashem w rejestrze (CRITICAL_FILES_PC_001, razem z odpowiadajacym .md). Korekta wykonana PRZED pierwszym przebiegiem konfirmacyjnym PC-001 i PRZED policzeniem PC_001_BASELINE (B5)."
+  },
+
+  "feasibility_verified_in_code": "CONFIG::CONFIRMATORY_SEEDS jest wyprowadzony (range(...)), nie wpisany na sztywno - podniesienie N_OPERATIONAL_SEEDS z 8 na 9 przelicza zakres seedow samo. Trzy miejsca poza CONFIG (harmonogram checkpointow runnera, jego komentarz, jeden test) trzymaly liczbe 552 (23x8x3) jako literal - poprawione osobno, patrz commit B4C-2 (12).",
+
+  "integral_part_of_preregistration": "Erratum jest INTEGRALNA czescia prerejestracji (tym samym uzasadnieniem co ERRATUM 1, D-007 pkt 1) - nie jest odrebnym, opcjonalnym dokumentem."
+}

@@ -155,6 +155,29 @@ class TestE1ErratumShortcut:
         """Dowod, ze E1 jest faktycznie UZYTY w Specyfikacji (nie tylko
         zadeklarowany w SHORTCUTS), i ze uzycie sie rozwiazuje."""
         assert "E1" in REAL_MD
+
+
+class TestE2ErratumShortcut:
+    """B4C-2 (12): nowy token skrotu E2 (ERRATUM 2 do power_analysis_PC_001.
+    json, N_OPERATIONAL_SEEDS 8->9). Ten sam wzorzec sprawdzenia co E1."""
+
+    def test_e2_is_in_shortcuts(self):
+        assert "E2" in SHORTCUTS
+        assert SHORTCUTS["E2"] == "publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md"
+
+    def test_e2_target_file_exists(self):
+        assert (REPO_ROOT / SHORTCUTS["E2"]).exists()
+
+    def test_real_fragment_resolves(self):
+        path = _file_for_token("E2")
+        assert resolve_fragment_in_file(path, "Poprawka") is True
+
+    def test_negative_broken_fragment_does_not_resolve(self):
+        path = _file_for_token("E2")
+        assert resolve_fragment_in_file(path, "TenNaglowekNieIstniejeCelowoZepsuty") is False
+
+    def test_real_document_cites_e2_and_it_resolves(self):
+        assert "E2" in REAL_MD
         assert check_fragment_addresses(REAL_SPEC_DATA) == []
 
 

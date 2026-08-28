@@ -240,9 +240,63 @@ class TrajectoryFieldConsistencyError(Exception):
     mieszanka), albo prediction_error != abs(prediction - input) w granicach
     TRAJECTORY_INTEGRITY_TOLERANCE (naruszenie gwarancji 2)."""
 
-# Harmonogram checkpointow dla 552 przebiegow (23 x 8 x 3) - analogicznie do
-# CHECKPOINT_INTERVALS w pipeline.py (skalowany dol dla mniejszego N_total).
-CHECKPOINT_INTERVALS = [50, 150, 275, 425, 552]
+# Harmonogram checkpointow - WYPROWADZONY z calkowitej liczby przebiegow
+# (23 genomy x N_OPERATIONAL_SEEDS x 3 srodowiska), NIE wpisany na sztywno
+# (B4C-2 (12), znalezisko CTO: poprzednia wersja [50,150,275,425,552]
+# zakladala N_OPERATIONAL_SEEDS=8 (552 przebiegi) w tresci literalu, nie
+# tylko w komentarzu - po podniesieniu do 9 (621 przebiegow) staly literal
+# zostawilby ostatni JAWNY checkpoint na 552, 69 przebiegow przed faktycznym
+# koncem. run_confirmatory_pipeline() i tak wymusza zapis na completed==total
+# ("if completed in checkpoint_intervals or completed == total" nizej) - ale
+# harmonogram ma pokazywac koniec WPROST, nie polegac wylacznie na tym
+# fallbacku, ktory nie byl pomyslany jako jedyne zabezpieczenie. Liczba
+# genomow czytana z GENOMES_PATH bezposrednio (nie przez _genomes(),
+# zdefiniowane nizej w pliku - unikamy odwolania w przod).
+_N_GENOMES_FOR_CHECKPOINT_SCHEDULE = len(json.loads(GENOMES_PATH.read_text(encoding="utf-8"))["genomes"])
+_CONFIRMATORY_TOTAL_RUNS = (
+    _N_GENOMES_FOR_CHECKPOINT_SCHEDULE * N_OPERATIONAL_SEEDS * len(EXPERIMENT_CONFIG["environments"])
+)
+
+# KSZTALT harmonogramu (B4C-2 (13), znalezisko CTO): pierwsza wersja tego
+# wyprowadzenia (B4C-2 (12)) naprawila jedna wlasciwosc (checkpoint na
+# ostatnim przebiegu) i po cichu zmienila druga (rownomierny rozklad zamiast
+# oryginalnego, DOCIAZONEGO NA POCZATKU [50,150,275,425,552] - pierwszy
+# checkpoint po 9.06% przebiegow, ostatni odstep 2.5x dluzszy niz pierwszy).
+# Slad intencji ZNALEZIONY, nie zalozony: oryginalny komentarz tego pliku
+# mowil wprost "analogicznie do CHECKPOINT_INTERVALS w pipeline.py (skalowany
+# dol...)", a schedule pipeline.py ([100,500,1000,5000,12765] na 12765
+# przebiegow - pierwszy checkpoint po 0.78%, ostatni odstep >15x dluzszy niz
+# pierwszy) jest TAKZE dociazony na poczatku - to jest ustalona konwencja
+# tego kodu (wczesne, czeste zabezpieczenie - najlatwiej o blad srodowiska/
+# sciezki/pamieci na starcie), nie przypadek jednego pliku. Ksztalt PRZYWROCONY:
+# zamiast rownego rozlozenia, PROPORCJE oryginalnego [50,150,275,425,552]@552
+# sa przeskalowane do aktualnego _CONFIRMATORY_TOTAL_RUNS - dla 621 daje
+# [56,169,309,478,621] (pierwszy checkpoint o 621-56=565 przebiegow wczesniej
+# niz przy rownym rozkladzie, ktory dawalby pierwszy checkpoint na 124).
+_CHECKPOINT_SHAPE_REFERENCE_INTERVALS = (50, 150, 275, 425, 552)
+_CHECKPOINT_SHAPE_REFERENCE_TOTAL = 552
+
+
+def _checkpoints_matching_reference_shape(
+    total: int,
+    reference_intervals: Tuple[int, ...] = _CHECKPOINT_SHAPE_REFERENCE_INTERVALS,
+    reference_total: int = _CHECKPOINT_SHAPE_REFERENCE_TOTAL,
+) -> List[int]:
+    """Przeskalowuje PROPORCJE reference_intervals (jako ulamki
+    reference_total) do `total`, zachowujac ksztalt (dociazenie na poczatku)
+    zamiast rownomiernego rozkladu - patrz komentarz wyzej. ZAWSZE konczy
+    sie na total (checkpoint na ostatnim przebiegu jawnie w harmonogramie,
+    nie tylko przez fallback completed==total). Punkty scisle rosnace -
+    ewentualne sklejenie przez zaokraglenie rozsuniete o 1."""
+    scaled = [round(total * (r / reference_total)) for r in reference_intervals]
+    scaled[-1] = total
+    for i in range(1, len(scaled)):
+        if scaled[i] <= scaled[i - 1]:
+            scaled[i] = scaled[i - 1] + 1
+    return [p for p in scaled if p >= 1]
+
+
+CHECKPOINT_INTERVALS = _checkpoints_matching_reference_shape(_CONFIRMATORY_TOTAL_RUNS)
 DRY_RUN_CHECKPOINT_INTERVALS = [5]  # jedyny osiagalny checkpoint w 9 runach (3x1x3)
 
 # Rozlacznosc udokumentowana w docstringu modulu (sekcja DRY-RUN powyzej).
@@ -254,12 +308,13 @@ DRY_RUN_N_SEEDS = 3
 
 # ZAMKNIETE zakresy (znana gorna granica) - sprawdzane jako zbior. "confirmatory"
 # uzywa BLOKU ZAREZERWOWANEGO (CONFIRMATORY_SEEDS_RESERVED), NIE dzisiejszego
-# zuzywanego zakresu (CONFIRMATORY_SEEDS, 8 seedow) - B4C-03/04: odczyt "1001+"
-# jako otwartego (bez znanej gornej granicy nigdzie w repo) unaczynial zdanie
+# zuzywanego zakresu (CONFIRMATORY_SEEDS, N_OPERATIONAL_SEEDS seedow - 9 od
+# B4C-2 (12), historycznie 8) - B4C-03/04: odczyt "1001+" jako otwartego
+# (bez znanej gornej granicy nigdzie w repo) unaczynial zdanie
 # W2_completion_report o rozlacznosci z podlogami (500000-599999) FALSZYWYM;
-# sprawdzanie przeciw wasko zdefiniowanemu N=8 powtorzyloby ten sam blad w tym
-# pliku. Blok zarezerwowany (margines do 50, uzasadnienie w CONFIG) jest
-# WLASCIWA jednostka rozlacznosci.
+# sprawdzanie przeciw wasko zdefiniowanemu, dzisiejszemu N powtorzyloby ten
+# sam blad w tym pliku. Blok zarezerwowany (margines do 50, uzasadnienie w
+# CONFIG) jest WLASCIWA jednostka rozlacznosci.
 DOCUMENTED_SEED_RANGES_CLOSED = {
     "pilot_final_d042": range(1, 16),
     "v0_11_production": range(1, 186),
@@ -607,8 +662,9 @@ def run_dry_run() -> Dict[str, Any]:
 
 
 def run_confirmatory_experiment() -> Dict[str, Any]:
-    """PELNY Eksperyment Konfirmacyjny PC-001 (552 przebiegi). NIE WOLANE
-    przez ten modul ani przez jego testy - zakaz jawny w zleceniu B4C-01.
+    """PELNY Eksperyment Konfirmacyjny PC-001 (23 genomy x N_OPERATIONAL_SEEDS
+    x 3 srodowiska przebiegow - patrz build_confirmatory_run_specs()). NIE
+    WOLANE przez ten modul ani przez jego testy - zakaz jawny w zleceniu B4C-01.
     Eksperyment startuje dopiero po B5 (PC_001_BASELINE) i B6 (Bramka
     wejscia). Funkcja istnieje dla tamtego kroku, nie dla tego zlecenia."""
     specs = build_confirmatory_run_specs()

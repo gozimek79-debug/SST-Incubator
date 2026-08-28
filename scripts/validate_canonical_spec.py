@@ -65,6 +65,10 @@ SHORTCUTS = {
     # sciezka shock_world/noise_world), nie doprecyzowanie. A1 pozostaje NIETKNIETY;
     # E1 nadpisuje go normatywnie (adresy w §2 kieruja tu jako brzmienie obowiazujace).
     "E1": "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md",
+    # E2 (B4C-2 (12)): ERRATUM do power_analysis_PC_001.json (N_OPERATIONAL_SEEDS
+    # 8 -> 9). power_analysis_PC_001.json samo NIE ma skrotu - POZA rejestrem,
+    # nie jest adresowane z §2 poza tym erratum.
+    "E2": "publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md",
     "W2-SPEC": "publications/specyfikacja_W2_2026-07-28.md",
     "FLOOR": "publications/analiza_floor_model_2026-07-28.md",
     "B4": "publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md",

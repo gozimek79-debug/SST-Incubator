@@ -355,8 +355,21 @@ CRITICAL_FILES_PC_001 = [
     # ktore srodowisko evaluator porownuje w K4-separacja.
     "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.json",
     "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md",
+    # ERRATUM 2 (2026-08-28, B4C-2 (12), decyzja CTO): N_OPERATIONAL_SEEDS
+    # 8 -> 9. power_analysis_PC_001.json (POZA tym rejestrem - nie zmienia
+    # zadnej liczby produkowanej przez eksperyment) wyprowadzilo 8 dla
+    # WCZESNIEJSZEJ, czteroelementowej rodziny BH (m=4); rodzina zostala od
+    # tego czasu zamrozona na m=11 (B4C-05), pod ktorym n=8 juz nie
+    # wystarcza (dziesiec z jedenastu komorek formalnie nie moglyby
+    # osiagnac istotnosci). Ten sam status co ERRATUM 1 - nadpisuje
+    # wartosc wykonawcza NORMATYWNIE, power_analysis_PC_001.json NIETKNIETY
+    # (wartosc 8 tam zostaje jako prawdziwa historia dla m=4). Kryterium
+    # wlaczenia spelnione wprost: zmiana tresci erratum zmienilaby liczbe
+    # seedow, na ktorych biegnie konfirmacja.
+    "publications/preregistration_PC_001_ERRATUM_2_2026-08-29.json",
+    "publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 55, f"oczekiwano 55 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 57, f"oczekiwano 57 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

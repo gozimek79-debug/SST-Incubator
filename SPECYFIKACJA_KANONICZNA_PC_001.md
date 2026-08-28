@@ -1,7 +1,7 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.10
+# SPECYFIKACJA KANONICZNA PC-001 — v1.11
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-27 (v1.10)
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-28 (v1.11)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -9,6 +9,13 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.11** (E2, B4C-2 (12) — liczba seedów Eksperymentu Konfirmacyjnego):
+> §2.9 — nowy wiersz „Liczba seedów Eksperymentu Konfirmacyjnego" (`CONFIG::
+> N_OPERATIONAL_SEEDS`), adres wykonawczy przekierowany na `E2 → „Poprawka"` (wartość
+> wyprowadzona z `pc_001_bh_family.json::N_operational`, m=11 - zamrożona rodzina BH),
+> `power_analysis_PC_001.json` zachowany jako historia (wyprowadził 8 dla wcześniejszej
+> rodziny m=4, plik nietknięty, poza rejestrem). Nowy token skrótu `E2` w §1 (SHORTCUTS).
+>
 > **Zmiany w v1.10** (E1, B4C-2 — środowisko K4-separacja):
 > §2.6 — cztery miejsca cytujące `A1 → „Zmiana 3"` (K4-separacja) przekierowane na
 > `E1 → „Poprawka"` jako brzmienie obowiązujące, `A1` zachowane jako historia (nie
@@ -176,6 +183,7 @@ Skróty nazw plików używane dalej — pełne ścieżki względem katalogu gł�
 | **A1 … A5** | `publications/preregistration_PC_001_ANEKS_{1..5}_2026-07-28.md` |
 | **A6** | `publications/preregistration_PC_001_ANEKS_6_2026-08-03.md` |
 | **E1** | `publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md` |
+| **E2** | `publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md` |
 | **W2-SPEC** | `publications/specyfikacja_W2_2026-07-28.md` |
 | **FLOOR** | `publications/analiza_floor_model_2026-07-28.md` |
 | **B4** | `publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md` |
@@ -327,6 +335,7 @@ przyszły eksperyment może mieć inne, ale wymaga wtedy własnej prerejestracji
 | Tolerancja kontroli odtwarzalności podłogi | CONFIG::FLOOR_ENV_VERIFICATION_TOLERANCE | FLOOR §6 |
 | Liczba realizacji / początek zakresu seedów podłogi | FLOOR-MOD::DEFAULT_N, FLOOR-MOD::DEFAULT_SEED_START | FLOOR §6 |
 | **Próg wielkości redukcji (Warunek B)** | CONFIG::CONDITION_B_REDUCTION_THRESHOLD | A1 → „Zmiana 4"; zgodność ze źródłem chroniona testem — patrz §6.1 |
+| **Liczba seedów Eksperymentu Konfirmacyjnego** | CONFIG::N_OPERATIONAL_SEEDS | E2 → „Poprawka" (brzmienie obowiązujące, wartość wyprowadzona z pola `N_operational` w `publications/pc_001_bh_family.json`); historia: `publications/power_analysis_PC_001.json` (plik nietknięty, poza rejestrem) |
 
 ### 2.10 Governance obowiązujące PC-001
 

@@ -78,27 +78,41 @@ FLOOR_LIMITED_CELL_THRESHOLD: float = 0.30
 # implementuje porownania - to osobny, nieobjety tym zleceniem krok.
 CONDITION_B_REDUCTION_THRESHOLD: float = 0.20
 
-# Liczba seedow dla Eksperymentu Konfirmacyjnego (B4B-03, decyzja CTO).
+# Liczba seedow dla Eksperymentu Konfirmacyjnego.
 #
-# POCHODZENIE: NIE Monte Carlo. N_power (analiza mocy B4b, publications/
+# ZRODLO WYKONAWCZE (B4C-2 (12), decyzja CTO): publications/pc_001_bh_family.
+# json::N_operational - CZLONEK CRITICAL_FILES_PC_001, chroniony hashem.
+# WARTOSC PRZEPISANA RECZNIE (pc_001_bh_family.json jest danymi, nie
+# importowalnym modulem Pythona) - zgodnosc pilnuje tests/
+# test_n_operational_seeds_provenance.py (import z obu zrodel, porownanie -
+# nie konsolidacja). N_power (analiza mocy B4b, publications/
 # power_analysis_PC_001.json, pole required_seeds.n_power.value) = 6 -
-# ODREBNA liczba, pozostaje niezmieniona jako wynik symulacji (required_seeds.
-# n_power w tym samym pliku). N_OPERATIONAL_SEEDS ponizej pochodzi z
-# ROZDZIELCZOSCI dokladnego testu Wilcoxona wobec prerejestrowanej korekty
-# BH-FDR: przy n=6 lub n=7 minimalna OSIAGALNA (nie zaobserwowana) dwustronna
-# wartosc p Wilcoxona (2^(1-n): 0.03125 / 0.015625) jest POWYZEJ najostrzejszego
-# progu BH w rodzinie czterech testow A/B/K4/K6 (0.0125 = (1/4)*0.05) - test
-# formalnie NIE MOZE przejsc korekty samodzielnie, niezaleznie od wyniku
-# pozostalych trzech. Przy n=8 minimalne p (0.0078125) spada ponizej tego
-# progu. Pelna derywacja: required_seeds.n_operational.derivation w
-# power_analysis_PC_001.json.
+# ODREBNA liczba, POZA zakresem tej poprawki (wynik Monte Carlo, nie zmienia
+# sie wraz z m).
+#
+# HISTORIA: pierwotna wartosc byla 8, wyprowadzona (B4B-03) dla WCZESNIEJSZEJ,
+# czteroelementowej rodziny testow (A/B/K4/K6, m=4, prog BH (1/4)*0.05=0.0125).
+# Rodzina BH zostala od tego czasu zamrozona na m=11 (B4C-05) - najostrzejszy
+# prog BH spadl do (1/11)*0.05=0.004545454545454546, ponizej ktorego n=8
+# (min. p dwustronne dokladnego Wilcoxona = 0.0078125) juz NIE wystarcza:
+# dziesiec z jedenastu komorek (wszystkie oprocz K3a-warunek1, jedynej
+# jednostronnej) formalnie nie moglyby osiagnac istotnosci, niezaleznie od
+# danych. Znalezisko CTO (audyt pushu B4C-2 (11)): CONFIG mowilo 8, artefakt
+# rodziny mowil 9 - test proweniencji byl zielony, bo wiazal CONFIG ze
+# ZRODLEM, KTORE PRZESTALO OBOWIAZYWAC (power_analysis_PC_001.json, nadal
+# poprawne dla m=4, ale juz nie dla m=11). Formalna poprawka:
+# publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md/.json
+# (power_analysis_PC_001.json NIE edytowany w miejscu - wartosc 8 zostaje
+# tam jako proweniencja B4b, prawdziwa historycznie, przestaje byc wartoscia
+# wykonawcza). Pelna derywacja n=9 dla m=11: tabela_osiagalnosci_p w
+# pc_001_bh_family.json.
 #
 # Ten sam blad co przy progu Warunku B (SPECYFIKACJA_KANONICZNA_PC_001.md
 # §6.1): bez adresu w kodzie ta liczba trafilaby do runnera konfirmacji jako
 # literal. Dopuszczalne WYLACZNIE dopoki PC_001_BASELINE nie jest policzony
 # (B5 jest nastepnym krokiem) - zmiana tego pliku lamie hash CRITICAL_FILES_
 # PC_001, wiec to ostatni moment na dopisanie tej stalej.
-N_OPERATIONAL_SEEDS: int = 8
+N_OPERATIONAL_SEEDS: int = 9
 
 # Seed poczatkowy Eksperymentu Konfirmacyjnego (B4C-01, zgloszenie audytora).
 #
@@ -129,32 +143,33 @@ CONFIRMATORY_SEEDS_START: int = 1001
 
 # Zbior UZYWANY - seedy, na ktorych FAKTYCZNIE biegnie konfirmacja (B4C-03,
 # zgloszenie audytora). WYPROWADZONY z dwoch nazwanych stalych, zero
-# literalu gornej granicy - jesli decyzja CTO o definicji komorki (evaluator,
-# B4C-2) podniesie N_OPERATIONAL_SEEDS, ten zbior przelicza sie SAM, zamiast
-# cicho rozjechac sie z rzeczywistoscia.
+# literalu gornej granicy - gdy N_OPERATIONAL_SEEDS sie zmienia (B4C-2 (12):
+# 8->9), ten zbior przelicza sie SAM, zamiast cicho rozjechac sie z
+# rzeczywistoscia.
 CONFIRMATORY_SEEDS: range = range(CONFIRMATORY_SEEDS_START, CONFIRMATORY_SEEDS_START + N_OPERATIONAL_SEEDS)
 
 # Blok ZAREZERWOWANY - ROZNY od zbioru UZYWANEGO powyzej. CONFIRMATORY_SEEDS
-# to seedy, ktorych konfirmacja rzeczywiscie zuzywa DZIS (8, wynik B4b);
+# to seedy, ktorych konfirmacja rzeczywiscie zuzywa DZIS (9, rodzina BH m=11 -
+# ERRATUM 2, B4C-2 (12); historycznie bylo 8, dla wczesniejszej rodziny m=4);
 # CONFIRMATORY_SEEDS_RESERVED to przestrzen, ktorej NIKOMU INNEMU (dry-run,
 # przyszle narzedzia) nie wolno dotykac, bo N_OPERATIONAL_SEEDS moze jeszcze
-# WZROSNAC (decyzja CTO o definicji komorki jest wstrzymana, nie zamknieta -
-# patrz B4C-01 evaluator). Rozlacznosc innych zakresow sprawdza sie PRZECIW
-# TEMU blokowi, nie przeciw dzisiejszemu N=8 (B4C-03: odczyt "1001+" jako
-# otwartego doprowadzil do falszywego zdania o rozlacznosci w W2_completion_
-# report - domykamy oba konce na raz).
+# WZROSNAC (juz raz wzrosl - 8->9). Rozlacznosc innych zakresow sprawdza sie
+# PRZECIW TEMU blokowi, nie przeciw dzisiejszemu N=9 (B4C-03: odczyt "1001+"
+# jako otwartego doprowadzil do falszywego zdania o rozlacznosci w
+# W2_completion_report - domykamy oba konce na raz).
 #
 # Margines UZASADNIONY, nie zgadniety: BH-FDR najostrzejszy prog dla rodziny
 # m testow = (1/m)*alfa; przeciecie z dyskretnoscia dokladnego Wilcoxona
-# (2^(1-n)) daje wymagane n = tak, ze 2^(1-n) < (1/m)*0.05. Dla m=4 (dzisiejsza
-# rodzina: A/B/K4/K6) n=8 (patrz N_OPERATIONAL_SEEDS). Dla m=20 (rodzina 5x
-# wieksza, np. gdyby definicja komorki rozbila kazdy test per srodowisko)
-# n=10; dla m=100 (skrajnie szeroka rodzina) n=12 - wymagane n rosnie BARDZO
-# wolno wzgledem m (logarytmicznie), wiec nawet duza zmiana definicji komorki
-# nie przesunie N_operational poza "kilkanascie". Zapas do 50 (>4x dzisiejsze
-# N=8, >4x skrajny przypadek m=100 policzony wyzej) jest hojny z duzym marginesem,
-# a wciaz zaniedbywalny wzgledem nastepnego zajetego zakresu (podlogi od
-# 500_000) - 500_000-1050=498_950 wolnych seedow miedzy blokiem a Monte Carlo.
+# (2^(1-n)) daje wymagane n = tak, ze 2^(1-n) < (1/m)*0.05. Dla m=11
+# (dzisiejsza, zamrozona rodzina BH - patrz N_OPERATIONAL_SEEDS) n=9. Dla
+# m=20 (rodzina prawie 2x wieksza, np. gdyby definicja komorki rozbila kazdy
+# test per srodowisko) n=10; dla m=100 (skrajnie szeroka rodzina) n=12 -
+# wymagane n rosnie BARDZO wolno wzgledem m (logarytmicznie), wiec nawet duza
+# zmiana definicji komorki nie przesunie N_operational poza "kilkanascie".
+# Zapas do 50 (>5x dzisiejsze N=9, >4x skrajny przypadek m=100 policzony
+# wyzej) jest hojny z duzym marginesem, a wciaz zaniedbywalny wzgledem
+# nastepnego zajetego zakresu (podlogi od 500_000) - 500_000-1050=498_950
+# wolnych seedow miedzy blokiem a Monte Carlo.
 CONFIRMATORY_SEEDS_RESERVED_MAX_N: int = 50
 CONFIRMATORY_SEEDS_RESERVED: range = range(
     CONFIRMATORY_SEEDS_START, CONFIRMATORY_SEEDS_START + CONFIRMATORY_SEEDS_RESERVED_MAX_N
