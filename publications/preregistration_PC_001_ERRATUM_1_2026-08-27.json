@@ -19,8 +19,10 @@
   "reason_for_erratum": "Podczas implementacji evaluatora (B4C-2) wykonawca znalazł, że ANEKS 1 -> change_3 zawiera dwa zdania, które nie mogą być jednocześnie prawdziwe, oba w obrębie tej samej zmiany.",
 
   "conflicting_sentences": {
-    "sentence_1_problem_justification": "Problem (wskazany przez recenzenta): przy 22% w środowisku realnym i 19% w czystym szumie kryterium formalnie przechodzi, choć nie różnicuje niczego. (ANEKS 1 -> change_3, pole 'problem')",
-    "sentence_2_new_wording": "Efekt w środowisku inferencyjnym (shock_world) musi istotnie przewyższać efekt w pure_noise_world - porównanie rozkładów redukcja między środowiskami (Mann-Whitney U, p<0.05 po FDR), OPRÓCZ pierwotnego wymogu, że pure_noise_world nie spełnia A ani B. (ANEKS 1 -> change_3, pole 'new_wording')"
+    "sentence_1_problem_justification": "Problem (wskazany przez recenzenta): przy 22% w środowisku realnym i 19% w czystym szumie kryterium formalnie przechodzi, choć nie różnicuje niczego.",
+    "sentence_1_source": "ANEKS 1 -> change_3, pole 'problem' (publications/preregistration_PC_001_ANEKS_1_2026-07-28.md, doslowne)",
+    "sentence_2_new_wording": "Efekt w środowisku inferencyjnym (shock_world) musi istotnie przewyższać efekt w pure_noise_world — porównanie rozkładów redukcja między środowiskami (Mann-Whitney U, p < 0.05 po FDR), oprócz pierwotnego wymogu, że pure_noise_world nie spełnia A ani B.",
+    "sentence_2_source": "ANEKS 1 -> change_3, pole 'new_wording' (publications/preregistration_PC_001_ANEKS_1_2026-07-28.md, doslowne - ANEKS_1_2026-07-28.json ma w tym miejscu wczesniejsza rozbieznosc formatowania 'p<0.05'/'OPROCZ' wobec markdownu kanonicznego, nieuzyta tutaj)"
   },
 
   "contradiction": {
