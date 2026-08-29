@@ -27,6 +27,7 @@ from clos_curriculum.laboratory.statistics import (
     block_means,
     linear_slope,
     DegenerateInputError,
+    tost_wilcoxon,
 )
 from execution_package_v0_11.runners.power_analysis_b4b import _block_means as _simulator_block_means
 from clos_scientist.fallback_branch_diagnostic import (
@@ -337,6 +338,112 @@ class TestWilcoxonOneSided:
     def test_invalid_alternative_raises(self):
         with pytest.raises(ValueError):
             wilcoxon_signed_rank([(1.0, 0.0)], alternative="sideways")
+
+
+class TestTOSTWilcoxon:
+    """B4C-2 (15), decyzja CTO, ERRATUM 3: TOST (Two One-Sided Tests) dla
+    wnioskowania o rownowaznosci praktycznej (szesc kontroli surogatowych/
+    ablacyjnych, ktore dotad wspieraly hipoteze przez BRAK odrzucenia H0 -
+    metodologicznie bledne, bo "p > prog" nie znaczy "efekt zniknal").
+    Zero nowej implementacji rangowania - oparte WYLACZNIE na juz
+    zwalidowanym wilcoxon_signed_rank(alternative=...)."""
+
+    TOL = 1e-6
+
+    def _reference_tost(self, values, margin):
+        """Niezalezne odwolanie scipy dla p_lower/p_upper - scipy nie ma
+        wbudowanego TOST dla Wilcoxona, wiec budujemy go z tych samych
+        dwoch jednostronnych wywolan scipy.stats.wilcoxon co reszta pliku
+        uzywa do walidacji jednostronnego trybu."""
+        x_lower = [v - (-margin) for v in values]
+        sp_lower = scipy_stats.wilcoxon(x_lower, zero_method="wilcox", mode="exact", alternative="greater")
+        x_upper = [v - margin for v in values]
+        sp_upper = scipy_stats.wilcoxon(x_upper, zero_method="wilcox", mode="exact", alternative="less")
+        return sp_lower.pvalue, sp_upper.pvalue
+
+    @pytest.mark.parametrize("n,seed", [(9, 1), (9, 42), (12, 2), (20, 3)])
+    def test_p_lower_p_upper_match_scipy(self, n, seed):
+        rng = random.Random(seed)
+        values = [rng.uniform(-0.05, 0.05) for _ in range(n)]
+        margin = 0.10
+        mine = tost_wilcoxon(values, margin)
+        ref_lower, ref_upper = self._reference_tost(values, margin)
+        assert abs(mine["p_lower"] - ref_lower) < self.TOL
+        assert abs(mine["p_upper"] - ref_upper) < self.TOL
+
+    def test_p_equivalence_is_max_not_mean_not_min(self):
+        """Dowod na skonstruowanej asymetrii: wartosci daleko od -margin
+        (p_lower ekstremalnie male), ale rozrzucone PO OBU stronach +margin
+        (mieszane znaki roznic wobec gornej granicy -> p_upper wyraznie
+        wieksze) - p_equivalence musi byc WIEKSZA z dwoch, nie srednia ani
+        mniejsza. (Uwaga: probka ZLOZONA WYLACZNIE z punktow wewnatrz
+        (-margin,margin) zawsze daje p_lower==p_upper==1/512 dla n=9, bo
+        Wilcoxon jest testem RANGOWYM - o ekstremalnosci decyduje WZOR
+        ZNAKOW roznic, nie odleglosc od granicy. Dopiero mieszanka znakow
+        po jednej stronie lamie ta symetrie.)"""
+        values = [0.05, 0.06, 0.07, 0.08, 0.09, 0.11, 0.12, 0.13, 0.14]
+        result = tost_wilcoxon(values, margin=0.10)
+        assert result["p_lower"] < result["p_upper"]
+        assert result["p_equivalence"] == result["p_upper"]
+        assert result["p_equivalence"] == max(result["p_lower"], result["p_upper"])
+        assert result["p_equivalence"] != (result["p_lower"] + result["p_upper"]) / 2
+        assert result["p_equivalence"] != min(result["p_lower"], result["p_upper"])
+
+    def test_resolution_at_n9_is_1_over_2_pow_9_from_extreme_configuration(self):
+        """B4C-2 (15), zadanie 3: minimalne osiagalne p_equivalence przy n=9
+        LICZONE WYWOLANIEM na ukladzie skrajnym (wartosci dystynktywne,
+        wszystkie gleboko wewnatrz (-margin,margin), symetrycznie wokol 0 -
+        daje jednoczesnie exact w obu jednostronnych testach, bez remisow),
+        NIE ze wzoru 1/2^9."""
+        values = [-0.004, -0.003, -0.002, -0.001, 0.0, 0.001, 0.002, 0.003, 0.004]
+        result = tost_wilcoxon(values, margin=0.10)
+        assert result["lower"]["method"] == "exact"
+        assert result["upper"]["method"] == "exact"
+        assert abs(result["p_equivalence"] - (1 / 512)) < 1e-8
+
+    def test_all_values_at_exactly_zero_hits_ties_regime_not_exact(self):
+        """Przypadek brzegowy: wszystkie wartosci identyczne (0.0) tworzy
+        remisy (wszystkie |diff| rowne margin po obu stronach) -> normal_approx,
+        NIE exact - kontrast z testem powyzej, ktory uzywa DYSTYNKTYWNYCH
+        wartosci wlasnie zeby uniknac tego regime'u."""
+        result = tost_wilcoxon([0.0] * 9, margin=0.10)
+        assert result["lower"]["has_ties"] is True
+        assert result["lower"]["method"] == "normal_approx"
+
+    def test_all_values_on_one_side_of_boundary_fails_equivalence(self):
+        """Przypadek brzegowy: wszystkie wartosci POZA granica rownowaznosci
+        (>margin) - p_upper musi byc duze (brak dowodu, ze mediana < margin)."""
+        values = [0.15 + 0.001 * i for i in range(9)]
+        result = tost_wilcoxon(values, margin=0.10)
+        assert result["p_upper"] > 0.5
+
+    def test_values_exactly_on_boundary_are_ties_with_the_shift(self):
+        """Przypadek brzegowy: wartosc DOKLADNIE na granicy (v=margin) daje
+        diff=0 wobec tej granicy - wilcoxon_signed_rank odrzuca zerowe
+        roznice przed rankingiem (konwencja 'wilcox', patrz docstring
+        wilcoxon_signed_rank) - n efektywne dla TEJ strony maleje, ale
+        funkcja pozostaje computable."""
+        values = [0.10] * 5 + [0.0] * 4
+        result = tost_wilcoxon(values, margin=0.10)
+        assert result["computable"] is True
+        assert result["upper"]["n_zero_dropped"] == 5
+
+    def test_margin_zero_raises(self):
+        with pytest.raises(ValueError):
+            tost_wilcoxon([0.0, 0.01, -0.01], margin=0.0)
+
+    def test_margin_negative_raises(self):
+        with pytest.raises(ValueError):
+            tost_wilcoxon([0.0, 0.01, -0.01], margin=-0.05)
+
+    def test_uncomputable_side_propagates_as_not_computable(self):
+        """Wszystkie wartosci identyczne DO SIEBIE i rownoczesnie rowne
+        +-margin jednoczesnie (przypadek zdegenerowany n=1) -> obie strony
+        moga miec zero niezerowych roznic -> not computable, nie domyslny
+        wynik."""
+        result = tost_wilcoxon([0.10], margin=0.10)
+        assert result["computable"] is False
+        assert result["p_equivalence"] is None
 
 
 class TestBlockMeansConsistency:

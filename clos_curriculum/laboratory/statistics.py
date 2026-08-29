@@ -928,6 +928,52 @@ def wilcoxon_signed_rank(pairs: List[Tuple[float, float]], exact_max_n: int = 25
             "method": method, "has_ties": has_ties, "alternative": alternative}
 
 
+# --- TOST (Two One-Sided Tests) - rownowaznosc praktyczna (B4C-2 (15),
+# decyzja CTO, ERRATUM 3: szesc kontroli surogatowych/ablacyjnych przechodzi
+# z "brak odrzucenia H0" na wnioskowanie o rownowaznosci - "p > prog" nie
+# znaczy "efekt zniknal", moze znaczyc brak mocy) ---
+
+def tost_wilcoxon(values: List[float], margin: float, exact_max_n: int = 25) -> Dict[str, Any]:
+    """TOST oparty WYLACZNIE na juz istniejacym wilcoxon_signed_rank(alternative=...)
+    - zero nowej implementacji rangowania, zero nowego rozkladu do
+    zwalidowania osobno. `values` to JEDNA wartosc efektu per blok seedowy
+    (np. E_beta albo redukcja_W2 po block_means) - test JEDNOPROBKOWY
+    wobec przedzialu (-margin, +margin), zrealizowany jako dwa testy
+    PAROWE wobec stalej (pary (v, -margin) i (v, margin) - diff = v-stala).
+
+    p_lower: H1 = mediana(values) > -margin (wilcoxon alternative='greater'
+             na parach (v, -margin) - odrzuca H0 "prawdziwy efekt <= -margin").
+    p_upper: H1 = mediana(values) < +margin (wilcoxon alternative='less'
+             na parach (v, margin) - odrzuca H0 "prawdziwy efekt >= +margin").
+    p_equivalence = max(p_lower, p_upper) - WPROST (nie srednia, nie min) -
+    rownowaznosc wymaga odrzucenia OBU jednostronnych H0 jednoczesnie,
+    wiec p compound jest zdeterminowane przez SLABSZY z dwoch dowodow.
+
+    margin musi byc > 0 (przedzial rownowaznosci musi miec dodatnia
+    szerokosc) - WYJATEK, nie cichy wynik."""
+    if margin <= 0:
+        raise ValueError(f"margin musi byc > 0 (przedzial rownowaznosci), otrzymano {margin!r}")
+
+    lower = wilcoxon_signed_rank([(v, -margin) for v in values], exact_max_n=exact_max_n, alternative="greater")
+    upper = wilcoxon_signed_rank([(v, margin) for v in values], exact_max_n=exact_max_n, alternative="less")
+
+    if not lower["computable"] or not upper["computable"]:
+        return {
+            "p_lower": lower["p_value"], "p_upper": upper["p_value"],
+            "p_equivalence": None, "computable": False,
+            "reason": f"lower.computable={lower['computable']} ({lower.get('reason')}), "
+                      f"upper.computable={upper['computable']} ({upper.get('reason')})",
+            "margin": margin, "n": len(values), "lower": lower, "upper": upper,
+        }
+
+    p_equivalence = max(lower["p_value"], upper["p_value"])
+    return {
+        "p_lower": lower["p_value"], "p_upper": upper["p_value"],
+        "p_equivalence": p_equivalence, "computable": True,
+        "margin": margin, "n": lower["n"], "lower": lower, "upper": upper,
+    }
+
+
 # --- Kendall tau-b (K3b-1: trend recovery_i przez kolejne wstrzasy) ---
 
 def _inversions_distribution(n: int) -> List[int]:
