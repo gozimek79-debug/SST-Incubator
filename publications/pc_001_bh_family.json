@@ -20,7 +20,8 @@
     {"version": "v7", "note": "Tryb jednostronny (alternative='greater'/'less') dodany do STATS::wilcoxon_signed_rank jako PARAMETR z domyslna wartoscia 'two-sided' - zero zmiany zachowania dla istniejacych wywolujacych (13 wzorcow wywolan sprawdzonych bit-w-bit, tests/test_pc_001_statistics.py::TestWilcoxonAlternativeRegression). Walidacja przeciw scipy do 1e-6: dane BEZ remisow, method='exact', alternative='greater'/'two-sided' - PASS. Remisy: scipy method='exact' PO CICHU je ignoruje (zmierzone, udokumentowane w docstringu testu, NIE naprawiane pod scipy). Min. osiagalne p jednostronne @ n=9 = 1/512 = 0.001953125 (z wywolania, margines wobec progu m=11: 0.00259233 - 4.1x wiekszy niz dwustronny 0.00063920, ktory nadal jest ograniczeniem wiazacym dla pozostalych 10 komorek)."},
     {"version": "v8", "note": "ZNALEZISKO CTO: instrukcja v6 ('uzyj _block_means') wskazywala funkcje w execution_package_v0_11/runners/power_analysis_b4b.py - pliku POZA CRITICAL_FILES_PC_001 (wykluczony formalnie, B4B-03 pkt 5). Funkcja ustalajaca jednostke analizy CALEJ rodziny (23 genomy -> 1 wartosc per seed) lezalaby poza Hard-Halt. Naprawione Wariantem C (jak przy runnerach pilota): kanoniczna kopia STATS::block_means dodana do clos_curriculum/laboratory/statistics.py (CZLONEK rejestru), power_analysis_b4b.py NIETKNIETY, rownowaznosc dowiedziona testem spojnosci (200 przypadkow losowych + negatyw mediana, tests/test_pc_001_statistics.py::TestBlockMeansConsistency). Przy okazji audytu (polecenie CTO) poprawiono TAKZE komorki 'A' i 'K6', ktorych 'adres_testu_w_kodzie'/'uwaga_exact_approx' bledie wskazywaly funkcje symulacyjne z power_analysis_b4b.py jako implementacje dla evaluatora - poprawione na STATS::wilcoxon_signed_rank (wlasciwa, juz obecna w polu 'test'), symulator zdegradowany do jawnie oznaczonego zrodla historycznego. Zaden inny adres w tym pliku nie wskazuje poza rejestr (przeglad pelny, patrz raport w czacie)."},
     {"version": "v9", "note": "DECYZJA CTO (B4C-2 (07), po zatrzymaniu wykonawcy przy pisaniu evaluatora, B4C-2 (06)): dodane pole 'kierunek_wsparcia' + 'kierunek_wsparcia_zrodlo' per komorka - ZADEN adres w tym pliku ani w trzech zleceniach evaluatora (B4C-2 01/01v2/02) nie okreslal, przy jakiej relacji p do progu BH komorka jest spelniona; szesc z jedenastu komorek (K1-A, K1-B, K4-A, K4-B, K5-A, K5-B) ma kryterium ODWROTNE wzgledem pozostalych piecu - wspiera je BRAK odrzucenia H0 ('efekt nie wystepuje'/'brak efektu'/'efekt znika'), nie odrzucenie. Zweryfikowano PROGRAMOWO (nie z pamieci), ze prosta proza pola 'warunek' NIE rozstrzyga tego jednoznacznie: fraza 'brak efektu' wystepuje 2x (wylacznie K4-A/K4-B), 'nie wystepuje' i 'znika' 0x - parser oparty na tych frazach zaklasyfikowalby K1-A/K1-B/K5-A/K5-B (frazy 'K1 (surogat...)'/'K5 (ablacja...)', zero przeczen) blednie jako wspierane odrzuceniem. Podzial 5 ODRZUCENIE_H0 (A, B, K3a-warunek1, K4-separacja, K6) / 6 BRAK_ODRZUCENIA_H0 (K1-A, K1-B, K4-A, K4-B, K5-A, K5-B) ustalony wylacznie z doslownego brzmienia ANEKS 1 -> 'Zaktualizowana regula decyzyjna' (9 warunkow regulaminowych), cytaty per komorka. Pole w ARTEFAKCIE (czlonek rejestru), NIE mapa w kodzie evaluatora - druga kopia rozstrzygniecia w kodzie rozjechalaby sie z artefaktem tym samym wzorcem, co lista 51 wobec 52. ZASTRZEZENIE (decyzja CTO pkt 7): interpretacja tych szesciu kontroli jako 'brak efektu' NIE jest zamrozona jako finalna - BH-FDR kontroluje odsetek falszywych ODRZUCEN wsrod odrzucen, nie odsetek falszywych BRAKOW odrzucenia; dla tych szesciu komorek brak odrzucenia jest galezia WSPARCIA, a prawdopodobienstwo wychwycenia naruszenia (moc) nie zostalo dotad policzone dla zadnej z nich. Osobny, waski Negative-Control Inference Review zlecony audytorowi. Do czasu jego wyniku evaluator liczy p/BH/decyzje dla wszystkich 11 komorek, ale sciezka skladania werdyktu koncowego (WSPARTA/INCONCLUSIVE/NIE WSPARTA) rzuca twardy wyjatek nazywajacy komorki BRAK_ODRZUCENIA_H0 jako zablokowane."},
-    {"version": "v10", "note": "ERRATUM 1 (B4C-2 (09), decyzja CTO): srodowisko komorki K4-separacja poprawione z shock_world na noise_world. ZNALEZISKO (wykonawca, podczas pisania evaluatora): ANEKS 1 -> 'Zmiana 3' zawiera dwa zdania wewnetrznie sprzeczne - zdanie uzasadniajace ('22% w srodowisku realnym i 19% w czystym szumie') mowi o noise_world (Warunek B mierzony wylacznie tam), ale nowe brzmienie kryterium nazywa druga strone porownania 'shock_world'. Wersja doslowna byla dodatkowo NIEWYKONALNA technicznie: redukcja_W2 wymaga zamrozonej podlogi, a shock_world nigdy jej nie mial (verify_floors_before_run() explicite go pomija; pilot_final.py::FLOOR_BY_ENVIRONMENT ma dokladnie dwa wpisy, bez shock_world). CTO rozwazyl trzy warianty (doslowny z nowa podloga dla shock_world; zgodny z uzasadnieniem, zero nowych obliczen; usuniecie komorki, m 11->10) i wybral drugi, nazywajac go wprost POPRAWKA (erratum) do zamrozonego Aneksu, nie doprecyzowaniem - dopuszczalna wylacznie dlatego, ze zadne dane PC-001 nie istnieja (ta sama zasada dopuszczalnosci co Aneks 1 sam). Nowy dokument: publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md/.json, czlonek CRITICAL_FILES_PC_001 (53->55). ANEKS 1 NIETKNIETY - erratum nadpisuje go normatywnie, nie tekstowo. K3a (warunek 1) i K4-A/K4-B NIETKNIETE tym erratum. Licznosc komorek (11) i kierunki wsparcia (5/6) BEZ ZMIAN - zmienia sie wylacznie srodowisko porownania jednej komorki."}
+    {"version": "v10", "note": "ERRATUM 1 (B4C-2 (09), decyzja CTO): srodowisko komorki K4-separacja poprawione z shock_world na noise_world. ZNALEZISKO (wykonawca, podczas pisania evaluatora): ANEKS 1 -> 'Zmiana 3' zawiera dwa zdania wewnetrznie sprzeczne - zdanie uzasadniajace ('22% w srodowisku realnym i 19% w czystym szumie') mowi o noise_world (Warunek B mierzony wylacznie tam), ale nowe brzmienie kryterium nazywa druga strone porownania 'shock_world'. Wersja doslowna byla dodatkowo NIEWYKONALNA technicznie: redukcja_W2 wymaga zamrozonej podlogi, a shock_world nigdy jej nie mial (verify_floors_before_run() explicite go pomija; pilot_final.py::FLOOR_BY_ENVIRONMENT ma dokladnie dwa wpisy, bez shock_world). CTO rozwazyl trzy warianty (doslowny z nowa podloga dla shock_world; zgodny z uzasadnieniem, zero nowych obliczen; usuniecie komorki, m 11->10) i wybral drugi, nazywajac go wprost POPRAWKA (erratum) do zamrozonego Aneksu, nie doprecyzowaniem - dopuszczalna wylacznie dlatego, ze zadne dane PC-001 nie istnieja (ta sama zasada dopuszczalnosci co Aneks 1 sam). Nowy dokument: publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md/.json, czlonek CRITICAL_FILES_PC_001 (53->55). ANEKS 1 NIETKNIETY - erratum nadpisuje go normatywnie, nie tekstowo. K3a (warunek 1) i K4-A/K4-B NIETKNIETE tym erratum. Licznosc komorek (11) i kierunki wsparcia (5/6) BEZ ZMIAN - zmienia sie wylacznie srodowisko porownania jednej komorki."},
+    {"version": "v11", "note": "DECYZJA CTO (B4C-2 (15)), domkniecie Negative-Control Inference Review (zapowiedziany w B4C-2 (07) pkt 7/8) - ZAMKNIETY POZYTYWNIE, z korekta definicji E_beta wniesiona przez CTO. Szesc komorek (K1-A, K1-B, K4-A, K4-B, K5-A, K5-B) zmienia kierunek_wsparcia z BRAK_ODRZUCENIA_H0 na ROWNOWAZNOSC: wnioskowanie o rownowaznosci praktycznej (TOST - Two One-Sided Tests), margines equivalence_margin_c ZAMROZONY teraz z powodow MERYTORYCZNYCH nie obliczeniowych (polowa progu Warunku B, tworzy strefe rozdzielajaca 0.10<|efekt|<0.20). POWOD: 'p > prog' nie jest dowodem 'efekt zniknal' - BH-FDR kontroluje odsetek falszywych ODRZUCEN, nie falszywych BRAKOW odrzucenia; dla tych szesciu komorek moc wykrycia naruszenia nigdy nie byla policzona pod starym kryterium. Propozycja wykonawcy (Delta_beta z mediany Pilota / 300 tickow) ODRZUCONA przez CTO - (1) granica zalezalaby od artefaktu NEVER_FOR_INFERENCE, (2) blad arytmetyczny (299, nie 300 tickow rozpietosci). Definicje: E_red=redukcja_W2 (Grupa B: K1-B/K4-B/K5-B), E_beta=beta*(t_last-t_first)/W_early_red POLICZONE PER PRZEBIEG, DOPIERO POTEM block_means (Grupa A: K1-A/K4-A/K5-A) - ta sama kolejnosc co juz istniejace compute_w2_reduction i k4_separation_cell. Kazda z szesciu komorek dostaje pola equivalence_margin_c i effect_metric. Formalizowane erratum'em do reguly decyzyjnej: publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md/.json, czlonek CRITICAL_FILES_PC_001 (57->59). ANEKS 1 i PC-001 §5 NIETKNIETE - erratum nadpisuje je normatywnie. WARTOSC BRAK_ODRZUCENIA_H0 ZASTAPIONA, NIE SKASOWANA - stare pola kierunek_wsparcia_zrodlo (cytaty ANEKS 1 warunki 4/7/8, PC-001 §5 K1/K4/K5) zachowane jako historia zastapionego brzmienia w erratum samym i w tym wpisie. m=11 BEZ ZMIAN. N_operational_final pozostaje PENDING equivalence power check (decyzja CTO pkt 10/11) - B5 wstrzymane dodatkowo do tego czasu. Piec komorek ODRZUCENIE_H0 (A, B, K3a-warunek1, K4-separacja, K6) NIETKNIETE tym erratum."}
   ],
 
   "cells_active": [
@@ -54,8 +55,10 @@
       "srodowisko_decyzja": "B4C-05 v4, decyzja CTO pkt 1: 'K1 i K5 sa definiowane WYLACZNIE w kontekscie Primary Endpoint (noise_world). NIE sa replikowane jako osobne komorki w K3 ani K4' - uzasadnienie: surogaty analityczne NA DANYCH Primary, nie osobne przebiegi.",
       "test": "STATS::wilcoxon_signed_rank (jedna wartosc beta_shuffled per blok seedowy vs 0)",
       "adres_kryterium": "PC-001 §5 → \"K1\" ('identyczny pipeline analityczny, warunki A i B')",
-      "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0",
-      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 4: \"K1 - efekt nie wystepuje w danych przetasowanych\" (B4C-2 (07), decyzja CTO)"
+      "kierunek_wsparcia": "ROWNOWAZNOSC",
+      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md -> 'Poprawka' (rownowaznosc praktyczna, TOST, margines equivalence_margin_c; efekt E_beta) - zastepuje ANEKS 1 warunek 4 (B4C-2 (15), decyzja CTO; historia zastapionego brzmienia w history v11)",
+      "equivalence_margin_c": 0.10,
+      "effect_metric": "E_beta"
     },
     {
       "id": "K1-B",
@@ -65,8 +68,10 @@
       "srodowisko_decyzja": "jak K1-A - ta sama decyzja CTO dotyczy obu czesci K1.",
       "test": "STATS::wilcoxon_signed_rank (pary W_early_red_shuffled/W_late_red_shuffled per blok seedowy)",
       "adres_kryterium": "PC-001 §5 → \"K1\"",
-      "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0",
-      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 4: \"K1 - efekt nie wystepuje w danych przetasowanych\" (B4C-2 (07), decyzja CTO)"
+      "kierunek_wsparcia": "ROWNOWAZNOSC",
+      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md -> 'Poprawka' (rownowaznosc praktyczna, TOST, margines equivalence_margin_c; efekt redukcja_W2) - zastepuje ANEKS 1 warunek 4 (B4C-2 (15), decyzja CTO; historia zastapionego brzmienia w history v11)",
+      "equivalence_margin_c": 0.10,
+      "effect_metric": "redukcja_W2"
     },
     {
       "id": "K4-A",
@@ -75,9 +80,11 @@
       "srodowisko": "pure_noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['K4'])",
       "test": "STATS::wilcoxon_signed_rank (jedna wartosc beta per blok seedowy vs 0, w pure_noise_world)",
       "adres_kryterium": "PC-001 §5 → \"K4\" ('nie wolno uzyskac spelnienia A ani B'); W2-SPEC §5 (wzmocnienie)",
-      "uwaga": "Warunek A liczony takze dla przebiegow FLOOR_LIMITED (W2-SPEC §3.4: nachylenie nie ma mianownika) - obliczalny niezaleznie od statusu FLOOR_LIMITED reszty komorki.",
-      "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0",
-      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 7: \"K4 - brak efektu w czystym szumie ORAZ istotna separacja od srodowiska realnego\" (B4C-2 (07), decyzja CTO)"
+      "uwaga": "Warunek A liczony takze dla przebiegow FLOOR_LIMITED (W2-SPEC §3.4: nachylenie nie ma mianownika) - obliczalny niezaleznie od statusu FLOOR_LIMITED reszty komorki. Ta sama asymetria (E_beta definiowalne, redukcja_W2/E_red None) opisana jawnie w ERRATUM 3, zeby nie zostala 'naprawiona' jako przeoczenie.",
+      "kierunek_wsparcia": "ROWNOWAZNOSC",
+      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md -> 'Poprawka' (rownowaznosc praktyczna, TOST, margines equivalence_margin_c; efekt E_beta) - zastepuje ANEKS 1 warunek 7 (czesc 'brak efektu') (B4C-2 (15), decyzja CTO; historia zastapionego brzmienia w history v11)",
+      "equivalence_margin_c": 0.10,
+      "effect_metric": "E_beta"
     },
     {
       "id": "K4-B",
@@ -97,8 +104,10 @@
         "MIN_DENOMINATOR": 0.02,
         "wniosek": "najgorszy z 345 przebiegow (0.06276) jest >3x powyzej progu FLOOR_LIMITED - mianownik Warunku B jest zdrowy w pure_noise_world, test jest obliczalny"
       },
-      "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0",
-      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 7: \"K4 - brak efektu w czystym szumie ORAZ istotna separacja od srodowiska realnego\" (B4C-2 (07), decyzja CTO)"
+      "kierunek_wsparcia": "ROWNOWAZNOSC",
+      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md -> 'Poprawka' (rownowaznosc praktyczna, TOST, margines equivalence_margin_c; efekt redukcja_W2) - zastepuje ANEKS 1 warunek 7 (czesc 'brak efektu') (B4C-2 (15), decyzja CTO; historia zastapionego brzmienia w history v11)",
+      "equivalence_margin_c": 0.10,
+      "effect_metric": "redukcja_W2"
     },
     {
       "id": "K4-separacja",
@@ -121,8 +130,10 @@
       "srodowisko_decyzja": "jak K1 (B4C-05 v4 pkt 1) - K5 rowniez surogat analityczny NA DANYCH Primary.",
       "test": "STATS::wilcoxon_signed_rank (jedna wartosc beta_ablated per blok seedowy vs 0)",
       "adres_kryterium": "PC-001 §5 → \"K5\" ('identyczny pipeline analityczny')",
-      "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0",
-      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 8: \"K5 - efekt znika po ablacji surogatowej\" (B4C-2 (07), decyzja CTO)"
+      "kierunek_wsparcia": "ROWNOWAZNOSC",
+      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md -> 'Poprawka' (rownowaznosc praktyczna, TOST, margines equivalence_margin_c; efekt E_beta) - zastepuje ANEKS 1 warunek 8 (B4C-2 (15), decyzja CTO; historia zastapionego brzmienia w history v11)",
+      "equivalence_margin_c": 0.10,
+      "effect_metric": "E_beta"
     },
     {
       "id": "K5-B",
@@ -144,8 +155,10 @@
         "n_total": 3,
         "sanity_check_niezaleznosci_od_genomu": "input(t) identyczny miedzy genomami 'default' i 'highly_plastic' na tym samym seedzie (potwierdzone) - test niezalezny od genomu, wystarczy jeden genom per seed"
       },
-      "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0",
-      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 8: \"K5 - efekt znika po ablacji surogatowej\" (B4C-2 (07), decyzja CTO)"
+      "kierunek_wsparcia": "ROWNOWAZNOSC",
+      "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md -> 'Poprawka' (rownowaznosc praktyczna, TOST, margines equivalence_margin_c; efekt redukcja_W2) - zastepuje ANEKS 1 warunek 8 (B4C-2 (15), decyzja CTO; historia zastapionego brzmienia w history v11)",
+      "equivalence_margin_c": 0.10,
+      "effect_metric": "redukcja_W2"
     },
     {
       "id": "K6",
@@ -211,8 +224,9 @@
   },
 
   "kierunek_ODRZUCENIE_H0": 5,
-  "kierunek_BRAK_ODRZUCENIA_H0": 6,
-  "kierunek_wsparcia_uwaga": "ZADEKLAROWANE, nie wyliczane przez evaluator - ta sama zasada co 'm jest dane, nie liczone' (B4C-2 (01), decyzja CTO). Podzial 5/6 decyzja CTO B4C-2 (07), na podstawie doslownego brzmienia ANEKS 1 -> 'Zaktualizowana regula decyzyjna' (9 warunkow regulaminowych). Interpretacja szesciu kontroli BRAK_ODRZUCENIA_H0 jako operacjonalizacji 'braku efektu' NIE JEST zamrozona jako finalna (B4C-2 (07), decyzja CTO pkt 7) - audytor zlecil odrebny, waski Negative-Control Inference Review (metodologia: BH-FDR kontroluje odsetek falszywych ODRZUCEN, nie falszywych BRAKOW odrzucenia - moc/prawdopodobienstwo wykrycia naruszenia dla tych szesciu komorek nie zostalo dotad policzone). Do czasu tego przegladu evaluator liczy p/pozycje BH/decyzje per komorka dla wszystkich 11, ale NIE skalda werdyktu koncowego (WSPARTA/INCONCLUSIVE/NIE WSPARTA) - patrz clos_scientist/pc_001_evaluator.py.",
+  "kierunek_BRAK_ODRZUCENIA_H0": 0,
+  "kierunek_ROWNOWAZNOSC": 6,
+  "kierunek_wsparcia_uwaga": "ZADEKLAROWANE, nie wyliczane przez evaluator - ta sama zasada co 'm jest dane, nie liczone' (B4C-2 (01), decyzja CTO). Podzial 5/6 decyzja CTO B4C-2 (07), na podstawie doslownego brzmienia ANEKS 1 -> 'Zaktualizowana regula decyzyjna' (9 warunkow regulaminowych). B4C-2 (15): Negative-Control Inference Review (zapowiedziany w B4C-2 (07) pkt 7) zamkniety POZYTYWNIE - szesc komorek BRAK_ODRZUCENIA_H0 przechodzi na ROWNOWAZNOSC (wnioskowanie o rownowaznosci praktycznej, TOST, margines equivalence_margin_c, ERRATUM 3). Piec komorek ODRZUCENIE_H0 bez zmian. Kazda z szesciu komorek ROWNOWAZNOSC ma effect_metric (E_beta albo redukcja_W2) i equivalence_margin_c. Do czasu zamkniecia power check dla rownowaznosci (decyzja CTO pkt 11/12, B4C-2 (15)) evaluator liczy p/pozycje BH/decyzje per komorka dla wszystkich 11, ale NIE sklada werdyktu koncowego (WSPARTA/INCONCLUSIVE/NIE WSPARTA) - patrz clos_scientist/pc_001_evaluator.py.",
 
   "prog_bh_najostrzejszy": {
     "wzor": "(1/m) * q, q=0.05, m=11 (STATS::benjamini_hochberg)",

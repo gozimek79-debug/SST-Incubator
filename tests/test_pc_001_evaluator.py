@@ -18,9 +18,16 @@ from clos_scientist.pc_001_evaluator import (
     UnknownEnvironmentForFloorError,
     VerdictCompositionBlockedError,
     _floor_result_for_environment,
+    _margin_for_cell,
     _reduction_by_seed,
     compose_verdict,
+    e_beta_components_for_run,
+    e_beta_for_run,
+    e_red_for_run,
+    k1_equivalence_cell,
+    k4_equivalence_cell,
     k4_separation_cell,
+    k5_equivalence_cell,
     redukcja_w2_for_run,
 )
 from clos_scientist.pc_001_experiment_config import (
@@ -71,26 +78,57 @@ class TestComposeVerdictAlwaysBlocked:
 
     def test_blocked_cells_message_matches_real_artifact_field(self):
         """Zbior komorek w komunikacie wyjatku MUSI zgadzac sie z tym, co
-        FAKTYCZNIE jest w artefakcie DZIS - nie z zapamietana lista."""
+        FAKTYCZNIE jest w artefakcie DZIS - nie z zapamietana lista.
+        B4C-2 (15): warunek blokady to ROWNOWAZNOSC BEZ zamknietego power
+        check (pole 'equivalence_power_check_closed' nieobecne/False) -
+        BRAK_ODRZUCENIA_H0 juz nie istnieje jako wartosc per komorka."""
         family = json.loads(BH_FAMILY_PATH.read_text(encoding="utf-8"))
         expected_blocked = sorted(
-            c["id"] for c in family["cells_active"] if c["kierunek_wsparcia"] == "BRAK_ODRZUCENIA_H0"
+            c["id"] for c in family["cells_active"]
+            if c["kierunek_wsparcia"] == "ROWNOWAZNOSC" and not c.get("equivalence_power_check_closed", False)
         )
+        assert expected_blocked != [], "test bezprzedmiotowy, jesli artefakt nie ma zadnej blokowanej komorki"
         with pytest.raises(VerdictCompositionBlockedError) as exc_info:
             compose_verdict()
         for cell_id in expected_blocked:
             assert cell_id in str(exc_info.value)
 
+    def test_negative_guard_fails_loud_on_artifact_without_any_rownowaznosc_cell(self):
+        """B4C-2 (17), znalezisko CTO: 'zero dopasowan = ciche PASS' wrocilo
+        w innym miejscu - test_blocked_cells_message_matches_real_artifact_field
+        wyprowadza expected_blocked z artefaktu i PETLI po nim; gdyby artefakt
+        (hipotetycznie) nie mial ANI JEDNEJ komorki ROWNOWAZNOSC, ta petla
+        wykonalaby sie zero razy i test przeszedlby, NIE dlatego, ze cos
+        sprawdzil, tylko dlatego, ze nie mial czego sprawdzac. Ten test
+        dowodzi, ze guard 'assert expected_blocked != []' FAKTYCZNIE lapie
+        ten przypadek - nie jest deklaracja bez pokrycia."""
+        synthetic_family_without_rownowaznosc = {
+            "cells_active": [
+                {"id": "Y1", "kierunek_wsparcia": "ODRZUCENIE_H0"},
+                {"id": "Y2", "kierunek_wsparcia": "ODRZUCENIE_H0"},
+            ]
+        }
+        expected_blocked = sorted(
+            c["id"] for c in synthetic_family_without_rownowaznosc["cells_active"]
+            if c["kierunek_wsparcia"] == "ROWNOWAZNOSC" and not c.get("equivalence_power_check_closed", False)
+        )
+        with pytest.raises(AssertionError, match="bezprzedmiotowy"):
+            assert expected_blocked != [], "test bezprzedmiotowy, jesli artefakt nie ma zadnej blokowanej komorki"
+
     def test_negative_no_hardcoded_id_list_in_source(self, monkeypatch, tmp_path):
         """Dowod, ze zbior blokady FAKTYCZNIE pochodzi z pliku, nie z listy
         wpisanej na sztywno: podmieniamy BH_FAMILY_PATH na syntetyczny
-        artefakt z INNYM podzialem (3 zablokowane, nie szesc znanych ID) i
-        sprawdzamy, ze komunikat wyjatku podaza za NOWA zawartoscia."""
+        artefakt z INNYM podzialem (dwie zablokowane ROWNOWAZNOSC bez power
+        check, jedna ROWNOWAZNOSC JUZ z zamknietym power check, jedna
+        ODRZUCENIE_H0) i sprawdzamy, ze komunikat wyjatku podaza za NOWA
+        zawartoscia - w tym poprawnie WYKLUCZA komorke z zamknietym power
+        check, nie tylko dodaje nowe ID."""
         synthetic = {
             "cells_active": [
-                {"id": "X1", "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0"},
+                {"id": "X1", "kierunek_wsparcia": "ROWNOWAZNOSC"},
                 {"id": "X2", "kierunek_wsparcia": "ODRZUCENIE_H0"},
-                {"id": "X3", "kierunek_wsparcia": "BRAK_ODRZUCENIA_H0"},
+                {"id": "X3", "kierunek_wsparcia": "ROWNOWAZNOSC"},
+                {"id": "X4", "kierunek_wsparcia": "ROWNOWAZNOSC", "equivalence_power_check_closed": True},
             ]
         }
         fake_path = tmp_path / "synthetic_family.json"
@@ -102,6 +140,7 @@ class TestComposeVerdictAlwaysBlocked:
         message = str(exc_info.value)
         assert "X1" in message and "X3" in message
         assert "X2" not in message
+        assert "X4" not in message
 
     def test_no_literal_count_of_blocked_cells_in_source(self):
         """Zakaz wprost (B4C-2 (09)): liczba blokowanych komorek nie ma
@@ -309,3 +348,293 @@ class TestK4SeparationCellEndToEnd:
         pure = self._records(8, early=0.5, late=0.45, seed_offset=1)  # brakuje 1 seeda
         with pytest.raises(IncompleteGridError):
             k4_separation_cell(noise, pure, n_genomes_expected=1)
+
+
+TICKS_TOTAL = EXPERIMENT_CONFIG["protocol"]["ticks_total"]
+
+
+def _full_grid_pe_trajectory(pe_by_tick) -> dict:
+    """PE(t) na PELNEJ siatce 0..ticks_total-1, z callable pe_by_tick(t)."""
+    return {t: pe_by_tick(t) for t in range(TICKS_TOTAL)}
+
+
+def _full_grid_record(seed: int, pe_by_tick, prediction_by_tick=None, input_by_tick=None) -> dict:
+    """Rekord ze SCHEMATEM v3 (prediction/input/prediction_error per tick) -
+    domyslnie prediction=0, input=pe_by_tick(t) (PE=|0-input|=input, wygodne
+    dla testow, ktore nie zaleza od K1/K5)."""
+    pe = {str(t): pe_by_tick(t) for t in range(TICKS_TOTAL)}
+    pred = prediction_by_tick or (lambda t: 0.0)
+    inp = input_by_tick or (lambda t: pe_by_tick(t))
+    return {
+        "seed": seed,
+        "metrics": {
+            "prediction_error_by_tick": pe,
+            "prediction_by_tick": {str(t): pred(t) for t in range(TICKS_TOTAL)},
+            "input_by_tick": {str(t): inp(t) for t in range(TICKS_TOTAL)},
+        },
+    }
+
+
+class TestEBetaComponentsForRun:
+    """B4C-2 (15): E_beta = beta_raw * tick_span / W_early_red, POLICZONE
+    PER PRZEBIEG, tick_span WYPROWADZONY z siatki (nie literal)."""
+
+    def test_expected_tick_span_constant_is_299(self):
+        """Wyprowadzone z EXPERIMENT_CONFIG, nie wpisane - ale WARTOSC przy
+        dzisiejszym protokole (300 tickow) ma wynosic 299."""
+        assert evaluator_module._EXPECTED_TICK_SPAN == 299
+        assert evaluator_module._EXPECTED_TICK_SPAN == TICKS_TOTAL - 1
+
+    def test_happy_path_constant_pe_gives_zero_beta(self):
+        """PE(t) stale -> beta_raw=0 (var(t)!=0, ticki rozne, ale wszystkie
+        y rowne) -> E_beta=0. Dowod, ze pelna siatka jest AKCEPTOWANA i
+        cala rura (floor -> linear_slope -> normalizacja) dziala."""
+        pe_trajectory = _full_grid_pe_trajectory(lambda t: 0.5)
+        components = e_beta_components_for_run(pe_trajectory, PRIMARY)
+        assert components is not None
+        beta_raw, w_early_red, e_beta = components
+        assert abs(beta_raw) < 1e-9
+        assert abs(e_beta) < 1e-9
+        assert w_early_red > 0
+
+    def test_happy_path_linear_trend_matches_manual_computation(self):
+        """PE(t) = 0.5 - 0.001*t (trend liniowy jednoznaczny) - E_beta
+        policzony niezaleznie z tych samych skladowych (bez ponownego
+        wywolania linear_slope - to bylaby tautologia), przez odjecie
+        floor_env i policzenie sredniej W_EARLY_TICKS recznie."""
+        pe_fn = lambda t: 0.5 - 0.001 * t
+        pe_trajectory = _full_grid_pe_trajectory(pe_fn)
+        components = e_beta_components_for_run(pe_trajectory, PRIMARY)
+        assert components is not None
+        beta_raw, w_early_red, e_beta = components
+
+        floor_env = FROZEN_FLOOR_NOISE_WORLD["value"]
+        pe_red_early = [max(0.0, pe_fn(t) - floor_env) for t in W_EARLY_TICKS]
+        expected_w_early_red = sum(pe_red_early) / len(pe_red_early)
+        assert abs(w_early_red - expected_w_early_red) < 1e-6
+        assert beta_raw < 0  # trend malejacy
+        assert e_beta == pytest.approx(beta_raw * 299 / w_early_red, abs=1e-9)
+
+    def test_truncated_grid_returns_none_not_wrong_tick_span(self):
+        """Weryfikacja pkt 2 (B4C-2 (15)): siatka SKROCONA (tylko pierwsze
+        150 tickow) -> None, NIE policzony tick_span=149 po cichu."""
+        pe_trajectory = {t: 0.5 - 0.001 * t for t in range(150)}
+        assert e_beta_components_for_run(pe_trajectory, PRIMARY) is None
+
+    def test_grid_with_gap_returns_none(self):
+        """Siatka tej samej DLUGOSCI (300 wpisow) ale z DZIURA (brakuje
+        ticka 150, jest za to duplikat na koncu) - dowod, ze kontrola
+        patrzy na ZBIOR tickow, nie tylko na len()."""
+        pe_trajectory = {t: 0.5 for t in range(TICKS_TOTAL) if t != 150}
+        pe_trajectory[300] = 0.5  # zamiast 150 - ten sam rozmiar (299), zly zbior
+        assert e_beta_components_for_run(pe_trajectory, PRIMARY) is None
+
+    def test_w_early_red_zero_or_negative_returns_none(self):
+        """PE(t) ponizej floor_env przez cale okno wczesne -> PE_red=0
+        wszedzie w oknie wczesnym -> W_early_red=0 -> None (NIE epsilon)."""
+        floor_env = FROZEN_FLOOR_NOISE_WORLD["value"]
+        pe_trajectory = _full_grid_pe_trajectory(lambda t: floor_env / 2)
+        assert e_beta_components_for_run(pe_trajectory, PRIMARY) is None
+
+    def test_e_beta_for_run_matches_third_component(self):
+        pe_trajectory = _full_grid_pe_trajectory(lambda t: 0.5 - 0.001 * t)
+        components = e_beta_components_for_run(pe_trajectory, PRIMARY)
+        assert e_beta_for_run(pe_trajectory, PRIMARY) == components[2]
+
+    def test_e_beta_for_run_none_when_components_none(self):
+        pe_trajectory = {t: 0.5 - 0.001 * t for t in range(150)}
+        assert e_beta_for_run(pe_trajectory, PRIMARY) is None
+
+
+class TestERedForRunIsRedukcjaW2ForRun:
+    """B4C-2 (15): e_red_for_run JEST redukcja_w2_for_run (wiazanie nazwy,
+    nie nowa implementacja) - ERRATUM 3: 'E_red = redukcja_W2'."""
+
+    def test_same_object(self):
+        assert e_red_for_run is redukcja_w2_for_run
+
+
+class TestMarginForCell:
+    """B4C-2 (15), zadanie 4: 'Granice biore sie z artefaktu, nie ze stalej
+    w evaluatorze.' - _margin_for_cell CZYTA plik, nie zwraca literalu."""
+
+    @pytest.mark.parametrize("cell_id", ["K1-A", "K1-B", "K4-A", "K4-B", "K5-A", "K5-B"])
+    def test_reads_real_margin_from_artifact(self, cell_id):
+        family = json.loads(BH_FAMILY_PATH.read_text(encoding="utf-8"))
+        expected = next(c for c in family["cells_active"] if c["id"] == cell_id)["equivalence_margin_c"]
+        assert _margin_for_cell(cell_id) == expected
+
+    def test_no_hardcoded_margin_literal_in_module_source(self):
+        """Skan zrodla: literal 0.10 (ani 0.1) nie ma prawa pojawic sie w
+        wywolaniach _equivalence_result - margines ZAWSZE przez
+        _margin_for_cell()."""
+        source = MODULE_PATH.read_text(encoding="utf-8")
+        no_docstrings = re.sub(r'"""[\s\S]*?"""', "", source)
+        assert "0.10" not in no_docstrings
+        assert re.search(r"(?<![\w.])0\.1(?![\w0-9])", no_docstrings) is None
+
+
+class TestPendingFullFamilyBHSentinel:
+    """B4C-2 (16), korekta CTO: 'bh_adjusted_result'/'equivalence_supported'
+    NIE MAJA byc None - None w tym repo juz znaczy 'nie da sie policzyc dla
+    tych danych' (w2_endpoint.compute_w2_reduction). Uzycie go tez dla
+    'jeszcze nie zaimplementowane' nakladaloby dwa rozne stany na jedna
+    reprezentacje - ktos czytajacy None przeczytalby to jako fakt o danych,
+    nie o stanie implementacji. Ten test PRZYPINA jawny znacznik, zeby
+    przyszla proba 'wypelnienia' tych pol przy okazji zostala zlapana."""
+
+    def test_sentinel_is_not_none(self):
+        assert evaluator_module.PENDING_FULL_FAMILY_BH is not None
+
+    def test_sentinel_is_a_named_string_not_a_bare_bool_or_number(self):
+        """Wartosc ma byc SAMOOPISUJACA - ktos czytajacy ja bez kontekstu
+        (np. w zrzucie JSON artefaktu) ma zobaczyc od razu, ze to stan
+        oczekiwania, nie liczba/flaga."""
+        assert isinstance(evaluator_module.PENDING_FULL_FAMILY_BH, str)
+        assert "PENDING" in evaluator_module.PENDING_FULL_FAMILY_BH
+
+    @pytest.mark.parametrize("cell_fn,args,records_kind", [
+        (k4_equivalence_cell, ("A",), "plain"),
+        (k4_equivalence_cell, ("B",), "plain"),
+        (k5_equivalence_cell, ("A",), "ablation"),
+        (k5_equivalence_cell, ("B",), "ablation"),
+    ])
+    def test_all_equivalence_cells_use_sentinel_not_none(self, cell_fn, args, records_kind):
+        if records_kind == "ablation":
+            # K5 ablacja liczy |0.5-input| - input musi byc daleko od 0.5,
+            # inaczej PE_ablated wypada ponizej floor_env wszedzie (patrz
+            # test_k5_a_uses_ablation_not_recorded_prediction powyzej).
+            records = [
+                _full_grid_record(5001 + s, lambda t: 999.0, input_by_tick=lambda t: 0.9 - 0.0001 * t)
+                for s in range(9)
+            ]
+        else:
+            records = [_full_grid_record(5001 + s, lambda t: 0.5 - 0.0001 * t) for s in range(9)]
+        result = cell_fn(*args, records, n_genomes_expected=1)
+        assert result["bh_adjusted_result"] == evaluator_module.PENDING_FULL_FAMILY_BH
+        assert result["equivalence_supported"] == evaluator_module.PENDING_FULL_FAMILY_BH
+        assert result["bh_adjusted_result"] is not None
+        assert result["equivalence_supported"] is not None
+
+    def test_negative_none_would_be_indistinguishable_from_w2_endpoint_meaning(self):
+        """Dokumentuje WPROST powod zakazu None: compute_w2_reduction zwraca
+        redukcja=None dla przebiegu, ktorego NIE DA SIE policzyc (FLOOR_
+        LIMITED/INSUFFICIENT_DATA) - 'brak wyniku, nie wynik zerowy'. Gdyby
+        _equivalence_result tez zwracal None, nie dalo by sie odroznic
+        'dane sie nie licza' od 'implementacja jeszcze nie gotowa' patrzac
+        wylacznie na wartosc pola."""
+        from clos_scientist.w2_endpoint import compute_w2_reduction
+        insufficient = compute_w2_reduction({})
+        assert insufficient["reduction"] is None  # "nie da sie policzyc" - prawdziwe znaczenie None tutaj
+        assert evaluator_module.PENDING_FULL_FAMILY_BH is not None  # naszego stanu NIE reprezentuje None
+
+
+class TestEquivalenceCellsEndToEnd:
+    """Dane syntetyczne (zakaz uruchamiania na seedach 1001-1050) - siatka
+    PELNA (0..299) wymagana dla czesci A (E_beta); n_genomes_expected=1 dla
+    prostoty (tozsamosc agregacji z wieksza liczba genomow juz dowiedziona
+    dla K4-separacja powyzej)."""
+
+    def _records(self, n_seeds, pe_fn, seed_offset=2001):
+        return [_full_grid_record(seed_offset + s, pe_fn) for s in range(n_seeds)]
+
+    def test_k4_a_returns_required_fields(self):
+        records = self._records(9, lambda t: 0.5 - 0.0001 * t)
+        result = k4_equivalence_cell("A", records, n_genomes_expected=1)
+        assert result["cell_id"] == "K4-A"
+        assert result["effect_metric"] == "E_beta"
+        for key in ("observed_effect", "equivalence_lower", "equivalence_upper",
+                    "p_lower", "p_upper", "p_equivalence", "bh_adjusted_result",
+                    "equivalence_supported", "beta_raw", "W_early_red", "tick_span"):
+            assert key in result
+        assert result["tick_span"] == 299
+        assert result["equivalence_lower"] == -result["equivalence_upper"]
+        # B4C-2 (16), korekta CTO: NIE None (w tym repo None juz znaczy
+        # "nie da sie policzyc dla tych danych", w2_endpoint) - jawny
+        # znacznik odrozniajacy stan IMPLEMENTACJI od wlasciwosci danych.
+        assert result["bh_adjusted_result"] == evaluator_module.PENDING_FULL_FAMILY_BH
+        assert result["equivalence_supported"] == evaluator_module.PENDING_FULL_FAMILY_BH
+        assert result["bh_adjusted_result"] is not None
+        assert result["equivalence_supported"] is not None
+
+    def test_k4_b_returns_required_fields_without_group_a_extras(self):
+        records = self._records(9, lambda t: 0.5 - 0.0001 * t)
+        result = k4_equivalence_cell("B", records, n_genomes_expected=1)
+        assert result["cell_id"] == "K4-B"
+        assert result["effect_metric"] == "redukcja_W2"
+        assert "beta_raw" not in result
+        assert "tick_span" not in result
+
+    def test_k5_a_uses_ablation_not_recorded_prediction(self):
+        """K5 ablacja: prediction ZAPISANA w rekordzie jest IGNOROWANA -
+        efekt liczony z |0.5-input|, nie z faktycznej predykcji. input(t)
+        celowo DALEKO od 0.5 (0.9-0.0001t), zeby PE_ablated=|0.5-input|
+        przekraczal floor_env (~0.096) - blisko 0.5 dawaloby PE_ablated
+        ponizej podlogi wszedzie, W_early_red=0, i test niczego by nie
+        dowodzil (fałszywie wygladalby na NONCOMPUTABLE)."""
+        input_fn = lambda t: 0.9 - 0.0001 * t
+        records = [
+            _full_grid_record(2001 + s, lambda t: 999.0, input_by_tick=input_fn)
+            for s in range(9)
+        ]  # prediction_error_by_tick celowo bzdurne (999.0) - K5 go ignoruje
+        result = k5_equivalence_cell("A", records, n_genomes_expected=1)
+        assert result["cell_id"] == "K5-A"
+        assert result["effect_metric"] == "E_beta"
+        assert result["computable"] is True
+
+    def test_k1_a_records_shuffle_provenance(self):
+        records = self._records(9, lambda t: 0.5 - 0.0001 * t)
+        result = k1_equivalence_cell("A", records, n_genomes_expected=1)
+        assert result["cell_id"] == "K1-A"
+        assert set(result["k1_shuffle_by_seed"].keys()) == {r["seed"] for r in records}
+        for entry in result["k1_shuffle_by_seed"].values():
+            assert entry["algorithm"] == "PC001_K1_SHUFFLE_V1"
+            assert isinstance(entry["k1_shuffle_seed"], int)
+            assert isinstance(entry["permutation_digest"], str)
+
+    def test_k1_shares_one_permutation_across_genomes_in_same_seed_block(self):
+        """B4C-1 (05): JEDNA permutacja per seed, dzielona przez wszystkie
+        genomy tego seeda - dwa 'genomy' (dwa rekordy) tego samego seeda
+        musza dostac IDENTYCZNY digest permutacji."""
+        seed = 3001
+        records = [_full_grid_record(seed, lambda t: 0.5 - 0.0001 * t) for _ in range(3)]
+        # _effect_by_seed wymaga n_genomes_expected dopasowanego do liczby
+        # rekordow per seed - tu wszystkie 3 rekordy dziela JEDEN seed.
+        result = k1_equivalence_cell("A", records, n_genomes_expected=3)
+        assert len(result["k1_shuffle_by_seed"]) == 1
+        digest = result["k1_shuffle_by_seed"][seed]["permutation_digest"]
+        # Niezalezne wywolanie z tym samym seedem musi dac ten sam digest -
+        # dowod, ze permutacja NIE jest losowana per-genom.
+        from clos_scientist.pc_001_k1_shuffle import derive_k1_permutation, k1_permutation_digest
+        expected_digest = k1_permutation_digest(derive_k1_permutation(seed, TICKS_TOTAL))
+        assert digest == expected_digest
+
+    def test_incomplete_grid_raises_incomplete_grid_error(self):
+        """NONCOMPUTABLE (ERRATUM 3): brakujacy genom w bloku -> IncompleteGridError,
+        NIE ciche pominiecie - propaguje sie do INCONCLUSIVE (scenariusz A)."""
+        records = self._records(9, lambda t: 0.5 - 0.0001 * t)
+        with pytest.raises(IncompleteGridError):
+            k4_equivalence_cell("A", records, n_genomes_expected=2)  # oczekuje 2, dostaje 1 per seed
+
+    def test_truncated_run_grid_propagates_to_incomplete_grid_error(self):
+        """Jeden przebieg z SKROCONA siatka (e_beta_components_for_run zwraca
+        None) w bloku 9-seedowym -> caly blok NONCOMPUTABLE -> IncompleteGridError,
+        nie pominiecie tego jednego przebiegu."""
+        good = self._records(8, lambda t: 0.5 - 0.0001 * t, seed_offset=4001)
+        bad_record = {
+            "seed": 4009,
+            "metrics": {
+                "prediction_error_by_tick": {str(t): 0.5 - 0.0001 * t for t in range(150)},
+                "prediction_by_tick": {str(t): 0.0 for t in range(150)},
+                "input_by_tick": {str(t): 0.5 - 0.0001 * t for t in range(150)},
+            },
+        }
+        with pytest.raises(IncompleteGridError):
+            k4_equivalence_cell("A", good + [bad_record], n_genomes_expected=1)
+
+    def test_no_literal_shock_world_in_new_cells(self):
+        """Wzorem K4-separacja (ERRATUM 1) - K1/K4/K5 rownowaznosc rowniez
+        nie maja powodu odwolywac sie do shock_world."""
+        source = MODULE_PATH.read_text(encoding="utf-8")
+        no_docstring = re.sub(r'"""[\s\S]*?"""', "", source)
+        assert "shock_world" not in no_docstring

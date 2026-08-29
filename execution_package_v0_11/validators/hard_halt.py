@@ -368,8 +368,17 @@ CRITICAL_FILES_PC_001 = [
     # seedow, na ktorych biegnie konfirmacja.
     "publications/preregistration_PC_001_ERRATUM_2_2026-08-29.json",
     "publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md",
+    # ERRATUM 3 (2026-08-29, B4C-2 (15), decyzja CTO): szesc komorek (K1-A/B,
+    # K4-A/B, K5-A/B) przechodzi z "brak odrzucenia H0" (ANEKS 1 warunki
+    # 4/7/8, PC-001 §5 K1/K4/K5) na wnioskowanie o rownowaznosci praktycznej
+    # (TOST, margines equivalence_margin_c - zamrozony, polowa progu Warunku
+    # B). ANEKS 1 i PC-001 §5 NIETKNIETE - erratum nadpisuje je normatywnie.
+    # Kryterium wlaczenia spelnione wprost: zmiana tresci erratum zmienilaby
+    # kryterium wsparcia hipotezy dla szesciu komorek rodziny BH.
+    "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.json",
+    "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md",
 ]
-assert len(CRITICAL_FILES_PC_001) == 57, f"oczekiwano 57 plikow, jest {len(CRITICAL_FILES_PC_001)}"
+assert len(CRITICAL_FILES_PC_001) == 59, f"oczekiwano 59 plikow, jest {len(CRITICAL_FILES_PC_001)}"
 
 
 class HardHaltError(Exception):

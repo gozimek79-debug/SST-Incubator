@@ -180,19 +180,39 @@ class TestEnvironmentProvenanceAgainstConfig:
 
 
 class TestKierunekWsparcia:
-    """B4C-2 (07), decyzja CTO: kontrola f - kazda komorka aktywna MA
-    'kierunek_wsparcia' (wartosc z dwuelementowego zbioru) i niepuste
-    'kierunek_wsparcia_zrodlo'; liczby zadeklarowane na poziomie glownym
-    zgadzaja sie z faktycznym rozkladem."""
+    """B4C-2 (07)/(15), decyzje CTO: kontrola f - kazda komorka aktywna MA
+    'kierunek_wsparcia' (wartosc z dwuelementowego zbioru {ODRZUCENIE_H0,
+    ROWNOWAZNOSC} - BRAK_ODRZUCENIA_H0 zastapiony po zamknieciu Negative-
+    Control Inference Review) i niepuste 'kierunek_wsparcia_zrodlo'; komorka
+    ROWNOWAZNOSC MA dodatkowo 'equivalence_margin_c'/'effect_metric',
+    komorka ODRZUCENIE_H0 ich NIE MA; liczby zadeklarowane na poziomie
+    glownym zgadzaja sie z faktycznym rozkladem."""
+
+    ROWNOWAZNOSC_CELL_ID = "K1-A"  # dowolna z szesciu, uzywana w negatywach ponizej
+
+    def _rownowaznosc_cell(self, family):
+        return next(c for c in family["cells_active"] if c["id"] == self.ROWNOWAZNOSC_CELL_ID)
 
     def test_positive_real_family_passes(self):
         assert check_kierunek_wsparcia(REAL_FAMILY) == []
 
     def test_positive_real_family_has_5_6_split(self):
-        counts = {"ODRZUCENIE_H0": 0, "BRAK_ODRZUCENIA_H0": 0}
+        counts = {"ODRZUCENIE_H0": 0, "ROWNOWAZNOSC": 0}
         for cell in REAL_FAMILY["cells_active"]:
             counts[cell["kierunek_wsparcia"]] += 1
-        assert counts == {"ODRZUCENIE_H0": 5, "BRAK_ODRZUCENIA_H0": 6}
+        assert counts == {"ODRZUCENIE_H0": 5, "ROWNOWAZNOSC": 6}
+
+    def test_positive_rownowaznosc_cells_have_equivalence_fields(self):
+        rownowaznosc_ids = {"K1-A", "K1-B", "K4-A", "K4-B", "K5-A", "K5-B"}
+        for cell in REAL_FAMILY["cells_active"]:
+            if cell["id"] in rownowaznosc_ids:
+                assert cell["kierunek_wsparcia"] == "ROWNOWAZNOSC"
+                assert cell["equivalence_margin_c"] == 0.10
+                assert cell["effect_metric"] in ("E_beta", "redukcja_W2")
+            else:
+                assert cell["kierunek_wsparcia"] == "ODRZUCENIE_H0"
+                assert "equivalence_margin_c" not in cell
+                assert "effect_metric" not in cell
 
     def test_negative_missing_field_on_one_cell_is_caught(self):
         """Weryfikacja pkt 4 (06): usuniete pole jednej komorki -> FAIL."""
@@ -212,6 +232,16 @@ class TestKierunekWsparcia:
     def test_negative_value_outside_allowed_set_is_caught(self):
         family = copy.deepcopy(REAL_FAMILY)
         family["cells_active"][0]["kierunek_wsparcia"] = "MOZE_TAK_MOZE_NIE"
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("spoza dozwolonego zbioru" in p for p in problems)
+
+    def test_negative_old_value_brak_odrzucenia_h0_is_now_rejected(self):
+        """B4C-2 (15): BRAK_ODRZUCENIA_H0 nie jest juz dozwolona wartoscia
+        per komorka - proba jej uzycia (np. przez przypadkowy powrot do
+        starego brzmienia) MUSI FAILowac, nie ciche PASS."""
+        family = copy.deepcopy(REAL_FAMILY)
+        family["cells_active"][0]["kierunek_wsparcia"] = "BRAK_ODRZUCENIA_H0"
         problems = check_kierunek_wsparcia(family)
         assert problems != []
         assert any("spoza dozwolonego zbioru" in p for p in problems)
@@ -240,10 +270,42 @@ class TestKierunekWsparcia:
     def test_negative_missing_declared_counts_is_caught(self):
         family = copy.deepcopy(REAL_FAMILY)
         del family["kierunek_ODRZUCENIE_H0"]
-        del family["kierunek_BRAK_ODRZUCENIA_H0"]
+        del family["kierunek_ROWNOWAZNOSC"]
         problems = check_kierunek_wsparcia(family)
         assert problems != []
         assert any("brak zadeklarowanych liczb" in p for p in problems)
+
+    def test_negative_rownowaznosc_cell_missing_margin_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        del self._rownowaznosc_cell(family)["equivalence_margin_c"]
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("bez pola 'equivalence_margin_c'" in p for p in problems)
+
+    def test_negative_rownowaznosc_cell_missing_metric_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        del self._rownowaznosc_cell(family)["effect_metric"]
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("bez pola 'effect_metric'" in p for p in problems)
+
+    def test_negative_odrzucenie_h0_cell_with_margin_is_caught(self):
+        """Obecnosc equivalence_margin_c na komorce ODRZUCENIE_H0 sugerowalaby
+        TOST policzony dla komorki, ktora go nie uzywa - FAIL, nie ciche
+        zignorowanie nadmiarowego pola."""
+        family = copy.deepcopy(REAL_FAMILY)
+        odrzucenie_cell = next(c for c in family["cells_active"] if c["kierunek_wsparcia"] == "ODRZUCENIE_H0")
+        odrzucenie_cell["equivalence_margin_c"] = 0.10
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("NIE MOZE miec pola 'equivalence_margin_c'" in p for p in problems)
+
+    def test_negative_historical_brak_odrzucenia_declared_nonzero_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        family["kierunek_BRAK_ODRZUCENIA_H0"] = 1
+        problems = check_kierunek_wsparcia(family)
+        assert problems != []
+        assert any("!= 0" in p for p in problems)
 
     def test_zero_cells_fails_not_silent_pass(self):
         problems = check_kierunek_wsparcia({"cells_active": []})

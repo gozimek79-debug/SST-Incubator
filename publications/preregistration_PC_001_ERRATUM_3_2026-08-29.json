@@ -1,0 +1,121 @@
+{
+  "document_type": "erratum",
+  "amends": ["publications/preregistration_PC_001_ANEKS_1_2026-07-28.md", "publications/preregistration_PC_001.md"],
+  "erratum_id": "PC-001-ERRATUM-3",
+  "date": "2026-08-29",
+  "status": "ZATWIERDZONY - decyzja CTO, B4C-2 (15), domkniecie Negative-Control Inference Review",
+  "basis": [
+    "Negative-Control Inference Review (B4C-2 (06) pkt 8) - zamkniety pozytywnie przez CTO",
+    "BH-FDR kontroluje odsetek falszywych ODRZUCEN, nie falszywych BRAKOW odrzucenia"
+  ],
+  "author": "CTO (rozstrzygniecie, korekta definicji E_beta), wykonawca (szkic techniczny)",
+  "document_kind_note": "ERRATUM do REGULY DECYZYJNEJ - nie doprecyzowanie. ANEKS 1 i PC-001 §5 pozostaja NIETKNIETE w pierwotnym brzmieniu; erratum nadpisuje je NORMATYWNIE.",
+
+  "reason_for_erratum": "ANEKS 1 (warunki 4/7/8) i PC-001 §5 (K1/K4/K5) mowia, ze szesc komorek wspiera hipoteze PC, gdy efekt NIE WYSTEPUJE w danych kontrolnych - operacyjnie p > prog BH => wsparcie. To jest blad metodologiczny: p > prog nie znaczy 'efekt zniknal', moze znaczyc brak efektu, za mala proba, za duza wariancje albo za mala moc testu. BH-FDR kontroluje odsetek falszywych ODRZUCEN wsrod odrzucen - dla komorek, gdzie BRAK odrzucenia jest galezia wsparcia, nie kontroluje niczego.",
+
+  "source_quotes": {
+    "aneks1_warunek4_K1": {
+      "text": "K1 — efekt nie występuje w danych przetasowanych",
+      "source": "ANEKS 1 -> 'Zaktualizowana regula decyzyjna', warunek 4 (publications/preregistration_PC_001_ANEKS_1_2026-07-28.md, doslowne)"
+    },
+    "aneks1_warunek7_K4": {
+      "text": "K4 — brak efektu w czystym szumie ORAZ istotna separacja od środowiska realnego",
+      "source": "ANEKS 1 -> 'Zaktualizowana regula decyzyjna', warunek 7 (publications/preregistration_PC_001_ANEKS_1_2026-07-28.md, doslowne)"
+    },
+    "aneks1_warunek8_K5": {
+      "text": "K5 — efekt znika po ablacji surogatowej",
+      "source": "ANEKS 1 -> 'Zaktualizowana regula decyzyjna', warunek 8 (publications/preregistration_PC_001_ANEKS_1_2026-07-28.md, doslowne)"
+    },
+    "pc001_K1_kryterium": {
+      "text": "Kryterium PC: w danych przetasowanych nie wolno uzyskać spełnienia A ani B.",
+      "source": "PC-001 §5 -> 'K1' (publications/preregistration_PC_001.md, doslowne)"
+    },
+    "pc001_K4_kryterium": {
+      "text": "Kryterium PC: nie wolno uzyskać spełnienia A ani B.",
+      "source": "PC-001 §5 -> 'K4' (publications/preregistration_PC_001.md, doslowne)"
+    },
+    "pc001_K5_kryterium": {
+      "text": "Kryterium PC: spełnienie A i B musi zniknąć.",
+      "source": "PC-001 §5 -> 'K5' (publications/preregistration_PC_001.md, doslowne)"
+    }
+  },
+
+  "correction": {
+    "cells_affected": ["K1-A", "K1-B", "K4-A", "K4-B", "K5-A", "K5-B"],
+    "direction_replaced": "BRAK_ODRZUCENIA_H0",
+    "direction_replacing": "ROWNOWAZNOSC",
+    "statement": "Szesc komorek przechodzi z kryterium 'brak odrzucenia H0' na formalne wnioskowanie o rownowaznosci praktycznej (TOST), zamiast interpretowac p > prog jako dowod braku efektu."
+  },
+
+  "equivalence_margin": {
+    "value": 0.10,
+    "symbol": "c",
+    "status": "ZAMROZONY teraz, z powodow MERYTORYCZNYCH, nie obliczeniowych",
+    "derivation": "Polowa progu Warunku B (CONFIG::CONDITION_B_REDUCTION_THRESHOLD=0.20) - tworzy jawna strefe rozdzielajaca, patrz separating_zone. Prog 0.20 sam dawalby zerowa strefe rozdzielajaca (19.9% liczyloby sie jako 'brak efektu', 20.1% jako 'efekt').",
+    "prohibition": "ZAKAZ uzycia mediany Pilota (reports/pilot/pilot_final.json, NEVER_FOR_INFERENCE) ani zadnej innej wartosci historycznej do zdefiniowania granicy. Zmiana c po obejrzeniu danych jest niedopuszczalna - ta sama zasada co przy progu 20% Warunku B (ANEKS 1 -> 'Zmiana 4')."
+  },
+
+  "separating_zone": {
+    "no_effect": "|efekt| <= 0.10 - praktycznie brak efektu (rownowaznosc wsparta)",
+    "ambiguous": "0.10 < |efekt| < 0.20 - strefa niejednoznaczna",
+    "condition_b_effect": "redukcja >= 0.20 - efekt Warunku B"
+  },
+
+  "rejected_alternative": {
+    "proposal": "Delta_beta = c * W_early_red_mediana_pilota / 300",
+    "rejection_reason_1": "Granica metodologiczna zalezalaby od jednej historycznej mediany z artefaktu oznaczonego NEVER_FOR_INFERENCE - rozroznienie 'uzywam jej wylacznie jako skali' jest subtelne i dlatego kruche; za pol roku zostalaby po nim zamrozona w definicji endpointu liczba 0.15718.",
+    "rejection_reason_2": "Blad arytmetyczny: przy tickach 0..299 odstep miedzy pierwszym a ostatnim punktem wynosi 299, nie 300.",
+    "resolution": "Normalizacja PER PRZEBIEG (E_beta, E_red ponizej) usuwa oba problemy naraz - zadnej stalej z przeszlosci, zaden przelicznik do zamrozenia."
+  },
+
+  "effect_definitions": {
+    "E_red": {
+      "applies_to": ["K1-B", "K4-B", "K5-B"],
+      "formula": "E_red = redukcja_W2",
+      "note": "Juz bezwymiarowe - iloraz (W_early_red - W_late_red) / W_early_red, ta sama wielkosc, ktora liczy clos_scientist.w2_endpoint.compute_w2_reduction.",
+      "test_condition": "|E_red| < c"
+    },
+    "E_beta": {
+      "applies_to": ["K1-A", "K4-A", "K5-A"],
+      "formula": "E_beta = beta * (t_last - t_first) / W_early_red",
+      "computed": "PER PRZEBIEG (jeden genom, jeden seed) - beta = linear_slope(ticks, PE_red(t)) na pelnej siatce TEGO przebiegu; t_last/t_first z TEJ SAMEJ siatki; W_early_red z TEGO SAMEGO przebiegu.",
+      "tick_span_note": "tick_span = t_last - t_first jest polem raportu (dzis 299), ale w kodzie WYPROWADZANY z faktycznej siatki (max(ticks)-min(ticks)), NIE wpisany jako literal - z asercja, ze rowna sie 299 przy dzisiejszym protokole.",
+      "test_condition": "|E_beta| < c"
+    }
+  },
+
+  "operation_order": {
+    "requirement": "E_beta i E_red licza sie PER PRZEBIEG, DOPIERO POTEM STATS::block_means usrednia po 23 genomach do jednej wartosci na blok seedowy. Sredniej ilorazow nie wolno mylic z ilorazem srednich.",
+    "existing_code_precedent": "clos_scientist.w2_endpoint.compute_w2_reduction liczy redukcja_W2 PER PRZEBIEG (mianownik W_early_red z okna TEGO przebiegu), dopiero STATS::block_means usrednia po genomach. clos_scientist.pc_001_evaluator.k4_separation_cell (B4C-2 (09)) stosuje dokladnie ten sam porzadek (_reduction_by_seed -> block_means). E_beta idzie tym samym porzadkiem - inaczej Warunek A/K1-A/K4-A/K5-A liczylyby nachylenie inaczej niz reszta, lamiac porownywalnosc chroniona przez wspolny linear_slope."
+  },
+
+  "statistical_test": {
+    "name": "TOST (Two One-Sided Tests)",
+    "implementation": "STATS::tost_wilcoxon",
+    "p_lower": "H1: mediana(efekt) > -c (odrzuca H0 'prawdziwy efekt <= -c')",
+    "p_upper": "H1: mediana(efekt) < +c (odrzuca H0 'prawdziwy efekt >= +c')",
+    "p_equivalence": "max(p_lower, p_upper) - WPROST, nie srednia, nie minimum",
+    "margin_source": "Granice (-c, +c) pochodza z JEDNEJ wartosci equivalence_margin_c w artefakcie rodziny (publications/pc_001_bh_family.json) per komorka - NIE ze stalej w kodzie evaluatora.",
+    "descriptive_layer_note": "Warstwa opisowa (obserwowany efekt, jego wielkosc wzgledem c) jest CZESCIA wyniku TOST, nie osobnym mechanizmem - zadna dodatkowa miara wielkosci efektu nie jest definiowana poza tym, co TOST juz produkuje."
+  },
+
+  "hard_requirements_for_E_beta": {
+    "required_simultaneously": ["beta skonczone", "siatka kompletna", "W_early_red skonczone", "W_early_red > 0"],
+    "on_failure": "komorka NONCOMPUTABLE -> caly PC-001 INCONCLUSIVE (scenariusz A, B4C-2 (01) v2)",
+    "prohibited": ["epsilon", "mediana populacji", "wartosc z pilota", "pominiecie bloku", "zmniejszenie n"],
+    "known_asymmetry": "Przebieg FLOOR_LIMITED ma W_early_red DODATNIE, tylko ponizej MIN_DENOMINATOR - E_beta jest wiec dla niego DEFINIOWALNE, mimo ze redukcja_W2 (Grupa B) jest wtedy None z mocy istniejacego kontraktu W2 (compute_w2_reduction, galaz classification!='VALID'). Ta asymetria jest ZASTANA (Warunek A od zawsze liczony takze dla FLOOR_LIMITED, W2-SPEC §3.4), nie wprowadzona tym erratum - odnotowana, zeby nie zostala 'naprawiona' jako przeoczenie."
+  },
+
+  "unaffected": {
+    "m": "11, BEZ ZMIAN - erratum nie zmienia liczby komorek, koryguje wylacznie kryterium wsparcia szesciu z nich.",
+    "N_operational_current": "9 (ERRATUM 2), BEZ ZMIAN w tym erratum.",
+    "N_operational_final": "PENDING equivalence power check (krok nastepny, osobne zlecenie) - niska moc zmienia N, NIGDY c.",
+    "odrzucenie_h0_cells": "A, B, K3a-warunek1, K4-separacja, K6 (piec komorek ODRZUCENIE_H0) BEZ ZMIAN - erratum dotyczy wylacznie szesciu komorek ROWNOWAZNOSC."
+  },
+
+  "freezing": {
+    "statement": "Po zatwierdzeniu erratum zostaje zamrozone jako publications/preregistration_PC_001_ERRATUM_3_2026-08-29.json, z hashem w rejestrze (CRITICAL_FILES_PC_001, razem z odpowiadajacym .md). Korekta wykonana PRZED pierwszym przebiegiem konfirmacyjnym PC-001 i PRZED policzeniem PC_001_BASELINE (B5, dodatkowo wstrzymane do zamkniecia power check dla rownowaznosci)."
+  },
+
+  "integral_part_of_preregistration": "Erratum jest INTEGRALNA czescia prerejestracji (tym samym uzasadnieniem co ANEKS 1 i ERRATUM 1/2, D-007 pkt 1) - nie jest odrebnym, opcjonalnym dokumentem."
+}

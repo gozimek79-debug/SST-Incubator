@@ -178,6 +178,29 @@ class TestE2ErratumShortcut:
 
     def test_real_document_cites_e2_and_it_resolves(self):
         assert "E2" in REAL_MD
+
+
+class TestE3ErratumShortcut:
+    """B4C-2 (15): nowy token skrotu E3 (ERRATUM do reguly decyzyjnej -
+    szesc komorek na rownowaznosc). Ten sam wzorzec sprawdzenia co E1/E2."""
+
+    def test_e3_is_in_shortcuts(self):
+        assert "E3" in SHORTCUTS
+        assert SHORTCUTS["E3"] == "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md"
+
+    def test_e3_target_file_exists(self):
+        assert (REPO_ROOT / SHORTCUTS["E3"]).exists()
+
+    def test_real_fragment_resolves(self):
+        path = _file_for_token("E3")
+        assert resolve_fragment_in_file(path, "Poprawka") is True
+
+    def test_negative_broken_fragment_does_not_resolve(self):
+        path = _file_for_token("E3")
+        assert resolve_fragment_in_file(path, "TenNaglowekNieIstniejeCelowoZepsuty") is False
+
+    def test_real_document_cites_e3_and_it_resolves(self):
+        assert "E3" in REAL_MD
         assert check_fragment_addresses(REAL_SPEC_DATA) == []
 
 

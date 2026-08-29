@@ -1,7 +1,7 @@
-# SPECYFIKACJA KANONICZNA PC-001 — v1.11
+# SPECYFIKACJA KANONICZNA PC-001 — v1.12
 
 **Od:** audytor niezależny · **Dla:** CTO
-**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-28 (v1.11)
+**Data:** 2026-08-03 (v1.0) · ostatnia rewizja: 2026-08-29 (v1.12)
 **Przedmiot (G-005):** INFRASTRUKTURA — dokument indeksujący, nie metodologia i nie badany system
 **Status:** obowiązująca. Poza `CRITICAL_FILES_PC_001` — uzasadnienie w §8.1.
 **Podstawa:** kolejność ustalona przez CTO, pkt 1 (konsolidacja PC-001) · warunek konstrukcyjny
@@ -9,6 +9,14 @@ CTO: *„ma być INDEKSEM z odnośnikami do aneksów, nie kopią"* · zasada C-0
 **Weryfikacja:** wszystkie adresy sprawdzone na świeżym klonie gałęzi
 `v0.7.2-scientific-integrity`; procedura odtworzenia w §9.
 
+> **Zmiany w v1.12** (E3, B4C-2 (15) — sześć komórek na równoważność praktyczną):
+> §2.6 — wiersze „K1", „K4" (część „brak efektu"), „K5" przekierowane na `E3 → „Poprawka"`
+> jako brzmienie obowiązujące (kryterium wsparcia zmienione z „efekt nie występuje" na
+> wnioskowanie o równoważności praktycznej, TOST, margines `equivalence_margin_c`), `ANEKS 1`/`PC-001 §5`
+> zachowane jako historia (brzmienie zastąpione). §2.9 — nowy wiersz „Margines
+> równoważności praktycznej" (pole `equivalence_margin_c`, adres: `E3 → „Poprawka"`). Nowy token skrótu `E3`
+> w §1 (SHORTCUTS).
+>
 > **Zmiany w v1.11** (E2, B4C-2 (12) — liczba seedów Eksperymentu Konfirmacyjnego):
 > §2.9 — nowy wiersz „Liczba seedów Eksperymentu Konfirmacyjnego" (`CONFIG::
 > N_OPERATIONAL_SEEDS`), adres wykonawczy przekierowany na `E2 → „Poprawka"` (wartość
@@ -184,6 +192,7 @@ Skróty nazw plików używane dalej — pełne ścieżki względem katalogu gł�
 | **A6** | `publications/preregistration_PC_001_ANEKS_6_2026-08-03.md` |
 | **E1** | `publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md` |
 | **E2** | `publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md` |
+| **E3** | `publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md` |
 | **W2-SPEC** | `publications/specyfikacja_W2_2026-07-28.md` |
 | **FLOOR** | `publications/analiza_floor_model_2026-07-28.md` |
 | **B4** | `publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md` |
@@ -279,12 +288,12 @@ z A4 i A5. Pierwotne, **nieobowiązujące** brzmienie: PC-001 §6 (patrz §4).
 | **A** — kierunek trendu | W2-SPEC §2.3 (na `PE_red`) | aktywny | — |
 | **B** — wielkość redukcji | W2-SPEC §2.3 (na `PE_red`) | aktywny | — |
 | **FDR** — istotność po korekcie | PC-001 §2.2 | aktywny | — |
-| **K1** — surogat z przetasowaniem | PC-001 §5 → „K1"; na `PE_red`: W2-SPEC §5 | aktywny | — |
+| **K1** — surogat z przetasowaniem | E3 → „Poprawka" (brzmienie obowiązujące — równoważność praktyczna, margines `equivalence_margin_c`, test TOST); historia: PC-001 §5 → „K1" (brzmienie zastąpione); na `PE_red`: W2-SPEC §5 | aktywny | — |
 | **K3a** warunek 1 — wzrost PE po wstrząsie | PC-001 §5 → „K3" | **aktywny** | A5 → „Warunek 1 K3a" |
 | **K3a** warunek 2 — ponowna adaptacja | PC-001 §5 → „K3" | **SUSPENDED PENDING WINDOW REDEFINITION** | A5 → „Status" |
 | **K3b** — skracanie czasu readaptacji | A1 → „Zmiana 1" | **ARCHITECTURE-LIMITED** — zdefiniowana, niewykonywana, nieusunięta, wraca po CLOS v0.12 | A4 → „Jeden temat" |
-| **K4** — brak efektu w czystym szumie **oraz** separacja | E1 → „Poprawka" (brzmienie obowiązujące — środowisko separacji: `noise_world` vs `pure_noise_world`); historia: A1 → „Zmiana 3" (brzmienie zastąpione); wzmocnienie przez W2: W2-SPEC §5 | aktywny | — |
-| **K5** — ablacja surogatowa | PC-001 §5 → „K5"; na `PE_red`: W2-SPEC §5 | aktywny | — |
+| **K4** — brak efektu w czystym szumie **oraz** separacja | separacja: E1 → „Poprawka" (środowisko `noise_world` vs `pure_noise_world`); brak efektu: E3 → „Poprawka" (równoważność praktyczna, margines `equivalence_margin_c`, TOST); historia: A1 → „Zmiana 3" (brzmienie zastąpione); wzmocnienie przez W2: W2-SPEC §5 | aktywny | — |
+| **K5** — ablacja surogatowa | E3 → „Poprawka" (brzmienie obowiązujące — równoważność praktyczna, margines `equivalence_margin_c`, test TOST); historia: PC-001 §5 → „K5" (brzmienie zastąpione); na `PE_red`: W2-SPEC §5 | aktywny | — |
 | **K6** — sprzężenie predykcji z wejściem | A1 → „Zmiana 2" | aktywny | — |
 
 **Zastrzeżenia wiążące, których nie wolno pominąć przy raportowaniu:**
@@ -336,6 +345,7 @@ przyszły eksperyment może mieć inne, ale wymaga wtedy własnej prerejestracji
 | Liczba realizacji / początek zakresu seedów podłogi | FLOOR-MOD::DEFAULT_N, FLOOR-MOD::DEFAULT_SEED_START | FLOOR §6 |
 | **Próg wielkości redukcji (Warunek B)** | CONFIG::CONDITION_B_REDUCTION_THRESHOLD | A1 → „Zmiana 4"; zgodność ze źródłem chroniona testem — patrz §6.1 |
 | **Liczba seedów Eksperymentu Konfirmacyjnego** | CONFIG::N_OPERATIONAL_SEEDS | E2 → „Poprawka" (brzmienie obowiązujące, wartość wyprowadzona z pola `N_operational` w `publications/pc_001_bh_family.json`); historia: `publications/power_analysis_PC_001.json` (plik nietknięty, poza rejestrem) |
+| **Margines równoważności praktycznej** | pole `equivalence_margin_c` w `publications/pc_001_bh_family.json` per komórka `RÓWNOWAŻNOŚĆ` | E3 → „Poprawka" (brzmienie obowiązujące — połowa progu Warunku B, `CONFIG::CONDITION_B_REDUCTION_THRESHOLD`, tworzy jawną strefę rozdzielającą; zakaz wyprowadzenia z mediany Pilota) |
 
 ### 2.10 Governance obowiązujące PC-001
 

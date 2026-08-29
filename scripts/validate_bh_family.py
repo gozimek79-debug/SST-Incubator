@@ -206,17 +206,28 @@ def check_no_excluded_among_active(family: dict) -> list:
     return []
 
 
-VALID_KIERUNEK_WSPARCIA = {"ODRZUCENIE_H0", "BRAK_ODRZUCENIA_H0"}
+VALID_KIERUNEK_WSPARCIA = {"ODRZUCENIE_H0", "ROWNOWAZNOSC"}
+
+# B4C-2 (15), decyzja CTO: BRAK_ODRZUCENIA_H0 zastapione przez ROWNOWAZNOSC
+# (Negative-Control Inference Review zamkniety pozytywnie, ERRATUM 3) - nie
+# jest juz dozwolona wartoscia pola per komorka. Zostaje jako HISTORYCZNY
+# klucz zadeklarowany na poziomie glownym artefaktu (dzis zawsze 0) - patrz
+# check nizej, ktory pilnuje, ze pozostaje 0, nie ze jest to nadal
+# dozwolony kierunek per komorka.
+_HISTORICAL_KIERUNEK_KEY = "kierunek_BRAK_ODRZUCENIA_H0"
 
 
 def check_kierunek_wsparcia(family: dict) -> list:
-    """(f) B4C-2 (07), decyzja CTO: kazda komorka aktywna MUSI miec pole
+    """(f) B4C-2 (07)/(15), decyzje CTO: kazda komorka aktywna MUSI miec pole
     'kierunek_wsparcia' (wartosc w VALID_KIERUNEK_WSPARCIA) i niepuste
     'kierunek_wsparcia_zrodlo' - brak pola/pusty zrodlo/wartosc spoza zbioru
-    to FAIL, nie wartosc domyslna (ten sam blad klasy, ktorego evaluator ma
-    unikac - zero domyslnych wartosci dla kierunku, patrz clos_scientist/
-    pc_001_evaluator.py). Liczby zadeklarowane na poziomie glownym artefaktu
-    (kierunek_ODRZUCENIE_H0/kierunek_BRAK_ODRZUCENIA_H0) musza zgadzac sie z
+    to FAIL, nie wartosc domyslna. Komorka ROWNOWAZNOSC MUSI dodatkowo miec
+    'equivalence_margin_c' i 'effect_metric' (obie kontrolki - TOST wymaga
+    obu, patrz publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md);
+    komorka ODRZUCENIE_H0 NIE MOZE ich miec (obecnosc sugerowalaby TOST
+    policzony dla komorki, ktora go nie uzywa - ten sam blad klasy co
+    domyslna wartosc). Liczby zadeklarowane na poziomie glownym artefaktu
+    (kierunek_ODRZUCENIE_H0/kierunek_ROWNOWAZNOSC) musza zgadzac sie z
     faktycznym rozkladem pol per komorka - rozjazd oznacza, ze artefakt sam
     sobie zaprzecza."""
     problems = []
@@ -224,7 +235,7 @@ def check_kierunek_wsparcia(family: dict) -> list:
     if not active:
         return ["ZERO komorek aktywnych - brak przedmiotu kontroli (ten sam wzorzec co b/d/e)"]
 
-    counts = {"ODRZUCENIE_H0": 0, "BRAK_ODRZUCENIA_H0": 0}
+    counts = {"ODRZUCENIE_H0": 0, "ROWNOWAZNOSC": 0}
     for cell in active:
         cell_id = cell.get("id", "<brak id>")
         kierunek = cell.get("kierunek_wsparcia")
@@ -242,12 +253,25 @@ def check_kierunek_wsparcia(family: dict) -> list:
         if not zrodlo or not str(zrodlo).strip():
             problems.append(f"komorka {cell_id}: puste lub brakujace 'kierunek_wsparcia_zrodlo'")
 
+        has_margin = cell.get("equivalence_margin_c") is not None
+        has_metric = cell.get("effect_metric") is not None
+        if kierunek == "ROWNOWAZNOSC":
+            if not has_margin:
+                problems.append(f"komorka {cell_id}: ROWNOWAZNOSC bez pola 'equivalence_margin_c'")
+            if not has_metric:
+                problems.append(f"komorka {cell_id}: ROWNOWAZNOSC bez pola 'effect_metric'")
+        else:  # ODRZUCENIE_H0
+            if has_margin:
+                problems.append(f"komorka {cell_id}: ODRZUCENIE_H0 NIE MOZE miec pola 'equivalence_margin_c'")
+            if has_metric:
+                problems.append(f"komorka {cell_id}: ODRZUCENIE_H0 NIE MOZE miec pola 'effect_metric'")
+
     declared_odrzucenie = family.get("kierunek_ODRZUCENIE_H0")
-    declared_brak = family.get("kierunek_BRAK_ODRZUCENIA_H0")
-    if declared_odrzucenie is None or declared_brak is None:
+    declared_rownowaznosc = family.get("kierunek_ROWNOWAZNOSC")
+    if declared_odrzucenie is None or declared_rownowaznosc is None:
         problems.append(
             "brak zadeklarowanych liczb na poziomie glownym artefaktu "
-            "('kierunek_ODRZUCENIE_H0'/'kierunek_BRAK_ODRZUCENIA_H0')"
+            "('kierunek_ODRZUCENIE_H0'/'kierunek_ROWNOWAZNOSC')"
         )
     else:
         if counts["ODRZUCENIE_H0"] != declared_odrzucenie:
@@ -255,11 +279,19 @@ def check_kierunek_wsparcia(family: dict) -> list:
                 f"faktyczna liczba komorek ODRZUCENIE_H0 ({counts['ODRZUCENIE_H0']}) != "
                 f"zadeklarowana (kierunek_ODRZUCENIE_H0={declared_odrzucenie})"
             )
-        if counts["BRAK_ODRZUCENIA_H0"] != declared_brak:
+        if counts["ROWNOWAZNOSC"] != declared_rownowaznosc:
             problems.append(
-                f"faktyczna liczba komorek BRAK_ODRZUCENIA_H0 ({counts['BRAK_ODRZUCENIA_H0']}) != "
-                f"zadeklarowana (kierunek_BRAK_ODRZUCENIA_H0={declared_brak})"
+                f"faktyczna liczba komorek ROWNOWAZNOSC ({counts['ROWNOWAZNOSC']}) != "
+                f"zadeklarowana (kierunek_ROWNOWAZNOSC={declared_rownowaznosc})"
             )
+
+    historical = family.get(_HISTORICAL_KIERUNEK_KEY)
+    if historical is not None and historical != 0:
+        problems.append(
+            f"{_HISTORICAL_KIERUNEK_KEY}={historical} != 0 - wartosc BRAK_ODRZUCENIA_H0 "
+            "zastapiona przez ROWNOWAZNOSC (B4C-2 (15)), zadna komorka nie powinna "
+            "juz jej deklarowac"
+        )
     return problems
 
 

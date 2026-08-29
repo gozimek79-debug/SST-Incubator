@@ -139,3 +139,46 @@ class TestErratum2QuotesMatchPowerAnalysisSource:
     def test_erratum_declares_the_replacement_values(self):
         assert ERRATUM_2_JSON["correction"]["value_replaced"] == 8
         assert ERRATUM_2_JSON["correction"]["value_replacing"] == 9
+
+
+ANEKS_1_MD_PATH = ANEKS_1_MD
+PC001_MD_PATH = PUB / "preregistration_PC_001.md"
+ERRATUM_3_JSON = json.loads((PUB / "preregistration_PC_001_ERRATUM_3_2026-08-29.json").read_text(encoding="utf-8"))
+ERRATUM_3_SOURCE_FILE = {
+    "aneks1_warunek4_K1": ANEKS_1_MD_PATH,
+    "aneks1_warunek7_K4": ANEKS_1_MD_PATH,
+    "aneks1_warunek8_K5": ANEKS_1_MD_PATH,
+    "pc001_K1_kryterium": PC001_MD_PATH,
+    "pc001_K4_kryterium": PC001_MD_PATH,
+    "pc001_K5_kryterium": PC001_MD_PATH,
+}
+
+
+class TestErratum3QuotesMatchSources:
+    """B4C-2 (15): szesc cytatow (warunki 4/7/8 ANEKS 1, kryteria K1/K4/K5
+    PC-001 §5) sprawdzonych wobec DWOCH roznych plikow zrodlowych."""
+
+    @pytest.mark.parametrize("key", list(ERRATUM_3_SOURCE_FILE.keys()))
+    def test_quote_matches_source(self, key):
+        quote = ERRATUM_3_JSON["source_quotes"][key]["text"]
+        assert_literal_quote_in_source(quote, ERRATUM_3_SOURCE_FILE[key])
+
+    def test_negative_one_changed_letter_is_caught(self):
+        quote = ERRATUM_3_JSON["source_quotes"]["pc001_K5_kryterium"]["text"]
+        tampered = quote.replace("zniknąć", "zniknoć", 1)
+        assert tampered != quote
+        raised = False
+        try:
+            assert_literal_quote_in_source(tampered, PC001_MD_PATH)
+        except AssertionError:
+            raised = True
+        assert raised
+
+    def test_six_cells_affected_declared(self):
+        assert set(ERRATUM_3_JSON["correction"]["cells_affected"]) == {
+            "K1-A", "K1-B", "K4-A", "K4-B", "K5-A", "K5-B",
+        }
+
+    def test_direction_replacement_declared(self):
+        assert ERRATUM_3_JSON["correction"]["direction_replaced"] == "BRAK_ODRZUCENIA_H0"
+        assert ERRATUM_3_JSON["correction"]["direction_replacing"] == "ROWNOWAZNOSC"

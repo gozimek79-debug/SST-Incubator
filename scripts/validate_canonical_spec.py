@@ -69,6 +69,11 @@ SHORTCUTS = {
     # 8 -> 9). power_analysis_PC_001.json samo NIE ma skrotu - POZA rejestrem,
     # nie jest adresowane z §2 poza tym erratum.
     "E2": "publications/preregistration_PC_001_ERRATUM_2_2026-08-29.md",
+    # E3 (B4C-2 (15)): ERRATUM do reguly decyzyjnej - szesc komorek (K1/K4/K5,
+    # obie czesci) przechodzi z "brak odrzucenia H0" (ANEKS 1 warunki 4/7/8,
+    # PC-001 §5 K1/K4/K5) na wnioskowanie o rownowaznosci (TOST, c=0.10).
+    # ANEKS 1 i PC-001 pozostaja NIETKNIETE; E3 nadpisuje je normatywnie.
+    "E3": "publications/preregistration_PC_001_ERRATUM_3_2026-08-29.md",
     "W2-SPEC": "publications/specyfikacja_W2_2026-07-28.md",
     "FLOOR": "publications/analiza_floor_model_2026-07-28.md",
     "B4": "publications/NOTATKA_B4_ANALIZA_MOCY_2026-07-28.md",
