@@ -1,11 +1,11 @@
 {
   "sprint": "v0.11.0",
   "tests": {
-    "passed": 1093,
+    "passed": 1157,
     "skipped": 1,
     "failed": 0,
     "errors": 0,
-    "collected": 1094,
+    "collected": 1158,
     "status": "warning"
   },
   "validators": {
@@ -17,7 +17,7 @@
     "conclusion": "success",
     "workflow": "ci.yml"
   },
-  "commit": "a454ead19d9c652d68df3e3c937358676a7e424f",
+  "commit": "7a631fd52d460c060223105c507ef65ae67e4b16",
   "branch": "v0.7.2-scientific-integrity",
-  "timestamp": "2026-08-28T23:01:22.779097+00:00"
+  "timestamp": "2026-08-29T21:27:30.851400+00:00"
 }
