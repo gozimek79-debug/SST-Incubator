@@ -6,6 +6,20 @@
     {
       "date": "2026-08-29",
       "sprint": "PC-001",
+      "title": "Szesc kontroli przestaje traktowac 'nie wykryto efektu' jako dowod, ze efektu nie ma",
+      "body": "Niezalezny przeglad metodologiczny znalazl, ze szesc z jedenastu kontroli statystycznych PC-001 (kontrole surogatowe: przetasowanie danych i ablacja mechanizmu przewidywania) uznawaly hipoteze za wsparta w momencie, gdy test statystyczny NIE wykazal efektu. To jest znany blad wnioskowania - brak wykrycia efektu moze oznaczac, ze efektu naprawde nie ma, ale rownie dobrze moze oznaczac za mala probe, za duza zmiennosc danych albo zbyt slaby test. Powstal formalny dokument korygujacy regule decyzyjna: tych szesc kontroli przechodzi na porzadna metode statystyczna do wykazywania 'braku efektu praktycznego' (test rownowaznosci, powszechnie uzywany np. przy dopuszczaniu lekow generycznych) - z jawnie ustalona, zamrozona z gory granica, ponizej ktorej efekt uznaje sie za pomijalny. Granica zostala wybrana jako polowa istniejacego juz progu 'efekt jest' - dzieki temu miedzy 'efektu nie ma' a 'efekt jest' zostaje pas neutralny, zamiast ostrej granicy, po ktorej jedna strona to sukces, a druga porazka.",
+      "commit": "8492ab8"
+    },
+    {
+      "date": "2026-08-29",
+      "sprint": "PC-001",
+      "title": "Dodano narzedzie statystyczne do wykazywania 'braku efektu praktycznego'",
+      "body": "Dotychczasowy zestaw narzedzi statystycznych projektu umial wykazywac, ze efekt ISTNIEJE. Brakowalo odwrotnego narzedzia - takiego, ktore potrafi formalnie wykazac, ze efekt jest NIEISTOTNY (a nie po prostu 'nie udalo sie go zauwazyc'). Dopisano taka metode (test rownowaznosci, oparty na tym samym, juz sprawdzonym mechanizmie rangowania co pozostale testy w projekcie - zero nowej, niezweryfikowanej matematyki). Metoda zwraca jedna liczbe podsumowujaca ('czy da sie wykazac, ze efekt miesci sie w dopuszczalnym, pomijalnym zakresie'), zbudowana wprost z dwoch osobnych sprawdzen (osobno z gory, osobno z dolu), nie z ich sredniej.",
+      "commit": "777f9a6"
+    },
+    {
+      "date": "2026-08-29",
+      "sprint": "PC-001",
       "title": "Kontrola sprawdzajaca cytaty zaczela porownywac je z prawdziwym zrodlem, nie tylko z druga kopia",
       "body": "Wczesniejsza kontrola dowodzila, ze dwie kopie tego samego dokumentu poprawkowego (wersja czytelna dla czlowieka i wersja danowa) mowia to samo miedzy soba - ale nie sprawdzala, czy ktorakolwiek z nich zgadza sie z oryginalnym dokumentem, ktory rzekomo cytuje doslownie. Sposob porownywania dwoch kopii ze soba (upraszczanie formatowania przed porownaniem) przypadkiem zacieral wlasnie te roznice, ktore odrozniaja obie kopie od oryginalu - test przechodzil na zielono, mimo ze zaden z dwoch plikow nie byl doslowny wobec zrodla. Nowa kontrola porownuje teraz cytat wprost z surowa trescia oryginalnego dokumentu. Przy jej pisaniu znaleziona zostala trzecia, wczesniej niezauwazona drobna niezgodnosc (brakujacy specjalny znak myslnika) - poprawiona.",
       "commit": "d74d88e"
