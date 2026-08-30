@@ -29,19 +29,21 @@ ma zmniejszyc sie SAM, bez edycji tego pliku).
 
 WOLNO liczyc kazda liczbe prowadzaca do werdyktu (p, pozycje BH, decyzje per
 komorka) dla wszystkich 11 komorek - patrz k4_separation_cell()/
-k1_equivalence_cell()/k4_equivalence_cell()/k5_equivalence_cell() ponizej
-(6 z 11 juz zaimplementowanych: K4-separacja + szesc rownowaznosci; Warunek
-A/B, K3a-warunek1, K6 - jeszcze nie). NIE WOLNO zlozyc jednego
-obiektu-werdyktu z tych liczb.
+k1_equivalence_cell()/k4_equivalence_cell()/k5_equivalence_cell()/
+warunek_a_cell()/warunek_b_cell()/k3a_warunek1_cell()/k6_cell() ponizej
+(11 z 11 - WSZYSTKIE funkcje-komorki istnieja od B4C-2 (18)/(19)/(20):
+K4-separacja, szesc rownowaznosci, Warunek A, Warunek B, K3a-warunek1, K6).
+NIE WOLNO zlozyc jednego obiektu-werdyktu z tych liczb.
 
 ZNANA LUKA (zglaszana, nie domyslnie wypelniona): pola "bh_adjusted_result"
 i finalne "equivalence_supported" (patrz _equivalence_result nizej) wymagaja
-wspolnej korekty BH-FDR na WSZYSTKICH 11 komorkach naraz - niewykonalne, dopoki
-Warunek A/B/K3a-1/K6 nie maja wlasnych funkcji-komorek w tym pliku (dzis
-gotowa jest wylacznie K4-separacja z pieciu komorek ODRZUCENIE_H0 - CZTERY
-wciaz brakuja, korekta CTO wobec (15): to NIE jest "evaluator bez
-ostatniego kroku"). Oba pola zwracane jako PENDING_FULL_FAMILY_BH (B4C-2
-(16), korekta CTO: NIE None - w tym repo None juz znaczy "nie da sie
+WSPOLNEJ korekty BH-FDR na WSZYSTKICH 11 komorkach NARAZ (jedno wywolanie
+STATS::benjamini_hochberg na wspolnej liscie 11 wartosci p) - WSZYSTKIE
+funkcje-komorki juz istnieja (B4C-2 (18)/(19)/(20) domknely Warunek A/B,
+K3a-warunek1, K6), ale NIC jeszcze nie zbiera tych 11 wartosci p w jedno
+wywolanie korekty - to jest czesc power checku/skladania werdyktu (Etap 2/3,
+(18)), nie brak funkcji-komorek. Oba pola zwracane jako PENDING_FULL_FAMILY_BH
+(B4C-2 (16), korekta CTO: NIE None - w tym repo None juz znaczy "nie da sie
 policzyc dla tych danych", zobacz w2_endpoint.compute_w2_reduction;
 uzycie go tez dla "jeszcze nie zaimplementowane" nakladaloby dwa rozne
 stany na jedna reprezentacje).
@@ -108,12 +110,15 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from clos_curriculum.laboratory.statistics import (
     block_means, mann_whitney_u, linear_slope, DegenerateInputError, tost_wilcoxon,
+    wilcoxon_signed_rank, spearman_rho,
 )
 from clos_scientist.pc_001_experiment_config import (
     EXPERIMENT_CONFIG,
     FROZEN_FLOOR_NOISE_WORLD,
     FROZEN_FLOOR_PURE_NOISE_WORLD,
     K5_ABLATED_PREDICTION_CONSTANT,
+    CONDITION_B_REDUCTION_THRESHOLD,
+    k3a_pre_post_shock_windows,
 )
 from clos_scientist.pc_001_k1_shuffle import (
     derive_k1_permutation, k1_permutation_digest, k1_shuffle_seed, K1_SHUFFLE_ALGORITHM_ID,
@@ -463,14 +468,15 @@ def _equivalence_result(cell_id: str, effect_metric: str, block_values: List[flo
     ZNANA LUKA, zgloszona zamiast domyslnie wypelniona: 'bh_adjusted_result'
     i ostateczne 'equivalence_supported' (po korekcie) wymagaja WSPOLNEJ
     korekty BH-FDR na WSZYSTKICH 11 komorkach naraz (STATS::benjamini_hochberg
-    na wspolnej liscie p) - dzis zaimplementowane sa wylacznie K4-separacja
-    (ODRZUCENIE_H0) i tych szesc (ROWNOWAZNOSC); Warunek A/B, K3a-warunek1,
-    K6 NIE MAJA jeszcze funkcji-komorki w tym pliku, wiec pelna korekta
-    rodziny m=11 nie jest dzis wykonalna. Oba pola zwracane jako
-    PENDING_FULL_FAMILY_BH (NIE None - patrz komentarz przy stalej powyzej) -
-    wypelnienie ich wartoscia liczbowa/boolowska byloby dokladnie tym
-    bledem klasy, ktorego ten projekt unika (wartosc domyslna zamiast
-    jawnego braku)."""
+    na wspolnej liscie p) - WSZYSTKIE 11 funkcji-komorek juz istnieje
+    (K4-separacja, szesc rownowaznosci, Warunek A/B, K3a-warunek1, K6, B4C-2
+    (18)/(19)/(20)), ale nic jeszcze nie wywoluje ich razem i nie zbiera 11
+    wartosci p w jedno wywolanie korekty - to jest czesc power checku/
+    skladania werdyktu (Etap 2/3, (18)), nie brak funkcji-komorek. Oba pola
+    zwracane jako PENDING_FULL_FAMILY_BH (NIE None - patrz komentarz przy
+    stalej powyzej) - wypelnienie ich wartoscia liczbowa/boolowska byloby
+    dokladnie tym bledem klasy, ktorego ten projekt unika (wartosc domyslna
+    zamiast jawnego braku)."""
     tost = tost_wilcoxon(block_values, margin)
     result = {
         "cell_id": cell_id,
@@ -614,5 +620,270 @@ def k4_separation_cell(noise_world_records: List[Dict[str, Any]],
         "pure_noise_world_block_means": pure_noise_world_blocks,
         "n_a": len(noise_world_blocks),
         "n_b": len(pure_noise_world_blocks),
+        "test_result": test_result,
+    }
+
+
+# ============================================================================
+# WARUNEK A, WARUNEK B, K3a-WARUNEK1, K6 (B4C-2 (18)/(19)/(20)) - cztery
+# komorki ODRZUCENIE_H0, ktore domykaja rodzine m=11 (razem z K4-separacja
+# powyzej). Adresy zweryfikowane wprost przeciw publications/pc_001_bh_family.json
+# (pole 'test'/'adres_kryterium' per komorka) - nie z pamieci/streszczenia.
+# ============================================================================
+
+
+def _beta_raw_for_run(pe_trajectory: Dict[int, Optional[float]], environment: str) -> Optional[float]:
+    """beta_raw = STATS::linear_slope na PE_red, PELNA siatka - BEZ warunku
+    W_early_red>0 (w odroznieniu od e_beta_components_for_run powyzej).
+
+    ROZNICA CELOWA wobec e_beta_components_for_run: Warunek A jest liczony
+    TAKZE dla przebiegow FLOOR_LIMITED - "nachylenie nie ma mianownika, wiec
+    nie jest niestabilne" (SPECYFIKACJA_KANONICZNA_PC_001.md §2.6, wiersz
+    "Warunek A liczony takze dla FLOOR_LIMITED"; zrodlo: W2-SPEC §3.4).
+    E_beta (grupa rownowaznosci) DZIELI przez W_early_red, wiec MUSI go
+    wykluczyc gdy <=0 - beta samo w sobie nie dzieli przez nic i tego
+    wykluczenia NIE WOLNO tu powielic (powielenie usunieloby z Warunku A
+    dokladnie te przebiegi, dla ktorych spec wprost wymaga go liczyc)."""
+    floor_result = _floor_result_for_environment(environment)
+    pe_red = compute_pe_reducible(pe_trajectory, floor_result)
+
+    ticks = sorted(t for t, v in pe_red.items() if v is not None)
+    expected_ticks = set(range(EXPERIMENT_CONFIG["protocol"]["ticks_total"]))
+    if set(ticks) != expected_ticks:
+        return None  # siatka niekompletna - NIGDY pominiecie brakujacych tickow
+
+    values = [pe_red[t] for t in ticks]
+    try:
+        return linear_slope(ticks, values)
+    except DegenerateInputError:
+        return None
+
+
+def warunek_a_cell(records: List[Dict[str, Any]], n_genomes_expected: int) -> Dict[str, Any]:
+    """Warunek A (kierunek trendu, beta<0) - noise_world (Primary).
+    publications/pc_001_bh_family.json, komorka 'A': "STATS::wilcoxon_signed_rank
+    (jedna wartosc beta per blok seedowy vs 0)". beta_raw POLICZONY PER
+    PRZEBIEG na PE_red (_beta_raw_for_run - BEZ gate W_early_red>0, patrz
+    docstring), DOPIERO POTEM block_means - ta sama kolejnosc co wszedzie
+    indziej w tym pliku."""
+    primary = EXPERIMENT_CONFIG["environments"]["primary"]
+    columns = _effect_by_seed(records, primary, n_genomes_expected, _record_pe_trajectory, _beta_raw_for_run)
+    block_values = block_means(columns)
+    test_result = wilcoxon_signed_rank([(b, 0.0) for b in block_values])
+    return {
+        "cell_id": "A",
+        "beta_block_means": block_values,
+        "n": len(block_values),
+        "test_result": test_result,
+    }
+
+
+def _w_early_late_red_for_run(pe_trajectory: Dict[int, Optional[float]],
+                               environment: str) -> Optional[Tuple[float, float]]:
+    """(W_early_red, W_late_red) dla JEDNEGO przebiegu - clos_scientist.w2_endpoint
+    (compute_pe_reducible + compute_w2_reduction), zero wlasnej reimplementacji.
+    NIEZALEZNE od klasyfikacji VALID/FLOOR_LIMITED (w odroznieniu od
+    redukcja_W2/e_red_for_run, ktora compute_w2_reduction zwraca WYLACZNIE
+    dla VALID) - test parowy Warunku B (PC-001 §2.2, wiersz 64) pyta o obie
+    wielkosci wprost, nie o ich iloraz."""
+    floor_result = _floor_result_for_environment(environment)
+    pe_red = compute_pe_reducible(pe_trajectory, floor_result)
+    result = compute_w2_reduction(pe_red)
+    w_early_red, w_late_red = result["w_early_red"], result["w_late_red"]
+    if w_early_red is None or w_late_red is None:
+        return None
+    return w_early_red, w_late_red
+
+
+def _paired_w_early_late_by_seed(records: List[Dict[str, Any]], environment: str,
+                                  n_genomes_expected: int) -> Tuple[List[List[float]], List[List[float]]]:
+    """Jak _group_a_components_by_seed, ale dla pary (W_early_red, W_late_red)
+    uzywanej przez test parowy Warunku B - dwie kolumny z JEDNEGO przejscia
+    przez dane per przebieg. Kompletnosc siatki egzekwowana identycznie jak
+    wszedzie indziej w tym pliku."""
+    by_seed: Dict[int, List[Optional[Tuple[float, float]]]] = {}
+    for rec in records:
+        pe_trajectory = _record_pe_trajectory(rec)
+        pair = _w_early_late_red_for_run(pe_trajectory, environment)
+        by_seed.setdefault(rec["seed"], []).append(pair)
+
+    early_columns: List[List[float]] = []
+    late_columns: List[List[float]] = []
+    for seed in sorted(by_seed):
+        values = by_seed[seed]
+        if len(values) != n_genomes_expected or any(v is None for v in values):
+            n_ok = sum(1 for v in values if v is not None)
+            raise IncompleteGridError(
+                f"srodowisko={environment!r} seed={seed}: oczekiwano "
+                f"{n_genomes_expected} kompletnych par (W_early_red, W_late_red), "
+                f"otrzymano {n_ok}/{len(values)} - siatka niekompletna"
+            )
+        early_columns.append([v[0] for v in values])
+        late_columns.append([v[1] for v in values])
+    return early_columns, late_columns
+
+
+def warunek_b_cell(records: List[Dict[str, Any]], n_genomes_expected: int) -> Dict[str, Any]:
+    """Warunek B (wielkosc redukcji, redukcja_W2>=0.20) - noise_world (Primary).
+    DWUCZLONOWA (B4C-2 (20), korekta CTO wobec wlasnego skrotu z (19)):
+
+      1. TEST (idzie do BH): STATS::wilcoxon_signed_rank, PARY (W_early_red,
+         W_late_red) per blok seedowy (publications/pc_001_bh_family.json,
+         komorka 'B', pole 'test'; PC-001 §2.2, wiersz 64) - "czy PE_red w
+         ogole spadl", niezaleznie od tego, o ile.
+
+      2. KRYTERIUM PROGOWE (NIE wchodzi do p ani do BH, raportowane OSOBNO):
+         mediana redukcja_W2 po blokach vs CONFIG::CONDITION_B_REDUCTION_THRESHOLD
+         (ANEKS 1, Zmiana 4: "jesli wynik wypadnie blisko progu, raportuje sie
+         liczbe i decyzje progowa OSOBNO - bez przeformulowywania kryterium").
+         redukcja_W2 przez e_red_for_run/_reduction_by_seed - TA SAMA funkcja
+         co K4-separacja/K1-B/K4-B/K5-B, zero reimplementacji."""
+    primary = EXPERIMENT_CONFIG["environments"]["primary"]
+
+    early_cols, late_cols = _paired_w_early_late_by_seed(records, primary, n_genomes_expected)
+    early_block = block_means(early_cols)
+    late_block = block_means(late_cols)
+    test_result = wilcoxon_signed_rank(list(zip(early_block, late_block)))
+
+    reduction_block = block_means(_reduction_by_seed(records, primary, n_genomes_expected))
+    median_reduction = _median(reduction_block)
+
+    return {
+        "cell_id": "B",
+        "w_early_red_block_means": early_block,
+        "w_late_red_block_means": late_block,
+        "n": len(early_block),
+        "test_result": test_result,
+        "redukcja_W2_block_means": reduction_block,
+        "median_redukcja_W2": median_reduction,
+        "condition_b_threshold": CONDITION_B_REDUCTION_THRESHOLD,
+        "median_meets_threshold": median_reduction >= CONDITION_B_REDUCTION_THRESHOLD,
+    }
+
+
+def _k3a_pre_post_means_for_run(record: Dict[str, Any]) -> Optional[Tuple[float, float]]:
+    """(pre_mean, post_mean) SUROWEGO PE - NIE PE_red (ERRATUM 1, "Zastrzezenie:
+    K3a nietkniete": srodowisko, okna i test K3a-warunek1 pozostaja dokladnie
+    takie, jak w ANEKS 1; shock_world nigdy nie mial zamrozonej podlogi,
+    zadna podloga tu nie jest wyznaczana). Okna z CONFIG::k3a_pre_post_shock_windows
+    (wzgledem shock_tick tego przebiegu, top-level pole rekordu runnera).
+
+    UWAGA O ZDANIU ERRATUM 1 "podloga skracalaby sie w roznicy srednich"
+    (B4C-2 (19), doprecyzowanie CTO): PE_red=max(0, PE-floor) jest NIELINIOWE
+    - podloga skraca sie w roznicy wylacznie, gdy PE>floor na CALYM oknie po
+    obu stronach porownania; gdyby PE gdziekolwiek zeszlo ponizej podlogi,
+    PE_red obcieloby sie do zera i roznica NIE bylaby niezmiennicza. Tu jest
+    to bez znaczenia PRAKTYCZNEGO: podlogi dla shock_world NIE MA W OGOLE,
+    wiec warunek jest spelniony PUSTO (nie dlatego, ze roznice sa ZAWSZE
+    niezmiennicze wobec podlog - NIE SA)."""
+    shock_tick = record.get("shock_tick")
+    if shock_tick is None:
+        return None
+    pre_window, post_window = k3a_pre_post_shock_windows(shock_tick)
+    pe = {int(t): v for t, v in record["metrics"]["prediction_error_by_tick"].items()}
+    pre_values = [pe.get(t) for t in pre_window]
+    post_values = [pe.get(t) for t in post_window]
+    if any(v is None for v in pre_values) or any(v is None for v in post_values):
+        return None
+    return sum(pre_values) / len(pre_values), sum(post_values) / len(post_values)
+
+
+def _k3a_diff_by_seed(records: List[Dict[str, Any]], n_genomes_expected: int) -> List[List[float]]:
+    """roznica (post_mean - pre_mean) POLICZONA PER PRZEBIEG, DOPIERO POTEM
+    block_means po 23 genomach (publications/pc_001_bh_family.json, komorka
+    'K3a-warunek1': "roznica blokowa (post_shock-pre_shock), srednia po 23
+    genomach przez _block_means")."""
+    by_seed: Dict[int, List[Optional[float]]] = {}
+    for rec in records:
+        means = _k3a_pre_post_means_for_run(rec)
+        diff = (means[1] - means[0]) if means is not None else None
+        by_seed.setdefault(rec["seed"], []).append(diff)
+
+    columns: List[List[float]] = []
+    for seed in sorted(by_seed):
+        values = by_seed[seed]
+        if len(values) != n_genomes_expected or any(v is None for v in values):
+            n_ok = sum(1 for v in values if v is not None)
+            raise IncompleteGridError(
+                f"K3a-warunek1 seed={seed}: oczekiwano {n_genomes_expected} "
+                f"kompletnych roznic (post-pre), otrzymano {n_ok}/{len(values)} - "
+                "siatka niekompletna"
+            )
+        columns.append(values)
+    return columns
+
+
+def k3a_warunek1_cell(records: List[Dict[str, Any]], n_genomes_expected: int) -> Dict[str, Any]:
+    """K3a warunek 1 (wzrost PE po wstrzasie) - shock_world. RATYFIKOWANA
+    B4C-05 v6: STATS::wilcoxon_signed_rank(alternative='greater') na
+    roznicach blokowych (post_shock-pre_shock), H1: mediana(delta)>0 -
+    JEDNOSTRONNY, jedyna komorka jednostronna w rodzinie (kierunkowosc z
+    PREREJESTROWANEJ hipotezy kierunkowej, NIE z tego, ze daje mniejsze p -
+    publications/pc_001_bh_family.json, komorka 'K3a-warunek1').
+
+    SUROWE PE (_k3a_pre_post_means_for_run) - zaden floor tu nie jest
+    wyznaczany ani uzywany, patrz docstring tamtej funkcji."""
+    columns = _k3a_diff_by_seed(records, n_genomes_expected)
+    block_values = block_means(columns)
+    test_result = wilcoxon_signed_rank([(d, 0.0) for d in block_values], alternative="greater")
+    return {
+        "cell_id": "K3a-warunek1",
+        "post_minus_pre_block_means": block_values,
+        "n": len(block_values),
+        "test_result": test_result,
+    }
+
+
+def _spearman_rho_for_run(record: Dict[str, Any]) -> Optional[float]:
+    """rho Spearmana miedzy prediction(t) i input(t) po calym mierzalnym oknie
+    (A1 -> "Zmiana 2"; specyfikacja_W2 §5, wiersz K6: "bez zmian - operuje na
+    prediction/input, nie na PE" - K6 NIE przeszlo migracji na PE_red, w
+    odroznieniu od Warunku A/B/K1/K5). STATS::spearman_rho, PELNA siatka
+    obu serii - brakujacy tick w ktorejkolwiek -> None."""
+    prediction = {int(t): v for t, v in record["metrics"]["prediction_by_tick"].items()}
+    input_ = {int(t): v for t, v in record["metrics"]["input_by_tick"].items()}
+    ticks = sorted(range(EXPERIMENT_CONFIG["protocol"]["ticks_total"]))
+    pred_values = [prediction.get(t) for t in ticks]
+    input_values = [input_.get(t) for t in ticks]
+    if any(v is None for v in pred_values) or any(v is None for v in input_values):
+        return None
+    result = spearman_rho(pred_values, input_values)
+    return result["rho"] if result["computable"] else None
+
+
+def _k6_rho_by_seed(records: List[Dict[str, Any]], n_genomes_expected: int) -> List[List[float]]:
+    by_seed: Dict[int, List[Optional[float]]] = {}
+    for rec in records:
+        by_seed.setdefault(rec["seed"], []).append(_spearman_rho_for_run(rec))
+
+    columns: List[List[float]] = []
+    for seed in sorted(by_seed):
+        values = by_seed[seed]
+        if len(values) != n_genomes_expected or any(v is None for v in values):
+            n_ok = sum(1 for v in values if v is not None)
+            raise IncompleteGridError(
+                f"K6 seed={seed}: oczekiwano {n_genomes_expected} kompletnych "
+                f"wartosci rho, otrzymano {n_ok}/{len(values)} - siatka niekompletna"
+            )
+        columns.append(values)
+    return columns
+
+
+def k6_cell(records: List[Dict[str, Any]], n_genomes_expected: int) -> Dict[str, Any]:
+    """K6 (sprzezenie predykcji z wejsciem) - noise_world (Primary).
+    publications/pc_001_bh_family.json, komorka 'K6': "STATS::wilcoxon_signed_rank
+    (jedna wartosc rho per blok seedowy vs 0) - NIE spearman_rho bezposrednio".
+
+    DO RODZINY BH WCHODZI wilcoxon na wartosciach rho, NIGDY p-value ze
+    spearman_rho (to ostatnie jest przyblizeniem t-rozkladem, patrz
+    uwaga_exact_approx w artefakcie i docstring STATS::spearman_rho) - stad
+    _spearman_rho_for_run zwraca WYLACZNIE 'rho', nie 'p_value'."""
+    columns = _k6_rho_by_seed(records, n_genomes_expected)
+    block_values = block_means(columns)
+    test_result = wilcoxon_signed_rank([(r, 0.0) for r in block_values])
+    return {
+        "cell_id": "K6",
+        "rho_block_means": block_values,
+        "n": len(block_values),
         "test_result": test_result,
     }
