@@ -43,7 +43,7 @@
       "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary'])",
       "test": "STATS::wilcoxon_signed_rank (pary W_early_red/W_late_red per blok seedowy)",
       "adres_kryterium": "W2-SPEC §2.3; PC-001 §2.2",
-      "adres_testu_w_kodzie": "clos_curriculum/laboratory/statistics.py:741 (komentarz: 'warunek B: W_early vs W_late per seed/genom')",
+      "adres_testu_w_kodzie": "STATS::wilcoxon_signed_rank (komentarz przy wywolaniu dla pary W_early_red/W_late_red: 'warunek B: W_early vs W_late per seed/genom')",
       "kierunek_wsparcia": "ODRZUCENIE_H0",
       "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 2: \"B - mediana redukcji >= 20% (konwencja, patrz Zmiana 4)\" (B4C-2 (07), decyzja CTO)"
     },
@@ -118,7 +118,7 @@
       "metryka": "redukcja_W2, IDENTYCZNA funkcja po obu stronach porownania - clos_scientist/w2_endpoint.py::compute_w2_reduction (formula: W2-SPEC §2.3)",
       "test": "STATS::mann_whitney_u (redukcja_W2 per blok seedowy, dwie proby niezalezne, n_a=n_b=9)",
       "adres_kryterium": "publications/preregistration_PC_001_ERRATUM_1_2026-08-27.md (brzmienie OBOWIAZUJACE, B4C-2 (09), decyzja CTO) - zastepuje A1 → \"Zmiana 3\" (HISTORIA, brzmienie zastapione, patrz erratum dla pelnego uzasadnienia sprzecznosci)",
-      "adres_testu_w_kodzie": "clos_curriculum/laboratory/statistics.py:1061 (komentarz: 'Mann-Whitney U (K4: separacja - ERRATUM 1...)')",
+      "adres_testu_w_kodzie": "STATS::mann_whitney_u (komentarz przy definicji: 'Mann-Whitney U (K4: separacja - ERRATUM 1...)')",
       "kierunek_wsparcia": "ODRZUCENIE_H0",
       "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 7: \"K4 - brak efektu w czystym szumie ORAZ istotna separacja od srodowiska realnego\" (klauzula separacji; B4C-2 (07), decyzja CTO) - kierunek wsparcia NIEZMIENIONY przez ERRATUM 1 (dotyczy wylacznie srodowiska porownania)"
     },
@@ -167,7 +167,7 @@
       "srodowisko": "noise_world (CONFIG::EXPERIMENT_CONFIG['environments']['primary']) - K6 dzieli kontekst wariancji z A W ANALIZIE MOCY (execution_package_v0_11/runners/power_analysis_b4b.py::mc_power) - to jest kontekst projektowania N, NIE zrodlo dla evaluatora (plik poza rejestrem, B4C-05 v8).",
       "test": "STATS::wilcoxon_signed_rank (jedna wartosc rho per blok seedowy vs 0) - NIE spearman_rho bezposrednio",
       "adres_kryterium": "A1 → \"Zmiana 2\"",
-      "uwaga_exact_approx": "spearman_rho (clos_curriculum/laboratory/statistics.py:910) liczy WYLACZNIE surowa wartosc rho per przebieg - jej wlasne p-value jest PRZYBLIZENIEM t-rozkladem (docstring: 'ta sama metoda co scipy.stats.spearmanr domyslnie'), nie wchodzi do rodziny BH. Testem, ktory faktycznie wchodzi do korekty, jest STATS::wilcoxon_signed_rank na N wartosciach rho (ten sam wzorzec co Warunek A - patrz pole 'test' powyzej; historyczne zrodlo wzorca w power_analysis_b4b.py::pvalue_random_effects_vs_zero, plik poza rejestrem, nie wersja dla evaluatora) - EXACT.",
+      "uwaga_exact_approx": "STATS::spearman_rho liczy WYLACZNIE surowa wartosc rho per przebieg - jej wlasne p-value jest PRZYBLIZENIEM t-rozkladem (docstring: 'ta sama metoda co scipy.stats.spearmanr domyslnie'), nie wchodzi do rodziny BH. Testem, ktory faktycznie wchodzi do korekty, jest STATS::wilcoxon_signed_rank na N wartosciach rho (ten sam wzorzec co Warunek A - patrz pole 'test' powyzej; historyczne zrodlo wzorca w power_analysis_b4b.py::pvalue_random_effects_vs_zero, plik poza rejestrem, nie wersja dla evaluatora) - EXACT.",
       "kierunek_wsparcia": "ODRZUCENIE_H0",
       "kierunek_wsparcia_zrodlo": "publications/preregistration_PC_001_ANEKS_1_2026-07-28.md -> 'Zaktualizowana regula decyzyjna', warunek 9: \"K6 - predykcja istotnie skorelowana z wejsciem\" (B4C-2 (07), decyzja CTO)"
     },

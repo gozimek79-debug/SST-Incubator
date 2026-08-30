@@ -56,6 +56,14 @@ SPEC_JSON_PATH = REPO_ROOT / "SPECYFIKACJA_KANONICZNA_PC_001.json"
 BASE_CONDITION_SUFFIX_RE = re.compile(r"-(A|B|separacja)$")
 K3A_RE = re.compile(r"^(K3a)-warunek(\d+)$")
 
+# B4C-2 (20), znalezisko CTO: forma "plik.py:NNN" (numer wiersza) NIE jest w
+# gramatyce adresow (SECTION_ADDR_RE/FRAGMENT_ADDR_RE/SYMBOL_ADDR_RE) - zaden
+# z trzech walidatorow jej nie sprawdza, wiec byla martwa (trzy wystapienia w
+# tym pliku zdryfowaly niezauwazenie po kazdym wstawieniu funkcji wyzej w
+# statistics.py). Forma symbolowa (STATS::nazwa_funkcji) nie dryfuje przy
+# przesunieciu linii - stad zakaz wprost, nie dodatkowa kontrola adresu.
+FILE_LINE_ADDR_RE = re.compile(r"[\w][\w/.\-]*\.py:\d+")
+
 
 def load_family(path=FAMILY_PATH):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -325,6 +333,24 @@ def check_primary_environment_matches_config(family: dict) -> list:
     return problems
 
 
+def check_no_file_line_addresses(family: dict) -> list:
+    """(g) B4C-2 (20), znalezisko CTO: zaden adres w artefakcie nie moze byc
+    w formie 'plik.py:NNN' (numer wiersza) - ta forma nie jest w gramatyce
+    adresow (SECTION/FRAGMENT/SYMBOL) i zaden z trzech walidatorow jej nie
+    rozwiazuje, wiec dryfuje po cichu przy kazdym wstawieniu kodu wyzej w
+    aktywnie edytowanym pliku (statistics.py: trzy takie adresy zdryfowaly
+    niezauwazenie). Wymagana forma zastepcza: STATS::nazwa_funkcji (nie
+    dryfuje przy przesunieciu linii)."""
+    problems = []
+    for text in _iter_strings(family):
+        for m in FILE_LINE_ADDR_RE.finditer(text):
+            problems.append(
+                f"adres w zakazanej formie plik:NNN znaleziony (dryfuje przy edycji "
+                f"pliku, uzyj STATS::nazwa_funkcji): {m.group(0)!r}"
+            )
+    return problems
+
+
 def run_all_checks(family: dict) -> dict:
     spec_2_6_labels = load_spec_2_6_labels()
     return {
@@ -334,6 +360,7 @@ def run_all_checks(family: dict) -> dict:
         "d_brak_wykluczonych_wsrod_aktywnych": check_no_excluded_among_active(family),
         "e_srodowisko_primary_zgodne_z_config": check_primary_environment_matches_config(family),
         "f_kierunek_wsparcia": check_kierunek_wsparcia(family),
+        "g_brak_adresow_plik_linia": check_no_file_line_addresses(family),
     }
 
 
@@ -359,6 +386,9 @@ def resolved_count_label(name: str, family: dict) -> str:
     if name == "f_kierunek_wsparcia":
         n_with_field = sum(1 for c in family.get("cells_active", []) if c.get("kierunek_wsparcia") is not None)
         return f"resolved={n_with_field}/{n_active} komorek z kierunek_wsparcia"
+    if name == "g_brak_adresow_plik_linia":
+        n_strings = sum(1 for _ in _iter_strings(family))
+        return f"resolved={n_strings} pol tekstowych przeskanowanych, 0 adresow plik:NNN oczekiwane"
     return ""
 
 

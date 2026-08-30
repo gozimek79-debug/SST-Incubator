@@ -540,7 +540,7 @@
             },
             {
               "Warunek": "**K3a** warunek 1 — wzrost PE po wstrząsie",
-              "Definicja pod adresem": "PC-001 §5 → „K3\"",
+              "Definicja pod adresem": "PC-001 §5 → „K3\" (definicja); E1 → „Zastrzeżenie: K3a nietknięte\" (potwierdzenie NIEZMIANY — środowisko, okna i test pozostają jak w ANEKS 1; metryka: **surowe PE**, nie `PE_red`)",
               "Status": "**aktywny**",
               "Adres statusu": "A5 → „Warunek 1 K3a\""
             },

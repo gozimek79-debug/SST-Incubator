@@ -289,7 +289,7 @@ z A4 i A5. Pierwotne, **nieobowiązujące** brzmienie: PC-001 §6 (patrz §4).
 | **B** — wielkość redukcji | W2-SPEC §2.3 (na `PE_red`) | aktywny | — |
 | **FDR** — istotność po korekcie | PC-001 §2.2 | aktywny | — |
 | **K1** — surogat z przetasowaniem | E3 → „Poprawka" (brzmienie obowiązujące — równoważność praktyczna, margines `equivalence_margin_c`, test TOST); historia: PC-001 §5 → „K1" (brzmienie zastąpione); na `PE_red`: W2-SPEC §5 | aktywny | — |
-| **K3a** warunek 1 — wzrost PE po wstrząsie | PC-001 §5 → „K3" | **aktywny** | A5 → „Warunek 1 K3a" |
+| **K3a** warunek 1 — wzrost PE po wstrząsie | PC-001 §5 → „K3" (definicja); E1 → „Zastrzeżenie: K3a nietknięte" (potwierdzenie NIEZMIANY — środowisko, okna i test pozostają jak w ANEKS 1; metryka: **surowe PE**, nie `PE_red`) | **aktywny** | A5 → „Warunek 1 K3a" |
 | **K3a** warunek 2 — ponowna adaptacja | PC-001 §5 → „K3" | **SUSPENDED PENDING WINDOW REDEFINITION** | A5 → „Status" |
 | **K3b** — skracanie czasu readaptacji | A1 → „Zmiana 1" | **ARCHITECTURE-LIMITED** — zdefiniowana, niewykonywana, nieusunięta, wraca po CLOS v0.12 | A4 → „Jeden temat" |
 | **K4** — brak efektu w czystym szumie **oraz** separacja | separacja: E1 → „Poprawka" (środowisko `noise_world` vs `pure_noise_world`); brak efektu: E3 → „Poprawka" (równoważność praktyczna, margines `equivalence_margin_c`, TOST); historia: A1 → „Zmiana 3" (brzmienie zastąpione); wzmocnienie przez W2: W2-SPEC §5 | aktywny | — |

@@ -21,6 +21,7 @@ from scripts.validate_bh_family import (
     check_no_excluded_among_active,
     check_primary_environment_matches_config,
     check_kierunek_wsparcia,
+    check_no_file_line_addresses,
     run_all_checks,
 )
 
@@ -63,7 +64,7 @@ class TestRealArtifactPassesAllChecks:
         failing = {name: probs for name, probs in results.items() if probs}
         assert failing == {}, failing
 
-    def test_real_family_has_exactly_six_checks_registered(self):
+    def test_real_family_has_exactly_seven_checks_registered(self):
         assert sorted(run_all_checks(REAL_FAMILY).keys()) == [
             "a_adresy_rozwiazuja_sie",
             "b_komorki_w_spec_2_6",
@@ -71,6 +72,7 @@ class TestRealArtifactPassesAllChecks:
             "d_brak_wykluczonych_wsrod_aktywnych",
             "e_srodowisko_primary_zgodne_z_config",
             "f_kierunek_wsparcia",
+            "g_brak_adresow_plik_linia",
         ]
 
 
@@ -356,3 +358,31 @@ class TestZeroMatchesIsNeverSilentPass:
         results = run_all_checks(REAL_FAMILY)
         failing = {name: probs for name, probs in results.items() if probs}
         assert failing == {}, failing
+
+
+class TestNoFileLineAddresses:
+    """B4C-2 (20), znalezisko CTO: forma 'plik.py:NNN' nie jest w gramatyce
+    adresow (SECTION/FRAGMENT/SYMBOL) - zaden z trzech walidatorow jej nie
+    widzial, wiec trzy takie adresy w tym artefakcie zdryfowaly niezauwazenie
+    po wstawieniu funkcji wyzej w statistics.py. Negatyw obowiazkowy (CTO
+    wprost): wstaw taki adres i pokaz FAIL."""
+
+    def test_positive_real_family_has_zero_file_line_addresses(self):
+        assert check_no_file_line_addresses(REAL_FAMILY) == []
+
+    def test_negative_inserted_file_line_address_is_caught(self):
+        family = copy.deepcopy(REAL_FAMILY)
+        family["cells_active"][0]["adres_testu_w_kodzie"] = (
+            "clos_curriculum/laboratory/statistics.py:741 (przyklad zakazanej formy)"
+        )
+        problems = check_no_file_line_addresses(family)
+        assert problems != []
+        assert any("statistics.py:741" in p for p in problems)
+
+    def test_negative_symbolic_address_is_not_falsely_flagged(self):
+        """Sanity-check w druga strone: forma STATS::nazwa_funkcji (dozwolona,
+        nie dryfujaca) nie ma byc lapana przez ten sam wzorzec."""
+        family = copy.deepcopy(REAL_FAMILY)
+        family["cells_active"][0]["adres_testu_w_kodzie"] = "STATS::wilcoxon_signed_rank"
+        problems = check_no_file_line_addresses(family)
+        assert problems == []
